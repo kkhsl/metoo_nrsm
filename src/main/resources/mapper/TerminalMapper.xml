@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.TerminalMapper">
+
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.nspm.Terminal">
+        <id column="id" property="id"></id>
+        <result column="addTime" property="addTime"></result>
+        <result column="device_ip" property="deviceIp"></result>
+        <result column="device_type" property="deviceType"></result>
+        <result column="device_name" property="deviceName"></result>
+        <result column="interface_name" property="interfaceName"></result>
+        <result column="mac" property="mac"></result>
+        <result column="index" property="index"></result>
+        <result column="tag" property="tag"></result>
+        <result column="uuid" property="uuid"></result>
+        <result column="remote_device" property="remoteDevice"></result>
+        <result column="remote_interface" property="remoteInterface"></result>
+        <result column="remote_device_ip" property="remoteDeviceIp"></result>
+        <result column="remote_device_type" property="remoteDeviceType"></result>
+        <result column="remote_uuid" property="remoteUuid"></result>
+        <result column="interface_index" property="interfaceIndex"></result>
+        <result column="ip_address" property="ipAddress"></result>
+        <result column="vlan" property="vlan"></result>
+        <result column="online" property="online"></result>
+        <result column="terminal_type_id" property="terminalTypeId"></result>
+        <result column="terminal_type_name" property="terminalTypeName"></result>
+        <result column="interface_status" property="interfaceStatus"></result>
+        <result column="name" property="name"></result>
+
+        <result column="deviceType_id" property="deviceTypeId"></result>
+
+        <result column="host_name" property="host_name"></result>
+        <result column="purchase_time" property="purchase_time"></result>
+        <result column="warranty_time" property="warranty_time"></result>
+        <result column="price" property="price"></result>
+        <result column="serial_number" property="serial_number"></result>
+        <result column="asset_number" property="asset_number"></result>
+        <result column="description" property="description"></result>
+        <result column="change_reasons" property="changeReasons"></result>
+        <result column="from" property="from"></result>
+        <result column="department_id" property="departmentId"></result>
+        <result column="vendor_id" property="vendorId"></result>
+        <result column="project_id" property="projectId"></result>
+        <result column="model" property="model"></result>
+        <result column="type" property="type"></result>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, `name`, device_name, `interface_name`, mac, `index`, tag, uuid, remote_device, remote_interface,
+        remote_device_ip, remote_device_type, remote_uuid, interface_index, ip, device_ip, device_type, vlan, `type`, online,
+        terminal_type_id, terminal_type_name, interface_status, deviceType_id, host_name, purchase_time, warranty_time, price,
+        serial_number, asset_number, description, change_reasons, `from`, duty, location, department_id, vendor_id, project_id, model
+    </sql>
+
+    <sql id="Ntoa_Column_List">
+        id, addTime, `name`, device_name, `interface_name`, mac, `index`, tag, uuid, remote_device, remote_interface,
+        remote_device_ip, remote_device_type, remote_uuid, interface_index, ip,
+        device_ip, device_type, vlan, online,
+        terminal_type_id, terminal_type_name, interface_status, deviceType_id, host_name, purchase_time, warranty_time, price,
+        serial_number, asset_number, description, change_reasons, `from`, duty, location, department_id, vendor_id, project_id, model
+    </sql>
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
+          SELECT <include refid="Base_Column_List"/>
+          FROM rsms_terminal
+          where id = #{id}
+    </select>
+
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalDTO" resultMap="Base_Result_Map">
+        SELECT
+          <include refid="Base_Column_List"/>
+        FROM
+          rsms_terminal
+        <where>
+            <if test="filter != null and filter != ''">
+                AND `name` LIKE CONCAT('%', #{filter}, '%')
+                OR ip LIKE CONCAT('%', #{filter}, '%')
+                OR asset_number LIKE CONCAT('%', #{filter}, '%')
+                OR serial_number LIKE CONCAT('%', #{filter}, '%')
+            </if>
+            <if test="online != null">
+                AND online = #{online}
+            </if>
+            <if test="asset_number != null and asset_number != ''">
+                AND asset_number = #{asset_number}
+            </if>
+            <if test="serial_number != null and serial_number != ''">
+                AND serial_number = #{serial_number}
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                AND deviceType_id = #{deviceTypeId}
+            </if>
+            <if test="departmentIds != null and departmentIds.size() > 0">
+                AND department_id in
+                <foreach collection="departmentIds" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="start_purchase_time != null and end_purchase_time != null">
+                AND purchase_time BETWEEN #{start_purchase_time} AND #{end_purchase_time}
+            </if>
+            <if test="start_warranty_time != null and end_warranty_time != null">
+                AND warranty_time BETWEEN #{start_warranty_time} AND #{end_warranty_time}
+            </if>
+            <if test="projectId != null and projectId != ''">
+                AND project_id = #{projectId}
+            </if>
+            <if test="vendorId != null and vendorId != ''">
+                AND vendor_id = #{vendorId}
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+        </where>
+        <if test = "orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test = "orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
+
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
+            SELECT
+              <include refid="Ntoa_Column_List"/>
+            FROM rsms_terminal
+        <where>
+            <if test="name != null and name !=''">
+                AND  `name` = #{name}
+            </if>
+            <if test="ip != null and ip !=''">
+                AND ip = #{ip}
+            </if>
+            <if test="mac != null and mac !=''">
+                AND mac = #{mac}
+            </if>
+            <if test="uuid != null and uuid != ''">
+                AND uuid = #{uuid}
+            </if>
+            <if test="interfaceName != null and interfaceName != ''">
+                AND interface_name = #{interfaceName}
+            </if>
+            <if test="other != null">
+                AND tag != #{other}
+            </if>
+            <if test="tags != null">
+                  AND tag in
+                <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+           </if>
+            <if test="online != null and online != ''">
+                AND online = #{online}
+            </if>
+            <if test="interfaceStatus != null and interfaceStatus != ''">
+                AND interface_status = #{interfaceStatus}
+            </if>
+            <if test="asset_number != null and asset_number !=''">
+                AND asset_number = #{asset_number}
+            </if>
+            <if test="host_name != null and host_name !=''">
+                AND host_name = #{host_name}
+            </if>
+            <if test="ids != null and ids.size > 0 ">
+                AND id IN
+                <foreach collection="ids" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="notIds != null and notIds.size > 0">
+                AND id NOT IN
+                <foreach collection="notIds" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="from != null">
+                AND `from` = #{from}
+            </if>
+            <if test="terminalId != null">
+                AND `id` != #{terminalId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert" parameterType="com.metoo.nrsm.entity.nspm.Terminal" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO rsms_terminal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="name != null and name != ''">
+                `name`,
+            </if>
+            <if test="deviceName != null">
+                device_name,
+            </if>
+            <if test="deviceIp != null">
+                device_ip,
+            </if>
+            <if test="deviceType != null">
+                device_type,
+            </if>
+            <if test="interfaceName != null">
+                interface_name,
+            </if>
+            <if test="mac != null">
+                mac,
+            </if>
+            <if test="index != null">
+                `index`,
+            </if>
+            <if test="tag != null">
+                tag,
+            </if>
+            <if test="uuid != null">
+                uuid,
+            </if>
+            <if test="remoteDevice != null">
+                remote_device,
+            </if>
+            <if test="remoteInterface != null">
+                remote_interface,
+            </if>
+            <if test="remoteUuid != null">
+                remote_uuid,
+            </if>
+            <if test="interfaceIndex != null">
+                interface_index,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="ipAddress != null">
+                ip_address,
+            </if>
+            <if test="vlan != null">
+                vlan,
+            </if>
+            <if test="online != null">
+                online,
+            </if>
+            <if test="terminalTypeId != null">
+                terminal_type_id,
+            </if>
+            <if test="interfaceStatus != null">
+                interface_status,
+            </if>
+            <if test="deviceTypeId != null">
+                deviceType_id,
+            </if>
+            <if test="host_name != null">
+                host_name,
+            </if>
+            <if test="purchase_time != null">
+                purchase_time,
+            </if>
+            <if test="warranty_time != null">
+                warranty_time,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="serial_number != null">
+                serial_number,
+            </if>
+            <if test="asset_number != null">
+                asset_number,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="changeReasons != null">
+                change_reasons,
+            </if>
+            <if test="from != null">
+                `from`,
+            </if>
+            <if test="duty != null and duty != ''">
+                duty,
+            </if>
+            <if test="location != null and location != ''">
+                location,
+            </if>
+            <if test="departmentId != null and departmentId != ''">
+                department_id,
+            </if>
+            <if test="vendorId != null and vendorId != ''">
+                vendor_id,
+            </if>
+            <if test="projectId != null and projectId != ''">
+                project_id,
+            </if>
+            <if test="model != null and model != ''">
+                model,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+            <if test="deviceName != null">
+                #{deviceName},
+            </if>
+            <if test="deviceIp != null">
+                #{deviceIp},
+            </if>
+            <if test="deviceType != null">
+                #{deviceType},
+            </if>
+            <if test="interfaceName != null">
+                #{interfaceName},
+            </if>
+            <if test="mac != null">
+                #{mac},
+            </if>
+            <if test="index != null">
+                #{index},
+            </if>
+            <if test="tag != null">
+                #{tag},
+            </if>
+            <if test="uuid != null">
+                #{uuid},
+            </if>
+            <if test="remoteDevice != null">
+                #{remoteDevice},
+            </if>
+            <if test="remoteInterface != null">
+                #{remoteInterface},
+            </if>
+            <if test="remoteUuid != null">
+                #{remoteUuid},
+            </if>
+            <if test="interfaceIndex != null">
+                #{interfaceIndex},
+            </if>
+            <if test="ip != null">
+                #{ip},
+            </if>
+            <if test="ipAddress != null">
+                #{ipAddress},
+            </if>
+            <if test="vlan != null">
+                #{vlan},
+            </if>
+            <if test="online != null">
+                #{online},
+            </if>
+            <if test="terminalTypeId != null">
+                #{terminalTypeId},
+            </if>
+            <if test="interfaceStatus != null">
+                #{interfaceStatus},
+            </if>
+            <if test="deviceTypeId != null">
+                #{deviceTypeId},
+            </if>
+            <if test="host_name != null">
+                #{host_name},
+            </if>
+            <if test="purchase_time != null">
+                #{purchase_time},
+            </if>
+            <if test="warranty_time != null">
+                #{warranty_time},
+            </if>
+            <if test="price != null">
+                #{price},
+            </if>
+            <if test="serial_number != null">
+                #{serial_number},
+            </if>
+            <if test="asset_number != null">
+                #{asset_number},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="changeReasons != null">
+                #{changeReasons},
+            </if>
+            <if test="from != null">
+                #{from},
+            </if>
+            <if test="duty != null and duty != ''">
+                #{duty},
+            </if>
+            <if test="location != null and location != ''">
+                #{location},
+            </if>
+            <if test="departmentId != null and departmentId != ''">
+                #{departmentId},
+            </if>
+            <if test="vendorId != null and vendorId != ''">
+                #{vendorId},
+            </if>
+            <if test="projectId != null and projectId != ''">
+                #{projectId},
+            </if>
+            <if test="model != null and model != ''">
+                #{model},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Terminal">
+        UPDATE rsms_terminal
+        <set>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                device_name = #{deviceName},
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                device_ip = #{deviceIp},
+            </if>
+            <if test="deviceType != null and deviceType != ''">
+                device_type = #{deviceType},
+            </if>
+            <if test="interfaceName != null and interfaceName != ''">
+                interface_name = #{interfaceName},
+            </if>
+            <if test="mac != null and mac != ''">
+                mac = #{mac},
+            </if>
+            <if test="index != null">
+                `index` = #{index},
+            </if>
+            <if test="tag != null and tag != ''">
+                tag = #{tag},
+            </if>
+            <if test="uuid != null and uuid != ''">
+                uuid = #{uuid},
+            </if>
+            <if test="type != null">
+                `type` = #{type},
+            </if>
+            <if test="remoteDevice != null and remoteDevice != ''">
+                remote_device =  #{remoteDevice},
+            </if>
+            <if test="remoteInterface != null and remoteInterface!= ''">
+                remote_interface = #{remoteInterface},
+            </if>
+            <if test="remoteDeviceIp != null and remoteDeviceIp != ''">
+                remote_device_ip = #{remoteDeviceIp},
+            </if>
+            <if test="remoteDeviceType != null and remoteDeviceType != ''">
+                remote_device_type = #{remoteDeviceType},
+            </if>
+            <if test="remoteUuid != null and remoteUuid != ''">
+                remote_uuid = #{remoteUuid},
+            </if>
+            <if test="interfaceIndex != null and interfaceIndex != ''">
+                interface_index = #{interfaceIndex},
+            </if>
+            <if test="ip != null and ip != ''">
+                ip = #{ip},
+            </if>
+            <if test="ipAddress != null and ipAddress != ''">
+                ip_address = #{ipAddress},
+            </if>
+            <if test="vlan != null and vlan != ''">
+                vlan = #{vlan},
+            </if>
+            <if test="online != null">
+                online = #{online},
+            </if>
+            <if test="terminalTypeId != null and terminalTypeId != ''">
+                terminal_type_id = #{terminalTypeId},
+            </if>
+            <if test="interfaceStatus != null">
+                interface_status = #{interfaceStatus},
+            </if>
+            <if test="deviceTypeId != null">
+                deviceType_id = #{deviceTypeId},
+            </if>
+            <if test="host_name != null">
+                host_name = #{host_name},
+            </if>
+            <if test="purchase_time != null">
+                purchase_time = #{purchase_time},
+            </if>
+            <if test="warranty_time != null">
+                warranty_time = #{warranty_time},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="serial_number != null">
+                serial_number = #{serial_number},
+            </if>
+            <if test="asset_number != null">
+                asset_number = #{asset_number},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="changeReasons != null">
+                change_reasons = #{changeReasons},
+            </if>
+            <if test="from != null">
+                `from` = #{from},
+            </if>
+            <if test="duty != null and duty != ''">
+                duty = #{duty},
+            </if>
+            <if test="location != null and location != ''">
+                location = #{location},
+            </if>
+            <if test="departmentId != null and departmentId != ''">
+                department_id = #{departmentId},
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                deviceType_id = #{deviceTypeId},
+            </if>
+            <if test="vendorId != null and vendorId != ''">
+                vendor_id = #{vendorId},
+            </if>
+            <if test="projectId != null and projectId != ''">
+                project_id = #{projectId},
+            </if>
+            <if test="model != null and model != ''">
+                model = #{model},
+            </if>
+            <if test="from != null and from != ''">
+                `from` = #{from},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO rsms_mac_temp (
+            addTime,
+            device_name,
+            interface_name,
+            tag,
+            type,
+            device_type,
+            uuid,
+            device_ip,
+            vlan,
+            mac,
+            remote_uuid,
+            remote_interface,
+            remote_device,
+            online,
+            deviceType_id
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.addTime},
+                #{item.deviceName},
+                #{item.interfaceName},
+                #{item.tag},
+                #{item.type},
+                #{item.deviceType},
+                #{item.uuid},
+                #{item.deviceIp},
+                #{item.vlan},
+                #{item.mac},
+                #{item.remoteUuid},
+                #{item.remoteInterface},
+                #{item.remoteDevice},
+                #{item.online},
+               #{item.deviceTypeId}
+            )
+        </foreach>
+    </insert>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE rsms_terminal
+            <set>
+                <if test="item.deviceName != null and item.deviceName != ''">
+                  device_name = #{item.deviceName},
+                </if>
+                <if test="item.interfaceName != null and item.interfaceName != ''">
+                    interface_name = #{item.interfaceName},
+                </if>
+                <if test="item.tag != null and item.tag != ''">
+                    tag = #{item.tag},
+                </if>
+                <if test="item.index != null and item.index != ''">
+                    `index` = #{item.index},
+                </if>
+                <if test="item.type != null and item.type != ''">
+                    `type` = #{item.type},
+                </if>
+                <if test="item.deviceType != null and item.index != ''">
+                    `device_type` = #{item.deviceType},
+                </if>
+                <if test="item.uuid != null and item.uuid != ''">
+                    `uuid` = #{item.uuid},
+                </if>
+                <if test="item.deviceIp != null and item.deviceIp != ''">
+                    `device_ip` = #{item.deviceIp},
+                </if>
+                <if test="item.vlan != null and item.vlan != ''">
+                    `vlan` = #{item.vlan},
+                </if>
+                <if test="item.mac != null and item.mac != ''">
+                    `mac` = #{item.mac},
+                </if>
+                <if test="item.remoteDevice != null and item.remoteDevice != ''">
+                    `remote_device` = #{item.remoteDevice},
+                </if>
+                <if test="item.remoteUuid != null and item.remoteUuid != ''">
+                    `remote_uuid` = #{item.remoteUuid},
+                </if>
+                <if test="item.remoteDeviceIp != null and item.remoteDeviceIp != ''">
+                    `remote_device_ip` = #{item.remoteDeviceIp},
+                </if>
+                <if test="item.remoteDeviceType != null and item.remoteDeviceType != ''">
+                    `remote_device_type` = #{item.remoteDeviceType},
+                </if>
+                <if test="item.remoteInterface != null and item.remoteInterface != ''">
+                    `remote_interface` = #{item.remoteInterface},
+                </if>
+                <if test="item.ip != null and item.ip != ''">
+                    `ip` = #{item.ip},
+                </if>
+                <if test="item.online != null">
+                    online = #{item.online},
+                </if>
+                <if test="item.deviceTypeId != null">
+                    deviceType_id = #{item.deviceTypeId},
+                </if>
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM rsms_terminal
+        WHERE id = #{id}
+    </delete>
+
+
+</mapper>

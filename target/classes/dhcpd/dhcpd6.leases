@@ -1,0 +1,49 @@
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.4.1
+
+# authoring-byte-order entry is generated, DO NOT DELETE
+authoring-byte-order little-endian;
+
+server-duid "\000\001\000\001-M\320\024XHI'T\373";
+
+ia-na "\000\000\000\000\000\001\000\001)G\012\247\370M\211`\264\332" {
+  cltt 5 2024/02/02 02:36:00;
+  iaaddr 3ffe:501:ffff:101::e {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 0 2024/03/03 02:36:00;
+  }
+}
+
+ia-na "\236\2640\025\000\001\000\001*y\032\325\230@\273 &9" {
+  cltt 5 2024/02/02 01:42:09;
+  iaaddr 3ffe:501:ffff:101::8 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 0 2024/03/03 01:42:09;
+  }
+}
+
+ia-na "J!|\002\000\001\000\001+\217Q\263|!Jl\241\361" {
+  cltt 5 2024/02/02 01:41:05;
+  iaaddr 3ffe:501:ffff:101::f {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 0 2024/03/03 01:41:05;
+  }
+}
+
+ia-na "\316V\000\000\000\003\000\001\324|D\320[\221" {
+  cltt 4 2024/02/01 08:48:59;
+  iaaddr 3ffe:501:ffff:101::10 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 6 2024/03/02 08:28:10;
+  }
+}
+
+server-duid "\000\001\000\001-M\320\024XHI'T\373";
