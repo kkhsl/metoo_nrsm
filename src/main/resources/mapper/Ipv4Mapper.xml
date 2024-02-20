@@ -81,6 +81,72 @@
         </trim>
     </insert>
 
+    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.nspm.Ipv4">
+        INSERT INTO metoo_ipv4_gather
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                deviceIp,
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                deviceName,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                #{deviceIp},
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                #{deviceName},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="batchSaveGather" parameterType="java.util.List">
+        INSERT INTO metoo_ipv4_gather (
+            addTime,
+            ip,
+            mac,
+            port,
+            deviceIp,
+            deviceName
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.addTime},
+                #{item.ip},
+                #{item.mac},
+                #{item.port},
+                #{item.deviceIp},
+                #{item.deviceName}
+            )
+        </foreach>
+    </insert>
+
     <update id="removeDuplicates" statementType="CALLABLE">
         {call metoo_ipv4_remove_duplicates()}
     </update>
@@ -89,6 +155,17 @@
         TRUNCATE TABLE metoo_ipv4
     </update>
 
+    <delete id="deleteTable">
+        delete from metoo_ipv4
+    </delete>
 
+
+    <update id="truncateTableGather">
+        TRUNCATE TABLE metoo_ipv4_gather
+    </update>
+
+    <insert id="copyGatherToIpv4">
+        INSERT INTO metoo_ipv4 SELECT * FROM metoo_ipv4_gather
+    </insert>
 
 </mapper>

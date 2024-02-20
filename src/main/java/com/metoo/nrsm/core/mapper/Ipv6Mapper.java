@@ -1,7 +1,10 @@
 package com.metoo.nrsm.core.mapper;
 
+import com.metoo.nrsm.entity.nspm.Ipv4;
 import com.metoo.nrsm.entity.nspm.Ipv6;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @author HKK
@@ -12,9 +15,19 @@ import org.apache.ibatis.annotations.Mapper;
 public interface Ipv6Mapper {
 
     // 去重
-    boolean removeDuplicates();
+    int removeDuplicates();
 
-    boolean save(Ipv6 instance);
+    int save(Ipv6 instance);
 
-    boolean truncateTable();
+    int truncateTable();
+
+    int deleteTable();
+
+    int saveGather(Ipv6 instance);
+
+    int batchSaveGather(List<Ipv6> instance);
+
+    int truncateTableGather();
+
+    int copyGatherToIpv6();
 }

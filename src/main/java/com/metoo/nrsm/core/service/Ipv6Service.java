@@ -1,6 +1,9 @@
 package com.metoo.nrsm.core.service;
 
+import com.metoo.nrsm.entity.nspm.Ipv4;
 import com.metoo.nrsm.entity.nspm.Ipv6;
+
+import java.util.List;
 
 /**
  * @author HKK
@@ -14,4 +17,12 @@ public interface Ipv6Service {
     boolean removeDuplicates();
 
     boolean truncateTable();
+
+    boolean saveGather(Ipv6 instance);
+
+    boolean batchSaveGather(List<Ipv6> instance);
+
+    boolean truncateTableGather();
+
+    boolean copyGatherToIpv6();
 }

@@ -15,6 +15,7 @@ import com.metoo.nrsm.entity.nspm.NetworkElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.lang.reflect.Field;
 import java.util.Date;
@@ -41,7 +42,12 @@ public class ArpServiceImpl implements IArpService {
 
     @Override
     public List<Arp> selectObjByMap(Map params) {
-        return null;
+        return this.arpMapper.selectObjByMap(params);
+    }
+
+    @Override
+    public List<Arp> joinSelectObjAndIpv6() {
+        return this.arpMapper.joinSelectObjAndIpv6();
     }
 
     @Override
@@ -59,6 +65,17 @@ public class ArpServiceImpl implements IArpService {
     public boolean truncateTable() {
         try {
             this.arpMapper.truncateTable();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean save(Arp instance) {
+        try {
+            this.arpMapper.save(instance);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,20 +136,74 @@ public class ArpServiceImpl implements IArpService {
             }
         }
 
-        // 去重
+        // 去重 ipv4和ipv6数据
         this.ipv4Service.removeDuplicates();
         this.ipv6Service.removeDuplicates();
 
         this.arpMapper.truncateTable();
 
-        // 去重前arp ipv-ipv6
+        // 合并mac和port相同的数据（ipv4和ipv6）到arp表
         this.writerArp(date);
-
-        // 去重后arp
-        // 写入ipv4数据，写入ipv6数据
+        // 排除上个步骤中相同的数据，写入arp表
         this.arpMapper.writeArp();
+    }
+
+    @Override
+    public boolean deleteTable() {
+        try {
+            this.arpMapper.deleteTable();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean truncateTableGather() {
+        try {
+            this.arpMapper.truncateTableGather();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean saveGather(Arp instance) {
+        try {
+            this.arpMapper.saveGather(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
+    @Override
+    public boolean batchSaveGather(List<Arp> instance) {
+        try {
+            this.arpMapper.batchSaveGather(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean copyGatherDataToArp() {
+        try {
+            this.arpMapper.deleteTable();
+            this.arpMapper.copyGatherDataToArp();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
     }
 
     public void writerArp(Date date){

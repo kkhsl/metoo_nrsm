@@ -15,9 +15,23 @@ public interface IArpService {
 
     List<Arp> selectObjByMap(Map params);
 
+    List<Arp> joinSelectObjAndIpv6();
+
     boolean writeArp();
 
     boolean truncateTable();
 
+    boolean save(Arp instance);
+
     void gatherArp(Date date);
+
+    boolean deleteTable();
+
+    boolean truncateTableGather();
+
+    boolean saveGather(Arp instance);
+
+    boolean batchSaveGather(List<Arp> instance);
+
+    boolean copyGatherDataToArp();
 }

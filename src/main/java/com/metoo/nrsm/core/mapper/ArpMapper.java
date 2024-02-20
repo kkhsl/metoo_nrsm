@@ -24,4 +24,15 @@ public interface ArpMapper {
     int writeArp();
 
     int truncateTable();
+
+
+    int deleteTable();
+
+    int truncateTableGather();
+
+    int saveGather(Arp instance);
+
+    int batchSaveGather(List<Arp> instance);
+
+    int copyGatherDataToArp();
 }

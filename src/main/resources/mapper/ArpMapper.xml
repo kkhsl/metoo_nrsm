@@ -159,6 +159,152 @@
         </trim>
     </insert>
 
+    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.nspm.Arp">
+        INSERT INTO metoo_arp_gather
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="v4ip != null and v4ip != ''">
+                v4ip,
+            </if>
+            <if test="v6ip != null and v6ip != ''">
+                v6ip,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="v4ip1 != null and v4ip1 != ''">
+                v4ip1,
+            </if>
+            <if test="v4ip2 != null and v4ip2 != ''">
+                v4ip2,
+            </if>
+            <if test="v4ip3 != null and v4ip3 != ''">
+                v4ip3,
+            </if>
+            <if test="v6ip1 != null and v6ip1 != ''">
+                v6ip1,
+            </if>
+            <if test="v6ip2 != null and v6ip2 != ''">
+                v6ip2,
+            </if>
+            <if test="v6ip3 != null and v6ip3 != ''">
+                v6ip3,
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                deviceIp,
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                deviceName,
+            </if>
+            <if test="deviceType != null and deviceType != ''">
+                deviceType,
+            </if>
+            <if test="tag != null and tag != ''">
+                tag,
+            </if>
+            <if test="macVendor != null and macVendor != ''">
+                macVendor,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="v4ip != null and v4ip != ''">
+                #{v4ip},
+            </if>
+            <if test="v6ip != null and v6ip != ''">
+                #{v6ip},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="v4ip1 != null and v4ip1 != ''">
+                #{v4ip1},
+            </if>
+            <if test="v4ip2 != null and v4ip2 != ''">
+                #{v4ip2},
+            </if>
+            <if test="v4ip3 != null and v4ip3 != ''">
+                #{v4ip3},
+            </if>
+            <if test="v6ip1 != null and v6ip1 != ''">
+                #{v6ip1},
+            </if>
+            <if test="v6ip2 != null and v6ip2 != ''">
+                #{v6ip2},
+            </if>
+            <if test="v6ip3 != null and v6ip3 != ''">
+                #{v6ip3},
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                #{deviceIp},
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                #{deviceName},
+            </if>
+            <if test="deviceType != null and deviceType != ''">
+                #{deviceType},
+            </if>
+            <if test="tag != null and tag != ''">
+                #{tag},
+            </if>
+            <if test="macVendor != null and macVendor != ''">
+                #{macVendor},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="batchSaveGather" parameterType="java.util.List">
+        INSERT INTO metoo_arp_gather (
+            addTime,
+            v4ip,
+            v6ip,
+            mac,
+            port,
+            v4ip1,
+            v4ip2,
+            v4ip3,
+            v6ip1,
+            v6ip2,
+            v6ip3,
+            deviceIp,
+            deviceName,
+            deviceType,
+            tag,
+            macVendor
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+            #{item.addTime},
+            #{item.v4ip, jdbcType=VARCHAR},
+            #{item.v6ip, jdbcType=VARCHAR},
+            #{item.mac, jdbcType=VARCHAR},
+            #{item.port, jdbcType=VARCHAR},
+            #{item.v4ip1, jdbcType=VARCHAR}
+            #{item.v4ip2, jdbcType=VARCHAR},
+            #{item.v4ip3, jdbcType=VARCHAR},
+            #{item.v6ip1, jdbcType=VARCHAR},
+            #{item.v6ip2, jdbcType=VARCHAR},
+            #{item.v6ip3, jdbcType=VARCHAR},
+            #{item.deviceIp, jdbcType=VARCHAR},
+            #{item.deviceName, jdbcType=VARCHAR},
+            #{item.deviceType, jdbcType=VARCHAR},
+            #{item.tag, jdbcType=VARCHAR},
+            #{item.macVendor,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
     <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Arp">
         UPDATE metoo_arp
         <set>
@@ -215,7 +361,7 @@
     </update>
 
     <update id="writeArp">
-        INSERT INTO metoo_arp (
+        INSERT INTO metoo_arp_gather (
             addTime,
             v4ip,
             mac,
@@ -235,9 +381,9 @@
                         SELECT
                             metoo_ipv4.addTime,
                             metoo_ipv4.ip v4ip,
-                            NULL AS v6ip,
                             metoo_ipv4.mac,
                             metoo_ipv4. PORT,
+                            NULL AS v6ip,
                             metoo_ipv4.deviceIp,
                             metoo_ipv4.deviceName
                         FROM
@@ -284,6 +430,18 @@
     <update id="truncateTable">
         TRUNCATE TABLE metoo_arp
     </update>
+
+    <update id="truncateTableGather">
+        TRUNCATE TABLE metoo_arp_gather
+    </update>
+
+    <delete id="deleteTable">
+        delete from metoo_arp
+    </delete>
+
+    <insert id="copyGatherDataToArp">
+        INSERT INTO metoo_arp SELECT * FROM metoo_arp_gather
+    </insert>
 
 
 </mapper>

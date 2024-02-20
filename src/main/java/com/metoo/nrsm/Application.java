@@ -4,7 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+@EnableTransactionManagement
 @ServletComponentScan(basePackages ={ "com.metoo.nrsm"})
 @EnableScheduling // 开启定时任务（启动类增加该注解，使项目启动后执行定时任务）
 @SpringBootApplication

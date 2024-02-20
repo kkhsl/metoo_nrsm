@@ -1,6 +1,7 @@
-package com.metoo.nrsm.core.utils;
+package com.metoo.nrsm.core.utils.gather;
 
 import com.metoo.nrsm.core.service.*;
+import com.metoo.nrsm.core.utils.date.DateTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -27,20 +28,16 @@ public class Scheduled {
     @Autowired
     private IMacService macService;
 
+    @Autowired
+    private IGatherService gatherService;
+
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
     public void gatherDhcp() {
-        //下面正常使用业务代码即可
         if(flag){
             Long time=System.currentTimeMillis();
             System.out.println("DHCP Start......");
-            // 采集时间
-            Calendar cal = Calendar.getInstance();
-            cal.clear(Calendar.SECOND);
-            cal.clear(Calendar.MILLISECOND);
-            Date date = cal.getTime();
-
             try {
-                dhcpService.gather(date);
+                dhcpService.gather(DateTools.gatherDate());
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -51,18 +48,11 @@ public class Scheduled {
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
     public void gatherDhcp6() {
-        //下面正常使用业务代码即可
         if(flag){
             Long time=System.currentTimeMillis();
             System.out.println("DHCP6 Start......");
-            // 采集时间
-            Calendar cal = Calendar.getInstance();
-            cal.clear(Calendar.SECOND);
-            cal.clear(Calendar.MILLISECOND);
-            Date date = cal.getTime();
-
             try {
-                dhcp6Service.gather(date);
+                dhcp6Service.gather(DateTools.gatherDate());
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -73,17 +63,12 @@ public class Scheduled {
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
     public void gatherArp() {
-        //下面正常使用业务代码即可
         if(flag){
             Long time=System.currentTimeMillis();
             System.out.println("arp Start......");
-            // 采集时间
-            Calendar cal = Calendar.getInstance();
-            cal.clear(Calendar.SECOND);
-            cal.clear(Calendar.MILLISECOND);
-            Date date = cal.getTime();
             try {
-                arpService.gatherArp(date);
+//                arpService.gatherArp(date);
+                gatherService.gatherArp(DateTools.gatherDate());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -93,17 +78,11 @@ public class Scheduled {
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
     public void gatherMac() {
-        //下面正常使用业务代码即可
         if(flag){
             Long time=System.currentTimeMillis();
             System.out.println("mac Start......");
-            // 采集时间
-            Calendar cal = Calendar.getInstance();
-            cal.clear(Calendar.SECOND);
-            cal.clear(Calendar.MILLISECOND);
-            Date date = cal.getTime();
             try {
-                macService.gatherMac(date);
+                macService.gatherMac(DateTools.gatherDate());
             } catch (Exception e) {
                 e.printStackTrace();
             }

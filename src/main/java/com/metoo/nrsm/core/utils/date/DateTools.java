@@ -319,4 +319,12 @@ public class DateTools {
         String format = sdf.format(140554);// 格式化时间
         System.out.println(format);
     }
+
+    public static Date gatherDate(){
+        Calendar cal = Calendar.getInstance();
+        cal.clear(Calendar.SECOND);
+        cal.clear(Calendar.MILLISECOND);
+        Date date = cal.getTime();
+        return date;
+    }
 }

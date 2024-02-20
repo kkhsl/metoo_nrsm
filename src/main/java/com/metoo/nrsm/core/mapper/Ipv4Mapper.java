@@ -16,12 +16,22 @@ public interface Ipv4Mapper {
 
     List<Ipv4> joinSelectObjAndIpv6();
 
-    boolean save(Ipv4 instance);
+    int save(Ipv4 instance);
 
-    // 去重
-    boolean removeDuplicates();
+    int removeDuplicates();
 
-    boolean truncateTable();
+    int truncateTable();
+
+    int deleteTable();
+
+    int saveGather(Ipv4 instance);
+
+    int batchSaveGather(List<Ipv4> instance);
+
+    int truncateTableGather();
+
+    int copyGatherToIpv4();
+
 
 
 }

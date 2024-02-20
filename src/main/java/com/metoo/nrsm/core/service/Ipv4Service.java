@@ -16,7 +16,20 @@ public interface Ipv4Service {
 
     boolean save(Ipv4 instance);
 
+
     boolean removeDuplicates();
 
     boolean truncateTable();
+
+    boolean deleteTable();
+
+    boolean saveGather(Ipv4 instance);
+
+    boolean batchSaveGather(List<Ipv4> instance);
+
+    boolean truncateTableGather();
+
+    boolean copyGatherToIpv4();
+
+
 }
