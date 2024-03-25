@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.service.IDhcpService;
-import com.metoo.nrsm.entity.nspm.Dhcp;
+import com.metoo.nrsm.entity.Dhcp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

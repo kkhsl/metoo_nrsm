@@ -13,7 +13,7 @@ import com.metoo.nrsm.core.utils.file.DownLoadFileUtil;
 import com.metoo.nrsm.core.utils.ip.IpV4Util;
 import com.metoo.nrsm.core.utils.poi.ExcelUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
-import com.metoo.nrsm.entity.nspm.*;
+import com.metoo.nrsm.entity.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +48,8 @@ public class RsmsDeviceManagerController {
     private IVendorService vendorService;
     @Autowired
     private IProjectService projectService;
+    @Autowired
+    private INetworkElementService networkElementService;
 
     @GetMapping("/get")
     public Object get(String id){
@@ -177,18 +179,47 @@ public class RsmsDeviceManagerController {
         return ResponseUtil.badArgument();
     }
 
-    @ApiOperation("设备详情")
-    @RequestMapping("/detail")
-    public Object detail(String id){
-        RsmsDevice rsmsDevice = this.rsmsDeviceService.getObjAndProjectById(Long.parseLong(id));
-        if(rsmsDevice != null){
-            Map map = new HashMap();
-            map.put("device", rsmsDevice);
-            return ResponseUtil.ok(map);
-        }
-        return ResponseUtil.badArgument("设备不存在");
-    }
+//    @ApiOperation("设备详情")
+//    @RequestMapping("/detail")
+//    public Object detail(String id){
+//        RsmsDevice rsmsDevice = this.rsmsDeviceService.getObjAndProjectById(Long.parseLong(id));
+//        if(rsmsDevice != null){
+//            Map map = new HashMap();
+//            map.put("device", rsmsDevice);
+//
+//            // 机房
+//            PlantRoom plantRoom = this.plantRoomService.getObjById(rsmsDevice.getPlantRoomId());
+//            rsmsDevice.setPlantRoom(plantRoom);
+//
+//            // 机柜
+//            Rack rack = this.rackService.getObjById(rsmsDevice.getRackId());
+//            rsmsDevice.setRack(rack);
+//
+//            return ResponseUtil.ok(rsmsDevice);
+//        }
+//        return ResponseUtil.badArgument("设备不存在");
+//    }
 
+    @GetMapping("/detail")
+    public Object detail(@RequestParam(value = "uuid") String uuid){
+        if (!StringUtils.isEmpty(uuid)) {
+            Map params = new HashMap();
+            params.put("uuid", uuid);
+            List<RsmsDevice> rsmsDevices = this.rsmsDeviceService.selectObjByMap(params);
+            if(rsmsDevices.size() > 0){
+                RsmsDevice obj = rsmsDevices.get(0);
+                // 机房
+                PlantRoom plantRoom = this.plantRoomService.getObjById(obj.getPlantRoomId());
+                // 机柜
+                Rack rack = this.rackService.getObjById(obj.getRackId());
+                obj.setPlantRoom(plantRoom);
+                obj.setRack(rack);
+                return ResponseUtil.ok(obj);
+            }
+            return ResponseUtil.ok();
+        }
+        return ResponseUtil.badArgument("Ip为空");
+    }
 
 //    @RequestMapping("/detail")
 //    public Object detail(String id){
@@ -345,11 +376,27 @@ public class RsmsDeviceManagerController {
     @DeleteMapping("/del")
     public Object del(@RequestParam(value = "id") String id){
         RsmsDevice instance = this.rsmsDeviceService.getObjById(Long.parseLong(id));
+        NetworkElement networkElement = null;
         if(instance == null){
             return ResponseUtil.badArgument("资源不存在");
+        }else{
+            networkElement = this.networkElementService.selectObjByUuid(instance.getUuid());
         }
         int flag = this.rsmsDeviceService.delete(Long.parseLong(id));
         if (flag != 0){
+            // 批量更新网元，取消同步至资产管理
+            try {
+                if(networkElement != null){
+                    networkElement.setSync_device(false);
+                    try {
+                        this.networkElementService.update(networkElement);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return ResponseUtil.ok();
         }
         return ResponseUtil.error("设备删除失败");
@@ -360,14 +407,33 @@ public class RsmsDeviceManagerController {
     public Object batchDel(@RequestParam(value = "ids") String ids){
         String[] l = ids.split(",");
         List<String> list = Arrays.asList(l);
+        List<String> uuids = new ArrayList<>();
         for (String id : list){
             RsmsDevice instance = this.rsmsDeviceService.getObjById(Long.parseLong(id));
             if(instance == null){
                 return ResponseUtil.badArgument("id：" + id + "资源不存在");
+            }else{
+                uuids.add(instance.getUuid());
             }
         }
         int flag = this.rsmsDeviceService.batchDel(ids);
         if (flag != 0){
+            // 批量更新网元，取消同步至资产管理
+            try {
+                for (String uuid : uuids) {
+                    NetworkElement networkElement = this.networkElementService.selectObjByUuid(uuid);
+                    if(networkElement != null){
+                        networkElement.setSync_device(false);
+                        try {
+                            this.networkElementService.update(networkElement);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return ResponseUtil.ok();
         }
         return ResponseUtil.error("设备删除失败");

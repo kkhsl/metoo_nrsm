@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.dto;
 
 import com.metoo.nrsm.core.dto.page.PageDto;
-import com.metoo.nrsm.entity.nspm.Project;
+import com.metoo.nrsm.entity.Project;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

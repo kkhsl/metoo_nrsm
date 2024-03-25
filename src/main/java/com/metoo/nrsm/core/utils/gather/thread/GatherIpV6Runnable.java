@@ -1,16 +1,14 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
-import com.metoo.nrsm.core.service.Ipv4Service;
-import com.metoo.nrsm.core.service.impl.Ipv4ServiceImpl;
 import com.metoo.nrsm.core.service.impl.Ipv6ServiceImpl;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.PythonExecUtils;
-import com.metoo.nrsm.entity.nspm.Ipv4;
-import com.metoo.nrsm.entity.nspm.Ipv6;
-import com.metoo.nrsm.entity.nspm.NetworkElement;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.metoo.nrsm.entity.Ipv6;
+import com.metoo.nrsm.entity.NetworkElement;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -21,11 +19,9 @@ import java.util.List;
  * @version 1.0
  * @date 2024-02-20 11:36
  */
+@Slf4j
 @Component
 public class GatherIpV6Runnable implements Runnable{
-
-    @Autowired
-    private Ipv4Service ipv4Service;
 
     private NetworkElement networkElement;
 
@@ -54,11 +50,10 @@ public class GatherIpV6Runnable implements Runnable{
     @Override
     public void run() {
         String path = Global.PYPATH +  "getarpv6.py";
-//                result = PythonExecUtils.exec(path);
-        String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
+        String[] params = {networkElement.getIp(), networkElement.getVersion(),
                 networkElement.getCommunity()};
-        String result = PythonExecUtils.exec(path, params2);
-        if(!"".equals(result)){
+        String result = PythonExecUtils.exec(path, params);
+        if(StringUtil.isNotEmpty(result)){
             try {
                 List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
                 if(array.size()>0){
@@ -66,13 +61,13 @@ public class GatherIpV6Runnable implements Runnable{
                         e.setDeviceIp(networkElement.getIp());
                         e.setDeviceName(networkElement.getDeviceName());
                         e.setAddTime(date);
-//                                this.ipv6Service.saveGather(e);
                     });
                 }
-                Ipv6ServiceImpl ipv6Service = (Ipv6ServiceImpl) ApplicationContextUtils.getBean("ipv6Service");
+                Ipv6ServiceImpl ipv6Service = (Ipv6ServiceImpl) ApplicationContextUtils.getBean("ipv6ServiceImpl");
                 ipv6Service.batchSaveGather(array);
             } catch (Exception e) {
                 e.printStackTrace();
+                log.info(networkElement.getIp() + " : " + result);
             }
         }
     }

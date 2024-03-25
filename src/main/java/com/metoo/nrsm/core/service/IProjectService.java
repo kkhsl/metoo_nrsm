@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.ProjectDTO;
-import com.metoo.nrsm.entity.nspm.Project;
+import com.metoo.nrsm.entity.Project;
 
 import java.util.List;
 import java.util.Map;

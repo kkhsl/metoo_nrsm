@@ -3,10 +3,9 @@ package com.metoo.nrsm.core.service;
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.UserDto;
 import com.metoo.nrsm.core.vo.UserVo;
-import com.metoo.nrsm.entity.nspm.User;
+import com.metoo.nrsm.entity.User;
 
 import java.util.List;
-import java.util.Map;
 
 public interface IUserService {
 

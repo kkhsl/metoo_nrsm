@@ -1,11 +1,8 @@
 package com.metoo.nrsm.core.service;
 
 import com.github.pagehelper.Page;
-import com.metoo.nrsm.core.dto.AddressPoolDTO;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
-import com.metoo.nrsm.core.vo.AddressPoolVO;
-import com.metoo.nrsm.entity.nspm.AddressPool;
-import com.metoo.nrsm.entity.nspm.Interface;
+import com.metoo.nrsm.entity.Interface;
 
 import java.util.List;
 import java.util.Map;

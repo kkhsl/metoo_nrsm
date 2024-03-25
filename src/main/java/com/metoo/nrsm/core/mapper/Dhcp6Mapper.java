@@ -1,9 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.Dhcp6Dto;
-import com.metoo.nrsm.core.dto.DhcpDto;
-import com.metoo.nrsm.entity.nspm.Dhcp;
-import com.metoo.nrsm.entity.nspm.Dhcp6;
+import com.metoo.nrsm.entity.Dhcp6;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -31,5 +29,7 @@ public interface Dhcp6Mapper {
 
     int delete(Long id);
 
-    boolean truncateTable();
+    int truncateTable();
+
+    int deleteTable();
 }

@@ -1,5 +1,8 @@
 package com.metoo.nrsm.core.manager;
 
+import com.alibaba.fastjson.JSONObject;
+import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.vo.Result;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -7,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequestMapping("/admin")
 @RestController
@@ -67,4 +72,20 @@ public class TestController {
         }
 
     }
+
+    // 测试异常日志记录
+    @GetMapping("/error")
+    public Result testError(){
+        try {
+//            int i = 1 / 0;
+            Map map = new HashMap();
+            JSONObject host = JSONObject.parseObject(map.toString());
+            String hostid = host.getString("hostid");
+            return ResponseUtil.ok();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseUtil.error();
+    }
+
 }

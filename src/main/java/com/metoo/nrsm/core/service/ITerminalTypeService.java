@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.service;
 
-import com.metoo.nrsm.entity.nspm.TerminalType;
+import com.metoo.nrsm.entity.TerminalType;
 
 import java.util.List;
 import java.util.Map;

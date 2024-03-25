@@ -3,7 +3,7 @@ package com.metoo.nrsm.core.manager;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.service.IDeviceTypeService;
 import com.metoo.nrsm.core.service.ITerminalTypeService;
-import com.metoo.nrsm.entity.nspm.DeviceType;
+import com.metoo.nrsm.entity.DeviceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

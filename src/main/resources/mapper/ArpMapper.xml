@@ -6,7 +6,7 @@
 
 
     <select id="selectObjByMap" parameterType="java.util.Map"
-            resultType="com.metoo.nrsm.entity.nspm.Arp">
+            resultType="com.metoo.nrsm.entity.Arp">
         SELECT *
         FROM metoo_arp
         <where>
@@ -22,7 +22,7 @@
         </where>
     </select>
 
-    <resultMap id="joinSelectObjAndIpv6_Result" type="com.metoo.nrsm.entity.nspm.Arp">
+    <resultMap id="joinSelectObjAndIpv6_Result" type="com.metoo.nrsm.entity.Arp">
         <id column="v4id" property="id"></id>
         <result column="v4ip" property="v4ip"></result>
         <result column="mac" property="mac"></result>
@@ -30,32 +30,117 @@
         <result column="deviceIp" property="deviceIp"></result>
         <result column="deviceName" property="deviceName"></result>
         <result column="macVendor" property="macVendor"></result>
-        <collection property="ipv6List" ofType="com.metoo.nrsm.entity.nspm.Ipv6">
+        <collection property="ipv6List" ofType="com.metoo.nrsm.entity.Ipv6">
             <id column="v6id" property="id"></id>
             <result column="v6ip" property="ip"></result>
         </collection>
     </resultMap>
 
+
+
     <select id="joinSelectObjAndIpv6" resultMap="joinSelectObjAndIpv6_Result">
           SELECT
-            metoo_ipv4_mirror.id v4id,
-            metoo_ipv4_mirror.ip v4ip,
-            metoo_ipv4_mirror.mac,
-            metoo_ipv4_mirror.port,
-            metoo_ipv4_mirror.deviceIp,
-            metoo_ipv4_mirror.deviceName,
-            metoo_ipv6_mirror.id v6id,
-            metoo_ipv6_mirror.ip v6ip,
+            metoo_ipv4_duplicates.id v4id,
+            metoo_ipv4_duplicates.ip v4ip,
+            metoo_ipv4_duplicates.mac,
+            metoo_ipv4_duplicates.port,
+            metoo_ipv4_duplicates.deviceIp,
+            metoo_ipv4_duplicates.deviceName,
+            metoo_ipv6_duplicates.id v6id,
+            metoo_ipv6_duplicates.ip v6ip,
             metoo_mac_vendor.vendor macVendor
         FROM
-            metoo_ipv4_mirror
-        JOIN metoo_ipv6_mirror ON metoo_ipv4_mirror.mac = metoo_ipv6_mirror.mac
-        AND metoo_ipv4_mirror.port = metoo_ipv6_mirror.port
-        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(metoo_ipv4_mirror.mac, 1, 8);
+            metoo_ipv4_duplicates
+        JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
+        AND metoo_ipv4_duplicates.port = metoo_ipv6_duplicates.port
+        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(metoo_ipv4_duplicates.mac, 1, 8);
 
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Arp">
+    <select id="mergeIpv4AndIpv6" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Arp">
+        SELECT
+            #{addTime} as addTime,
+            mac,
+            port,
+            v4ip,
+            deviceIp,
+            deviceName,
+            macVendor,
+        IF (
+            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
+            SUBSTRING_INDEX(v6ip, ',', 1),
+            NULL
+        ) v6ip,
+
+        IF (
+            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
+            SUBSTRING_INDEX(
+                SUBSTRING_INDEX(v6ip, ',', 2),
+                ',',
+                - 1
+            ),
+            NULL
+        ) v6ip1,
+
+        IF (
+            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
+            SUBSTRING_INDEX(
+                SUBSTRING_INDEX(v6ip, ',', 3),
+                ',',
+                - 1
+            ),
+            NULL
+        ) v6ip2,
+
+        IF (
+            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
+            SUBSTRING_INDEX(
+                SUBSTRING_INDEX(v6ip, ',', 4),
+                ',',
+                - 1
+            ),
+            NULL
+        ) v6ip3
+        FROM
+            (
+                SELECT
+                    v4id,
+                    mac,
+                    port,
+                    deviceIp,
+                    deviceName,
+                    v6id,
+                    macVendor,
+                    GROUP_CONCAT(v4ip) v4ip,
+                    GROUP_CONCAT(v6ip) v6ip
+                FROM
+                    (
+                        SELECT
+                            metoo_ipv4_duplicates.id v4id,
+                            metoo_ipv4_duplicates.ip v4ip,
+                            metoo_ipv4_duplicates.mac,
+                            metoo_ipv4_duplicates.port,
+                            metoo_ipv4_duplicates.deviceIp,
+                            metoo_ipv4_duplicates.deviceName,
+                            metoo_ipv6_duplicates.id v6id,
+                            metoo_ipv6_duplicates.ip v6ip,
+                            metoo_mac_vendor.vendor macVendor
+                        FROM
+                            metoo_ipv4_duplicates
+                        JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
+                        AND metoo_ipv4_duplicates.port = metoo_ipv6_duplicates.port
+                        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
+                            metoo_ipv4_duplicates.mac,
+                            1,
+                            8
+                        )
+                    ) arp
+                GROUP BY
+                    v4id
+            ) arp1
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Arp">
         INSERT INTO metoo_arp
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -159,7 +244,7 @@
         </trim>
     </insert>
 
-    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.nspm.Arp">
+    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.Arp">
         INSERT INTO metoo_arp_gather
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -264,7 +349,7 @@
     </insert>
 
     <insert id="batchSaveGather" parameterType="java.util.List">
-        INSERT INTO metoo_arp_gather (
+        INSERT INTO `metoo_arp_gather` (
             addTime,
             v4ip,
             v6ip,
@@ -278,7 +363,6 @@
             v6ip3,
             deviceIp,
             deviceName,
-            deviceType,
             tag,
             macVendor
         )
@@ -286,26 +370,296 @@
         <foreach collection ="list" item="item" separator ="," >
             (
             #{item.addTime},
-            #{item.v4ip, jdbcType=VARCHAR},
-            #{item.v6ip, jdbcType=VARCHAR},
-            #{item.mac, jdbcType=VARCHAR},
-            #{item.port, jdbcType=VARCHAR},
-            #{item.v4ip1, jdbcType=VARCHAR}
-            #{item.v4ip2, jdbcType=VARCHAR},
-            #{item.v4ip3, jdbcType=VARCHAR},
-            #{item.v6ip1, jdbcType=VARCHAR},
-            #{item.v6ip2, jdbcType=VARCHAR},
-            #{item.v6ip3, jdbcType=VARCHAR},
-            #{item.deviceIp, jdbcType=VARCHAR},
-            #{item.deviceName, jdbcType=VARCHAR},
-            #{item.deviceType, jdbcType=VARCHAR},
-            #{item.tag, jdbcType=VARCHAR},
-            #{item.macVendor,jdbcType=VARCHAR}
+            #{item.v4ip},
+            #{item.v6ip},
+            #{item.mac},
+            #{item.port},
+            #{item.v4ip1},
+            #{item.v4ip2},
+            #{item.v4ip3},
+            #{item.v6ip1},
+            #{item.v6ip2},
+            #{item.v6ip3},
+            #{item.deviceIp},
+            #{item.deviceName},
+            #{item.tag},
+            #{item.macVendor}
             )
         </foreach>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Arp">
+
+
+    <insert id="batchSaveGatherBySelect" parameterType="java.util.Map">
+        insert into metoo_arp_gather(
+                                addTime,
+                    mac,
+                    port,
+                    v4ip,
+                    deviceIp,
+                    deviceName,
+                    macVendor,
+                                v6ip,
+                                v6ip1,
+                                v6ip2,
+                                v6ip3
+            )
+        SELECT
+                                '2024-02-26 23:02:00' as addTime,
+                    mac,
+                    port,
+                    v4ip,
+                    deviceIp,
+                    deviceName,
+                    macVendor,
+                IF (
+                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
+                    SUBSTRING_INDEX(v6ip, ',', 1),
+                    NULL
+                ) v6ip,
+
+                IF (
+                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
+                    SUBSTRING_INDEX(
+                        SUBSTRING_INDEX(v6ip, ',', 2),
+                        ',',
+                        - 1
+                    ),
+                    NULL
+                ) v6ip1,
+
+                IF (
+                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
+                    SUBSTRING_INDEX(
+                        SUBSTRING_INDEX(v6ip, ',', 3),
+                        ',',
+                        - 1
+                    ),
+                    NULL
+                ) v6ip2,
+
+                IF (
+                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
+                    SUBSTRING_INDEX(
+                        SUBSTRING_INDEX(v6ip, ',', 4),
+                        ',',
+                        - 1
+                    ),
+                    NULL
+                ) v6ip3
+                FROM
+                    (
+                        SELECT
+                            v4id,
+                            mac,
+                            port,
+                            deviceIp,
+                            deviceName,
+                            v6id,
+                            macVendor,
+                            GROUP_CONCAT(v4ip) v4ip,
+                            GROUP_CONCAT(v6ip) v6ip
+                        FROM
+                            (
+                                SELECT
+                                    metoo_ipv4_duplicates.id v4id,
+                                    metoo_ipv4_duplicates.ip v4ip,
+                                    metoo_ipv4_duplicates.mac,
+                                    metoo_ipv4_duplicates.port,
+                                    metoo_ipv4_duplicates.deviceIp,
+                                    metoo_ipv4_duplicates.deviceName,
+                                    metoo_ipv6_duplicates.id v6id,
+                                    metoo_ipv6_duplicates.ip v6ip,
+                                    metoo_mac_vendor.vendor macVendor
+                                FROM
+                                    metoo_ipv4_duplicates
+                                JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
+                                AND metoo_ipv4_duplicates.port = metoo_ipv6_duplicates.port
+                                LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
+                                    metoo_ipv4_duplicates.mac,
+                                    1,
+                                    8
+                                )
+                            ) arp
+                        GROUP BY
+                            v4id
+                    ) arp1
+    </insert>
+
+
+    <insert id="batchSaveIpV4AndIpv6ToArpGather" parameterType="java.util.Map">
+        INSERT INTO metoo_arp_gather (
+            addTime,
+            mac,
+            PORT,
+            v4ip,
+            deviceIp,
+            deviceName,
+            macVendor,
+            v6ip,
+            v6ip1,
+            v6ip2,
+            v6ip3
+        ) SELECT
+            *
+        FROM
+            (
+                SELECT
+                    #{addTime} AS addTime,
+                    arp.mac,
+                    arp. PORT,
+                    arp.v4ip,
+                    arp.deviceIp,
+                    arp.deviceName,
+                    metoo_mac_vendor.vendor macVendor,
+                    arp.v6ip,
+                    NULL AS v6ip1,
+                    NULL AS v6ip2,
+                    NULL AS v6ip3
+                FROM
+                    (
+                        SELECT
+                            *
+                        FROM
+                            (
+                                SELECT
+                                    metoo_ipv4.mac,
+                                    metoo_ipv4. PORT,
+                                    metoo_ipv4.ip v4ip,
+                                    metoo_ipv4.deviceIp,
+                                    metoo_ipv4.deviceName,
+                                    NULL AS v6ip
+                                FROM
+                                    metoo_ipv4
+                                WHERE
+                                    metoo_ipv4.id NOT IN (
+                                        SELECT DISTINCT
+                                            metoo_ipv4.id
+                                        FROM
+                                            metoo_ipv4
+                                        JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
+                                        AND metoo_ipv4. PORT = metoo_ipv6. PORT
+                                    )
+                            ) arp2
+                        UNION
+                            SELECT
+                                mac,
+                                PORT,
+                                NULL AS v4ip,
+                                deviceIp,
+                                deviceName,
+                                ip ipv6
+                            FROM
+                                (
+                                    SELECT
+                                        *
+                                    FROM
+                                        metoo_ipv6
+                                    WHERE
+                                        metoo_ipv6.id NOT IN (
+                                            SELECT DISTINCT
+                                                metoo_ipv6.id
+                                            FROM
+                                                metoo_ipv4
+                                            JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
+                                            AND metoo_ipv4. PORT = metoo_ipv6. PORT
+                                        )
+                                ) arp1
+                    ) arp
+                LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(arp.mac, 1, 8)
+            ) ip1
+        UNION
+            SELECT
+                *
+            FROM
+                (
+                    SELECT
+                        #{addTime} AS addTime,
+                        mac,
+                        PORT,
+                        v4ip,
+                        deviceIp,
+                        deviceName,
+                        macVendor,
+
+                    IF (
+                        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
+                        SUBSTRING_INDEX(v6ip, ',', 1),
+                        NULL
+                    ) v6ip,
+
+                IF (
+                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
+                    SUBSTRING_INDEX(
+                        SUBSTRING_INDEX(v6ip, ',', 2),
+                        ',',
+                        - 1
+                    ),
+                    NULL
+                ) v6ip1,
+
+            IF (
+                LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
+                SUBSTRING_INDEX(
+                    SUBSTRING_INDEX(v6ip, ',', 3),
+                    ',',
+                    - 1
+                ),
+                NULL
+            ) v6ip2,
+
+        IF (
+            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
+            SUBSTRING_INDEX(
+                SUBSTRING_INDEX(v6ip, ',', 4),
+                ',',
+                - 1
+            ),
+            NULL
+        ) v6ip3
+        FROM
+            (
+                SELECT
+                    v4id,
+                    mac,
+                    PORT,
+                    deviceIp,
+                    deviceName,
+                    v6id,
+                    macVendor,
+                    GROUP_CONCAT(v4ip) v4ip,
+                    GROUP_CONCAT(v6ip) v6ip
+                FROM
+                    (
+                        SELECT
+                            metoo_ipv4_duplicates.id v4id,
+                            metoo_ipv4_duplicates.ip v4ip,
+                            metoo_ipv4_duplicates.mac,
+                            metoo_ipv4_duplicates. PORT,
+                            metoo_ipv4_duplicates.deviceIp,
+                            metoo_ipv4_duplicates.deviceName,
+                            metoo_ipv6_duplicates.id v6id,
+                            metoo_ipv6_duplicates.ip v6ip,
+                            metoo_mac_vendor.vendor macVendor
+                        FROM
+                            metoo_ipv4_duplicates
+                        JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
+                        AND metoo_ipv4_duplicates. PORT = metoo_ipv6_duplicates. PORT
+                        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
+                            metoo_ipv4_duplicates.mac,
+                            1,
+                            8
+                        )
+                    ) arp
+                GROUP BY
+                    v4id
+            ) arp1
+                ) ip2
+    </insert>
+
+
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Arp">
         UPDATE metoo_arp
         <set>
             <if test="addTime != null">
@@ -443,5 +797,9 @@
         INSERT INTO metoo_arp SELECT * FROM metoo_arp_gather
     </insert>
 
+    <!-- 在mapper.xml文件中 -->
+    <insert id="gathreArp" parameterType="java.util.Date" statementType="CALLABLE">
+        {call gather_arp(#{addTime,mode=IN})}
+    </insert>
 
 </mapper>

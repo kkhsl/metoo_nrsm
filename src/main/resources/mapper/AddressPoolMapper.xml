@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.AddressPoolMapper">
 
-    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.nspm.AddressPool">
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.AddressPool">
         <id column="id" property="id"></id>
         <result column="name" property="name"></result>
         <result column="subnetAddresses" property="subnetAddresses"></result>
@@ -43,7 +43,7 @@
         FROM metoo_address_pool
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.AddressPool" useGeneratedKeys="true" keyProperty="id">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.AddressPool" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO metoo_address_pool
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -111,7 +111,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.AddressPool">
+    <update id="update" parameterType="com.metoo.nrsm.entity.AddressPool">
         UPDATE metoo_address_pool
         <set>
             <if test="addTime != null">

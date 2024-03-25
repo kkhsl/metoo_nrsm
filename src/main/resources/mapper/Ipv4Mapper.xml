@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.Ipv4Mapper">
 
-    <resultMap id="joinSelectObjAndIpv6_Result" type="com.metoo.nrsm.entity.nspm.Ipv4">
+    <resultMap id="joinSelectObjAndIpv6_Result" type="com.metoo.nrsm.entity.Ipv4">
         <id column="v4id" property="id"></id>
         <result column="v4ip" property="v4ip"></result>
         <result column="mac" property="mac"></result>
@@ -12,7 +12,7 @@
         <result column="deviceIp" property="deviceIp"></result>
         <result column="deviceName" property="deviceName"></result>
         <result column="macVendor" property="macVendor"></result>
-        <collection property="ipv6List" ofType="com.metoo.nrsm.entity.nspm.Ipv6">
+        <collection property="ipv6List" ofType="com.metoo.nrsm.entity.Ipv6">
             <id column="v6id" property="id"></id>
             <result column="v6ip" property="ip"></result>
         </collection>
@@ -37,7 +37,7 @@
     </select>
 
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Ipv4">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Ipv4">
         INSERT INTO metoo_ipv4
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -81,7 +81,7 @@
         </trim>
     </insert>
 
-    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.nspm.Ipv4">
+    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.Ipv4">
         INSERT INTO metoo_ipv4_gather
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -158,7 +158,6 @@
     <delete id="deleteTable">
         delete from metoo_ipv4
     </delete>
-
 
     <update id="truncateTableGather">
         TRUNCATE TABLE metoo_ipv4_gather

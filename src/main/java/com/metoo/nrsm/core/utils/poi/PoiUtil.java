@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.utils.poi;
 
-import com.metoo.nrsm.entity.nspm.NetworkElement;
+import com.metoo.nrsm.entity.NetworkElement;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;

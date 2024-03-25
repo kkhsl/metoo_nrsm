@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.service;
 
-import com.metoo.nrsm.entity.nspm.Arp;
+import com.metoo.nrsm.entity.Arp;
 
 import java.util.Date;
 import java.util.List;
@@ -17,13 +17,15 @@ public interface IArpService {
 
     List<Arp> joinSelectObjAndIpv6();
 
+    List<Arp> mergeIpv4AndIpv6(Map params);
+
     boolean writeArp();
 
     boolean truncateTable();
 
     boolean save(Arp instance);
 
-    void gatherArp(Date date);
+    boolean gatherArp(Date date);
 
     boolean deleteTable();
 
@@ -33,5 +35,10 @@ public interface IArpService {
 
     boolean batchSaveGather(List<Arp> instance);
 
+    boolean batchSaveGatherBySelect(Map params);
+
+    boolean batchSaveIpV4AndIpv6ToArpGather(Map params);
+
     boolean copyGatherDataToArp();
+
 }

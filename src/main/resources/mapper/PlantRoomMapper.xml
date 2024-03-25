@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.PlantRoomMapper">
 
-    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.nspm.PlantRoom">
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.PlantRoom">
         <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long" ></id>
         <result column="addTime" property="addTime" jdbcType="TIMESTAMP" javaType="java.util.Date" ></result>
         <result column="name" property="name" jdbcType="VARCHAR" javaType="java.lang.String"></result>
@@ -17,14 +17,14 @@
         <result column="is_default" property="isDefault"></result>
     </resultMap>
 
-    <resultMap id="PlantRoom_Rack_Map" type="com.metoo.nrsm.entity.nspm.PlantRoom">
+    <resultMap id="PlantRoom_Rack_Map" type="com.metoo.nrsm.entity.PlantRoom">
         <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long" ></id>
         <result column="addTime" property="addTime" jdbcType="TIMESTAMP" javaType="java.util.Date" ></result>
         <result column="name" property="name" jdbcType="VARCHAR" javaType="java.lang.String"></result>
         <result column="description" property="description" jdbcType="VARCHAR" javaType="java.lang.String"></result>
         <result column="change_reasons" property="change_reasons" jdbcType="VARCHAR" javaType="java.lang.String"></result>
         <result column="is_default" property="isDefault"></result>
-        <collection property="rackList" ofType="com.metoo.nrsm.entity.nspm.Rack">
+        <collection property="rackList" ofType="com.metoo.nrsm.entity.Rack">
             <id column="rack_id" property="id"></id>
             <result column="rack_name" property="name"></result>
             <result column="rack_size" property="size"></result>
@@ -61,7 +61,7 @@
     </select>
 
 
-    <select id="query" parameterType="com.metoo.nrsm.entity.nspm.PlantRoom" resultMap="Plant_Result_Map">
+    <select id="query" parameterType="com.metoo.nrsm.entity.PlantRoom" resultMap="Plant_Result_Map">
         SELECT id, name
         FROM rsms_plant_room
         <where>
@@ -213,7 +213,7 @@
         </where>
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.PlantRoom" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.PlantRoom" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
       INSERT INTO rsms_plant_room
       <trim prefix="(" suffixOverrides="," suffix=")">
         <if test="addTime != null">
@@ -263,7 +263,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.PlantRoom">
+    <update id="update" parameterType="com.metoo.nrsm.entity.PlantRoom">
         UPDATE rsms_plant_room
         <set>
             <if test="addTime != null">

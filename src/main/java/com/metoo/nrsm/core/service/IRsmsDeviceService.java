@@ -3,7 +3,7 @@ package com.metoo.nrsm.core.service;
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.RsmsDeviceDTO;
 import com.metoo.nrsm.core.vo.RsmsDeviceVo;
-import com.metoo.nrsm.entity.nspm.RsmsDevice;
+import com.metoo.nrsm.entity.RsmsDevice;
 
 import java.util.List;
 import java.util.Map;

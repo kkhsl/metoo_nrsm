@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.TopologyDTO;
-import com.metoo.nrsm.entity.nspm.Topology;
+import com.metoo.nrsm.entity.Topology;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -18,7 +18,11 @@ public interface TopologyMapper {
 
     List<Topology> selectObjByMap(Map params);
 
+    List<Topology> selectObjHistoryByMap(Map params);
+
     List<Topology> selectTopologyByMap(Map params);
+
+    int saveHistory(Topology instance);
 
     int save(Topology instance);
 

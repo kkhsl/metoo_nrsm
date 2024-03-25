@@ -1,6 +1,5 @@
 package com.metoo.nrsm.core.manager;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.util.StringUtil;
@@ -10,9 +9,9 @@ import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.utils.dhcp.DhcpUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.nspm.Dhcp;
-import com.metoo.nrsm.entity.nspm.AddressPool;
-import com.metoo.nrsm.entity.nspm.Internet;
+import com.metoo.nrsm.entity.Dhcp;
+import com.metoo.nrsm.entity.AddressPool;
+import com.metoo.nrsm.entity.Internet;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;

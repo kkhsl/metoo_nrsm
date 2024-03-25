@@ -9,16 +9,22 @@ import java.util.Date;
  */
 public interface IGatherService {
 
-    public void gatherMac(Date date);
+    void gatherMac(Date date);
 
-    public void gatherArp(Date date);
+    void gatherMacThread(Date date);
 
-    public void gatherIpv4(Date date);
+    void gatherArp(Date date);
 
-    public void gatherIpv4Thread(Date date);
+    void gatherIpv4(Date date);
 
-    public void gatherIpv6(Date date);
+    void gatherIpv4Thread(Date date);
 
-    public void gatherIpv6Thread(Date date);
+    void gatherIpv6(Date date);
+
+    void gatherIpv6Thread(Date date);
+
+    void gatherPort(Date date);
+
+    void gatherPortIpv6(Date date);
 
 }

@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.Ipv6Mapper">
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Ipv6">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Ipv6">
         INSERT INTO metoo_ipv6
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -48,7 +48,7 @@
         </trim>
     </insert>
 
-    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.nspm.Ipv6">
+    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.Ipv6">
         INSERT INTO metoo_ipv6_gather
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">

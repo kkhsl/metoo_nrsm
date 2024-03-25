@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.RsmsDeviceDTO;
 import com.metoo.nrsm.core.mapper.DeviceTypeMapper;
@@ -10,9 +11,9 @@ import com.metoo.nrsm.core.mapper.RackMapper;
 import com.metoo.nrsm.core.mapper.RsmsDeviceMapper;
 import com.metoo.nrsm.core.service.IRsmsDeviceService;
 import com.metoo.nrsm.core.vo.RsmsDeviceVo;
-import com.metoo.nrsm.entity.nspm.DeviceType;
-import com.metoo.nrsm.entity.nspm.RsmsDevice;
-import com.metoo.nrsm.entity.nspm.User;
+import com.metoo.nrsm.entity.DeviceType;
+import com.metoo.nrsm.entity.RsmsDevice;
+import com.metoo.nrsm.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,7 +93,9 @@ public class RsmsDeviceServiceImpl implements IRsmsDeviceService {
             instance.setUserId(user.getId());
         }
         if(instance.getId() == null){
-            instance.setUuid(UUID.randomUUID().toString());
+            if(StringUtil.isEmpty(instance.getUuid())){
+                instance.setUuid(UUID.randomUUID().toString());
+            }
             instance.setAddTime(new Date());
             return this.rsmsDeviceMapper.save(instance);
         }else{

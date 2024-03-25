@@ -3,7 +3,7 @@ package com.metoo.nrsm.core.mapper;
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.RsmsDeviceDTO;
 import com.metoo.nrsm.core.vo.RsmsDeviceVo;
-import com.metoo.nrsm.entity.nspm.RsmsDevice;
+import com.metoo.nrsm.entity.RsmsDevice;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

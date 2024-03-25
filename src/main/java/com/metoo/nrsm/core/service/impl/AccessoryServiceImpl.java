@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.AccessoryMapper;
 import com.metoo.nrsm.core.service.IAccessoryService;
-import com.metoo.nrsm.entity.nspm.Accessory;
+import com.metoo.nrsm.entity.Accessory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

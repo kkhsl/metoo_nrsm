@@ -4,7 +4,976 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.MacMapper">
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Mac">
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        select * from metoo_mac
+        <where>
+            <if test="hostname != null and hostname != ''">
+                AND hostname = #{hostname}
+            </if>
+            <if test="remoteDevice != null and remoteDevice != ''">
+                AND remoteDevice = #{remoteDevice}
+            </if>
+            <if test="tag != null and tag != ''">
+                AND tag = #{tag}
+            </if>
+            <if test="tagIsNull != null and tagIsNull != ''">
+                AND tag is null
+            </if>
+            <if test="notTag != null and notTag != ''">
+                AND tag != #{notTag}
+            </if>
+            <if test="tags != null">
+                AND tag in
+                <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="notMacSet != null">
+                AND mac not in
+                <foreach collection="notMacSet" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTagToX" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        select * from metoo_mac mac1
+
+        left join
+
+        (
+            select * from(
+                select * from metoo_mac where tag in ('L', 'LV') group by deviceIp
+            )mac3
+        )mac2
+
+
+        on mac1.deviceIp = mac2.deviceIp and mac1.mac != mac2.mac
+
+        where mac1.tag is null
+    </select>
+
+    <select id="selectTagToU" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+       SELECT
+            *
+        FROM
+            metoo_mac mac
+        WHERE
+            mac.tag != 'L'
+        AND mac.tag != 'LV'
+        AND mac.tag != 'DE'
+        GROUP BY
+            deviceIp,
+            mac
+        HAVING
+            count(*) = 1
+    </select>
+
+    <select id="selectTagToS" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+            mac.*
+        FROM
+            metoo_mac mac
+        JOIN (
+            SELECT
+                *
+            FROM
+                metoo_mac mac
+                where tag != 'L' and tag != 'LV' and tag != 'DE'
+            GROUP BY
+                deviceIp,
+                PORT
+            HAVING
+                count(*) > 1
+        ) mac1 ON mac.deviceIp = mac1.deviceIp and mac.port = mac1.port
+        AND mac. PORT = mac1. PORT
+        where mac.id not in(select id from metoo_mac where tag  in('L', 'LV', 'DE'))
+
+    </select>
+
+    <select id="selectTagSToE" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+            mac1.*
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    metoo_mac
+                WHERE
+                    tag = 'S'
+            ) mac1
+        JOIN (
+            SELECT
+                *
+            FROM
+                metoo_mac
+            WHERE
+                tag = 'L'
+        ) mac2 ON mac1. mac = mac2. mac
+
+        group by mac1.id
+    </select>
+
+    <select id="selectTagSToRT" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+            mac1.*
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    metoo_mac
+                WHERE
+                    tag = 'S'
+            ) mac1
+        JOIN (
+            SELECT
+                *
+            FROM
+                metoo_mac
+            WHERE
+                tag = 'L'
+        ) mac2 ON mac1.mac != mac2.mac
+
+        group by mac1.id
+    </select>
+
+
+    <select id="selectDistinctObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        select mac1.* from metoo_mac mac1
+
+        join
+
+        metoo_mac mac2
+
+        on mac2.hostname = mac1.remoteDevice and mac2.remoteDevice = mac1.hostname
+
+        where  mac1.tag = 'DE' and mac2.tag = 'DE'
+
+        group by mac1.hostname, mac2.remoteDevice
+    </select>
+
+    <resultMap id="Copy_Arp_MacAndIp" type="com.metoo.nrsm.entity.Mac">
+        <id column="id" property="id"></id>
+        <result column="v4ip" property="v4ip"></result>
+        <result column="v6ip" property="v6ip"></result>
+        <result column="v4ip1" property="v4ip1"></result>
+        <result column="v4ip2" property="v4ip2"></result>
+        <result column="v4ip3" property="v4ip3"></result>
+        <result column="v6ip1" property="v6ip1"></result>
+        <result column="v6ip2" property="v6ip2"></result>
+        <result column="v6ip3" property="v6ip3"></result>
+        <result column="macVendor" property="macVendor"></result>
+    </resultMap>
+
+    <select id="copyArpMacAndIpToMac" parameterType="java.util.Map" resultMap="Copy_Arp_MacAndIp">
+       select mac.id, mac.addTime, mac.mac, mac.port, mac.deviceIp, mac.deviceName, mac.tag, mac.type, mac.hostname,
+        mac.remoteDevice, mac.remotePort,
+        arp.v4ip, arp.v6ip, arp.v4ip1, arp.v4ip2, arp.v4ip3, arp.v6ip1, arp.v6ip2, arp.v6ip3, arp.macVendor macVendor from metoo_mac mac
+        JOIN
+        metoo_arp arp
+        ON mac.mac = arp.mac
+        where mac.tag != 'DE'
+        group by mac.id
+        order by mac.id ASC
+    </select>
+
+    <select id="copyArpIpToMacByDT" parameterType="java.util.Map" resultMap="Copy_Arp_MacAndIp">
+       SELECT
+            mac.id,
+            mac.addTime,
+            mac.mac,
+            mac. PORT,
+            mac.deviceIp,
+            mac.deviceName,
+            mac.tag,
+            mac.type,
+            mac.hostname,
+            mac.remoteDevice,
+            mac.remotePort,
+            arp.v4ip,
+            arp.v6ip,
+            arp.v4ip1,
+            arp.v4ip2,
+            arp.v4ip3,
+            arp.v6ip1,
+            arp.v6ip2,
+            arp.v6ip3,
+            arp.macVendor macVendor
+        FROM
+            metoo_mac mac
+        LEFT JOIN (
+            SELECT
+                *
+            FROM
+                metoo_arp arp
+            WHERE
+                mac NOT IN (
+                    SELECT
+                        mac
+                    FROM
+                        metoo_arp arp
+                    WHERE
+                        (
+                            arp.v4ip IS NOT NULL
+                            OR arp.v4ip1 IS NOT NULL
+                            OR arp.v4ip2 IS NOT NULL
+                            OR arp.v4ip3 IS NOT NULL
+                        )
+                    AND (
+                        arp.v6ip IS NOT NULL
+                        OR arp.v6ip1 IS NOT NULL
+                        OR arp.v6ip2 IS NOT NULL
+                        OR arp.v6ip3 IS NOT NULL
+                    )
+                )
+            UNION
+                SELECT
+                    *
+                FROM
+                    metoo_arp arp
+                WHERE
+                    (
+                        arp.v4ip IS NOT NULL
+                        OR arp.v4ip1 IS NOT NULL
+                        OR arp.v4ip2 IS NOT NULL
+                        OR arp.v4ip3 IS NOT NULL
+                    )
+                AND (
+                    arp.v6ip IS NOT NULL
+                    OR arp.v6ip1 IS NOT NULL
+                    OR arp.v6ip2 IS NOT NULL
+                    OR arp.v6ip3 IS NOT NULL
+                )
+        ) arp ON mac.mac = arp.mac
+        WHERE
+            mac.tag != 'DE'
+        AND mac.tag = 'DT'
+        OR mac.tag = 'RT'
+        GROUP BY
+            mac.id
+        ORDER BY
+            mac.id ASC
+
+    </select>
+
+    <select id="selectXToEByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        select mac_u.* from (
+
+        select * from metoo_mac where tag = 'X')
+        mac_u
+
+        join
+
+        (
+
+        select * from metoo_mac where tag = 'L' and tag != 'LV'
+
+        )
+        mac_l
+
+        on mac_u.mac = mac_l.mac and mac_u.deviceIp != mac_l.deviceIp
+
+        group by mac_u.id having count(*) >= 1
+    </select>
+
+    <select id="selectUToEByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        select mac_u.* from (
+
+        select * from metoo_mac where tag = 'U')
+        mac_u
+
+        join
+
+        (
+
+        select * from metoo_mac where tag = 'L' and tag != 'LV'
+
+        )
+        mac_l
+
+        on mac_u.mac = mac_l.mac and mac_u.deviceIp != mac_l.deviceIp
+
+        group by mac_u.id having count(*) >= 1
+    </select>
+
+    <resultMap id="X_TO_UT" type="com.metoo.nrsm.entity.Mac">
+        <id column="id" property="id"></id>
+        <collection property="macList" ofType="java.lang.Long">
+            <id column="mac_l_id" property="id"></id>
+        </collection>
+    </resultMap>
+
+    <select id="selectXToUTByMap" parameterType="java.util.Map" resultMap="X_TO_UT">
+       select mac_x.id, mac_l.id mac_l_id from (
+
+        select * from metoo_mac where tag = 'X')
+        mac_x
+
+        join
+
+        (
+
+        select * from metoo_mac where tag != 'L'
+
+        )
+        mac_l
+
+        on mac_x.mac = mac_l.mac and mac_x.deviceIp != mac_l.deviceIp
+
+        order by mac_x.id asc, mac_l.id asc
+    </select>
+
+    <select id="selectUToRTByMap" parameterType="java.util.Map" resultMap="X_TO_UT">
+       select mac_u.id, mac_l.id mac_l_id from (
+
+        select * from metoo_mac where tag = 'U')
+        mac_u
+
+        join
+
+        (
+
+        select * from metoo_mac where tag != 'L' and tag != 'LV'
+
+        )
+        mac_l
+
+        on mac_u.mac = mac_l.mac
+
+        order by mac_u.id asc, mac_l.id asc
+    </select>
+
+    <select id="selectRTToDTByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        select * from metoo_mac where tag = 'RT' and (v4ip is not null or v6ip is not null)
+    </select>
+
+    <select id="selectRTToDT2ByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+            *
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    metoo_mac
+                WHERE
+                    tag != 'L'
+                GROUP BY
+                    deviceIp,
+                    `port`
+                HAVING
+                    count(*) = 1
+            ) mac
+        WHERE
+            tag = 'RT'
+    </select>
+
+    <select id="selectDTByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+            *
+        FROM
+            (
+                SELECT
+                    *,
+                    CONCAT_WS(',', v4ip, v4ip1, v4ip2, v4ip3) AS v4ipAll,
+                    CONCAT_WS(',', v6ip, v6ip1, v6ip2, v6ip3) AS v6ipAll
+                FROM
+                    metoo_mac
+                WHERE
+                    tag = 'DT'
+            ) mac
+    </select>
+
+    <select id="selectDTAndDynamicByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
+            SELECT
+                *,
+            IF (
+                mac.v4ip IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac.v4ip
+                ),
+                0
+            ) AS v4ipDynamic,
+
+            IF (
+                mac.v4ip1 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac.v4ip1
+                ),
+                0
+            ) AS v4ip1Dynamic,
+
+            IF (
+                mac.v4ip2 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac.v4ip2
+                ),
+                0
+            ) AS v4ip2Dynamic,
+
+            IF (
+                mac.v4ip3 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac.v4ip3
+                ),
+                0
+            ) AS v4ip3Dynamic,
+
+            IF (
+                mac.v6ip IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp6 dhcp6
+                    WHERE
+                        dhcp6.iaaddr = mac.v6ip
+                ),
+                0
+            ) AS v6ipDynamic,
+
+            IF (
+                mac.v6ip1 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (iaaddr IS NOT NULL, 1, 0)
+                    FROM
+                        metoo_dhcp6 dhcp6
+                    WHERE
+                        dhcp6.iaaddr = mac.v6ip1
+                ),
+                0
+            ) AS v6ip1Dynamic,
+
+            IF (
+                mac.v6ip2 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (iaaddr IS NOT NULL, 1, 0)
+                    FROM
+                        metoo_dhcp6 dhcp6
+                    WHERE
+                        dhcp6.iaaddr = mac.v6ip2
+                ),
+                0
+            ) AS v6ip2Dynamic,
+
+            IF (
+                mac.v6ip3 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (iaaddr IS NOT NULL, 1, 0)
+                    FROM
+                        metoo_dhcp6 dhcp6
+                    WHERE
+                        dhcp6.iaaddr = mac.v6ip3
+                ),
+                0
+            ) AS v6ip3Dynamic,
+
+            IF (
+                mac.v4ip IS NOT NULL,
+                (
+                    SELECT
+                        client_hostname
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac.v4ip
+                    LIMIT 1
+                ),
+                0
+            ) AS client_hostname
+            FROM
+                metoo_mac mac
+            WHERE
+                tag = 'DT'
+            UNION ALL
+                SELECT
+                    *,
+                IF (
+                    mac_rt.v4ip IS NOT NULL,
+                    (
+                        SELECT
+
+                        IF (COUNT(*) > 0, 1, 0)
+                        FROM
+                            metoo_dhcp dhcp
+                        WHERE
+                            dhcp.lease = mac_rt.v4ip
+                    ),
+                    0
+                ) AS v4ipDynamic,
+
+            IF (
+                mac_rt.v4ip1 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac_rt.v4ip1
+                ),
+                0
+            ) AS v4ip1Dynamic,
+
+            IF (
+                mac_rt.v4ip2 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac_rt.v4ip2
+                ),
+                0
+            ) AS v4ip2Dynamic,
+
+            IF (
+                mac_rt.v4ip3 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac_rt.v4ip3
+                ),
+                0
+            ) AS v4ip3Dynamic,
+
+            IF (
+                mac_rt.v6ip IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp6 dhcp6
+                    WHERE
+                        dhcp6.iaaddr = mac_rt.v6ip
+                ),
+                0
+            ) AS v6ipDynamic,
+
+            IF (
+                mac_rt.v6ip1 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (iaaddr IS NOT NULL, 1, 0)
+                    FROM
+                        metoo_dhcp6 dhcp6
+                    WHERE
+                        dhcp6.iaaddr = mac_rt.v6ip1
+                ),
+                0
+            ) AS v6ip1Dynamic,
+
+            IF (
+                mac_rt.v6ip2 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (iaaddr IS NOT NULL, 1, 0)
+                    FROM
+                        metoo_dhcp6 dhcp6
+                    WHERE
+                        dhcp6.iaaddr = mac_rt.v6ip2
+                ),
+                0
+            ) AS v6ip2Dynamic,
+
+            IF (
+                mac_rt.v6ip3 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (iaaddr IS NOT NULL, 1, 0)
+                    FROM
+                        metoo_dhcp6 dhcp6
+                    WHERE
+                        dhcp6.iaaddr = mac_rt.v6ip3
+                ),
+                0
+            ) AS v6ip3Dynamic,
+
+            IF (
+                mac_rt.v4ip IS NOT NULL,
+                (
+                    SELECT
+                        client_hostname
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac_rt.v4ip
+                    LIMIT 1
+                ),
+                0
+            ) AS client_hostname
+            FROM
+                metoo_mac mac_rt
+            WHERE
+                tag = 'RT'
+            AND mac NOT IN (
+                SELECT
+                    mac
+                FROM
+                    metoo_mac
+                WHERE
+                    tag = 'DT'
+            );
+    </select>
+
+    <select id="selectDTAndDynamicByConditionQuery" parameterType="com.metoo.nrsm.core.dto.MacDTO" resultType="com.metoo.nrsm.entity.Mac">
+        select * from (
+        SELECT
+        *,
+        IF (
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        ),
+        0
+        ) AS v4ipDynamic,
+
+        IF (
+        mac.v4ip1 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip1
+        ),
+        0
+        ) AS v4ip1Dynamic,
+
+        IF (
+        mac.v4ip2 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip2
+        ),
+        0
+        ) AS v4ip2Dynamic,
+
+        IF (
+        mac.v4ip3 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip3
+        ),
+        0
+        ) AS v4ip3Dynamic,
+
+        IF (
+        mac.v6ip IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip
+        ),
+        0
+        ) AS v6ipDynamic,
+
+        IF (
+        mac.v6ip1 IS NOT NULL,
+        (
+        SELECT
+
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip1
+        ),
+        0
+        ) AS v6ip1Dynamic,
+
+        IF (
+        mac.v6ip2 IS NOT NULL,
+        (
+        SELECT
+
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip2
+        ),
+        0
+        ) AS v6ip2Dynamic,
+
+        IF (
+        mac.v6ip3 IS NOT NULL,
+        (
+        SELECT
+
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip3
+        ),
+        0
+        ) AS v6ip3Dynamic,
+
+        IF (
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
+        client_hostname
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        LIMIT 1
+        ),
+        0
+        ) AS client_hostname
+        FROM
+        metoo_mac mac
+        WHERE
+        tag = 'DT'
+        UNION ALL
+        SELECT
+        *,
+        IF (
+        mac_rt.v4ip IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip
+        ),
+        0
+        ) AS v4ipDynamic,
+
+        IF (
+        mac_rt.v4ip1 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip1
+        ),
+        0
+        ) AS v4ip1Dynamic,
+
+        IF (
+        mac_rt.v4ip2 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip2
+        ),
+        0
+        ) AS v4ip2Dynamic,
+
+        IF (
+        mac_rt.v4ip3 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip3
+        ),
+        0
+        ) AS v4ip3Dynamic,
+
+        IF (
+        mac_rt.v6ip IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac_rt.v6ip
+        ),
+        0
+        ) AS v6ipDynamic,
+
+        IF (
+        mac_rt.v6ip1 IS NOT NULL,
+        (
+        SELECT
+
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac_rt.v6ip1
+        ),
+        0
+        ) AS v6ip1Dynamic,
+
+        IF (
+        mac_rt.v6ip2 IS NOT NULL,
+        (
+        SELECT
+
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac_rt.v6ip2
+        ),
+        0
+        ) AS v6ip2Dynamic,
+
+        IF (
+        mac_rt.v6ip3 IS NOT NULL,
+        (
+        SELECT
+
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac_rt.v6ip3
+        ),
+        0
+        ) AS v6ip3Dynamic,
+
+        IF (
+        mac_rt.v4ip IS NOT NULL,
+        (
+        SELECT
+        client_hostname
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip
+        LIMIT 1
+        ),
+        NULL
+        ) AS client_hostname
+        FROM
+        metoo_mac mac_rt
+        WHERE
+        tag = 'RT'
+        AND mac NOT IN (
+        SELECT
+        mac
+        FROM
+        metoo_mac
+        WHERE
+        tag = 'DT'
+        ))
+        mac
+      <where>
+          <if test="v6ip != null and v6ip != ''">
+              <bind name="pattern" value="'%' + v6ip + '%'"/>
+              OR CONCAT(v6ip, v6ip1, v6ip2, v6ip3) LIKE #{pattern}
+          </if>
+          <if test="v4ip != null and v4ip != ''">
+              <bind name="pattern" value="'%' + v4ip + '%'"/>
+              OR CONCAT(v4ip, v4ip1, v4ip2, v4ip3) LIKE #{pattern}
+          </if>
+          <if test="filter != null and filter != ''">
+              <bind name="pattern" value="'%' + filter + '%'"/>
+              OR mac.v4ip
+              like
+               concat(concat('%',#{filter}),'%')
+              or  mac.v4ip1
+              like concat(concat('%',#{filter}),'%')
+              or  mac.v4ip2
+              like concat(concat('%',#{filter}),'%')
+              or  mac.v4ip3
+              like concat(concat('%',#{filter}),'%')
+              or  mac.v6ip
+              like concat(concat('%',#{filter}),'%')
+              or  mac.v6ip1
+              like concat(concat('%',#{filter}),'%')
+              or  mac.v6ip2
+              like concat(concat('%',#{filter}),'%')
+              or  mac.v6ip3
+              like concat(concat('%',#{filter}),'%')
+              or mac.mac
+              like concat(concat('%',#{filter}),'%')
+          </if>
+          <if test="mac != null and mac != ''">
+              AND mac = #{mac}
+          </if>
+      </where>
+        ORDER BY v4ip IS NULL,INET_ATON(v4ip) ASC
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Mac">
         INSERT INTO metoo_mac
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="addTime != null ">
@@ -34,11 +1003,11 @@
             <if test="hostname != null and hostname != '' ">
                 hostname,
             </if>
-            <if test="remote_device != null and remote_device != '' ">
-                remote_device,
+            <if test="remoteDevice != null and remoteDevice != '' ">
+                remoteDevice,
             </if>
-            <if test="remote_port != null and remote_port != '' ">
-                remote_port,
+            <if test="remotePort != null and remotePort != '' ">
+                remotePort,
             </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
@@ -69,18 +1038,282 @@
             <if test="hostname != null and hostname != '' ">
                 #{hostname},
             </if>
-            <if test="remote_device != null and remote_device != '' ">
-                #{remote_device},
+            <if test="remoteDevice != null and remoteDevice != '' ">
+                #{remoteDevice},
             </if>
-            <if test="remote_port != null and remote_port != '' ">
-                #{remote_port},
+            <if test="remotePort != null and remotePort != '' ">
+                #{remotePort},
             </if>
         </trim>
+    </insert>
+
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Mac">
+        UPDATE metoo_mac
+        <set>
+            <if test="addTime != null ">
+                addTime = #{addTime},
+            </if>
+            <if test="mac != null and mac != '' ">
+                mac = #{mac},
+            </if>
+            <if test="port != null and port != '' ">
+                port = #{port},
+            </if>
+            <if test="type != null and type != '' ">
+                type = #{type},
+            </if>
+            <if test="deviceIp != null and deviceIp != '' ">
+                deviceIp = #{deviceIp},
+            </if>
+            <if test="deviceName != null and deviceName != '' ">
+                deviceName = #{deviceName},
+            </if>
+            <if test="tag != null and tag != '' ">
+                tag = #{tag},
+            </if>
+            <if test="hostname != null and hostname != '' ">
+                hostname = #{hostname},
+            </if>
+            <if test="remoteDevice != null and remoteDevice != '' ">
+                remoteDevice = #{remoteDevice},
+            </if>
+            <if test="remotePort != null and remotePort != '' ">
+                remotePort = #{remotePort},
+            </if>
+            <if test="v4ip != null and v4ip != '' ">
+                v4ip = #{v4ip},
+            </if>
+            <if test="v4ip1 != null and v4ip1 != '' ">
+                v4ip1 = #{v4ip1},
+            </if>
+            <if test="v4ip2 != null and v4ip2 != '' ">
+                v4ip2 = #{v4ip2},
+            </if>
+            <if test="v4ip3 != null and v4ip3 != '' ">
+                v4ip3 = #{v4ip3},
+            </if>
+            <if test="v6ip != null and v6ip != '' ">
+                v6ip = #{v6ip},
+            </if>
+            <if test="v6ip1 != null and v6ip1 != '' ">
+                v6ip1 = #{v6ip1},
+            </if>
+            <if test="v6ip2 != null and v6ip2 != '' ">
+                v6ip2 = #{v6ip2},
+            </if>
+            <if test="v6ip3 != null and v6ip3 != '' ">
+                v6ip3 = #{v6ip3},
+            </if>
+            <if test="macVendor != null and macVendor != '' ">
+                macVendor = #{macVendor},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="batchSave" parameterType="java.util.List">
+        INSERT INTO `metoo_mac` (
+        addTime,
+        mac,
+        port,
+        type,
+        deviceIp,
+        deviceName,
+        tag,
+        hostname,
+        remoteDevice,
+        remotePort
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+            #{item.addTime},
+            #{item.mac},
+            #{item.port},
+            #{item.type},
+            #{item.deviceIp},
+            #{item.deviceName},
+            #{item.tag},
+            #{item.hostname},
+            #{item.remoteDevice},
+            #{item.remotePort}
+            )
+        </foreach>
+    </insert>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            UPDATE metoo_mac
+            <set>
+                tag = #{item.tag},
+                v4ip = #{item.v4ip},
+                v6ip = #{item.v6ip},
+                v4ip1 = #{item.v4ip1},
+                v4ip2 = #{item.v4ip2},
+                v4ip3 = #{item.v4ip3},
+                v6ip1 = #{item.v6ip1},
+                v6ip2 = #{item.v6ip2},
+                v6ip3 = #{item.v6ip3},
+                macVendor = #{item.macVendor}
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
+
+    <update id="updateMacTagToRTByIds" parameterType="java.util.Set">
+        UPDATE metoo_mac set tag = 'RT'
+        WHERE id IN
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateMacTagToDTByIds" parameterType="java.util.Set">
+        UPDATE metoo_mac set tag = 'DT'
+        WHERE id IN
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
+
+    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.Mac">
+        INSERT INTO metoo_mac_gather
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null ">
+                addTime,
+            </if>
+            <if test="mac != null and mac != '' ">
+                mac,
+            </if>
+            <if test="port != null and port != '' ">
+                port,
+            </if>
+            <if test="type != null and type != '' ">
+                type,
+            </if>
+            <if test="deviceIp != null and deviceIp != '' ">
+                deviceIp,
+            </if>
+            <if test="deviceName != null and deviceName != '' ">
+                deviceName,
+            </if>
+            <if test="tag != null and tag != '' ">
+                tag,
+            </if>
+            <if test="ip != null and ip != '' ">
+                ip,
+            </if>
+            <if test="hostname != null and hostname != '' ">
+                hostname,
+            </if>
+            <if test="remoteDevice != null and remoteDevice != '' ">
+                remoteDevice,
+            </if>
+            <if test="remotePort != null and remotePort != '' ">
+                remotePort,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="addTime != null ">
+                #{addTime},
+            </if>
+            <if test="mac != null and mac != '' ">
+                #{mac},
+            </if>
+            <if test="port != null and port != '' ">
+                #{port},
+            </if>
+            <if test="type != null and type != '' ">
+                #{type},
+            </if>
+            <if test="deviceIp != null and deviceIp != '' ">
+                #{deviceIp},
+            </if>
+            <if test="deviceName != null and deviceName != '' ">
+                #{deviceName},
+            </if>
+            <if test="tag != null and tag != '' ">
+                #{tag},
+            </if>
+            <if test="ip != null and ip != '' ">
+                #{ip},
+            </if>
+            <if test="hostname != null and hostname != '' ">
+                #{hostname},
+            </if>
+            <if test="remoteDevice != null and remoteDevice != '' ">
+                #{remoteDevice},
+            </if>
+            <if test="remotePort != null and remotePort != '' ">
+                #{remotePort},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="batchSaveGather" parameterType="java.util.List">
+        INSERT INTO `metoo_mac_gather` (
+            addTime,
+            mac,
+            port,
+            type,
+            deviceIp,
+            deviceName,
+            tag,
+            hostname,
+            remoteDevice,
+            remotePort
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.addTime},
+                #{item.mac},
+                #{item.port},
+                #{item.type},
+                #{item.deviceIp},
+                #{item.deviceName},
+                #{item.tag},
+                #{item.hostname},
+                #{item.remoteDevice},
+                #{item.remotePort}
+            )
+        </foreach>
     </insert>
 
     <update id="truncateTable">
         TRUNCATE TABLE metoo_mac
     </update>
 
+    <update id="truncateTableGather">
+        TRUNCATE TABLE metoo_mac_gather
+    </update>
+
+    <delete id="deleteTable">
+        delete from metoo_mac
+    </delete>
+
+    <sql id="COPY_COLUMN">
+       addTime, mac, port, deviceIp, deviceName, tag, type, hostname, remoteDevice, remotePort
+    </sql>
+
+    <insert id="copyGatherDataToMac">
+        INSERT INTO metoo_mac( <include refid="COPY_COLUMN"/> ) SELECT <include refid="COPY_COLUMN"/> FROM metoo_mac_gather
+    </insert>
+
+    <select id="lock">
+      lock table metoo_mac_gather write;
+    </select>
+
+    <select id="releaseLock">
+      UNLOCK TABLES;
+    </select>
+
+    <select id="queryLock">
+        show open tables where In_use > 0 and `Table` = 'metoo_mac_gather';
+    </select>
 
 </mapper>

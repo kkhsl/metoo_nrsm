@@ -6,27 +6,20 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
-import com.metoo.nrsm.core.dto.InterfaceDTO;
-import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.utils.PythonExecUtils;
-import com.metoo.nrsm.core.utils.ip.IpV4Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.nspm.Interface;
+import com.metoo.nrsm.entity.Interface;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Api("接口设置")
 @RequestMapping("/admin/interface")

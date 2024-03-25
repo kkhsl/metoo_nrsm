@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.RsmsDeviceMapper">
 
-    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.nspm.RsmsDevice">
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.RsmsDevice">
         <id column="id" property="id"></id>
         <result column="device_type_id" property="deviceTypeId"></result>
         <result column="plant_room_id" property="plantRoomId"></result>
@@ -183,6 +183,9 @@
         FROM
           rsms_device
         <where>
+            <if test="uuid != null and uuid != ''">
+                AND `uuid` = #{uuid}
+            </if>
             <if test="id != null and id != ''">
                 AND id = #{id}
             </if>
@@ -232,7 +235,7 @@
         ORDER BY start ASC
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.RsmsDevice" keyProperty="id" useGeneratedKeys="true">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.RsmsDevice" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO rsms_device
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -432,7 +435,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.RsmsDevice">
+    <update id="update" parameterType="com.metoo.nrsm.entity.RsmsDevice">
         UPDATE rsms_device
         <set>
             <if test="addTime != null">
@@ -543,7 +546,7 @@
 
     <delete id="batchDel" parameterType="java.lang.String">
         DELETE FROM rsms_device
-        WHERE id in (${ids})
+        WHERE id in (${_parameter})
     </delete>
 
     <insert id="batchInsert" parameterType="java.util.List">

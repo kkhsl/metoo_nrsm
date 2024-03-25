@@ -5,7 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.dto.ResDto;
 import com.metoo.nrsm.core.mapper.ResMapper;
 import com.metoo.nrsm.core.service.IResService;
-import com.metoo.nrsm.entity.nspm.Res;
+import com.metoo.nrsm.entity.Res;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

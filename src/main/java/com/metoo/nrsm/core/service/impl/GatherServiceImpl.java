@@ -1,29 +1,28 @@
 package com.metoo.nrsm.core.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.core.mapper.ArpMapper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.PythonExecUtils;
-import com.metoo.nrsm.core.utils.gather.thread.GatherIpV4Runnable;
-import com.metoo.nrsm.core.utils.gather.thread.GatherIpV6Runnable;
-import com.metoo.nrsm.entity.nspm.*;
+import com.metoo.nrsm.core.utils.gather.gathermac.GatherMultithreadingMacUtils;
+import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacUtils;
+import com.metoo.nrsm.core.utils.gather.thread.*;
+import com.metoo.nrsm.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author HKK
  * @version 1.0
  * @date 2024-02-20 10:29
  */
+
 @Service
 public class GatherServiceImpl implements IGatherService {
 
@@ -34,232 +33,75 @@ public class GatherServiceImpl implements IGatherService {
     @Autowired
     private Ipv6Service ipv6Service;
     @Autowired
-    private IMacService macService;
-    @Autowired
     private INetworkElementService networkElementService;
+
+    @Autowired
+    private GatherSingleThreadingMacUtils gatherSingleThreadingMacUtils;
+    @Autowired
+    private GatherMultithreadingMacUtils gatherMultithreadingMacUtils;
 
     @Override
     public void gatherMac(Date date) {
-        List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
-        if(networkElements.size() > 0){
-            this.macService.truncateTable();
-            for (NetworkElement networkElement : networkElements) {
-
-                String path = Global.PYPATH + "gethostname.py";
-                String[] params1 = {networkElement.getIp(), networkElement.getVersion(),
-                        networkElement.getCommunity()};
-                String hostname = PythonExecUtils.exec(path, params1);
-
-                // mac表增加remote-device，remote-port
-                try {
-                    path = Global.PYPATH + "getlldp.py";
-                    String[] params3 = {networkElement.getIp(), networkElement.getVersion(),
-                            networkElement.getCommunity()};
-                    String getlldp = PythonExecUtils.exec(path, params3);
-                    List<Map> lldps = JSONObject.parseArray(getlldp, Map.class);
-                    this.setRemoteDevice(networkElement, lldps, hostname, date);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                path = Global.PYPATH + "getmac.py";
-                // String result = PythonExecUtils.exec(path);
-                String[] params = {networkElement.getIp(), networkElement.getVersion(),
-                        networkElement.getCommunity()};
-                String result = PythonExecUtils.exec(path, params);
-                if(!"".equals(result)){
-                    try {
-
-
-                        List<Mac> array = JSONObject.parseArray(result, Mac.class);
-                        if(array.size()>0){
-                            array.forEach(e -> {
-                                if("3".equals(e.getType())){
-                                    e.setDeviceIp(networkElement.getIp());
-                                    e.setDeviceName(networkElement.getDeviceName());
-                                    e.setAddTime(date);
-                                    e.setHostname(hostname);
-//                                    e.setTag("L");
-                                    String patten = "^" + "00:00:5e";
-                                    boolean flag = this.parseLineBeginWith(e.getMac(), patten);
-                                    if(flag){
-                                        e.setTag("LV");
-                                    }
-
-                                    this.macService.save(e);
-                                }
-                            });
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-
-                path = Global.PYPATH + "getportmac.py";
-                // String result = PythonExecUtils.exec(path);
-                String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
-                        networkElement.getCommunity()};
-                result = PythonExecUtils.exec(path, params2);
-                if(!"".equals(result)){
-                    try {
-                        List<Mac> array = JSONObject.parseArray(result, Mac.class);
-                        if(array.size()>0){
-                            array.forEach(e -> {
-                                if("1".equals(e.getStatus())){
-                                    e.setAddTime(date);
-                                    e.setDeviceIp(networkElement.getIp());
-                                    e.setDeviceName(networkElement.getDeviceName());
-                                    e.setTag("L");
-                                    e.setHostname(hostname);
-                                    String patten = "^" + "00:00:5e";
-                                    boolean flag = this.parseLineBeginWith(e.getMac(), patten);
-                                    if(flag){
-                                        e.setTag("LV");
-                                    }
-                                    this.macService.save(e);
-                                }
-                            });
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        }
+        gatherSingleThreadingMacUtils.gatherMac(date);
     }
 
-    /**
-     * 判断Mac是否以某个规则开始
-     * @param lineText
-     * @param head
-     * @return
-     */
-    public boolean parseLineBeginWith(String lineText, String head){
-
-        if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
-            String patten = "^" + head;
-
-            Pattern compiledPattern = Pattern.compile(patten);
-
-            Matcher matcher = compiledPattern.matcher(lineText);
-
-            while(matcher.find()) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public void gatherMacThread(Date date) {
+        this.gatherMultithreadingMacUtils.gatherMacThread(date);
     }
-
-    /**
-     * mac对端设备
-     * @param e
-     * @param lldps
-     * @param hostname
-     * @param date
-     */
-    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date){
-        // 写入对端信息
-        if(lldps != null && lldps.size() > 0){
-            for(Map<String, String> obj : lldps){
-                Mac mac = new Mac();
-                mac.setAddTime(date);
-                mac.setDeviceIp(e.getIp());
-                mac.setDeviceName(e.getDeviceName());
-//                mac.setPort(e.getPort());
-                mac.setMac("00:00:00:00:00:00");
-                mac.setHostname(hostname);
-                mac.setTag("DE");
-                mac.setRemote_port(obj.get("remoteport"));
-                mac.setRemote_device(obj.get("hostname"));
-                this.macService.save(mac);
-            }
-        }
-    }
-
-//
-//    @Override
-//    public void gatherArp(Date date) {
-//        List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
-//        if(networkElements.size() > 0){
-//
-//            this.ipv4Service.truncateTable();
-//            this.ipv6Service.truncateTable();
-//
-//            for (NetworkElement networkElement : networkElements) {
-//                String path = Global.PYPATH + "getarp.py";
-////                String result = PythonExecUtils.exec(path);
-//                String[] params = {networkElement.getIp(), networkElement.getVersion(),
-//                        networkElement.getCommunity()};
-//                String result = PythonExecUtils.exec(path, params);
-//                if(!"".equals(result)){
-//                    try {
-//                        List<Ipv4> array = JSONObject.parseArray(result, Ipv4.class);
-//                        if(array.size()>0){
-//                            array.forEach(e -> {
-//                                e.setDeviceIp(networkElement.getIp());
-//                                e.setDeviceName(networkElement.getDeviceName());
-//                                e.setAddTime(date);
-//                                this.ipv4Service.save(e);
-//                            });
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                path = Global.PYPATH +  "getarpv6.py";
-////                result = PythonExecUtils.exec(path);
-//                String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
-//                        networkElement.getCommunity()};
-//                result = PythonExecUtils.exec(path, params2);
-//                if(!"".equals(result)){
-//                    try {
-//                        List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
-//                        if(array.size()>0){
-//                            array.forEach(e -> {
-//                                e.setDeviceIp(networkElement.getIp());
-//                                e.setDeviceName(networkElement.getDeviceName());
-//                                e.setAddTime(date);
-//                                this.ipv6Service.save(e);
-//                            });
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
-//
-//        // 去重（将采集到的数据，复制并创创建相同结构的表中，并去除重复数据（mac + ip），使用存储过程完成）
-//        this.ipv4Service.removeDuplicates();
-//        this.ipv6Service.removeDuplicates();
-//
-//        this.arpMapper.truncateTable();
-//
-//        // 合并mac和port相同的数据（ipv4和ipv6）到arp表
-//        this.writerArp(date);
-//        // 排除上个步骤中相同的数据，写入arp表
-//        this.arpMapper.writeArp();
-//    }
 
     @Override
     public void gatherArp(Date date) {
         List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
         if(networkElements.size() > 0) {
-            // 去重（将采集到的数据，复制并创创建相同结构的表中，并去除重复数据（mac + ip），使用存储过程完成）
-            this.arpService.truncateTableGather();
-            // 合并mac和port相同的数据（ipv4和ipv6）到arp表
-            this.writerArp(date);
-            // 排除上个步骤中相同的数据，写入arp表
-            this.arpService.writeArp();
+//            // 步骤一 清空采集表
+//            this.arpService.truncateTableGather();
+//            // 清空数据之后的插入失败（测试清空表后，等待3秒）
+////            try {
+////                Thread.sleep(3000);
+////            } catch (InterruptedException e) {
+////                e.printStackTrace();
+////            }
+//
+////            // 步骤二 合并mac和port相同的数据（ipv4和ipv6）到arp表
+////            this.mergeIpv4AndIpv6ToArpGather_sql_insert(date);
+////
+////            // 步骤三 排除上个步骤中的数据，写入arp表
+////            this.arpService.writeArp();
+//
+//            // 步骤 二和三合并
+//            this.batchSaveIpV4AndIpv6ToArpGather(date);
+//
+//            // 步骤四 复制数据到arp表（待测试：使用delete 或 truncate ）
+//            this.copyGatherDataToArp();
 
-            this.copyGatherDataToArp();
+            // 合并一二三四步骤（以上步骤可完成arp数据，bug：自动采集时没有ipv6需等待N秒）
+            // 合并后使用存储过程（性能待测试）
+            this.arpService.gatherArp(date);
         }
     }
 
-    public void writerArp(Date date){
+    public void mergeIpv4AndIpv6ToArpGather_sql(Date date){
+        Map params = new HashMap();
+        params.put("addTime", date);
+        List<Arp> arps = this.arpService.mergeIpv4AndIpv6(params);
+        if(arps.size() > 0){
+//            arps.stream().forEach(e -> e.setAddTime(date));
+            this.arpService.batchSaveGather(arps);
+        }
+    }
+
+    public void mergeIpv4AndIpv6ToArpGather_sql_insert(Date date){
+        Map params = new HashMap();
+        params.put("addTime", date);
+        try {
+            this.arpService.batchSaveGatherBySelect(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void mergeIpv4AndIpv6ToArpGather_code(Date date){
         List<Arp> arps = this.arpService.joinSelectObjAndIpv6();
         if(arps.size() > 0) {
             for (Arp arp : arps) {
@@ -292,10 +134,16 @@ public class GatherServiceImpl implements IGatherService {
                         }
                     }
                 }
-                this.arpService.saveGather(arp);
+//                this.arpService.saveGather(arp);
             }
-//            this.arpService.batchSaveGather(arps);
+            this.arpService.batchSaveGather(arps);
         }
+    }
+
+    public void batchSaveIpV4AndIpv6ToArpGather(Date date){
+        Map params = new HashMap();
+        params.put("addTime", date);
+        this.arpService.batchSaveIpV4AndIpv6ToArpGather(params);
     }
 
     // 复制采集数据到ipv4表
@@ -336,12 +184,13 @@ public class GatherServiceImpl implements IGatherService {
                 }
             }
 
-            // 非多线程，单线程串行情况下可放到最后执行
+            // 非多线程，单线程串行情况下可放到最后执行(提到前面？)
             this.copyGatherDataToIpv4();
             this.removeDuplicatesIpv4();
         }
     }
 
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void gatherIpv4Thread(Date date) {
         List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
@@ -349,11 +198,15 @@ public class GatherServiceImpl implements IGatherService {
             // （采集结束，复制到ipv4表中）
             // 多线程并行执行，避免出现采集未结束时，执行copy操作没有数据，所以将复制数据操作，放到采集前，复制上次采集结果即可
             this.copyGatherDataToIpv4();
+
             this.removeDuplicatesIpv4();
+
             this.ipv4Service.truncateTableGather();
+
             for (NetworkElement networkElement : networkElements) {
-                Thread thread = new Thread(new GatherIpV4Runnable(networkElement, date));
-                thread.start();
+//                Thread thread = new Thread(new GatherIpV4Runnable(networkElement, date));
+//                thread.start();
+                GatherDataThreadPool.getInstance().addThread(new GatherIpV4Runnable(networkElement, date));
             }
         }
     }
@@ -377,7 +230,6 @@ public class GatherServiceImpl implements IGatherService {
             e.printStackTrace();
         }
     }
-
 
 
     @Override
@@ -422,12 +274,20 @@ public class GatherServiceImpl implements IGatherService {
         if(networkElements.size() > 0) {
             // 非多线程，单线程串行情况下可放到最后执行
             this.copyGatherDataToIpv6();
+
             this.removeDuplicatesIpv6();
 
             this.ipv6Service.truncateTableGather();
             for (NetworkElement networkElement : networkElements) {
-                Thread thread = new Thread(new GatherIpV6Runnable(networkElement, date));
-                thread.start();
+                // 不要显式创建线程，请使用线程池
+                /** 线程资源必须通过线程池提供，不允许在应用中自行显式创建线程。
+                    说明：使用线程池的好处是减少在创建和销毁线程上所花的时间以及系统资源的开销，解决资源不足的问题。
+                    如果不使用线程池，有可能造成系统创建大量同类线程而导致消耗完内存或者“过度切换”的问题
+                 **/
+//                Thread thread = new Thread(new GatherIpV6Runnable(networkElement, date));
+//                thread.start();
+                GatherDataThreadPool.getInstance().addThread(new GatherIpV6Runnable(networkElement, date));
+
             }
         }
     }
@@ -448,6 +308,49 @@ public class GatherServiceImpl implements IGatherService {
             this.ipv6Service.removeDuplicates();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Autowired
+    private IPortService portService;
+
+    /**
+     * 获取设备端口
+     */
+    @Override
+    public void gatherPort(Date date){
+        List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
+        if(networkElements.size() > 0) {
+
+            this.portService.copyGatherData();
+
+            this.portService.truncateTableGather();
+
+            for (NetworkElement networkElement : networkElements) {
+
+                GatherDataThreadPool.getInstance().addThread(new GatherPortRunnable(networkElement, date));
+
+            }
+        }
+    }
+
+    @Autowired
+    private IPortIpv6Service portIpv6Service;
+
+    @Override
+    public void gatherPortIpv6(Date date){
+        List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
+        if(networkElements.size() > 0) {
+
+            this.portIpv6Service.copyGatherData();
+
+            this.portIpv6Service.truncateTableGather();
+
+            for (NetworkElement networkElement : networkElements) {
+
+                GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6Runnable(networkElement, date));
+
+            }
         }
     }
 

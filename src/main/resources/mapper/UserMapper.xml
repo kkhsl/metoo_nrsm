@@ -4,7 +4,7 @@
 
 
 
-    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.nspm.User">
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.User">
         <id column="mu_id" property="id"/>
         <result column="mu_addTime" property="addTime"></result>
         <result column="mu_username" property="username"></result>
@@ -12,7 +12,7 @@
         <result column="mu_sex" property="sex"></result>
         <result column="mu_age" property="age"></result>
         <!--角色信息-->
-        <collection property="roles" javaType="list" ofType="com.metoo.nrsm.entity.nspm.Role">
+        <collection property="roles" javaType="list" ofType="com.metoo.nrsm.entity.Role">
             <id column="mr_id" property="id"/>
             <result column="mr_name" property="name"></result>
             <result column="mr_roleCode" property="roleCode"></result>
@@ -20,7 +20,7 @@
         </collection>
     </resultMap>
 
-    <resultMap id="User_Role_Result_Map" type="com.metoo.nrsm.entity.nspm.User">
+    <resultMap id="User_Role_Result_Map" type="com.metoo.nrsm.entity.User">
         <id column="mu_id" property="id"/>
         <result column="mu_addTime" property="addTime"></result>
         <result column="mu_username" property="username"></result>
@@ -28,7 +28,7 @@
         <result column="mu_sex" property="sex"></result>
         <result column="mu_age" property="age"></result>
         <!--角色信息-->
-        <collection property="roles" javaType="list" ofType="com.metoo.nrsm.entity.nspm.Role">
+        <collection property="roles" javaType="list" ofType="com.metoo.nrsm.entity.Role">
             <id column="mr_id" property="id"/>
             <result column="mr_name" property="name"></result>
             <result column="mr_roleCode" property="roleCode"></result>
@@ -87,7 +87,7 @@
         age, userRole, email, mobile, note
     </sql>
 
-    <insert id="insert" parameterType="com.metoo.nrsm.entity.nspm.User" keyProperty="id" useGeneratedKeys="true">
+    <insert id="insert" parameterType="com.metoo.nrsm.entity.User" keyProperty="id" useGeneratedKeys="true">
         insert into metoo_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -179,7 +179,7 @@
         </trim>
     </insert>
 
-    <select id="findByUserName" parameterType="String" resultType="com.metoo.nrsm.entity.nspm.User">
+    <select id="findByUserName" parameterType="String" resultType="com.metoo.nrsm.entity.User">
         SELECT
             id,
             username,
@@ -209,7 +209,7 @@
         </where>
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UserDto" resultType="com.metoo.nrsm.entity.nspm.User">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UserDto" resultType="com.metoo.nrsm.entity.User">
         SELECT *
         FROM metoo_user
         <if test = "orderBy != null and orderBy != ''">
@@ -232,7 +232,7 @@
         DESC
     </select>
 
-    <select id="selectPrimaryKey" resultType="com.metoo.nrsm.entity.nspm.User">
+    <select id="selectPrimaryKey" resultType="com.metoo.nrsm.entity.User">
         SELECT <include refid="Base_Column_List" />
         FROM metoo_user mu
         WHERE id=#{id, jdbcType=BIGINT}
@@ -254,7 +254,7 @@
 
 
 
-    <select id="findObjByIds" resultType="com.metoo.nrsm.entity.nspm.User">
+    <select id="findObjByIds" resultType="com.metoo.nrsm.entity.User">
         SELECT * FROM metoo_user WHERE id in
         <foreach collection="array" item="item" index="index" open="(" close=")" separator=",">
             #{item}
@@ -272,7 +272,7 @@
     </select>
 
     <!--根据 Level查询用户-->
-    <select id="getObjsByLevel" parameterType="String" resultType="com.metoo.nrsm.entity.nspm.User">
+    <select id="getObjsByLevel" parameterType="String" resultType="com.metoo.nrsm.entity.User">
         SELECT <include refid="Base_Update_Info" />
         FROM metoo_user
         WHERE
@@ -285,7 +285,7 @@
         )
     </select>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.User">
+    <update id="update" parameterType="com.metoo.nrsm.entity.User">
         UPDATE metoo_user
         <set>
             <if test = "username != null and username != ''">

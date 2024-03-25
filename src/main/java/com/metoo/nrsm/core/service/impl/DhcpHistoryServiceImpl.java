@@ -5,7 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.dto.DhcpDto;
 import com.metoo.nrsm.core.mapper.DhcpHistoryMapper;
 import com.metoo.nrsm.core.service.IDhcpHistoryService;
-import com.metoo.nrsm.entity.nspm.Dhcp;
+import com.metoo.nrsm.entity.Dhcp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

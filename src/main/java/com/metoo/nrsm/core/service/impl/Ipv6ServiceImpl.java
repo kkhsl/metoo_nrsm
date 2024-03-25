@@ -2,8 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.Ipv6Mapper;
 import com.metoo.nrsm.core.service.Ipv6Service;
-import com.metoo.nrsm.entity.nspm.Ipv4;
-import com.metoo.nrsm.entity.nspm.Ipv6;
+import com.metoo.nrsm.entity.Ipv6;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

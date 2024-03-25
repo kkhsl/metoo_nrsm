@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.RackDTO;
-import com.metoo.nrsm.entity.nspm.Rack;
+import com.metoo.nrsm.entity.Rack;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

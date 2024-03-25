@@ -1,32 +1,17 @@
 package com.metoo.nrsm.core.manager;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
-import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.Dhcp6Dto;
-import com.metoo.nrsm.core.dto.DhcpDto;
 import com.metoo.nrsm.core.service.IDhcp6Service;
-import com.metoo.nrsm.core.service.IDhcpService;
-import com.metoo.nrsm.core.utils.dhcp.DhcpUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.nspm.AddressPool;
-import com.metoo.nrsm.entity.nspm.Dhcp;
-import com.metoo.nrsm.entity.nspm.Dhcp6;
-import com.metoo.nrsm.entity.nspm.Internet;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-import org.springframework.beans.BeanUtils;
+import com.metoo.nrsm.entity.Dhcp;
+import com.metoo.nrsm.entity.Dhcp6;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.beans.BeanMap;
-import org.springframework.data.repository.init.ResourceReader;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author HKK

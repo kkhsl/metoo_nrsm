@@ -2,10 +2,7 @@ package com.metoo.nrsm.core.service;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.Dhcp6Dto;
-import com.metoo.nrsm.core.dto.DhcpDto;
-import com.metoo.nrsm.entity.nspm.Dhcp;
-import com.metoo.nrsm.entity.nspm.Dhcp6;
-import com.metoo.nrsm.entity.nspm.Internet;
+import com.metoo.nrsm.entity.Dhcp6;
 
 import java.util.Date;
 import java.util.List;
@@ -34,6 +31,8 @@ public interface IDhcp6Service {
     boolean delete(Long id);
 
     boolean truncateTable();
+
+    boolean deleteTable();
 
     void gather(Date time);
 }

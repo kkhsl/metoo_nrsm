@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.DhcpDto;
-import com.metoo.nrsm.entity.nspm.Dhcp;
+import com.metoo.nrsm.entity.Dhcp;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

@@ -1,17 +1,12 @@
 package com.metoo.nrsm.core.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.mapper.ArpMapper;
 import com.metoo.nrsm.core.service.IArpService;
 import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.service.Ipv4Service;
 import com.metoo.nrsm.core.service.Ipv6Service;
-import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.PythonExecUtils;
-import com.metoo.nrsm.entity.nspm.Arp;
-import com.metoo.nrsm.entity.nspm.Ipv4;
-import com.metoo.nrsm.entity.nspm.Ipv6;
-import com.metoo.nrsm.entity.nspm.NetworkElement;
+import com.metoo.nrsm.entity.Arp;
+import com.metoo.nrsm.entity.Ipv6;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +46,11 @@ public class ArpServiceImpl implements IArpService {
     }
 
     @Override
+    public List<Arp> mergeIpv4AndIpv6(Map params) {
+        return this.arpMapper.mergeIpv4AndIpv6(params);
+    }
+
+    @Override
     public boolean writeArp() {
         try {
             this.arpMapper.writeArp();
@@ -83,70 +83,6 @@ public class ArpServiceImpl implements IArpService {
         }
     }
 
-    @Override
-    public void gatherArp(Date date){
-        List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
-        if(networkElements.size() > 0){
-
-            this.ipv4Service.truncateTable();
-            this.ipv6Service.truncateTable();
-
-            for (NetworkElement networkElement : networkElements) {
-                String path = Global.PYPATH + "getarp.py";
-//                String result = PythonExecUtils.exec(path);
-                String[] params = {networkElement.getIp(), networkElement.getVersion(),
-                        networkElement.getCommunity()};
-                String result = PythonExecUtils.exec(path, params);
-                if(!"".equals(result)){
-                    try {
-                        List<Ipv4> array = JSONObject.parseArray(result, Ipv4.class);
-                        if(array.size()>0){
-                            array.forEach(e -> {
-                                e.setDeviceIp(networkElement.getIp());
-                                e.setDeviceName(networkElement.getDeviceName());
-                                e.setAddTime(date);
-                                this.ipv4Service.save(e);
-                            });
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                path = Global.PYPATH +  "getarpv6.py";
-//                result = PythonExecUtils.exec(path);
-                String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
-                        networkElement.getCommunity()};
-                result = PythonExecUtils.exec(path, params2);
-                if(!"".equals(result)){
-                    try {
-                        List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
-                        if(array.size()>0){
-                            array.forEach(e -> {
-                                e.setDeviceIp(networkElement.getIp());
-                                e.setDeviceName(networkElement.getDeviceName());
-                                e.setAddTime(date);
-                                this.ipv6Service.save(e);
-                            });
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        // 去重 ipv4和ipv6数据
-        this.ipv4Service.removeDuplicates();
-        this.ipv6Service.removeDuplicates();
-
-        this.arpMapper.truncateTable();
-
-        // 合并mac和port相同的数据（ipv4和ipv6）到arp表
-        this.writerArp(date);
-        // 排除上个步骤中相同的数据，写入arp表
-        this.arpMapper.writeArp();
-    }
 
     @Override
     public boolean deleteTable() {
@@ -194,10 +130,45 @@ public class ArpServiceImpl implements IArpService {
     }
 
     @Override
+    public boolean batchSaveGatherBySelect(Map params) {
+        try {
+            this.arpMapper.batchSaveGatherBySelect(params);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean batchSaveIpV4AndIpv6ToArpGather(Map params) {
+        try {
+            this.arpMapper.batchSaveIpV4AndIpv6ToArpGather(params);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public boolean copyGatherDataToArp() {
         try {
-            this.arpMapper.deleteTable();
+            this.arpMapper.deleteTable();// 使用创建新表替换旧表的方式替换deleteTable
             this.arpMapper.copyGatherDataToArp();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean gatherArp(Date date) {
+        try {
+            this.arpMapper.gathreArp(date);
+            this.copyGatherDataToArp();
             return true;
         } catch (Exception e) {
             e.printStackTrace();

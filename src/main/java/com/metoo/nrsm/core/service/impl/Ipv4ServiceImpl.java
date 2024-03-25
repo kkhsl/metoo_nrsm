@@ -2,8 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.Ipv4Mapper;
 import com.metoo.nrsm.core.service.Ipv4Service;
-import com.metoo.nrsm.entity.nspm.Arp;
-import com.metoo.nrsm.entity.nspm.Ipv4;
+import com.metoo.nrsm.entity.Ipv4;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,6 +84,13 @@ public class Ipv4ServiceImpl implements Ipv4Service {
         }
     }
 
+    /**
+     * 避免出现，truncateTable后，出现空表情况下，arp读取ipv4
+     * 解决方法：
+     *      将ipv4数据的写入操作放到同一个事务中（清空表 + 写入最新数据）
+     *      将ipv4写入、去重以及写入arp放到一个存储过程中（性能问题）
+     *
+     */
     @Override
     public boolean copyGatherToIpv4() {
         try {

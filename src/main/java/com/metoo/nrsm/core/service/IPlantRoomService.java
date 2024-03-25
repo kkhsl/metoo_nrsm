@@ -3,7 +3,7 @@ package com.metoo.nrsm.core.service;
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.PlantRoomDTO;
 import com.metoo.nrsm.core.vo.PlantRoomVO;
-import com.metoo.nrsm.entity.nspm.PlantRoom;
+import com.metoo.nrsm.entity.PlantRoom;
 
 import java.util.List;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.utils;
 
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
-import com.metoo.nrsm.entity.nspm.User;
+import com.metoo.nrsm.entity.User;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

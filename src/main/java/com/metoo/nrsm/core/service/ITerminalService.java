@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.TerminalDTO;
-import com.metoo.nrsm.entity.nspm.Terminal;
+import com.metoo.nrsm.entity.Terminal;
 
 import java.util.Date;
 import java.util.List;
@@ -12,26 +12,24 @@ public interface ITerminalService {
 
     Terminal selectObjById(Long id);
 
-    Page<Terminal> selectConditionQuery(TerminalDTO instance);
+    Page<Terminal> selectObjByConditionQuery(TerminalDTO instance);
 
     List<Terminal> selectObjByMap(Map params);
 
-    int save(Terminal instance);
+    List<Terminal> selectObjHistoryByMap(Map params);
 
-    int update(Terminal instance);
+    boolean save(Terminal instance);
+
+    boolean update(Terminal instance);
 
     int delete(Long id);
 
-    int batchInert(List<Terminal> instances);
+    boolean batchSave(List<Terminal> instance);
 
-    int batchUpdate(List<Terminal> instances);
+    boolean batchUpdate(List<Terminal> instance);
 
-    // 同步DT信息
-    void syncMacDtToTerminal();
+    void syncTerminal(Date date);
 
-    // 同步终端类型
-    void syncHistoryMac(Date time);
+    void syncTerminalToTerminalHistory();
 
-    // 改为资产终端
-    int editTerminalType(Long[] ids);
 }

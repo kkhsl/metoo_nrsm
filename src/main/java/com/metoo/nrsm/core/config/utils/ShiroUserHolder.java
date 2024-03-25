@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.config.utils;
 
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.service.IUserService;
-import com.metoo.nrsm.entity.nspm.User;
+import com.metoo.nrsm.entity.User;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.dto;
 
 import com.metoo.nrsm.core.dto.page.PageDto;
-import com.metoo.nrsm.entity.nspm.Res;
+import com.metoo.nrsm.entity.Res;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

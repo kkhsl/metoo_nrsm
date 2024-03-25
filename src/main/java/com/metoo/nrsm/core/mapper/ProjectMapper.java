@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.ProjectDTO;
-import com.metoo.nrsm.entity.nspm.Project;
+import com.metoo.nrsm.entity.Project;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

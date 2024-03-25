@@ -1,13 +1,14 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.service.Ipv4Service;
 import com.metoo.nrsm.core.service.impl.Ipv4ServiceImpl;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.PythonExecUtils;
-import com.metoo.nrsm.entity.nspm.Ipv4;
-import com.metoo.nrsm.entity.nspm.NetworkElement;
+import com.metoo.nrsm.entity.Ipv4;
+import com.metoo.nrsm.entity.NetworkElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +38,6 @@ public class GatherIpV4Runnable implements Runnable{
         this.date = date;
     }
 
-
     /**
      * When an object implementing interface <code>Runnable</code> is used
      * to create a thread, starting the thread causes the object's
@@ -52,24 +52,23 @@ public class GatherIpV4Runnable implements Runnable{
     @Override
     public void run() {
         String path = Global.PYPATH + "getarp.py";
-//                String result = PythonExecUtils.exec(path);
         String[] params = {networkElement.getIp(), networkElement.getVersion(),
                 networkElement.getCommunity()};
         String result = PythonExecUtils.exec(path, params);
-        if(!"".equals(result)){
+        if(StringUtil.isNotEmpty(result)){
             try {
                 List<Ipv4> ipv4s = JSONObject.parseArray(result, Ipv4.class);
-                if(ipv4s.size()>0){
+                if(ipv4s != null && ipv4s.size()>0){
                     ipv4s.forEach(e -> {
                         e.setDeviceIp(networkElement.getIp());
                         e.setDeviceName(networkElement.getDeviceName());
                         e.setAddTime(date);
-//                                this.ipv4Service.saveGather(e);
                     });
                     Ipv4ServiceImpl ipv4Service = (Ipv4ServiceImpl) ApplicationContextUtils.getBean("ipv4ServiceImpl");
                     ipv4Service.batchSaveGather(ipv4s);
                 }
             } catch (Exception e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
             }
         }

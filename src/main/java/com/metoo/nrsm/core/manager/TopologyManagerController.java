@@ -5,17 +5,17 @@ import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.TopologyDTO;
-import com.metoo.nrsm.core.service.IAccessoryService;
-import com.metoo.nrsm.core.service.INetworkElementService;
-import com.metoo.nrsm.core.service.ITopologyService;
+import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.collections.ListSortUtil;
 import com.metoo.nrsm.core.utils.date.DateTools;
+import com.metoo.nrsm.core.utils.ip.IpV4Util;
+import com.metoo.nrsm.core.utils.ip.Ipv6Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
-import com.metoo.nrsm.entity.nspm.Accessory;
-import com.metoo.nrsm.entity.nspm.Topology;
-import com.metoo.nrsm.entity.nspm.User;
+import com.metoo.nrsm.entity.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequestMapping("/admin/topology")
 @RestController
@@ -35,6 +36,12 @@ public class TopologyManagerController {
     private INetworkElementService networkElementService;
     @Autowired
     private IAccessoryService accessoryService;
+    @Autowired
+    private ITerminalService terminalService;
+    @Autowired
+    private IPortService portService;
+    @Autowired
+    private IPortIpv6Service portIpv6Service;
 
     @RequestMapping("/list")
     public Object list(@RequestBody(required = false) TopologyDTO dto){
@@ -257,6 +264,28 @@ public class TopologyManagerController {
         return ResponseUtil.ok();
     }
 
+//    @ApiOperation("拓扑信息")
+//    @GetMapping("/info")
+//    public Object topologyInfo(
+//            @RequestParam(value = "id") Long id,
+//            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+//            @RequestParam(value = "time", required = false) Date time){
+//        if(id == null){
+//            return  ResponseUtil.badArgument();
+//        }
+//        User user = ShiroUserHolder.currentUser();
+//        Topology topology = this.topologyService.selectObjById(id);
+//        if(topology != null){
+//            if(topology.getContent() != null && !topology.getContent().equals("")){
+//                JSONObject content = JSONObject.parseObject(topology.getContent().toString());
+//                topology.setContent(content);
+//            }
+//            return ResponseUtil.ok(topology);
+//        }
+//        return ResponseUtil.ok();
+//    }
+
+
     @ApiOperation("拓扑信息")
     @GetMapping("/info")
     public Object topologyInfo(
@@ -266,9 +295,9 @@ public class TopologyManagerController {
         if(id == null){
             return  ResponseUtil.badArgument();
         }
-        User user = ShiroUserHolder.currentUser();
-        Topology topology = this.topologyService.selectObjById(id);
-        if(topology != null){
+        List<Topology> topologies = this.selectObjById(id, time);
+        if(topologies != null && topologies.size() > 0){
+            Topology topology = topologies.get(0);
             if(topology.getContent() != null && !topology.getContent().equals("")){
                 JSONObject content = JSONObject.parseObject(topology.getContent().toString());
                 topology.setContent(content);
@@ -276,6 +305,24 @@ public class TopologyManagerController {
             return ResponseUtil.ok(topology);
         }
         return ResponseUtil.ok();
+    }
+
+    public  List<Topology> selectObjById(Long id, Date time){
+        Map params = new HashMap();
+        List<Topology> topologies = null;
+        params.put("id", id);
+        if(time == null){
+            topologies = this.topologyService.selectObjByMap(params);
+        }else{
+            params.put("id", id);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(time);
+            cal.set(Calendar.SECOND, 99);
+            Date date = cal.getTime();
+            params.put("time", date);
+            topologies = this.topologyService.selectObjHistoryByMap(params);
+        }
+        return topologies;
     }
 
     @ApiOperation("默认拓扑")
@@ -372,6 +419,54 @@ public class TopologyManagerController {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @GetMapping("/query/device/{ip}")
+    public Object queryDevice(@PathVariable(value = "ip") String ip){
+        if(StringUtils.isNotBlank(ip)){
+            Map result = new HashMap();
+            Map params = new HashMap();
+            if(IpV4Util.verifyIp(ip)){
+                params.put("ip", ip);
+                List<Port> ports = this.portService.selectObjByMap(params);
+                if(ports.size() > 0){
+                    Set<String> set = new HashSet<>();
+                    set.add(ports.get(0).getDeviceUuid());
+                    result.put("device", set);
+                }
+                params.clear();
+                params.put("v4ip", ip);
+                List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+                if(terminals.size() > 0){
+                    Set<String> set = terminals.stream().map(e -> {
+                        return e.getMac();
+                    }).collect(Collectors.toSet());
+                    result.put("terminal", set);
+                }
+            } else if(Ipv6Util.verifyIpv6(ip)){
+                params.clear();
+                params.put("ipv6", ip);
+                List<PortIpv6> portIpv6s = this.portIpv6Service.selectObjByMap(params);
+                if(portIpv6s.size() > 0){
+                    Set<String> set = new HashSet<>();
+                    set.add(portIpv6s.get(0).getDeviceUuid());
+                    result.put("device", set);
+                }
+            }
+
+            return ResponseUtil.ok(result);
+        }
+        return ResponseUtil.badArgument();
+    }
+
+    @ApiOperation("端口信息")
+    @GetMapping("/port/{uuid}")
+    public Object port(@PathVariable(value = "uuid") String uuid){
+        if(Strings.isBlank(uuid)){
+            return ResponseUtil.badArgument();
+        }
+        List list = this.topologyService.getDevicePortsByUuid(uuid);
+        return ResponseUtil.ok(list);
     }
 
 }

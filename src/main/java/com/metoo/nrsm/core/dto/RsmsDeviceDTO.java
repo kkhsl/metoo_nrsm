@@ -4,7 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.DoubleSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.metoo.nrsm.core.dto.page.PageDto;
-import com.metoo.nrsm.entity.nspm.RsmsDevice;
+import com.metoo.nrsm.entity.RsmsDevice;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

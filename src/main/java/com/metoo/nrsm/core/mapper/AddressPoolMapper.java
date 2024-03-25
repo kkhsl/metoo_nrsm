@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.AddressPoolDTO;
 import com.metoo.nrsm.core.vo.AddressPoolVO;
-import com.metoo.nrsm.entity.nspm.AddressPool;
+import com.metoo.nrsm.entity.AddressPool;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

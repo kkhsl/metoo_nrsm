@@ -1,15 +1,11 @@
 package com.metoo.nrsm.core.dto;
 
 import com.metoo.nrsm.core.dto.page.PageDto;
-import com.metoo.nrsm.entity.nspm.AddressPool;
-import com.metoo.nrsm.entity.nspm.Interface;
-import io.swagger.annotations.ApiModelProperty;
+import com.metoo.nrsm.entity.Interface;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.util.Date;
 
 /**
  * @author HKK

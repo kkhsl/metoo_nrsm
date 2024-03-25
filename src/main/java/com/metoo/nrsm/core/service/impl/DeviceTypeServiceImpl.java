@@ -9,7 +9,7 @@ import com.metoo.nrsm.core.service.IDeviceTypeService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.file.UploadFileUtil;
 import com.metoo.nrsm.core.vo.DeviceTypeVO;
-import com.metoo.nrsm.entity.nspm.DeviceType;
+import com.metoo.nrsm.entity.DeviceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

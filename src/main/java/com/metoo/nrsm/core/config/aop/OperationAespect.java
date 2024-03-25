@@ -2,10 +2,9 @@ package com.metoo.nrsm.core.config.aop;
 
 import com.metoo.nrsm.core.config.annotation.OperationLogAnno;
 import com.metoo.nrsm.core.config.annotation.OperationType;
-import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.service.IOperationLogService;
 import com.metoo.nrsm.core.utils.ip.IpV4Util;
-import com.metoo.nrsm.entity.nspm.OperationLog;
+import com.metoo.nrsm.entity.OperationLog;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Aspect;

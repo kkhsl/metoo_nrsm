@@ -4,11 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.OperationLogMapper">
 
-    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.nspm.OperationLog">
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.OperationLog">
         SELECT * FROM metoo_operation_log where id = #{id}
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.OperationLogDTO" resultType="com.metoo.nrsm.entity.nspm.OperationLog">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.OperationLogDTO" resultType="com.metoo.nrsm.entity.OperationLog">
         SELECT * FROM metoo_operation_log
         <where>
             <if test="account != null and account != ''">
@@ -38,11 +38,11 @@
         </if>
     </select>
 
-    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.nspm.OperationLog">
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.OperationLog">
         SELECT * FROM metoo_operation_log
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.OperationLog">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.OperationLog">
         INSERT INTO metoo_operation_log
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -106,7 +106,7 @@
 
 
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.OperationLog">
+    <update id="update" parameterType="com.metoo.nrsm.entity.OperationLog">
         UPDATE metoo_operation_log
         <set>
             <if test="addTime != null ">

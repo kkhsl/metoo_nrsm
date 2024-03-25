@@ -1,8 +1,7 @@
 package com.metoo.nrsm.core.utils.dhcp;
 
 import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.entity.nspm.Dhcp;
-import com.metoo.nrsm.entity.nspm.Dhcp6;
+import com.metoo.nrsm.entity.Dhcp6;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cglib.beans.BeanMap;
 import org.springframework.data.repository.init.ResourceReader;

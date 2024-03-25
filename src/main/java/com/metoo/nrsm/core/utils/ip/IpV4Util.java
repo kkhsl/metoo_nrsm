@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.utils.ip;
 
 import com.github.pagehelper.util.StringUtil;
+import org.apache.commons.net.util.SubnetUtils;
 import org.junit.Test;
 import org.springframework.stereotype.Component;
 
@@ -472,4 +473,39 @@ public class IpV4Util {
         return ip;
     }
 
+
+    /**
+     * ip地址转十进制
+     * @param
+     */
+    public static String ipConvertDec(String ip){
+        if(ip == null || ip.equals("")){
+            return null;
+        }
+        if(ip.equals("0.0.0.0")){
+
+        }else{
+            boolean isIp = verifyIp(ip);
+            if(!isIp){
+                return null;
+            }
+        }
+        String[] split = ip.split("\\.");
+        Long rs=0L;
+        for(int i=0,j=split.length-1;i<split.length;j--,i++){
+            Long intIp=Long.parseLong(split[i]) << 8 * j;
+            rs=rs | intIp;
+        }
+        return rs.toString();
+    }
+
+    // 获取子网列表
+    public  static String[] getSubnetList(String ip, int mask){
+        if(!StringUtil.isEmpty(ip) && mask >= 1 && mask <= 32){
+            SubnetUtils utils = new SubnetUtils(ip + "/" +  mask);
+            String[] allIps = utils.getInfo().getAllAddresses();
+            return allIps;
+        }
+        return null;
+    }
 }

@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.NetworkElementDto;
-import com.metoo.nrsm.entity.nspm.NetworkElement;
+import com.metoo.nrsm.entity.NetworkElement;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -29,4 +29,5 @@ public interface NetworkElementMapper {
     int delete(Long id);
 
     NetworkElement selectAccessoryByUuid(String uuid);
+
 }

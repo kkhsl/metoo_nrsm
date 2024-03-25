@@ -1,16 +1,21 @@
 package com.metoo.nrsm.core.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.dto.MacDTO;
 import com.metoo.nrsm.core.mapper.MacMapper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.PythonExecUtils;
-import com.metoo.nrsm.entity.nspm.*;
+import com.metoo.nrsm.entity.Arp;
+import com.metoo.nrsm.entity.Mac;
+import com.metoo.nrsm.entity.NetworkElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -21,6 +26,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @date 2024-02-02 10:20
  */
+
 @Service
 @Transactional
 public class MacServiceImpl implements IMacService {
@@ -33,9 +39,161 @@ public class MacServiceImpl implements IMacService {
     private INetworkElementService networkElementService;
 
     @Override
+    public List<Mac> selectObjByMap(Map params) {
+        return this.macMapper.selectObjByMap(params);
+    }
+
+    @Override
+    public List<Mac> selectTagToX(Map params) {
+        return this.macMapper.selectTagToX(params);
+    }
+
+    @Override
+    public List<Mac> selectTagToU(Map params) {
+        return this.macMapper.selectTagToU(params);
+    }
+
+    @Override
+    public List<Mac> selectTagToS(Map params) {
+        return this.macMapper.selectTagToS(params);
+    }
+
+    @Override
+    public List<Mac> selectTagSToE(Map params) {
+        return this.macMapper.selectTagSToE(params);
+    }
+
+    @Override
+    public List<Mac> selectTagSToRT(Map params) {
+        return this.macMapper.selectTagSToRT(params);
+    }
+
+    @Override
+    public List<Mac> selectDistinctObjByMap(Map params) {
+        return this.macMapper.selectDistinctObjByMap(params);
+    }
+
+    @Override
+    public List<Mac> copyArpMacAndIpToMac(Map params) {
+        return this.macMapper.copyArpMacAndIpToMac(params);
+    }
+
+    @Override
+    public List<Mac> selectXToEByMap(Map params) {
+        return this.macMapper.selectXToEByMap(params);
+    }
+
+    @Override
+    public List<Mac> selectUToEByMap(Map params) {
+        return this.macMapper.selectUToEByMap(params);
+    }
+
+    @Override
+    public List<Mac> selectXToUTByMap(Map params) {
+        return this.macMapper.selectXToUTByMap(params);
+    }
+
+    @Override
+    public List<Mac> selectUToRTByMap(Map params) {
+        return this.macMapper.selectUToRTByMap(params);
+    }
+
+    @Override
+    public List<Mac> selectRTToDTByMap(Map params) {
+        return this.macMapper.selectRTToDTByMap(params);
+    }
+
+    @Override
+    public List<Mac> selectRTToDT2ByMap(Map params) {
+        return this.macMapper.selectRTToDT2ByMap(params);
+    }
+
+    @Override
+    public List<Mac> selectDTByMap(Map params) {
+        return this.macMapper.selectDTByMap(params);
+    }
+
+    @Override
+    public List<Mac> copyArpIpToMacByDT(Map params) {
+        return this.macMapper.copyArpIpToMacByDT(params);
+    }
+
+    @Override
+    public List<Mac> selectDTAndDynamicByMap(Map params) {
+
+
+        return this.macMapper.selectDTAndDynamicByMap(params);
+    }
+
+    @Override
+    public Page<Mac> selectDTAndDynamicByConditionQuery(MacDTO instance) {
+        if(instance == null){
+            instance = new MacDTO();
+        }
+        Page<Mac> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
+        this.macMapper.selectDTAndDynamicByConditionQuery(instance);
+        return page;
+    }
+
+    @Override
     public boolean save(Mac instance) {
         try {
             this.macMapper.save(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean update(Mac instance) {
+        try {
+            this.macMapper.update(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateMacTagToRTByIds(Set<Long> ids) {
+        try {
+            this.macMapper.updateMacTagToRTByIds(ids);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateMacTagToDTByIds(Set<Long> ids) {
+        try {
+            this.macMapper.updateMacTagToDTByIds(ids);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean batchSave(List<Mac> instance) {
+        try {
+            this.macMapper.batchSave(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean batchUpdate(List<Mac> instance) {
+        try {
+            this.macMapper.batchUpdate(instance);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +228,6 @@ public class MacServiceImpl implements IMacService {
         if(networkElements.size() > 0){
             this.macMapper.truncateTable();
             for (NetworkElement networkElement : networkElements) {
-
                 String path = Global.PYPATH + "gethostname.py";
                 String[] params1 = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
@@ -156,6 +313,103 @@ public class MacServiceImpl implements IMacService {
         }
     }
 
+    @Override
+    public boolean saveGather(Mac instance) {
+        try {
+            this.macMapper.saveGather(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean batchSaveGather(List<Mac> instance) {
+        try {
+            this.macMapper.batchSaveGather(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean truncateTableGather() {
+        try {
+            this.macMapper.truncateTableGather();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteTable() {
+        try {
+            this.macMapper.deleteTable();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean copyGatherDataToMac() {
+        try {
+
+            int i = this.macMapper.deleteTable();
+//            int i = this.macMapper.truncateTable();
+            int ii = this.macMapper.copyGatherDataToMac();
+
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
+//            int i = this.macMapper.deleteTable();
+//
+//            int iii = 1 / 0;
+//
+//            int ii = this.macMapper.copyGatherDataToMac();
+//
+//            return true;
+    }
+
+    @Override
+    public boolean copyGather() {
+        try {
+
+            int ii = this.macMapper.copyGatherDataToMac();
+
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public void lock() {
+         this.macMapper.lock();
+    }
+
+    @Override
+    public void releaseLock() {
+         this.macMapper.releaseLock();
+    }
+
+    @Override
+    public int queryLock() {
+        return this.macMapper.queryLock();
+    }
+
 
     // mac对端设备
 //    @Deprecation
@@ -188,8 +442,8 @@ public class MacServiceImpl implements IMacService {
                 mac.setMac("00:00:00:00:00:00");
                 mac.setHostname(hostname);
                 mac.setTag("DE");
-                mac.setRemote_port(obj.get("remoteport"));
-                mac.setRemote_device(obj.get("hostname"));
+                mac.setRemotePort(obj.get("remoteport"));
+                mac.setRemoteDevice(obj.get("hostname"));
                 this.macMapper.save(mac);
             }
         }

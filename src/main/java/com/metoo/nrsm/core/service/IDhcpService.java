@@ -2,9 +2,10 @@ package com.metoo.nrsm.core.service;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.DhcpDto;
-import com.metoo.nrsm.entity.nspm.Dhcp;
-import com.metoo.nrsm.entity.nspm.Internet;
+import com.metoo.nrsm.entity.Dhcp;
+import com.metoo.nrsm.entity.Internet;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,8 @@ public interface IDhcpService {
     boolean delete(Long id);
 
     boolean truncateTable();
+
+    boolean deleteTable();
 
     String getdhcp();
 

@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.manager.utils;
 
 import com.metoo.nrsm.core.service.IRsmsDeviceService;
 import com.metoo.nrsm.core.utils.ip.IpV4Util;
-import com.metoo.nrsm.entity.nspm.RsmsDevice;
+import com.metoo.nrsm.entity.RsmsDevice;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

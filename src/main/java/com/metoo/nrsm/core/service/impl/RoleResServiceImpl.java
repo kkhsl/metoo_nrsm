@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.RoleResMapper;
 import com.metoo.nrsm.core.service.IRoleResService;
-import com.metoo.nrsm.entity.nspm.RoleRes;
+import com.metoo.nrsm.entity.RoleRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

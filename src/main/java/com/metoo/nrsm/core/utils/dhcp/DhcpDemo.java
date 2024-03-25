@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.utils.MyStringUtils;
-import com.metoo.nrsm.entity.nspm.Dhcp;
+import com.metoo.nrsm.entity.Dhcp;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;

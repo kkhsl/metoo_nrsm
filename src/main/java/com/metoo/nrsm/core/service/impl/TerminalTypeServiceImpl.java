@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.TerminalTypeMapper;
 import com.metoo.nrsm.core.service.ITerminalTypeService;
-import com.metoo.nrsm.entity.nspm.TerminalType;
+import com.metoo.nrsm.entity.TerminalType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

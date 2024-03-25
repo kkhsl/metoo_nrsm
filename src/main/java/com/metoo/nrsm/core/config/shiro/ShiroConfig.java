@@ -73,7 +73,9 @@ public class ShiroConfig {
 
 
         filterChainDefinitionMap.put("/notice/**", "anon");
+        filterChainDefinitionMap.put("/ws/**", "anon");
         filterChainDefinitionMap.put("/file/**", "anon");
+        filterChainDefinitionMap.put("/webssh", "anon");
 
         filterChainDefinitionMap.put("/user/login", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
 

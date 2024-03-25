@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.utils;
 
+import com.metoo.nrsm.core.service.impl.Dhcp6ServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 @Component
@@ -39,7 +40,12 @@ public class Global {
         Global.PYPATH = PYPATH;
     }
 
+    public static String env;
 
+    @Value("${spring.profiles.active}")
+    public void setEnv(String env) {
+        Global.env = env;
+    }
 
     public Global() {
     }

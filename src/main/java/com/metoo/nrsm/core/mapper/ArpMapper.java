@@ -1,9 +1,9 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.metoo.nrsm.entity.nspm.Arp;
-import com.metoo.nrsm.entity.nspm.Ipv4;
+import com.metoo.nrsm.entity.Arp;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +19,13 @@ public interface ArpMapper {
 
     List<Arp> joinSelectObjAndIpv6();
 
+    List<Arp> mergeIpv4AndIpv6(Map params);
+
     int save(Arp instance);
 
     int writeArp();
 
     int truncateTable();
-
 
     int deleteTable();
 
@@ -34,5 +35,11 @@ public interface ArpMapper {
 
     int batchSaveGather(List<Arp> instance);
 
+    int batchSaveGatherBySelect(Map params);
+
+    int batchSaveIpV4AndIpv6ToArpGather(Map params);
+
     int copyGatherDataToArp();
+
+    int gathreArp(Date date);
 }

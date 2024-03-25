@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.metoo.nrsm.entity.nspm.TerminalType;
+import com.metoo.nrsm.entity.TerminalType;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

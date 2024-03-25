@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.DeviceTypeMapper">
 
-    <resultMap id="Join_Result_Map" type="com.metoo.nrsm.entity.nspm.DeviceType">
+    <resultMap id="Join_Result_Map" type="com.metoo.nrsm.entity.DeviceType">
         <id column="id" property="id"></id>
         <result column="addTime" property="addTime"></result>
         <result column="deleteStatus" property="deleteStatus"></result>
@@ -10,7 +10,7 @@
         <result column="count" property="count"></result>
         <result column="type" property="type"></result>
         <collection property="networkElementList" javaType="list"
-                    ofType="com.metoo.nrsm.entity.nspm.NetworkElement">
+                    ofType="com.metoo.nrsm.entity.NetworkElement">
             <id column="ne_id" property="id"/>
             <result column="ip" property="ip"></result>
             <result column="device_name" property="deviceName"></result>
@@ -32,7 +32,7 @@
         </collection>
     </resultMap>
 
-    <resultMap id="Join_Terminal_Map" type="com.metoo.nrsm.entity.nspm.DeviceType">
+    <resultMap id="Join_Terminal_Map" type="com.metoo.nrsm.entity.DeviceType">
         <id column="id" property="id"></id>
         <result column="addTime" property="addTime"></result>
         <result column="deleteStatus" property="deleteStatus"></result>
@@ -40,7 +40,7 @@
         <result column="count" property="count"></result>
         <result column="type" property="type"></result>
         <collection property="terminalList" javaType="list"
-                    ofType="com.metoo.nrsm.entity.nspm.Terminal">
+                    ofType="com.metoo.nrsm.entity.Terminal">
             <id column="rt_id" property="id"></id>
             <result column="rt_name" property="name"></result>
             <result column="rt_online" property="online"></result>
@@ -65,22 +65,22 @@
 	 ) count
     </sql>
 
-    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.nspm.DeviceType">
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT * FROM metoo_device_type
         where id = #{id}
     </select>
 
-    <select id="selectObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.nspm.DeviceType">
+    <select id="selectObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT * FROM metoo_device_type
         where  `name` = #{name}
     </select>
 
-    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DeviceTypeDTO" resultType="com.metoo.nrsm.entity.nspm.DeviceType">
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DeviceTypeDTO" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT *
         FROM metoo_device_type
     </select>
 
-    <select id="selectObjByMap" resultType="com.metoo.nrsm.entity.nspm.DeviceType">
+    <select id="selectObjByMap" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT *
         FROM metoo_device_type
         <where>
@@ -111,7 +111,7 @@
         </if>
     </select>
 
-    <select id="selectCountByLeftJoin" resultType="com.metoo.nrsm.entity.nspm.DeviceType">
+    <select id="selectCountByLeftJoin" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT
             dt.*, IF(d.device_type_id IS NULL,0,COUNT(*)) `count`
         FROM
@@ -124,7 +124,7 @@
             dt.id
     </select>
 
-    <select id="selectDeviceTypeAndNeByJoin" resultType="com.metoo.nrsm.entity.nspm.DeviceType">
+    <select id="selectDeviceTypeAndNeByJoin" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT
             dt.*, COUNT(*) `count`
         FROM
@@ -278,7 +278,7 @@
             w.device_type_id = t.id
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.DeviceType">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.DeviceType">
         INSERT INTO metoo_device_type
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="name != '' and name != null ">
@@ -304,7 +304,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.DeviceType">
+    <update id="update" parameterType="com.metoo.nrsm.entity.DeviceType">
         UPDATE metoo_device_type
         <set>
             <if test="name != '' and name != null ">

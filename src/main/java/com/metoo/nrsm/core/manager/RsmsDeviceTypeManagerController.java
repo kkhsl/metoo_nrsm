@@ -6,7 +6,7 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.DeviceTypeDTO;
 import com.metoo.nrsm.core.service.IDeviceTypeService;
 import com.metoo.nrsm.core.utils.file.UploadFileUtil;
-import com.metoo.nrsm.entity.nspm.DeviceType;
+import com.metoo.nrsm.entity.DeviceType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;

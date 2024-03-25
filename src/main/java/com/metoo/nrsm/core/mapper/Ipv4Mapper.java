@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.metoo.nrsm.entity.nspm.Arp;
-import com.metoo.nrsm.entity.nspm.Ipv4;
+import com.metoo.nrsm.entity.Ipv4;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

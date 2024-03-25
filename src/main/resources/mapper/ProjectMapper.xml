@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.ProjectMapper">
 
-    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.nspm.Project">
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.Project">
         <id column="id" property="id"></id>
         <result column="addTime" property="addTime"></result>
         <result column="deleteStatus" property="deleteStatus"></result>
@@ -91,7 +91,7 @@
         </if>
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Project" keyProperty="id" useGeneratedKeys="true">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Project" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO metoo_project
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -153,7 +153,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Project">
+    <update id="update" parameterType="com.metoo.nrsm.entity.Project">
         UPDATE metoo_project
         <set>
             <if test="addTime != null">

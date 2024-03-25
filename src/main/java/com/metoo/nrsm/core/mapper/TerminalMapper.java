@@ -1,8 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.TerminalDTO;
-import com.metoo.nrsm.entity.nspm.Terminal;
+import com.metoo.nrsm.entity.Terminal;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -13,17 +12,27 @@ public interface TerminalMapper {
 
     Terminal selectObjById(Long id);
 
-    Page<Terminal> selectConditionQuery(TerminalDTO instance);
+    List<Terminal> selectObjByConditionQuery(TerminalDTO instance);
 
     List<Terminal> selectObjByMap(Map params);
 
-    int insert(Terminal instance);
+    List<Terminal> selectObjHistoryByMap(Map params);
+
+    List<Terminal> selectObjIntersection();
+
+    List<Terminal> selectObjLeftdifference();
+
+    List<Terminal> selectObjRightdifference();
+
+    int save(Terminal instance);
 
     int update(Terminal instance);
 
-    int batchInert(List<Terminal> instances);
+    int batchSave(List<Terminal> instance);
 
-    int batchUpdate(List<Terminal> instances);
+    int batchUpdate(List<Terminal> instance);
 
     int delete(Long id);
+
+    int copyTerminalToTerminalHistory();
 }

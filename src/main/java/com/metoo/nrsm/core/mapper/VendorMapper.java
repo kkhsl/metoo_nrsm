@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.metoo.nrsm.entity.nspm.Vendor;
+import com.metoo.nrsm.entity.Vendor;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

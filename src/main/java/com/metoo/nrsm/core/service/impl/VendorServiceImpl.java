@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.VendorMapper;
 import com.metoo.nrsm.core.service.IVendorService;
-import com.metoo.nrsm.entity.nspm.Vendor;
+import com.metoo.nrsm.entity.Vendor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

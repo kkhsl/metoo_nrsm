@@ -50,7 +50,7 @@ public class TimeUtils {
                 calendar2.add(Calendar.HOUR_OF_DAY, 8);
 
                 Date date3 = calendar2.getTime();
-                System.out.println("加8小时后的时间是：" + sdf2.format(date3));
+//                System.out.println("加8小时后的时间是：" + sdf2.format(date3));
                 return sdf2.format(date3);
             } catch (ParseException e) {
                 e.printStackTrace();

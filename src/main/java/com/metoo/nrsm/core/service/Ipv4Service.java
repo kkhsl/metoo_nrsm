@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.service;
 
-import com.metoo.nrsm.entity.nspm.Arp;
-import com.metoo.nrsm.entity.nspm.Ipv4;
+import com.metoo.nrsm.entity.Ipv4;
 
 import java.util.List;
 

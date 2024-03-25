@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.RoleMapper">
 
-    <resultMap id="roles" type="com.metoo.nrsm.entity.nspm.Role">
+    <resultMap id="roles" type="com.metoo.nrsm.entity.Role">
         <id property="id" column="rid" />
         <result property="name" column="name"></result>
         <result property="roleCode" column="roleCode"></result>
         <result property="type" column="type"></result>
     </resultMap>
 
-    <resultMap id="Unit_Role_Map" type="com.metoo.nrsm.entity.nspm.Role">
+    <resultMap id="Unit_Role_Map" type="com.metoo.nrsm.entity.Role">
         <id property="id" column="mr_id" />
         <result property="name" column="mr_name"></result>
         <result property="addTime" column="mr_addTime"></result>
@@ -29,13 +29,13 @@
     </sql>
 
 
-    <select id="findRoleById" parameterType="Long" resultType="com.metoo.nrsm.entity.nspm.Role">
+    <select id="findRoleById" parameterType="Long" resultType="com.metoo.nrsm.entity.Role">
           SELECT *
           FROM metoo_role
           WHERE id=#{id}
       </select>
 
-    <select id="findRoleByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.nspm.Role">
+    <select id="findRoleByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Role">
           SELECT *
           FROM metoo_role
           WHERE name=#{name}
@@ -58,7 +58,7 @@
         where mr.id= #{id}
       </select>
 
-    <select id="query" parameterType="com.metoo.nrsm.core.dto.RoleDto" resultType="com.metoo.nrsm.entity.nspm.Role">
+    <select id="query" parameterType="com.metoo.nrsm.core.dto.RoleDto" resultType="com.metoo.nrsm.entity.Role">
         SELECT *
         FROM metoo_role mr
         WHERE
@@ -92,7 +92,7 @@
     </resultMap>
 
 
-    <select id="findRoleByType" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.nspm.Role">
+    <select id="findRoleByType" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Role">
         SELECT *
         FROM metoo_role
         WHERE type=#{type}
@@ -104,7 +104,7 @@
     </sql>
 
     <!--根据用户id查询所有角色 嵌套插叙-->
-     <select id="findRoleByUserId" parameterType="Long" resultType="com.metoo.nrsm.entity.nspm.Role">
+     <select id="findRoleByUserId" parameterType="Long" resultType="com.metoo.nrsm.entity.Role">
          SELECT role.id,role.roleCode
          FROM metoo_role role
          WHERE id IN(
@@ -114,7 +114,7 @@
          )
      </select>
 
-    <select id="findRoleByResId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.nspm.Role">
+    <select id="findRoleByResId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Role">
         SELECT mr.id, mr.roleCode, mr.name
         FROM metoo_role mr
         where id IN(
@@ -124,7 +124,7 @@
         )
     </select>
 
-    <select id="findRoleByRoleGroupId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.nspm.Role">
+    <select id="findRoleByRoleGroupId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Role">
          SELECT *
          FROM metoo_role mr
          WHERE mr.rg_id=#{role_group_id, jdbcType=BIGINT};
@@ -149,13 +149,13 @@
         where u.id=#{user_id}
     </select>-->
 
-    <select id="findRoleByIds" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.nspm.Role">
+    <select id="findRoleByIds" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Role">
         SELECT <include refid="Base_Column_List"/>
         FROM metoo_role mr
         WHERE mr.id in(${ids, jdbcType=VARCHAR})
     </select>
 
-    <select id="findRoleByIdList" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.nspm.Role">
+    <select id="findRoleByIdList" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Role">
         SELECT <include refid="Base_Column_List"/>
         FROM metoo_role mr
         WHERE mr.id
@@ -165,7 +165,7 @@
         </foreach>
     </select>
 
-    <insert id="insert" parameterType="com.metoo.nrsm.entity.nspm.Role" keyProperty="id" useGeneratedKeys="true">
+    <insert id="insert" parameterType="com.metoo.nrsm.entity.Role" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO metoo_role
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -228,7 +228,7 @@
     </insert>
 
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Role" >
+    <update id="update" parameterType="com.metoo.nrsm.entity.Role" >
           UPDATE metoo_role
           <set>
               <if test="name != null">

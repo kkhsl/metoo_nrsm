@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.DeviceTypeDTO;
 import com.metoo.nrsm.core.vo.DeviceTypeVO;
-import com.metoo.nrsm.entity.nspm.DeviceType;
+import com.metoo.nrsm.entity.DeviceType;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

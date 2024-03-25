@@ -3,31 +3,32 @@ package com.metoo.nrsm.core.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.dto.TerminalDTO;
-import com.metoo.nrsm.core.manager.utils.RsmsDeviceUtils;
 import com.metoo.nrsm.core.mapper.TerminalMapper;
 import com.metoo.nrsm.core.service.IDeviceTypeService;
+import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.service.ITerminalService;
-import com.metoo.nrsm.entity.nspm.Terminal;
+import com.metoo.nrsm.entity.DeviceType;
+import com.metoo.nrsm.entity.NetworkElement;
+import com.metoo.nrsm.entity.Terminal;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
-//@Transactional
+@Transactional
 public class TerminalServiceImpl implements ITerminalService {
 
     @Autowired
     private TerminalMapper terminalMapper;
     @Autowired
-    private IDeviceTypeService deviceTypeService;
+    private INetworkElementService networkElementService;
     @Autowired
-    private RsmsDeviceUtils rsmsDeviceUtils;
+    private IDeviceTypeService deviceTypeService;
+
 
     @Override
     public Terminal selectObjById(Long id) {
@@ -35,9 +36,12 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
-    public Page<Terminal> selectConditionQuery(TerminalDTO instance) {
+    public Page<Terminal> selectObjByConditionQuery(TerminalDTO instance) {
+        if(instance == null){
+            instance = new TerminalDTO();
+        }
         Page<Terminal> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
-        this.terminalMapper.selectConditionQuery(instance);
+        this.terminalMapper.selectObjByConditionQuery(instance);
         return page;
     }
 
@@ -47,57 +51,49 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
-    public int save(Terminal instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
-            instance.setAddTime(new Date());
-            instance.setFrom(1);
-            instance.setTag("DT");
-            instance.setUuid(UUID.randomUUID().toString());
-        }else{
-            if(instance.getFrom() != null && Strings.isBlank(instance.getFrom().toString())){
+    public List<Terminal> selectObjHistoryByMap(Map params) {
+        return this.terminalMapper.selectObjHistoryByMap(params);
+    }
+
+    @Override
+    public boolean save(Terminal instance) {
+        if(instance.getId() == null){
+            if(instance.getId() == null || instance.getId().equals("")){
+                instance.setAddTime(new Date());
                 instance.setFrom(1);
+                instance.setTag("DT");
+                instance.setUuid(UUID.randomUUID().toString());
+            }else{
+                if(instance.getFrom() != null && Strings.isBlank(instance.getFrom().toString())){
+                    instance.setFrom(1);
+                }
             }
-        }
-        if(instance.getId() == null || instance.getId().equals("")){
             try {
-                return this.terminalMapper.insert(instance);
+                this.terminalMapper.save(instance);
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
-                return 0;
+                return false;
             }
         }else{
             try {
-                return this.terminalMapper.update(instance);
+                this.terminalMapper.update(instance);
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
-                return 0;
+                return false;
             }
         }
     }
 
     @Override
-    public int update(Terminal instance) {
+    public boolean update(Terminal instance) {
         try {
-            int i = this.terminalMapper.update(instance);
-            if(i >= 1){
-                try {
-                    String ip = instance.getIp();
-                    if(Strings.isBlank(ip)){
-                        Terminal terminal = this.terminalMapper.selectObjById(instance.getId());
-                        ip = terminal.getIp();
-                    }
-                    this.rsmsDeviceUtils.syncUpdateDevice(ip, instance.getName(), instance.getDeviceTypeId(),
-                            instance.getMac(), instance.getLocation(), instance.getDuty(), instance.getDepartmentId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                    return 0;
-                }
-            }
-            return i;
+            this.terminalMapper.update(instance);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return false;
         }
     }
 
@@ -107,166 +103,106 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
-    public int batchInert(List<Terminal> instances) {
+    public boolean batchSave(List<Terminal> instance) {
         try {
-            return this.terminalMapper.batchInert(instances);
+            this.terminalMapper.batchSave(instance);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return false;
         }
     }
 
     @Override
-    public int batchUpdate(List<Terminal> instances) {
+    public boolean batchUpdate(List<Terminal> instance) {
         try {
-            return this.terminalMapper.batchUpdate(instances);
+            this.terminalMapper.batchUpdate(instance);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return false;
         }
     }
 
     @Override
-    public void syncMacDtToTerminal() {
-//        Map params = new HashMap();
-//        params.clear();
-//        params.put("tags", Arrays.asList("DT", "UDT"));
-//        List<Mac> macs = this.macService.selectByMap(params);
-//        if(macs.size() < 0){
-//            List<Terminal> terminals = this.terminalMapper.selectObjByMap(null);
-//            if(terminals.size() > 0){
-//                terminals = terminals.stream().map(e -> {
-//                            if(e.getOnline()){
-//                                e.setOnline(false);
-//                                if(e.getInterfaceName().equals("PortN") || e.getInterfaceName().contains("Port")){
-//                                    e.setInterfaceStatus(1);
-//                                }
-//                                return e;
-//                            }
-//                            return null;
-//                        }
-//                ).collect(Collectors.toList());
-//                this.terminalMapper.batchUpdate(terminals);
-//            }
-//        }else{
-//            List<Long> ids = new ArrayList<>();
-//            macs.stream().forEach(e -> {
-//                // 更新端口状态
-//                params.clear();
-//                params.put("interfaceName", e.getInterfaceName());
-//                params.put("ip", e.getDeviceIp());
-//                Integer ifup = this.itemService.selectInterfaceStatus(params);
-//                params.clear();
-//                params.put("mac", e.getMac());
-//                List<Terminal> terminals = this.terminalMapper.selectObjByMap(params);
-//                if(terminals.size() > 0){
-//                    terminals.stream().forEach(t -> {
-//                        if(!t.getOnline()){
-//                            t.setOnline(true);
-//                        }
-//                        if(t.getInterfaceStatus() != ifup
-//                                && t.getInterfaceName() != null
-//                                && !t.getInterfaceName().equals("PortN")
-//                                && !t.getInterfaceName().contains("Port")){
-//                            t.setInterfaceStatus(ifup);
-//                        }
-//                        String[] IGNORE_ISOLATOR_PROPERTIES = new String[]{};
-//                        if(t.getFrom() == 3){
-//                            IGNORE_ISOLATOR_PROPERTIES = new String[]{
-//                                    "id",
-//                                    "online",
-//                                    "interfaceStatus",
-//                                    "deviceName",
-//                                    "interfaceName",
-//                                    "uuid"};
-//                        }else{
-//                            IGNORE_ISOLATOR_PROPERTIES = new String[]{"id", "online", "interfaceStatus", "from"};
-//                        }
-//                        BeanUtils.copyProperties(e, t, IGNORE_ISOLATOR_PROPERTIES);
-//                        this.terminalMapper.update(t);
-//                        ids.add(t.getId());
-//                    });
-//                }else{
-//                    Terminal terminal = new Terminal();
-//                    BeanUtils.copyProperties(e, terminal);
-//                    terminal.setOnline(true);
-//                    params.clear();
-//                    params.put("type", 14);
-//                    List<DeviceType> deviceTypes = this.deviceTypeService.selectObjByMap(params);
-//                    if(deviceTypes != null && deviceTypes.size() > 0){
-//                        terminal.setDeviceTypeId(deviceTypes.get(0).getId());
-//                        terminal.setName(deviceTypes.get(0).getName());
-//                    }
-//                    if(e.getInterfaceName() == null || e.getInterfaceName().equals("PortN") || e.getInterfaceName().contains("Port")){
-//                        terminal.setInterfaceStatus(1);
-//                        terminal.setFrom(3);
-//                    }else{
-//                        terminal.setInterfaceStatus(ifup);
-//                    }
-//
-//                    this.terminalMapper.insert(terminal);
-//                    ids.add(terminal.getId());
-//                }
-//            });
-//            params.clear();
-//            params.put("notIds", ids);
-//            List<Terminal> terminals = this.terminalMapper.selectObjByMap(params);
-//            terminals = terminals.stream().map(e -> {
-//                        if(e.getOnline()){
-//                            e.setOnline(false);
-//                            return e;
-//                        }
-//                          return null;
-//                    }
-//            ).filter(Objects::nonNull).collect(Collectors.toList());
-//            if(terminals.size() > 0){
-//                this.terminalMapper.batchUpdate(terminals);
-//            }
-//        }
-    }
+    public void syncTerminal(Date date){
+        Map params = new HashMap();
+        // 求交集，更新为终端在线
+        List<Terminal> inner = this.terminalMapper.selectObjIntersection();
+        if(inner.size() > 0){
+            inner.stream().forEach(e->{
+                e.setOnline(true);
+                this.setDevice(e, date);
+            });
+        }
 
-    @Override
-    public void syncHistoryMac(Date time) {
-//        Map params = new HashMap();
-//        params.clear();
-//        params.put("tags", Arrays.asList("DT", "UDT"));
-//        params.put("time", time);
-//        List<Mac> macs = this.macHistoryService.selectByMap(params);
-//        if(macs.size() > 0){
-//            macs.stream().forEach(e -> {
-//                params.clear();
-//                params.put("mac", e.getMac());
-//                List<Terminal> terminals = this.terminalMapper.selectObjByMap(params);
-//                if(terminals.size() > 0){
-//                    Terminal terminal = terminals.get(0);
-//                    if(terminal.getDeviceTypeId() != null && !terminal.getDeviceTypeId().equals("")){
-//                        DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
-//                        e.setDeviceTypeName(deviceType.getName());
-//                        e.setOnline(terminal.getOnline());
-//                        e.setInterfaceStatus(terminal.getInterfaceStatus());
-//                        this.macHistoryService.update(e);
-//                    }
-//                }
-//            });
-//        }
-    }
-
-    @Override
-    public int editTerminalType(Long[] ids) {
+        // 批量更新
+        // 求差集，terminal更新终端为不在线，mac表DT插入terminal
         try {
-            for (Long id : ids) {
-                Terminal terminal = this.terminalMapper.selectObjById(id);
-                if(terminal != null){
-                    terminal.setType(1);
-                    this.terminalMapper.update(terminal);
-                }
+            List<Terminal> left = this.terminalMapper.selectObjLeftdifference();
+            if(left.size() > 0){
+                left.stream().forEach(e-> {
+                    e.setOnline(true);
+                    this.setDevice(e, date);
+                    params.clear();
+                    params.put("type", 14);
+                    List<DeviceType> deviceTypes = this.deviceTypeService.selectObjByMap(params);
+                    if(deviceTypes.size() > 0){
+                        e.setDeviceTypeId(deviceTypes.get(0).getId());
+                    }
+                });
             }
-            return 1;
+            // 批量插入
+            if(left.size() > 0){
+                this.terminalMapper.batchSave(left);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//            throw new ArithmeticException("算数异常");
-            return 0;
+        }
+
+        List<Terminal> right = this.terminalMapper.selectObjRightdifference();
+        if(right.size() > 0){
+            right.stream().forEach(e->{
+                e.setOnline(false);
+                this.setDevice(e, date);
+            });
+            inner.addAll(right);
+        }
+
+        // 批量更新
+        if(inner.size() > 0){
+            this.terminalMapper.batchUpdate(inner);
         }
     }
+
+    public void setDevice(Terminal e, Date date){
+        Map params = new HashMap();
+        if(StringUtils.isNotEmpty(e.getDeviceIp())){
+            params.clear();
+            params.put("ip", e.getDeviceIp());
+            List<NetworkElement> nes = this.networkElementService.selectObjByMap(params);
+            if(nes.size() > 0){
+                NetworkElement ne = nes.get(0);
+                e.setDeviceUuid(ne.getUuid());
+                e.setAddTime(date);
+            }
+        }
+        if(StringUtils.isNotEmpty(e.getRemoteDeviceIp())){
+            params.clear();
+            params.put("ip", e.getRemoteDeviceIp());
+            List<NetworkElement> nes2 = this.networkElementService.selectObjByMap(params);
+            if(nes2.size() > 0){
+                NetworkElement ne = nes2.get(0);
+                e.setRemoteDeviceUuid(ne.getUuid());
+                e.setAddTime(date);
+            }
+        }
+
+    }
+    // 优化：对比上次采集结果，如果没有变化则不记录
+    @Override
+    public void syncTerminalToTerminalHistory() {
+        this.terminalMapper.copyTerminalToTerminalHistory();
+    } ;
 }
+

@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.DhcpDto;
-import com.metoo.nrsm.entity.nspm.Dhcp;
+import com.metoo.nrsm.entity.Dhcp;
 
 import java.util.List;
 import java.util.Map;

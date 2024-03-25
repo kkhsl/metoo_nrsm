@@ -9,8 +9,13 @@ import com.metoo.nrsm.core.dto.TopologyDTO;
 import com.metoo.nrsm.core.mapper.TopologyMapper;
 import com.metoo.nrsm.core.service.IDeviceTypeService;
 import com.metoo.nrsm.core.service.INetworkElementService;
+import com.metoo.nrsm.core.service.IPortService;
 import com.metoo.nrsm.core.service.ITopologyService;
-import com.metoo.nrsm.entity.nspm.Topology;
+import com.metoo.nrsm.core.utils.collections.ListSortUtil;
+import com.metoo.nrsm.entity.DeviceType;
+import com.metoo.nrsm.entity.NetworkElement;
+import com.metoo.nrsm.entity.Port;
+import com.metoo.nrsm.entity.Topology;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -26,9 +31,11 @@ public class TopologyServiceImpl implements ITopologyService {
     @Autowired
     private TopologyMapper topologyMapper;
     @Autowired
+    private INetworkElementService networkElementService;
+    @Autowired
     private IDeviceTypeService deviceTypeService;
     @Autowired
-    private INetworkElementService networkElementService;
+    private IPortService portService;
 
     @Override
     public Topology selectObjById(Long id) {
@@ -57,6 +64,12 @@ public class TopologyServiceImpl implements ITopologyService {
     }
 
     @Override
+    public List<Topology> selectObjHistoryByMap(Map params) {
+        return this.topologyMapper.selectObjHistoryByMap(params);
+    }
+
+
+    @Override
     public List<Topology> selectTopologyByMap(Map params) {
         return this.topologyMapper.selectTopologyByMap(params);
     }
@@ -76,6 +89,15 @@ public class TopologyServiceImpl implements ITopologyService {
         if(instance.getId() == null){
             try {
                int i = this.topologyMapper.save(instance);
+                if(i >= 1){
+                    try {
+                        Calendar cal = Calendar.getInstance();
+                        instance.setAddTime(cal.getTime());
+                        this.saveHistory(instance);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 return instance.getId().intValue();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -84,6 +106,64 @@ public class TopologyServiceImpl implements ITopologyService {
         }else{
             try {
                 int i = this.topologyMapper.update(instance);
+                if(i >= 1){
+                    try {
+                        Calendar cal = Calendar.getInstance();
+                        instance.setAddTime(cal.getTime());
+                        this.saveHistory(instance);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                return i;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return 0;
+            }
+        }
+    }
+
+    @Override
+    public int saveHistory(Topology instance) {
+        if(instance.getId() == null){
+            instance.setAddTime(new Date());
+        }else{
+            instance.setUpdateTime(new Date());
+        }
+        if(instance.getContent() != null && !instance.getContent().equals("")){
+            // 解析content 并写入uuid
+            Object content = this.writerUuid(instance.getContent());
+            instance.setContent(content);
+        }
+        if(instance.getId() == null){
+            try {
+                int i = this.topologyMapper.saveHistory(instance);
+                if(i >= 1){
+                    try {
+                        Calendar cal = Calendar.getInstance();
+                        instance.setAddTime(cal.getTime());
+                        this.topologyMapper.saveHistory(instance);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                return instance.getId().intValue();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return 0;
+            }
+        }else{
+            try {
+                int i = this.topologyMapper.update(instance);
+                if(i >= 1){
+                    try {
+                        Calendar cal = Calendar.getInstance();
+                        instance.setAddTime(cal.getTime());
+                        this.topologyMapper.saveHistory(instance);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 return i;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -165,8 +245,21 @@ public class TopologyServiceImpl implements ITopologyService {
     }
 
     @Override
-    public List<Map<String, Object>> getDevicePortsByUuid(String uuid) {
-        return null;
+    public List<Port> getDevicePortsByUuid(String uuid) {
+        Map params = new HashMap();
+        params.put("uuid", uuid);
+        List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
+        if(networkElements.size() > 0){
+            NetworkElement networkElement = networkElements.get(0);
+            List<Port> ports = this.portService.selectObjByDeviceUuid(networkElement.getUuid());
+            if(ports.size() > 0){
+                if(ports != null && ports.size() > 0){
+                    ListSortUtil.sortStr2(ports);
+                }
+                return ports;
+            }
+        }
+        return new ArrayList<>();
     }
 
     @Override

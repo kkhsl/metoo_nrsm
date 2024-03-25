@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.OperationLogDTO;
-import com.metoo.nrsm.entity.nspm.OperationLog;
+import com.metoo.nrsm.entity.OperationLog;
 
 import java.util.List;
 import java.util.Map;

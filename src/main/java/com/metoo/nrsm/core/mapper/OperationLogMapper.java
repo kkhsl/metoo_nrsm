@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.OperationLogDTO;
-import com.metoo.nrsm.entity.nspm.OperationLog;
+import com.metoo.nrsm.entity.OperationLog;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

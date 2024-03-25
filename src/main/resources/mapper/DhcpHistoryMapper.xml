@@ -4,21 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.DhcpHistoryMapper">
 
-    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.nspm.Dhcp">
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Dhcp">
         SELECT *
         FROM metoo_dhcp_history
         WHERE
           id = #{id}
     </select>
 
-    <select id="selectObjByLease" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.nspm.Dhcp">
+    <select id="selectObjByLease" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Dhcp">
         SELECT *
         FROM metoo_dhcp_history
         WHERE
           lease = #{lease}
     </select>
 
-    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DhcpDto" resultType="com.metoo.nrsm.entity.nspm.Dhcp">
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DhcpDto" resultType="com.metoo.nrsm.entity.Dhcp">
         SELECT *
         FROM metoo_dhcp_history
         <where>
@@ -58,7 +58,7 @@
         </where>
     </select>
 
-    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.nspm.Dhcp">
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Dhcp">
         SELECT *
         FROM metoo_dhcp_history
         <where>
@@ -99,7 +99,7 @@
     </select>
 
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Dhcp">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Dhcp">
         INSERT INTO metoo_dhcp_history
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -179,7 +179,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Dhcp">
+    <update id="update" parameterType="com.metoo.nrsm.entity.Dhcp">
         UPDATE FROM metoo_dhcp_history
         <set>
             <if test="addTime != null">

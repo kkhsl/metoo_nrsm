@@ -3,7 +3,7 @@ package com.metoo.nrsm.core.service;
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.DeviceTypeDTO;
 import com.metoo.nrsm.core.vo.DeviceTypeVO;
-import com.metoo.nrsm.entity.nspm.DeviceType;
+import com.metoo.nrsm.entity.DeviceType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

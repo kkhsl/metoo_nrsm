@@ -2,8 +2,7 @@ package com.metoo.nrsm.core.service;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.NetworkElementDto;
-import com.metoo.nrsm.entity.nspm.NetworkElement;
-import org.apache.ibatis.annotations.Mapper;
+import com.metoo.nrsm.entity.NetworkElement;
 
 import java.util.List;
 import java.util.Map;

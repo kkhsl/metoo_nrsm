@@ -4,19 +4,18 @@ import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.TerminalDTO;
-import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.utils.file.DownLoadFileUtil;
+import com.metoo.nrsm.core.service.IDeviceTypeService;
+import com.metoo.nrsm.core.service.IProjectService;
+import com.metoo.nrsm.core.service.ITerminalService;
+import com.metoo.nrsm.core.service.IVendorService;
 import com.metoo.nrsm.core.utils.ip.IpV4Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
-import com.metoo.nrsm.entity.nspm.*;
-import io.swagger.annotations.ApiOperation;
+import com.metoo.nrsm.entity.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +32,6 @@ public class TerminalManagerController {
     private IVendorService vendorService;
     @Autowired
     private IProjectService projectService;
-    @Autowired
-    private INetworkElementService networkElementService;
-
 
     @PostMapping("/list")
     public Object list(@RequestBody TerminalDTO dto){
@@ -50,9 +46,8 @@ public class TerminalManagerController {
             }
         }
 
-        dto.setOrderBy("online");
-        dto.setOrderType("DESC");
-        Page<Terminal> page = this.terminalService.selectConditionQuery(dto);
+        Page<Terminal> page = this.terminalService.selectObjByConditionQuery(dto);
+
         if(page.size() > 0){
             page.getResult().stream().forEach(e ->{
                 if(e.getDeviceTypeId() != null && !e.getDeviceTypeId().equals("")){
@@ -74,33 +69,28 @@ public class TerminalManagerController {
                         e.setProjectName(project.getName());
                     }
                 }
-//                if(e.getDeviceTypeId() != null){
-//                    DeviceType deviceType = this.deviceTypeService.selectObjById(e.getDeviceTypeId());
-//                    if(deviceType != null){
-//                        e.setDeviceName(deviceType.getName());
-//
-//                    }
-//                }
             });
         }
+
         Map map = new HashMap();
         // 设备类型
-        Map parmas = new HashMap();
-        parmas.put("diff", 1);
-        parmas.put("orderBy", "sequence");
-        parmas.put("orderType", "DESC");
-        List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
+        Map params = new HashMap();
+        params.put("diff", 1);
+        params.put("orderBy", "sequence");
+        params.put("orderType", "DESC");
+        List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(params);
         map.put("deviceTypeList", deviceTypeList);
-        User user = ShiroUserHolder.currentUser();
-
         // 品牌
         List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
         map.put("vendor", vendors);
         // 项目
-        Map params = new HashMap();
+
+        User user = ShiroUserHolder.currentUser();
+        params.clear();
         params.put("userId", user.getId());
         List<Project> projectList = this.projectService.selectObjByMap(params);
         map.put("project", projectList);
+
         return ResponseUtil.ok(new PageInfo<Terminal>(page, map));
     }
 
@@ -170,14 +160,14 @@ public class TerminalManagerController {
 
     @GetMapping("/verify")
     public Object verifyIp(@RequestParam(value = "id", required = false) Long id,
-                           @RequestParam(value = "ip", required = true) String ip){
+                           @RequestParam(value = "v4ip", required = true) String v4ip){
         // 校验Ip
-        if(!StringUtils.isEmpty(ip)){
-            boolean flag = IpV4Util.verifyIp(ip);
+        if(!StringUtils.isEmpty(v4ip)){
+            boolean flag = IpV4Util.verifyIp(v4ip);
             if(flag){
                 Map params = new HashMap();
                 params.clear();
-                params.put("ip", ip);
+                params.put("v4ip", v4ip);
                 params.put("terminalId", id);
                 List<Terminal> terminals = this.terminalService.selectObjByMap(params);
                 if(terminals.size() > 0){
@@ -201,16 +191,16 @@ public class TerminalManagerController {
             }
         }
         // 验证Ip唯一性
-        if(instance.getIp() == null || instance.getIp().equals("")){
+        if(instance.getV4ip() == null || instance.getV4ip().equals("")){
             return ResponseUtil.badArgument("请输入有效IP");
         }else{
             // 验证ip合法性
-            boolean flag =  IpV4Util.verifyIp(instance.getIp());
+            boolean flag =  IpV4Util.verifyIp(instance.getV4ip());
             if(!flag){
                 return ResponseUtil.badArgument("ip不合法");
             }
             params.clear();
-            params.put("ip", instance.getIp());
+            params.put("v4ip", instance.getV4ip());
             params.put("terminalId", instance.getId());
             List<Terminal> terminals = this.terminalService.selectObjByMap(params);
             if(terminals.size() > 0){
@@ -237,16 +227,17 @@ public class TerminalManagerController {
                 return ResponseUtil.badArgument("资产编号与(" + terminal.getName() + ")设备重复");
             }
         }
-        if(instance.getHost_name() != null && !instance.getHost_name().isEmpty()){
-            params.clear();
-            params.put("host_name", instance.getHost_name());
-            params.put("terminalId", instance.getId());
-            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-            if(terminals.size() > 0){
-                Terminal terminal = terminals.get(0);
-                return ResponseUtil.badArgument("主机名与(" + terminal.getName() + ")设备重复");
-            }
-        }
+
+//        if(instance.getClient_hostname() != null && !instance.getClient_hostname().isEmpty()){
+//            params.clear();
+//            params.put("client_hostname", instance.getName());
+//            params.put("terminalId", instance.getId());
+//            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+//            if(terminals.size() > 0){
+//                Terminal terminal = terminals.get(0);
+//                return ResponseUtil.badArgument("主机名与(" + terminal.getName() + ")设备重复");
+//            }
+//        }
 
         // 验证日期
         if(instance.getWarranty_time() != null && instance.getPurchase_time() != null){
@@ -289,47 +280,47 @@ public class TerminalManagerController {
         if(instance.getInterfaceName() != null && !instance.getInterfaceName().equals("")){
             instance.setIndex(instance.getInterfaceName().replace("Port", ""));
         }
-        int i = this.terminalService.save(instance);
-        if(i >= 1){
+        boolean flag = this.terminalService.save(instance);
+        if(flag){
             return ResponseUtil.ok();
         }
         return ResponseUtil.error();
     }
 
-
-    // 终端修改上联设备
-    @PutMapping("/update")
-    public Object update(@RequestParam String uuid, String id){
-        NetworkElement networkElement  = this.networkElementService.selectAccessoryByUuid(uuid);
-        if(networkElement != null){
-            Terminal terminal = this.terminalService.selectObjById(Long.parseLong(id));
-            if(terminal != null){
-                terminal.setDeviceName(networkElement.getDeviceName());
-                terminal.setInterfaceName(networkElement.getInterfaceName());
-                terminal.setUuid(networkElement.getUuid());
-                int i = this.terminalService.update(terminal);
-                if(i >= 1){
-                    return ResponseUtil.ok();
-                }
-                return ResponseUtil.error();
-            }
-        }
-        return ResponseUtil.badArgument();
-    }
-
-    @ApiOperation("批量修改终端为资产终端")
-    @PutMapping("/batch/update")
-    public Object editTerminal(@RequestParam Long[] ids){
-        if(ids.length > 0){
-            int i = this.terminalService.editTerminalType(ids);
-            if(i >= 1){
-                return ResponseUtil.ok();
-            }
-        }
-        return ResponseUtil.badArgument("请选择终端");
-    }
-
-//    @DeleteMapping(value = {"/{id}","/{ids}"})
+//
+//    // 终端修改上联设备
+//    @PutMapping("/update")
+//    public Object update(@RequestParam String uuid, String id){
+//        NetworkElement networkElement  = this.networkElementService.selectAccessoryByUuid(uuid);
+//        if(networkElement != null){
+//            Terminal terminal = this.terminalService.selectObjById(Long.parseLong(id));
+//            if(terminal != null){
+//                terminal.setDeviceName(networkElement.getDeviceName());
+//                terminal.setInterfaceName(networkElement.getInterfaceName());
+//                terminal.setUuid(networkElement.getUuid());
+//                int i = this.terminalService.update(terminal);
+//                if(i >= 1){
+//                    return ResponseUtil.ok();
+//                }
+//                return ResponseUtil.error();
+//            }
+//        }
+//        return ResponseUtil.badArgument();
+//    }
+//
+//    @ApiOperation("批量修改终端为资产终端")
+//    @PutMapping("/batch/update")
+//    public Object editTerminal(@RequestParam Long[] ids){
+//        if(ids.length > 0){
+//            int i = this.terminalService.editTerminalType(ids);
+//            if(i >= 1){
+//                return ResponseUtil.ok();
+//            }
+//        }
+//        return ResponseUtil.badArgument("请选择终端");
+//    }
+//
+////    @DeleteMapping(value = {"/{id}","/{ids}"})
     @DeleteMapping
     public Object delete(Long id, String ids){
         if(Strings.isNotBlank(ids) && ids.split(",").length > 0){
@@ -351,37 +342,37 @@ public class TerminalManagerController {
         }
         return ResponseUtil.badArgument();
     }
-
-//    @PutMapping
-//    public Object update(@RequestBody Terminal instance){
-//        if(instance.getDeviceTypeId() != null && !instance.getDeviceTypeId().equals("")){
-//            DeviceType deviceType = this.deviceTypeService.selectObjById(instance.getDeviceTypeId());
-//            if(deviceType == null){
-//                return ResponseUtil.badArgument();
-//            }
-//        }
-//        int i = this.terminalService.update(instance);
-//        if(i >= 1){
+//
+////    @PutMapping
+////    public Object update(@RequestBody Terminal instance){
+////        if(instance.getDeviceTypeId() != null && !instance.getDeviceTypeId().equals("")){
+////            DeviceType deviceType = this.deviceTypeService.selectObjById(instance.getDeviceTypeId());
+////            if(deviceType == null){
+////                return ResponseUtil.badArgument();
+////            }
+////        }
+////        int i = this.terminalService.update(instance);
+////        if(i >= 1){
+////            return ResponseUtil.ok();
+////        }else{
+////            return ResponseUtil.error("保存失败");
+////        }
+////    }
+//
+//    @Value("${batchImportTerminalFileName}")
+//    private String batchImportDeviceFileName;
+//    @Value("${batchImportFilePath}")
+//    private String batchImportFilePath;
+//
+//    @ApiOperation("下载模板")
+//    @GetMapping("/downTemp")
+//    public Object downTemplate(HttpServletResponse response) {
+//        boolean flag = DownLoadFileUtil.downloadTemplate(this.batchImportFilePath, this.batchImportDeviceFileName, response);
+//        if(flag){
 //            return ResponseUtil.ok();
 //        }else{
-//            return ResponseUtil.error("保存失败");
+//            return ResponseUtil.error();
 //        }
 //    }
-
-    @Value("${batchImportTerminalFileName}")
-    private String batchImportDeviceFileName;
-    @Value("${batchImportFilePath}")
-    private String batchImportFilePath;
-
-    @ApiOperation("下载模板")
-    @GetMapping("/downTemp")
-    public Object downTemplate(HttpServletResponse response) {
-        boolean flag = DownLoadFileUtil.downloadTemplate(this.batchImportFilePath, this.batchImportDeviceFileName, response);
-        if(flag){
-            return ResponseUtil.ok();
-        }else{
-            return ResponseUtil.error();
-        }
-    }
 
 }

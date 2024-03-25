@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.ResMapper">
 
-    <resultMap id="ResRole_Unit_Map" type="com.metoo.nrsm.entity.nspm.Res">
+    <resultMap id="ResRole_Unit_Map" type="com.metoo.nrsm.entity.Res">
         <id column="mp_id" property="id"></id>
         <result column="mp_addTime" property="addTime"></result>
         <result column="mp_name" property="name"></result>
@@ -17,7 +17,7 @@
         <result column="parentName" property="parentName"></result>
         <result column="icon" property="icon"></result>
         <result column="hidden" property="hidden"></result>
-        <association property="role" column="role_id" javaType="com.metoo.nrsm.entity.nspm.Role" >
+        <association property="role" column="role_id" javaType="com.metoo.nrsm.entity.Role" >
             <id property="id" column="mr_id" />
             <result property="name" column="mr_name"></result>
         </association>
@@ -28,7 +28,7 @@
          sequence, level, parentId, parentName, icon, hidden
     </sql>
 
-    <select id="findResByRoleId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.nspm.Res">
+    <select id="findResByRoleId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Res">
         SELECT role.id role_id,role.name,role.roleCode,role.type,
           res.id,res.value, res.component, res.componentName, res.level, res.parentId, res.parentName,
            res.icon, res.sequence
@@ -39,7 +39,7 @@
         AND res.level = 1
     </select>
 
-    <select id="query" parameterType="com.metoo.nrsm.core.dto.ResDto" resultType="com.metoo.nrsm.entity.nspm.Res">
+    <select id="query" parameterType="com.metoo.nrsm.core.dto.ResDto" resultType="com.metoo.nrsm.entity.Res">
         SELECT <include refid="Base_Column_List" />
         FROM metoo_res mp
         <where>
@@ -54,7 +54,7 @@
         DESC
     </select>
 
-    <select id="findPermissionByMap" parameterType="map" resultType="com.metoo.nrsm.entity.nspm.Res">
+    <select id="findPermissionByMap" parameterType="map" resultType="com.metoo.nrsm.entity.Res">
         SELECT <include refid="Base_Column_List" />
         FROM metoo_res mp
         <where>
@@ -148,19 +148,19 @@
         ORDER BY mp1.sequence,mp2.sequence ASC
     </select>
 
-    <select id="selectPrimaryById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.nspm.Res">
+    <select id="selectPrimaryById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Res">
         SELECT <include refid="Base_Column_List" />
         FROM metoo_res mr
         WHERE mr.id=#{id, jdbcType=BIGINT}
     </select>
 
-    <select id="findObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.nspm.Res">
+    <select id="findObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Res">
         SELECT <include refid="Base_Column_List" />
         FROM metoo_res
         WHERE name=#{name}
     </select>
 
-    <select id="findObjByNameAndLevel" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.nspm.Res">
+    <select id="findObjByNameAndLevel" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Res">
         SELECT <include refid="Base_Column_List" />
         FROM metoo_res
         <where>
@@ -183,7 +183,7 @@
          order by mp.sequence ASC
      </select>
 
-    <select id="findResByResIds" parameterType="list" resultType="com.metoo.nrsm.entity.nspm.Res">
+    <select id="findResByResIds" parameterType="list" resultType="com.metoo.nrsm.entity.Res">
         SELECT *
         FROM metoo_res mr
         WHERE mr.id
@@ -204,7 +204,7 @@
     	user.id = #{id}
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Res" keyProperty="id" useGeneratedKeys="true">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Res" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO metoo_res
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="id != null">
@@ -302,7 +302,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Res">
+    <update id="update" parameterType="com.metoo.nrsm.entity.Res">
         UPDATE metoo_res mr
         <set>
             <if test="name != null">

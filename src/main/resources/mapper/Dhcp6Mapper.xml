@@ -4,21 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.Dhcp6Mapper">
 
-    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.nspm.Dhcp6">
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Dhcp6">
         SELECT *
         FROM metoo_dhcp6
         WHERE
           id = #{id}
     </select>
 
-    <select id="selectObjByLease" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.nspm.Dhcp6">
+    <select id="selectObjByLease" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Dhcp6">
         SELECT *
         FROM metoo_dhcp6
         WHERE
           lease = #{lease}
     </select>
 
-    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.Dhcp6Dto" resultType="com.metoo.nrsm.entity.nspm.Dhcp6">
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.Dhcp6Dto" resultType="com.metoo.nrsm.entity.Dhcp6">
         SELECT *
         FROM metoo_dhcp6
         <where>
@@ -28,18 +28,24 @@
         </where>
     </select>
 
-    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.nspm.Dhcp6">
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Dhcp6">
         SELECT *
         FROM metoo_dhcp6
         <where>
             <if test="ia_na != '' and ia_na != null">
                 AND ia_na = #{ia_na}
             </if>
+            <if test="iaaddr_array != '' and iaaddr_array != null">
+                AND iaaddr in
+                <foreach collection="iaaddr_array" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
         </where>
     </select>
 
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Dhcp6">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Dhcp6">
         INSERT INTO metoo_dhcp6
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -95,7 +101,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Dhcp6">
+    <update id="update" parameterType="com.metoo.nrsm.entity.Dhcp6">
         UPDATE FROM metoo_dhcp6
         <set>
             <if test="addTime != null">
@@ -133,5 +139,9 @@
     <update id="truncateTable">
         TRUNCATE TABLE metoo_dhcp6
     </update>
+
+    <delete id="deleteTable">
+        DELETE FROM metoo_dhcp6
+    </delete>
 
 </mapper>

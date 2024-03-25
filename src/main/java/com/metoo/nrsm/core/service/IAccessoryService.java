@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.service;
 
-import com.metoo.nrsm.entity.nspm.Accessory;
+import com.metoo.nrsm.entity.Accessory;
 
 import java.util.List;
 import java.util.Map;

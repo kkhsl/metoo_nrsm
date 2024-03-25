@@ -24,11 +24,6 @@ public class Scheduled {
     @Autowired
     private IDhcp6Service dhcp6Service;
     @Autowired
-    private IArpService arpService;
-    @Autowired
-    private IMacService macService;
-
-    @Autowired
     private IGatherService gatherService;
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
@@ -38,7 +33,6 @@ public class Scheduled {
             System.out.println("DHCP Start......");
             try {
                 dhcpService.gather(DateTools.gatherDate());
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -76,17 +70,74 @@ public class Scheduled {
         }
     }
 
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "*/10 * * * * ?")
+//    @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
     public void gatherMac() {
-        if(flag){
+        if(true){
             Long time=System.currentTimeMillis();
             System.out.println("mac Start......");
             try {
-                macService.gatherMac(DateTools.gatherDate());
+                gatherService.gatherMacThread(DateTools.gatherDate());
             } catch (Exception e) {
                 e.printStackTrace();
             }
             System.out.println("mac End......" + (System.currentTimeMillis()-time));
+        }
+    }
+
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
+    public void gatherIpv4() {
+        if(flag){
+            Long time=System.currentTimeMillis();
+            System.out.println("Ipv4 Start......");
+            try {
+                gatherService.gatherIpv4Thread(DateTools.gatherDate());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Ipv4 End......" + (System.currentTimeMillis()-time));
+        }
+    }
+
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
+    public void gatherIpv6() {
+        if(flag){
+            Long time=System.currentTimeMillis();
+            System.out.println("Ipv6 Start......");
+            try {
+                gatherService.gatherIpv6Thread(DateTools.gatherDate());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Ipv6 End......" + (System.currentTimeMillis()-time));
+        }
+    }
+
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
+    public void gatherPort() {
+        if(flag){
+            Long time = System.currentTimeMillis();
+            System.out.println("Port Start......");
+            try {
+                gatherService.gatherPort(DateTools.gatherDate());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Port End......" + (System.currentTimeMillis()-time));
+        }
+    }
+
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 */1 * * * ?")
+    public void gatherPortIpv6() {
+        if(flag){
+            Long time = System.currentTimeMillis();
+            System.out.println("PortIpv6 Start......");
+            try {
+                gatherService.gatherPortIpv6(DateTools.gatherDate());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("PortIpv6 End......" + (System.currentTimeMillis()-time));
         }
     }
 }

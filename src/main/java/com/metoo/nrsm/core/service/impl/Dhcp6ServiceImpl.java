@@ -4,26 +4,20 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.dto.Dhcp6Dto;
-import com.metoo.nrsm.core.dto.DhcpDto;
 import com.metoo.nrsm.core.mapper.Dhcp6Mapper;
-import com.metoo.nrsm.core.mapper.DhcpMapper;
 import com.metoo.nrsm.core.service.IDhcp6HistoryService;
 import com.metoo.nrsm.core.service.IDhcp6Service;
-import com.metoo.nrsm.core.service.IDhcpHistoryService;
-import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.PythonExecUtils;
 import com.metoo.nrsm.core.utils.dhcp.Dhcp6Utils;
-import com.metoo.nrsm.core.utils.dhcp.DhcpUtils;
-import com.metoo.nrsm.entity.nspm.Dhcp;
-import com.metoo.nrsm.entity.nspm.Dhcp6;
-import com.metoo.nrsm.entity.nspm.Internet;
+import com.metoo.nrsm.entity.Dhcp6;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cglib.beans.BeanMap;
 import org.springframework.data.repository.init.ResourceReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.*;
 import java.util.*;
@@ -112,22 +106,39 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
 
     @Override
     public boolean truncateTable() {
-        return this.dhcp6Mapper.truncateTable();
+        try {
+            this.dhcp6Mapper.truncateTable();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteTable() {
+        try {
+            this.dhcp6Mapper.deleteTable();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public void gather(Date time)  {
         try {
-            this.truncateTable();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-//        InputStream inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd6.leases");
-        File file = new File("/var/lib/dhcp/dhcpd6.leases");
-        FileInputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
+
+            this.deleteTable();
+
+            InputStream inputStream = null;
+            if (Global.env.equals("prod")) {
+                File file = new File("/var/lib/dhcp/dhcpd6.leases");
+                inputStream = new FileInputStream(file);
+            } else if ("dev".equals(Global.env)) {
+                inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd6.leases");
+            }
             if (inputStream != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                     String line;
@@ -182,6 +193,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
             this.dhcp6historyService.batchInsert();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
 

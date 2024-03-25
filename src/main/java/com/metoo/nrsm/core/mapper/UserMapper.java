@@ -2,8 +2,8 @@ package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.dto.UserDto;
 import com.metoo.nrsm.core.vo.UserVo;
-import com.metoo.nrsm.entity.nspm.Group;
-import com.metoo.nrsm.entity.nspm.User;
+import com.metoo.nrsm.entity.Group;
+import com.metoo.nrsm.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

@@ -10,13 +10,17 @@ import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.PythonExecUtils;
 import com.metoo.nrsm.core.utils.dhcp.DhcpUtils;
-import com.metoo.nrsm.entity.nspm.Dhcp;
-import com.metoo.nrsm.entity.nspm.Internet;
+import com.metoo.nrsm.core.utils.ssh.Ssh2Demo;
+import com.metoo.nrsm.entity.Dhcp;
+import com.metoo.nrsm.entity.Internet;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cglib.beans.BeanMap;
+import org.springframework.data.repository.init.ResourceReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.*;
 import java.util.*;
@@ -47,7 +51,7 @@ public class DhcpServiceImpl implements IDhcpService {
 
     @Override
     public Page<Dhcp> selectConditionQuery(DhcpDto dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new DhcpDto();
         }
         Page<Dhcp> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
@@ -62,7 +66,7 @@ public class DhcpServiceImpl implements IDhcpService {
 
     @Override
     public boolean save(Dhcp instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
                 this.dhcpMapper.save(instance);
                 return true;
@@ -70,7 +74,7 @@ public class DhcpServiceImpl implements IDhcpService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.dhcpMapper.update(instance);
                 return true;
@@ -115,6 +119,17 @@ public class DhcpServiceImpl implements IDhcpService {
     }
 
     @Override
+    public boolean deleteTable() {
+        try {
+            this.dhcpMapper.deleteTable();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public String getdhcp() {
         String path = Global.PYPATH + "getdhcp.py";
         String result = PythonExecUtils.exec(path);
@@ -131,32 +146,31 @@ public class DhcpServiceImpl implements IDhcpService {
     }
 
     @Override
-    public void gather(Date time)  {
+    public void gather(Date time) {
         try {
-            this.truncateTable();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-//        InputStream inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd.leases");
-//        File file = new File("/var/lib/dhcpd/dhcpd.leases");
-        File file = new File("/var/lib/dhcp/dhcpd.leases");
 
-        FileInputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
+            this.deleteTable();
+
+            InputStream inputStream = null;
+
+            if (Global.env.equals("prod")) {
+                File file = new File("/var/lib/dhcp/dhcpd.leases");
+                inputStream = new FileInputStream(file);
+            } else if ("dev".equals(Global.env)) {
+                inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd.leases");
+            }
             if (inputStream != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                     String line;
                     Map<String, String> data = null;
                     List<Map<String, String>> dataList = new ArrayList();
                     while ((line = reader.readLine()) != null) {
-                        if(StringUtil.isNotEmpty(line)){
+                        if (StringUtil.isNotEmpty(line)) {
                             line = line.trim();
                             String key = DhcpUtils.getKey(line);
-                            if(StringUtil.isNotEmpty(key)){
-                                if(key.equals("lease")){
-                                    if(data != null){
+                            if (StringUtil.isNotEmpty(key)) {
+                                if (key.equals("lease")) {
+                                    if (data != null) {
                                         dataList.add(data);
                                     }
                                     data = new HashMap();
@@ -168,25 +182,20 @@ public class DhcpServiceImpl implements IDhcpService {
 
                     }
                     // 最后一个
-                    if(data != null && StringUtils.isNotBlank(data.get("lease"))){
+                    if (data != null && StringUtils.isNotBlank(data.get("lease"))) {
                         dataList.add(data);
                     }
 
-                    if(dataList.size() > 0){
-//                    System.out.println(dataList);
-//                    List l =dataList.stream().map(e -> e.keySet().stream()
-//                            .map(r -> r.contains(" ") ? r.replaceAll(" ", "_") : r)).collect(Collectors.toList());
-//                    System.out.println(JSONObject.toJSONString(l));
-
+                    if (dataList.size() > 0) {
                         for (Map<String, String> map : dataList) {
                             Map<String, String> modifiedMap = new HashMap();
-                            Set<Map.Entry<String, String>> set =  map.entrySet();
+                            Set<Map.Entry<String, String>> set = map.entrySet();
                             for (Map.Entry<String, String> entry : set) {
-                                if(entry.getKey().contains(" ")){
+                                if (entry.getKey().contains(" ")) {
                                     modifiedMap.put(entry.getKey().replaceAll(" ", "_"), entry.getValue());
-                                }else if(entry.getKey().contains("-")){
+                                } else if (entry.getKey().contains("-")) {
                                     modifiedMap.put(entry.getKey().replaceAll("-", "_"), entry.getValue());
-                                } else{
+                                } else {
                                     modifiedMap.put(entry.getKey(), entry.getValue());
                                 }
                             }
@@ -197,14 +206,15 @@ public class DhcpServiceImpl implements IDhcpService {
                             this.save(dhcp);
                         }
                     }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+
             this.dhcphistoryService.batchInsert();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
 

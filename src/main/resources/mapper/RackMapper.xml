@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.RackMapper">
 
-    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.nspm.Rack">
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.Rack">
         <id column="id" property="id"></id>
         <result column="name" property="name"></result>
         <result column="size" property="size"></result>
@@ -52,7 +52,7 @@
         </if>
     </select>
 
-    <select id="query" parameterType="com.metoo.nrsm.entity.nspm.Rack" resultMap="Base_Result_Map">
+    <select id="query" parameterType="com.metoo.nrsm.entity.Rack" resultMap="Base_Result_Map">
         SELECT <include refid="Base_Column_List"/>
         FROM rsms_rack
         <where>
@@ -106,7 +106,7 @@
         order by addTime desc
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.nspm.Rack" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Rack" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rsms_rack
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -196,7 +196,7 @@
         </foreach>
     </insert>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.nspm.Rack">
+    <update id="update" parameterType="com.metoo.nrsm.entity.Rack">
         UPDATE rsms_rack
         <set>
             <if test="addTime != null">

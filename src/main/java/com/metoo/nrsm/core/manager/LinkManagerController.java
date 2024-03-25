@@ -5,7 +5,7 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.LinkDTO;
 import com.metoo.nrsm.core.service.ILinkService;
 import com.metoo.nrsm.core.utils.query.PageInfo;
-import com.metoo.nrsm.entity.nspm.Link;
+import com.metoo.nrsm.entity.Link;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
