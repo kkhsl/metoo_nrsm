@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.AddressPoolFixedMapper">
+
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.AddressPoolFixed">
+        <id column="id" property="id"></id>
+        <result column="host" property="host"></result>
+        <result column="hardware_ethernet" property="hardware_ethernet"></result>
+        <result column="fixed_address" property="fixed_address"></result>
+
+    </resultMap>
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool_fixed
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolFixedDTO" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool_fixed
+        <if test = "orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test = "orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
+
+    <select id="selectObjToVOByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.core.vo.AddressPoolFixedVO">
+        SELECT *
+        FROM metoo_address_pool_fixed
+        <where>
+            <if test="mask != null and subnet != null">
+                and INET_ATON(fixed_address) &amp; INET_ATON(#{mask}) = INET_ATON(#{subnet}) &amp; INET_ATON(#{mask})
+            </if>
+        </where>
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool_fixed
+        <where>
+            <if test="addressPoolFixedId != null and addressPoolFixedId != ''">
+                AND id != #{addressPoolFixedId}
+            </if>
+            <if test="host != null and host != ''">
+                AND host = #{host}
+            </if>
+            <if test="fixed_address != null and fixed_address != ''">
+                AND fixed_address = #{fixed_address}
+            </if>
+            <if test="host_identifier_option_dhcp6_client_id != null and host_identifier_option_dhcp6_client_id != ''">
+                AND host_identifier_option_dhcp6_client_id = #{host_identifier_option_dhcp6_client_id}
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.AddressPoolFixed" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO metoo_address_pool_fixed
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="host != null and host != ''">
+                host,
+            </if>
+            <if test="hardware_ethernet != null and hardware_ethernet != ''">
+                hardware_ethernet,
+            </if>
+            <if test="fixed_address != null and fixed_address != ''">
+                fixed_address,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="host != null and host != ''">
+                #{host},
+            </if>
+            <if test="hardware_ethernet != null and hardware_ethernet != ''">
+                #{hardware_ethernet},
+            </if>
+            <if test="fixed_address != null and fixed_address != ''">
+                #{fixed_address},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.AddressPoolFixed">
+        UPDATE metoo_address_pool_fixed
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="host != null and host != ''">
+                host = #{host},
+            </if>
+            <if test="hardware_ethernet != null and hardware_ethernet != ''">
+                hardware_ethernet = #{hardware_ethernet},
+            </if>
+            <if test="fixed_address != null and fixed_address != ''">
+                fixed_address = #{fixed_address},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from metoo_address_pool_fixed where id = #{id}
+    </delete>
+
+</mapper>

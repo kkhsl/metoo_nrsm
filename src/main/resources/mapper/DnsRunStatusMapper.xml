@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.DnsRunStatusMapper">
+
+    <select id="selectOneObj"  resultType="com.metoo.nrsm.entity.DnsRunStatus">
+        SELECT * FROM metoo_dns_run_start limit 1
+    </select>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.DnsRunStatus">
+        UPDATE metoo_dns_run_start
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

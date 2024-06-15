@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.FluxConfigMapper">
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.FluxConfig">
+        SELECT * FROM metoo_flux_config where id = #{id}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.FluxConfig">
+        SELECT * FROM metoo_flux_config
+        <where>
+            <if test="name != null and name !=''">
+                AND name = #{name}
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.FluxConfig">
+        INSERT INTO metoo_flux_config
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="name != null and name!= ''">
+                name,
+            </if>
+            <if test="ipv4 != null and ipv4!= ''">
+                ipv4,
+            </if>
+            <if test="ipv6 != null and ipv6!= ''">
+                ipv6,
+            </if>
+            <if test="community != null and community!= ''">
+                community,
+            </if>
+            <if test="ipv4Oid != null and ipv4Oid!= ''">
+                ipv4Oid,
+            </if>
+            <if test="ipv6Oid != null and ipv6Oid!= ''">
+                ipv6Oid,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="name != null and name!= ''">
+                #{name},
+            </if>
+            <if test="ipv4 != null and ipv4!= ''">
+                #{ipv4},
+            </if>
+            <if test="ipv6 != null and ipv6!= ''">
+                #{ipv6},
+            </if>
+            <if test="community != null and community!= ''">
+                #{community},
+            </if>
+            <if test="ipv4Oid != null and ipv4Oid!= ''">
+                #{ipv4Oid},
+            </if>
+            <if test="ipv6Oid != null and ipv6Oid!= ''">
+                #{ipv6Oid},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.FluxConfig">
+        update metoo_flux_config
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="ipv4 != null">
+                ipv4 = #{ipv4},
+            </if>
+            <if test="ipv6 != null">
+                ipv6 = #{ipv6},
+            </if>
+            <if test="community != null">
+                community = #{community},
+            </if>
+            <if test="ipv4Oid != null">
+                ipv4Oid = #{ipv4Oid},
+            </if>
+            <if test="ipv6Oid != null">
+                ipv6Oid = #{ipv6Oid},
+            </if>
+            <if test="update != null">
+                `update` = #{update},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from metoo_flux_config where id = #{id};
+    </delete>
+
+</mapper>

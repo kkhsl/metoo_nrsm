@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.DhcpHistoryMapper">
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Dhcp">
+        SELECT *
+        FROM metoo_dhcp_history
+        WHERE
+          id = #{id}
+    </select>
+
+    <select id="selectObjByLease" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Dhcp">
+        SELECT *
+        FROM metoo_dhcp_history
+        WHERE
+          lease = #{lease}
+    </select>
+
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DhcpDto" resultType="com.metoo.nrsm.entity.Dhcp">
+        SELECT *
+        FROM metoo_dhcp_history
+        <where>
+            <if test="lease != '' and lease != null">
+                AND lease = #{lease}
+            </if>
+            <if test="starts != '' and starts != null">
+                AND starts = #{starts}
+            </if>
+            <if test="ends != '' and ends != null">
+                AND ends = #{ends}
+            </if>
+            <if test="tstp != '' and tstp != null">
+                AND tstp = #{tstp}
+            </if>
+            <if test="cltt != '' and cltt != null">
+                AND cltt = #{cltt}
+            </if>
+            <if test="binding_state != '' and binding_state != null">
+                AND binding_state = #{binding_state}
+            </if>
+            <if test="next_binding_state != '' and next_binding_state != null">
+                AND next_binding_state = #{next_binding_state}
+            </if>
+            <if test="rewind_binding_state != '' and rewind_binding_state != null">
+                AND rewind_binding_state = #{rewind_binding_state}
+            </if>
+            <if test="hardware_ethernet != '' and hardware_ethernet != null">
+                AND hardware_ethernet = #{hardware_ethernet}
+            </if>
+            <if test="uid != '' and uid != null">
+                AND uid = #{uid}
+            </if>
+            <if test="client_hostname != '' and client_hostname != null">
+                AND client_hostname = #{client_hostname}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Dhcp">
+        SELECT *
+        FROM metoo_dhcp_history
+        <where>
+            <if test="lease != '' and lease != null">
+                AND lease = #{lease}
+            </if>
+            <if test="starts != '' and starts != null">
+                AND starts = #{starts}
+            </if>
+            <if test="ends != '' and ends != null">
+                AND ends = #{ends}
+            </if>
+            <if test="tstp != '' and tstp != null">
+                AND tstp = #{tstp}
+            </if>
+            <if test="cltt != '' and cltt != null">
+                AND cltt = #{cltt}
+            </if>
+            <if test="binding_state != '' and binding_state != null">
+                AND binding_state = #{binding_state}
+            </if>
+            <if test="next_binding_state != '' and next_binding_state != null">
+                AND next_binding_state = #{next_binding_state}
+            </if>
+            <if test="rewind_binding_state != '' and rewind_binding_state != null">
+                AND rewind_binding_state = #{rewind_binding_state}
+            </if>
+            <if test="hardware_ethernet != '' and hardware_ethernet != null">
+                AND hardware_ethernet = #{hardware_ethernet}
+            </if>
+            <if test="uid != '' and uid != null">
+                AND uid = #{uid}
+            </if>
+            <if test="client_hostname != '' and client_hostname != null">
+                AND client_hostname = #{client_hostname}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Dhcp">
+        INSERT INTO metoo_dhcp_history
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="lease != '' and lease != null">
+                lease,
+            </if>
+            <if test="starts != '' and starts != null">
+                starts,
+            </if>
+            <if test="ends != '' and ends != null">
+                ends,
+            </if>
+            <if test="tstp != '' and tstp != null">
+                tstp,
+            </if>
+            <if test="cltt != '' and cltt != null">
+                cltt,
+            </if>
+            <if test="binding_state != '' and binding_state != null">
+                binding_state,
+            </if>
+            <if test="next_binding_state != '' and next_binding_state != null">
+                next_binding_state,
+            </if>
+            <if test="rewind_binding_state != '' and rewind_binding_state != null">
+                rewind_binding_state,
+            </if>
+            <if test="hardware_ethernet != '' and hardware_ethernet != null">
+                hardware_ethernet,
+            </if>
+            <if test="uid != '' and uid != null">
+                uid,
+            </if>
+            <if test="client_hostname != '' and client_hostname != null">
+                client_hostname,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="lease != '' and lease != null">
+                #{lease},
+            </if>
+            <if test="starts != '' and starts != null">
+                #{starts},
+            </if>
+            <if test="ends != '' and ends != null">
+                #{ends},
+            </if>
+            <if test="tstp != '' and tstp != null">
+                #{tstp},
+            </if>
+            <if test="cltt != '' and cltt != null">
+                #{cltt},
+            </if>
+            <if test="binding_state != '' and binding_state != null">
+                #{binding_state},
+            </if>
+            <if test="next_binding_state != '' and next_binding_state != null">
+                #{next_binding_state},
+            </if>
+            <if test="rewind_binding_state != '' and rewind_binding_state != null">
+                #{rewind_binding_state},
+            </if>
+            <if test="hardware_ethernet != '' and hardware_ethernet != null">
+                #{hardware_ethernet},
+            </if>
+            <if test="uid != '' and uid != null">
+                #{uid},
+            </if>
+            <if test="client_hostname != '' and client_hostname != null">
+                #{client_hostname},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Dhcp">
+        UPDATE FROM metoo_dhcp_history
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="lease != '' and lease != null">
+                lease = #{lease},
+            </if>
+            <if test="starts != '' and starts != null">
+                starts = #{starts},
+            </if>
+            <if test="ends != '' and ends != null">
+                ends = #{ends},
+            </if>
+            <if test="tstp != '' and tstp != null">
+                tstp = #{tstp},
+            </if>
+            <if test="cltt != '' and cltt != null">
+                cltt = #{cltt},
+            </if>
+            <if test="binding_state != '' and binding_state != null">
+                binding_state = #{binding_state},
+            </if>
+            <if test="next_binding_state != '' and next_binding_state != null">
+                next_binding_state = #{next_binding_state},
+            </if>
+            <if test="rewind_binding_state != '' and rewind_binding_state != null">
+                rewind_binding_state = #{rewind_binding_state},
+            </if>
+            <if test="hardware_ethernet != '' and hardware_ethernet != null">
+                hardware_ethernet = #{hardware_ethernet},
+            </if>
+            <if test="uid != '' and uid != null">
+                uid = #{uid},
+            </if>
+            <if test="client_hostname != '' and client_hostname != null">
+                client_hostname = #{client_hostname},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM metoo_dhcp_history where id = #{id}
+    </delete>
+
+    <update id="truncateTable">
+        TRUNCATE TABLE metoo_dhcp_history
+    </update>
+
+    <sql id="Copy_Column_List">
+         addTime, lease, starts, ends, tstp, cltt, binding_state, next_binding_state, rewind_binding_state, hardware_ethernet,
+         uid, client_hostname
+    </sql>
+
+    <insert id="batchInsert">
+        INSERT INTO
+          metoo_dhcp_history
+        (<include refid="Copy_Column_List"/>)
+        SELECT
+        <include refid="Copy_Column_List"/>
+        FROM metoo_dhcp
+    </insert>
+</mapper>

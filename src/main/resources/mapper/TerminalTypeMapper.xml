@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.TerminalTypeMapper">
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.TerminalType">
+        SELECT *
+        FROM rsms_terminal_type
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjByType" parameterType="java.lang.Integer" resultType="com.metoo.nrsm.entity.TerminalType">
+        SELECT *
+        FROM rsms_terminal_type
+        WHERE `type` = #{type}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.TerminalType">
+        SELECT *
+        FROM rsms_terminal_type
+        order by sequence desc
+    </select>
+
+    <select id="selectObjAll" resultType="com.metoo.nrsm.entity.TerminalType">
+        SELECT *
+        FROM rsms_terminal_type
+        order by sequence desc
+    </select>
+
+</mapper>
