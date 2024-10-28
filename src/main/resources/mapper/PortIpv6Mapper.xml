@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.PortIpv6Mapper">
+
+    <select id="selectObjByDeviceUuid" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.PortIpv6">
+        SELECT
+         *
+        FROM
+        metoo_port_ipv6
+        WHERE deviceUuid = #{deviceUuid}
+        ORDER BY ipv6 IS NULL,INET_ATON(ipv6) ASC
+    </select>
+
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.PortIpv6">
+        SELECT
+         *
+        FROM
+        metoo_port_ipv6
+        <where>
+            <if test="ipv6 != null and ipv6 != ''">
+                <bind name="pattern" value="'%' + ipv6 + '%'"/>
+                AND ipv6 LIKE #{pattern}
+            </if>
+            <if test="NotIp != null and NotIp != ''">
+                AND ipv6 != #{NotIp}
+            </if>
+            <if test="ipIsNotNull != null and ipIsNotNull != ''">
+                AND ipv6 != ''
+            </if>
+            <if test="port != null and port != ''">
+                AND port = #{port}
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
+        </where>
+        ORDER BY ipv6 IS NULL,INET_ATON(ipv6) ASC
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.PortIpv6">
+        INSERT INTO metoo_port_ipv6
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="ipv6 null">
+                ipv6,
+            </if>
+            <if test="mask != null">
+                mask,
+            </if>
+        </trim>
+        <trim prefix="values(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="port != null">
+                #{port},
+            </if>
+            <if test="ipv6 != null">
+                #{ipv6},
+            </if>
+            <if test="deviceUuid != null">
+                #{deviceUuid},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.PortIpv6">
+        update metoo_port_ipv6
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="port != null">
+                port = #{port},
+            </if>
+            <if test="ipv6 != null">
+                ipv6 = #{ipv6},
+            </if>
+            <if test="deviceUuid != null">
+                deviceUuid = #{deviceUuid},
+            </if>
+        </set>
+    </update>
+
+    <insert id="batchSaveGather" parameterType="java.util.List">
+        INSERT INTO `metoo_port_ipv6_gather` (
+            addTime,
+            port,
+            ipv6,
+            deviceUuid
+          )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.addTime},
+                #{item.port},
+                #{item.ipv6},
+                #{item.deviceUuid}
+            )
+        </foreach>
+    </insert>
+    
+    <update id="truncateTableGather">
+         TRUNCATE TABLE metoo_port_ipv6_gather
+    </update>
+
+    <delete id="deleteTable">
+        delete from metoo_port_ipv6
+    </delete>
+
+    <insert id="copyGatherDataToPortIpv6">
+        INSERT INTO metoo_port_ipv6 SELECT * FROM metoo_port_ipv6_gather
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.NswitchMapper">
+
+
+    <select id="selectObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Nswitch">
+        select * from metoo_nswitch where name = #{name}
+    </select>
+
+    <select id="selectObjAll" resultType="com.metoo.nrsm.entity.Nswitch">
+        select * from metoo_nswitch order by `index` desc
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Nswitch" >
+        insert into metoo_nswitch
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="index != null">
+                `index`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="index != null">
+                #{index},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+        </trim>
+    </insert>
+</mapper>

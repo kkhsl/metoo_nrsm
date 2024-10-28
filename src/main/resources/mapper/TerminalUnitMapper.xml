@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.TerminalUnitMapper">
+
+    <select id="selectObjById" parameterType="Long" resultType="com.metoo.nrsm.entity.TerminalUnit">
+        SELECT * FROM metoo_terminal_unit where id = #{id}
+    </select>
+
+    <select id="selectObjAll" resultType="com.metoo.nrsm.entity.TerminalUnit">
+        SELECT * FROM metoo_terminal_unit
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.TerminalUnit">
+        SELECT * FROM metoo_terminal_unit
+    </select>
+
+    <resultMap id="Unit_And_Terminals" type="com.metoo.nrsm.entity.TerminalUnit">
+        <id column="unit_id" property="id"></id>
+        <id column="unit_name" property="name"></id>
+        <collection property="terminalList" resultMap="TerminalResultMap">
+            <id column="id" property="id"></id>
+            <result column="name" property="name"></result>
+        </collection>
+    </resultMap>
+
+    <resultMap id="TerminalResultMap" type="com.metoo.nrsm.entity.Terminal">
+        <id column="id" property="id" />
+        <result column="addTime" property="addTime" />
+        <result column="name" property="name" />
+        <result column="mac" property="mac" />
+        <result column="port" property="port" />
+        <result column="type" property="type" />
+        <result column="macVendor" property="macVendor" />
+        <result column="v4ip" property="v4ip" />
+        <result column="v4ip1" property="v4ip1" />
+        <result column="v4ip2" property="v4ip2" />
+        <result column="v4ip3" property="v4ip3" />
+        <result column="v4ipDynamic" property="v4ipDynamic" />
+        <result column="v4ip1Dynamic" property="v4ip" />
+        <result column="v4ip" property="v4ip1Dynamic" />
+        <result column="v4ip2Dynamic" property="v4ip2Dynamic" />
+        <result column="v4ip3Dynamic" property="v4ip3Dynamic" />
+        <result column="v6ip" property="v6ip" />
+        <result column="v6ip1" property="v6ip1" />
+        <result column="v6ip2" property="v6ip2" />
+        <result column="v6ip3" property="v6ip3" />
+        <result column="v6ipDynamic" property="v6ipDynamic" />
+        <result column="v6ip1Dynamic" property="v6ip1Dynamic" />
+        <result column="v6ip2Dynamic" property="v6ip2Dynamic" />
+        <result column="v6ip3Dynamic" property="v6ip3Dynamic" />
+        <result column="deviceIp" property="deviceIp" />
+        <result column="deviceName" property="deviceName" />
+        <result column="deviceType" property="deviceType" />
+        <result column="deviceUuid" property="deviceUuid" />
+        <result column="deviceTypeId" property="deviceTypeId" />
+        <result column="deviceTypeName" property="deviceTypeName" />
+        <result column="deviceTypeUuid" property="deviceTypeUuid" />
+        <result column="hostname" property="hostname" />
+        <result column="remoteDeviceIp" property="remoteDeviceIp" />
+        <result column="remoteDeviceName" property="remoteDeviceName" />
+        <result column="remoteDeviceUuid" property="remoteDeviceUuid" />
+        <result column="remoteDevicTypeeUuid" property="remoteDevicTypeeUuid" />
+        <result column="remoteDeviceType" property="remoteDeviceType" />
+        <result column="client_hostname" property="client_hostname" />
+        <result column="online" property="online" />
+        <result column="interfaceName" property="interfaceName" />
+        <result column="index" property="index" />
+        <result column="uuid" property="uuid" />
+        <result column="interfaceIndex" property="interfaceIndex" />
+        <result column="interfaceStatus" property="interfaceStatus" />
+        <result column="vlan" property="vlan" />
+        <result column="vendor" property="vendor" />
+        <result column="location" property="location" />
+        <result column="duty" property="duty" />
+        <result column="location" property="location" />
+        <result column="unit_name" property="unitName" />
+    </resultMap>
+
+
+    <select id="selectObjAndTerminalByMap" parameterType="java.util.Map" resultMap="Unit_And_Terminals">
+        SELECT
+            unit.id unit_id,
+            unit. NAME unit_name,
+            terminal.*
+        FROM
+            metoo_terminal_unit unit
+        JOIN metoo_terminal terminal ON unit.id = terminal.unitId
+        <where>
+            <if test="ids != null and ids.size() > 0">
+                AND unit.id in
+                <foreach collection="ids" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectObjAndTerminalHistoryByMap" parameterType="java.util.Map" resultMap="Unit_And_Terminals">
+        SELECT
+            unit.id unit_id,
+            unit. NAME unit_name,
+            terminal.*
+        FROM
+            metoo_terminal_unit unit
+        JOIN metoo_terminal_history terminal ON unit.id = terminal.unitId
+        <where>
+            <if test="time != null">
+                AND terminal.addTime = (
+                SELECT
+                addTime
+                FROM
+                metoo_terminal_history
+                WHERE
+                addTime &lt;= #{time}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+            <if test="ids != null and ids.size() > 0">
+                AND unit.id in
+                <foreach collection="ids" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+</mapper>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.AddressPoolMapper">
+
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.AddressPool">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="subnetAddresses" property="subnetAddresses"></result>
+        <result column="defaultGateway" property="defaultGateway"></result>
+        <result column="addressPoolRange" property="addressPoolRange"></result>
+        <result column="DNS" property="DNS"></result>
+        <result column="broadcastAddress" property="broadcastAddress"></result>
+        <result column="leaseTime" property="leaseTime"></result>
+        <result column="defaultLeaseTime" property="defaultLeaseTime"></result>
+        <result column="broadcast" property="broadcast"></result>
+
+    </resultMap>
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolDTO" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool
+        <if test = "orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test = "orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
+
+    <select id="selectObjToVOByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.core.vo.AddressPoolVO">
+        SELECT *
+        FROM metoo_address_pool
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool
+        <where>
+            <if test="addressPoolId != null and addressPoolId != ''">
+                AND id != #{addressPoolId}
+            </if>
+            <if test="subnetAddresses != null and subnetAddresses != ''">
+                AND subnetAddresses = #{subnetAddresses}
+            </if>
+            <if test="name != null and name != ''">
+                AND name = #{name}
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.AddressPool" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO metoo_address_pool
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="subnetAddresses != null">
+                subnetAddresses,
+            </if>
+            <if test="defaultGateway != null">
+                defaultGateway,
+            </if>
+            <if test="addressPoolRange != null">
+                addressPoolRange,
+            </if>
+            <if test="DNS != null and DNS != ''">
+                DNS,
+            </if>
+            <if test="broadcastAddress != null">
+                broadcastAddress,
+            </if>
+            <if test="leaseTime != null ">
+                leaseTime,
+            </if>
+            <if test="defaultLeaseTime != null">
+                defaultLeaseTime,
+            </if>
+            <if test="broadcast != null">
+                broadcast,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="subnetAddresses != null">
+                #{subnetAddresses},
+            </if>
+            <if test="defaultGateway != null">
+                #{defaultGateway},
+            </if>
+            <if test="addressPoolRange != null">
+                #{addressPoolRange},
+            </if>
+            <if test="DNS != null and DNS != ''">
+                #{DNS},
+            </if>
+            <if test="broadcastAddress != null">
+                #{broadcastAddress},
+            </if>
+            <if test="leaseTime != null">
+                #{leaseTime},
+            </if>
+            <if test="defaultLeaseTime != null">
+                #{defaultLeaseTime},
+            </if>
+            <if test="broadcast != null">
+                #{broadcast},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.AddressPool">
+        UPDATE metoo_address_pool
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="subnetAddresses != null">
+                subnetAddresses = #{subnetAddresses},
+            </if>
+            <if test="defaultGateway != null">
+                defaultGateway = #{defaultGateway},
+            </if>
+            <if test="addressPoolRange != null">
+                addressPoolRange = #{addressPoolRange},
+            </if>
+            <if test="DNS != null">
+                DNS = #{DNS},
+            </if>
+            <if test="broadcastAddress != null">
+                broadcastAddress = #{broadcastAddress},
+            </if>
+            <if test="leaseTime != null">
+                leaseTime = #{leaseTime},
+            </if>
+            <if test="defaultLeaseTime != null">
+                defaultLeaseTime = #{defaultLeaseTime},
+            </if>
+            <if test="broadcast != null">
+                broadcast = #{broadcast},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from metoo_address_pool where id = #{id}
+    </delete>
+
+</mapper>

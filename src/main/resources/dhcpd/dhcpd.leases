@@ -1,0 +1,581 @@
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.4.1
+
+# authoring-byte-order entry is generated, DO NOT DELETE
+authoring-byte-order little-endian;
+
+lease 192.168.6.97 {
+  starts 4 2024/09/12 14:52:18;
+  ends 4 2024/09/12 16:52:18;
+  tstp 4 2024/09/12 16:52:18;
+  cltt 4 2024/09/12 14:52:18;
+  binding state free;
+  hardware ethernet 2e:79:a8:ed:0b:d4;
+  uid "\001.y\250\355\013\324";
+}
+lease 192.168.6.87 {
+  starts 4 2024/09/12 14:52:26;
+  ends 4 2024/09/12 16:52:26;
+  tstp 4 2024/09/12 16:52:26;
+  cltt 4 2024/09/12 14:52:26;
+  binding state free;
+  hardware ethernet 08:bf:b8:69:57:a4;
+  uid "\001\010\277\270iW\244";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.6.84 {
+  starts 4 2024/09/12 14:53:02;
+  ends 4 2024/09/12 16:53:02;
+  tstp 4 2024/09/12 16:53:02;
+  cltt 4 2024/09/12 14:53:02;
+  binding state free;
+  hardware ethernet 5e:67:13:d9:ca:02;
+  uid "\001^g\023\331\312\002";
+}
+lease 192.168.6.89 {
+  starts 4 2024/09/12 14:53:58;
+  ends 4 2024/09/12 16:53:58;
+  tstp 4 2024/09/12 16:53:58;
+  cltt 4 2024/09/12 14:53:58;
+  binding state free;
+  hardware ethernet c2:a3:75:db:80:43;
+  uid "\001\302\243u\333\200C";
+}
+lease 192.168.6.94 {
+  starts 5 2024/09/13 01:52:54;
+  ends 5 2024/09/13 03:52:54;
+  tstp 5 2024/09/13 03:52:54;
+  cltt 5 2024/09/13 01:55:26;
+  binding state free;
+  hardware ethernet 4c:5f:70:34:c8:4e;
+  uid "\001L_p4\310N";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.6.93 {
+  starts 5 2024/09/13 14:42:40;
+  ends 5 2024/09/13 16:42:40;
+  tstp 5 2024/09/13 16:42:40;
+  cltt 5 2024/09/13 14:42:40;
+  binding state free;
+  hardware ethernet 32:fa:3b:68:59:21;
+  uid "\0012\372;hY!";
+  set vendor-class-identifier = "android-dhcp-14";
+}
+lease 192.168.6.66 {
+  starts 6 2024/09/14 02:30:09;
+  ends 6 2024/09/14 04:30:09;
+  tstp 6 2024/09/14 04:30:09;
+  cltt 6 2024/09/14 02:30:09;
+  binding state free;
+  hardware ethernet 12:24:2d:3f:6b:2f;
+  uid "\001\022$-?k/";
+  set vendor-class-identifier = "android-dhcp-14";
+}
+lease 192.168.6.60 {
+  starts 6 2024/09/14 07:23:44;
+  ends 6 2024/09/14 09:23:44;
+  tstp 6 2024/09/14 09:23:44;
+  cltt 6 2024/09/14 07:23:44;
+  binding state free;
+  hardware ethernet 1a:c6:dd:8a:cf:4c;
+  uid "\001\032\306\335\212\317L";
+}
+lease 192.168.6.61 {
+  starts 6 2024/09/14 09:19:17;
+  ends 6 2024/09/14 11:19:17;
+  tstp 6 2024/09/14 11:19:17;
+  cltt 6 2024/09/14 09:19:17;
+  binding state free;
+  hardware ethernet 00:e0:4c:68:18:2a;
+  uid "\001\000\340Lh\030*";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.6.99 {
+  starts 6 2024/09/14 09:34:26;
+  ends 6 2024/09/14 11:34:26;
+  tstp 6 2024/09/14 11:34:26;
+  cltt 6 2024/09/14 09:34:26;
+  binding state free;
+  hardware ethernet 74:39:89:d6:4b:39;
+  uid "\001t9\211\326K9";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.6.90 {
+  starts 6 2024/09/14 10:37:19;
+  ends 6 2024/09/14 12:37:19;
+  tstp 6 2024/09/14 12:37:19;
+  cltt 6 2024/09/14 10:37:19;
+  binding state free;
+  hardware ethernet 42:bd:d2:7f:cf:6d;
+  uid "\001B\275\322\177\317m";
+}
+lease 192.168.6.68 {
+  starts 6 2024/09/14 10:55:30;
+  ends 6 2024/09/14 12:55:30;
+  tstp 6 2024/09/14 12:55:30;
+  cltt 6 2024/09/14 10:55:30;
+  binding state free;
+  hardware ethernet ee:af:03:5f:a4:b0;
+  uid "\001\356\257\003_\244\260";
+}
+lease 192.168.6.70 {
+  starts 6 2024/09/14 10:56:52;
+  ends 6 2024/09/14 12:56:52;
+  tstp 6 2024/09/14 12:56:52;
+  cltt 6 2024/09/14 11:18:10;
+  binding state free;
+  hardware ethernet 32:cf:84:b9:21:5f;
+  uid "\0012\317\204\271!_";
+}
+lease 192.168.6.96 {
+  starts 0 2024/09/15 03:24:10;
+  ends 0 2024/09/15 05:24:10;
+  tstp 0 2024/09/15 05:24:10;
+  cltt 0 2024/09/15 03:25:20;
+  binding state free;
+  hardware ethernet aa:c7:9f:e0:04:53;
+  uid "\001\252\307\237\340\004S";
+  set vendor-class-identifier = "android-dhcp-14";
+}
+lease 192.168.6.78 {
+  starts 0 2024/09/15 10:45:03;
+  ends 0 2024/09/15 12:45:03;
+  tstp 0 2024/09/15 12:45:03;
+  cltt 0 2024/09/15 11:05:55;
+  binding state free;
+  hardware ethernet a2:14:ae:b6:6e:0e;
+  uid "\001\242\024\256\266n\016";
+  set vendor-class-identifier = "android-dhcp-12";
+}
+lease 192.168.6.56 {
+  starts 0 2024/09/15 10:52:17;
+  ends 0 2024/09/15 12:52:17;
+  tstp 0 2024/09/15 12:52:17;
+  cltt 0 2024/09/15 10:52:17;
+  binding state free;
+  hardware ethernet 0a:22:05:87:08:b6;
+  uid "\001\012\"\005\207\010\266";
+  set vendor-class-identifier = "dhcpcd-11";
+}
+lease 192.168.6.75 {
+  starts 0 2024/09/15 15:11:58;
+  ends 0 2024/09/15 17:11:58;
+  tstp 0 2024/09/15 17:11:58;
+  cltt 0 2024/09/15 15:11:58;
+  binding state free;
+  hardware ethernet c4:d0:e3:05:3d:cc;
+  uid "\001\304\320\343\005=\314";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.6.86 {
+  starts 0 2024/09/15 15:41:35;
+  ends 0 2024/09/15 17:41:35;
+  tstp 0 2024/09/15 17:41:35;
+  cltt 0 2024/09/15 15:41:35;
+  binding state free;
+  hardware ethernet fa:7a:ae:ca:a9:b0;
+  uid "\001\372z\256\312\251\260";
+  set vendor-class-identifier = "android-dhcp-12";
+}
+lease 192.168.6.102 {
+  starts 0 2024/09/15 19:30:49;
+  ends 0 2024/09/15 21:30:49;
+  tstp 0 2024/09/15 21:30:49;
+  cltt 0 2024/09/15 19:30:49;
+  binding state free;
+  hardware ethernet d4:84:09:bc:35:79;
+  uid "\001\324\204\011\2745y";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.6.82 {
+  starts 1 2024/09/16 02:30:55;
+  ends 1 2024/09/16 04:30:55;
+  tstp 1 2024/09/16 04:30:55;
+  cltt 1 2024/09/16 02:30:55;
+  binding state free;
+  hardware ethernet ce:72:06:46:fe:3d;
+  uid "\001\316r\006F\376=";
+}
+lease 192.168.6.92 {
+  starts 1 2024/09/16 07:21:40;
+  ends 1 2024/09/16 09:21:40;
+  cltt 1 2024/09/16 07:23:13;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 58:20:59:8b:f4:94;
+  uid "\001X Y\213\364\224";
+  set vendor-class-identifier = "android-dhcp-13";
+  client-hostname "Mi-10-Pro";
+}
+lease 192.168.6.71 {
+  starts 1 2024/09/16 07:23:15;
+  ends 1 2024/09/16 09:23:15;
+  cltt 1 2024/09/16 07:23:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet aa:8a:dc:a7:b9:b3;
+  uid "\001\252\212\334\247\271\263";
+  set vendor-class-identifier = "android-dhcp-13";
+  client-hostname "Mi-10-Pro";
+}
+lease 192.168.6.88 {
+  starts 1 2024/09/16 07:46:27;
+  ends 1 2024/09/16 09:46:27;
+  cltt 1 2024/09/16 07:46:27;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:e0:4c:69:66:52;
+  uid "\001\000\340LifR";
+  set vendor-class-identifier = "MSFT 5.0";
+  client-hostname "DESKTOP-7NGDCKJ";
+}
+lease 192.168.6.81 {
+  starts 1 2024/09/16 07:54:14;
+  ends 1 2024/09/16 09:54:14;
+  cltt 1 2024/09/16 07:54:14;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 22:fe:db:f9:d3:3c;
+  uid "\001\"\376\333\371\323<";
+  set vendor-class-identifier = "android-dhcp-12";
+  client-hostname "OnePlus-7";
+}
+lease 192.168.6.76 {
+  starts 1 2024/09/16 08:15:54;
+  ends 1 2024/09/16 10:15:54;
+  cltt 1 2024/09/16 08:15:54;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 30:b4:9e:33:51:8d;
+  uid "\0010\264\2363Q\215";
+  set vendor-class-identifier = "MSFT 5.0";
+  client-hostname "DESKTOP-AVIBHAN";
+}
+lease 192.168.6.57 {
+  starts 1 2024/09/16 08:38:54;
+  ends 1 2024/09/16 10:38:54;
+  cltt 1 2024/09/16 08:38:54;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 0e:39:bf:e9:78:8a;
+  uid "\001\0169\277\351x\212";
+  set vendor-class-identifier = "android-dhcp-14";
+  client-hostname "MIX-4";
+}
+lease 192.168.6.73 {
+  starts 0 2024/09/15 09:26:54;
+  ends 1 2024/09/16 09:28:31;
+  tstp 1 2024/09/16 09:28:31;
+  cltt 0 2024/09/15 09:26:54;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.6.64 {
+  starts 0 2024/09/15 10:01:23;
+  ends 1 2024/09/16 10:01:23;
+  tstp 1 2024/09/16 10:01:23;
+  cltt 0 2024/09/15 10:01:23;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.6.65 {
+  starts 0 2024/09/15 10:01:26;
+  ends 1 2024/09/16 10:01:26;
+  cltt 0 2024/09/15 10:01:26;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+  client-hostname "MIX-4";
+}
+lease 192.168.6.67 {
+  starts 0 2024/09/15 10:01:30;
+  ends 1 2024/09/16 10:01:30;
+  cltt 0 2024/09/15 10:01:30;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+  client-hostname "MIX-4";
+}
+lease 192.168.6.69 {
+  starts 1 2024/09/16 03:03:54;
+  ends 2 2024/09/17 03:16:14;
+  tstp 2 2024/09/17 03:16:14;
+  cltt 1 2024/09/16 03:03:54;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.6.83 {
+  starts 1 2024/09/16 03:17:13;
+  ends 2 2024/09/17 03:21:11;
+  tstp 2 2024/09/17 03:21:11;
+  cltt 1 2024/09/16 03:17:45;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.6.100 {
+  starts 1 2024/09/16 04:18:54;
+  ends 2 2024/09/17 04:23:25;
+  tstp 2 2024/09/17 04:23:25;
+  cltt 1 2024/09/16 04:18:54;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.6.91 {
+  starts 1 2024/09/16 04:23:27;
+  ends 2 2024/09/17 04:38:41;
+  tstp 2 2024/09/17 04:38:41;
+  cltt 1 2024/09/16 04:23:27;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.6.59 {
+  starts 1 2024/09/16 05:43:54;
+  ends 2 2024/09/17 05:46:56;
+  tstp 2 2024/09/17 05:46:56;
+  cltt 1 2024/09/16 05:43:54;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.6.80 {
+  starts 1 2024/09/16 06:30:25;
+  ends 2 2024/09/17 06:38:51;
+  tstp 2 2024/09/17 06:38:51;
+  cltt 1 2024/09/16 06:30:25;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.5.57 {
+  starts 6 2024/07/27 22:51:13;
+  ends 0 2024/07/28 00:51:13;
+  tstp 0 2024/07/28 00:51:13;
+  cltt 6 2024/07/27 22:51:13;
+  binding state free;
+  hardware ethernet 30:b4:9e:7b:59:af;
+  uid "\0010\264\236{Y\257";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.5.65 {
+  starts 4 2024/08/22 17:00:57;
+  ends 4 2024/08/22 19:00:57;
+  tstp 4 2024/08/22 19:00:57;
+  cltt 4 2024/08/22 17:00:57;
+  binding state free;
+  hardware ethernet 00:0c:29:37:c0:2a;
+  uid "\377)7\300*\000\001\000\001*[6\333\000\014)s\325\320";
+}
+lease 192.168.5.58 {
+  starts 6 2024/08/24 10:53:00;
+  ends 6 2024/08/24 12:53:00;
+  tstp 6 2024/08/24 12:53:00;
+  cltt 6 2024/08/24 10:53:00;
+  binding state free;
+  hardware ethernet a4:42:3b:a0:66:3a;
+  uid "\001\244B;\240f:";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.5.59 {
+  starts 4 2024/08/29 11:16:30;
+  ends 4 2024/08/29 13:16:30;
+  tstp 4 2024/08/29 13:16:30;
+  cltt 4 2024/08/29 11:16:30;
+  binding state free;
+  hardware ethernet d4:ca:6d:c6:ba:ff;
+  uid "\001\324\312m\306\272\377";
+}
+lease 192.168.5.66 {
+  starts 2 2024/09/10 01:44:13;
+  ends 2 2024/09/10 03:44:13;
+  tstp 2 2024/09/10 03:44:13;
+  cltt 2 2024/09/10 02:09:51;
+  binding state free;
+  hardware ethernet 98:3b:8f:db:33:e6;
+  uid "\001\230;\217\3333\346";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.5.61 {
+  starts 5 2024/09/13 06:07:01;
+  ends 5 2024/09/13 08:07:01;
+  tstp 5 2024/09/13 08:07:01;
+  cltt 5 2024/09/13 06:07:01;
+  binding state free;
+  hardware ethernet 86:d7:2d:f1:5f:3d;
+  uid "\001\206\327-\361_=";
+  set vendor-class-identifier = "android-dhcp-14";
+}
+lease 192.168.5.64 {
+  starts 5 2024/09/13 06:35:55;
+  ends 5 2024/09/13 08:35:55;
+  tstp 5 2024/09/13 08:35:55;
+  cltt 5 2024/09/13 06:35:55;
+  binding state free;
+  hardware ethernet a2:6e:6b:09:47:80;
+  uid "\001\242nk\011G\200";
+  set vendor-class-identifier = "android-dhcp-14";
+}
+lease 192.168.5.63 {
+  starts 5 2024/09/13 08:39:01;
+  ends 5 2024/09/13 10:39:01;
+  tstp 5 2024/09/13 10:39:01;
+  cltt 5 2024/09/13 08:39:01;
+  binding state free;
+  hardware ethernet f8:16:54:11:3e:c4;
+  uid "\001\370\026T\021>\304";
+  set vendor-class-identifier = "MSFT 5.0";
+}
+lease 192.168.5.60 {
+  starts 6 2024/09/14 01:48:07;
+  ends 6 2024/09/14 03:48:07;
+  tstp 6 2024/09/14 03:48:07;
+  cltt 6 2024/09/14 01:48:07;
+  binding state free;
+  hardware ethernet 9c:0c:df:e7:9b:25;
+  uid "\001\234\014\337\347\233%";
+  set vendor-class-identifier = "android-dhcp-10";
+}
+lease 192.168.5.56 {
+  starts 6 2024/09/14 02:22:54;
+  ends 6 2024/09/14 04:22:54;
+  tstp 6 2024/09/14 04:22:54;
+  cltt 6 2024/09/14 02:22:54;
+  binding state free;
+  hardware ethernet 52:ac:94:91:8e:b2;
+  uid "\001R\254\224\221\216\262";
+  set vendor-class-identifier = "android-dhcp-14";
+}
+lease 192.168.5.62 {
+  starts 1 2024/09/16 08:00:23;
+  ends 1 2024/09/16 10:00:23;
+  cltt 1 2024/09/16 08:00:23;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet d4:84:09:bc:35:79;
+  uid "\001\324\204\011\2745y";
+  set vendor-class-identifier = "MSFT 5.0";
+  client-hostname "USER-20230922QG";
+}
+lease 192.168.5.55 {
+  starts 1 2024/09/16 08:18:26;
+  ends 1 2024/09/16 10:18:26;
+  cltt 1 2024/09/16 08:18:26;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 58:48:49:2f:f8:4a;
+  uid "\377X\372\037F\000\002\000\000\253\021\366[\202\216xY\265\303";
+  client-hostname "nrsm";
+}
+lease 192.168.6.88 {
+  starts 1 2024/09/16 08:46:27;
+  ends 1 2024/09/16 10:46:27;
+  cltt 1 2024/09/16 08:46:27;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:e0:4c:69:66:52;
+  uid "\001\000\340LifR";
+  set vendor-class-identifier = "MSFT 5.0";
+  client-hostname "DESKTOP-7NGDCKJ";
+}
+lease 192.168.6.57 {
+  starts 1 2024/09/16 08:38:54;
+  ends 2 2024/09/17 08:48:47;
+  tstp 2 2024/09/17 08:48:47;
+  cltt 1 2024/09/16 08:38:54;
+  binding state abandoned;
+  next binding state free;
+  rewind binding state free;
+}
+lease 192.168.6.97 {
+  starts 1 2024/09/16 08:48:49;
+  ends 1 2024/09/16 10:48:49;
+  cltt 1 2024/09/16 08:48:49;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 0e:39:bf:e9:78:8a;
+  uid "\001\0169\277\351x\212";
+  set vendor-class-identifier = "android-dhcp-14";
+  client-hostname "MIX-4";
+}
+lease 192.168.6.81 {
+  starts 1 2024/09/16 08:54:15;
+  ends 1 2024/09/16 10:54:15;
+  cltt 1 2024/09/16 08:54:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 22:fe:db:f9:d3:3c;
+  uid "\001\"\376\333\371\323<";
+  set vendor-class-identifier = "android-dhcp-12";
+  client-hostname "OnePlus-7";
+}
+lease 192.168.5.62 {
+  starts 1 2024/09/16 09:00:24;
+  ends 1 2024/09/16 11:00:24;
+  cltt 1 2024/09/16 09:00:24;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet d4:84:09:bc:35:79;
+  uid "\001\324\204\011\2745y";
+  set vendor-class-identifier = "MSFT 5.0";
+  client-hostname "USER-20230922QG";
+}
+lease 192.168.6.76 {
+  starts 1 2024/09/16 09:15:53;
+  ends 1 2024/09/16 11:15:53;
+  cltt 1 2024/09/16 09:15:53;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 30:b4:9e:33:51:8d;
+  uid "\0010\264\2363Q\215";
+  set vendor-class-identifier = "MSFT 5.0";
+  client-hostname "DESKTOP-AVIBHAN";
+}
+lease 192.168.5.55 {
+  starts 1 2024/09/16 09:18:27;
+  ends 1 2024/09/16 11:18:27;
+  cltt 1 2024/09/16 09:18:27;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 58:48:49:2f:f8:4a;
+  uid "\377X\372\037F\000\002\000\000\253\021\366[\202\216xY\265\303";
+  client-hostname "nrsm";
+}
+lease 192.168.6.92 {
+  starts 1 2024/09/16 07:21:40;
+  ends 1 2024/09/16 09:21:40;
+  tstp 1 2024/09/16 09:21:40;
+  cltt 1 2024/09/16 07:23:13;
+  binding state free;
+  hardware ethernet 58:20:59:8b:f4:94;
+  uid "\001X Y\213\364\224";
+  set vendor-class-identifier = "android-dhcp-13";
+}
+lease 192.168.6.71 {
+  starts 1 2024/09/16 07:23:15;
+  ends 1 2024/09/16 09:23:15;
+  tstp 1 2024/09/16 09:23:15;
+  cltt 1 2024/09/16 07:23:15;
+  binding state free;
+  hardware ethernet aa:8a:dc:a7:b9:b3;
+  uid "\001\252\212\334\247\271\263";
+  set vendor-class-identifier = "android-dhcp-13";
+}

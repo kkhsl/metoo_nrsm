@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.PortMapper">
+
+    <select id="selectObjByDeviceUuid" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Port">
+        SELECT
+            metoo_port.*, GROUP_CONCAT(DISTINCT metoo_port_ipv6.ipv6) ipv6
+        FROM metoo_port
+
+
+        LEFT JOIN metoo_port_ipv6
+
+        ON `metoo_port`.port = metoo_port_ipv6.`port` and `metoo_port`.deviceUuid = metoo_port_ipv6.`deviceUuid`
+
+        WHERE
+            metoo_port.deviceUuid = #{DeviceUuid}
+
+        GROUP BY metoo_port.id
+
+        ORDER BY ISNULL(ip) or ip = '', INET_ATON(ip) ASC
+
+    </select>
+
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Port">
+        SELECT
+         *
+        FROM
+        metoo_port
+        <where>
+            <if test="ip != null and ip != ''">
+                AND ip = #{ip}
+            </if>
+            <if test="NotIp != null and NotIp != ''">
+                AND ip != #{NotIp}
+            </if>
+            <if test="ipIsNotNull != null and ipIsNotNull != ''">
+                AND ip != ''
+            </if>
+            <if test="mask != null and mask != ''">
+                AND mask = #{mask}
+            </if>
+            <if test="port != null and port != ''">
+                AND port = #{port}
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
+        </where>
+        ORDER BY ip IS NULL,INET_ATON(ip) ASC
+    </select>
+
+    <select id="selctVlanNumberByREGEXPREPLACE" resultType="com.metoo.nrsm.entity.Port">
+        SELECT RemoveLettersAndHyphens(`port`) as vlanNumber
+        FROM metoo_port
+        WHERE locate('VLAN', `port`) > 0
+    </select>
+
+    <select id="selctVlanNumberBySplitFieldFunction" resultType="com.metoo.nrsm.entity.Port">
+        SELECT *, RemoveLettersAndHyphens(port) as vlanNumber
+        FROM metoo_port
+        WHERE locate('VLAN', `port`) > 0 group by vlanNumber;
+    </select>
+
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Port">
+        INSERT INTO metoo_port
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="mask != null">
+                mask,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="deviceUuid != null">
+                deviceUuid,
+            </if>
+        </trim>
+        <trim prefix="values(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="port != null">
+                #{port},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="ip != null">
+                #{ip},
+            </if>
+            <if test="mask != null">
+                #{mask},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="deviceUuid != null">
+                #{deviceUuid},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Port">
+        update metoo_port
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="port != null">
+                port = #{port},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="ip != null">
+                ip = #{ip},
+            </if>
+            <if test="mask != null">
+                mask = #{mask},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="deviceUuid != null">
+                deviceUuid = #{deviceUuid},
+            </if>
+        </set> where id = #{id}
+    </update>
+
+    <insert id="batchSaveGather" parameterType="java.util.List">
+        INSERT INTO `metoo_port_gather` (
+            addTime,
+            port,
+            status,
+            ip,
+            mask,
+            description,
+            deviceUuid
+          )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.addTime},
+                #{item.port},
+                #{item.status},
+                #{item.ip},
+                #{item.mask},
+                #{item.description},
+                #{item.deviceUuid}
+            )
+        </foreach>
+    </insert>
+    
+    <update id="truncateTableGather">
+         TRUNCATE TABLE metoo_port_gather
+    </update>
+
+    <delete id="deleteTable">
+        delete from metoo_port
+    </delete>
+
+    <insert id="copyGatherDataToPort">
+        INSERT INTO metoo_port SELECT * FROM metoo_port_gather
+    </insert>
+
+
+</mapper>

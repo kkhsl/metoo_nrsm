@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.TerminalMacVendorMapper">
+
+    <resultMap id="BaseResultMap" type="com.metoo.nrsm.entity.TerminalMacVendor">
+            <result property="terminalTypeId" column="terminalTypeId" jdbcType="BIGINT"/>
+            <result property="vendor" column="vendor" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        terminalTypeId,vendor
+    </sql>
+
+    <select id="selectByVendor" parameterType="java.lang.String" resultMap="BaseResultMap">
+
+        SELECT *
+        FROM metoo_terminal_mac_vendor
+        WHERE #{vendor} LIKE CONCAT('%', vendor, '%');
+
+    </select>
+
+    <select id="selectAllVendor" resultType="com.metoo.nrsm.entity.TerminalMacVendor">
+        select
+        <include refid="Base_Column_List" />
+        from metoo_terminal_mac_vendor
+    </select>
+
+    <delete id="deleteByVendor" parameterType="String">
+        delete from metoo_terminal_mac_vendor
+        where
+        <if test="vendor != null">
+            vendor = #{vendor}
+        </if>
+    </delete>
+
+
+    <insert id="insert" parameterType="com.metoo.nrsm.entity.TerminalMacVendor">
+        insert into metoo_terminal_mac_vendor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="terminalTypeId != null">terminalTypeId,</if>
+                <if test="vendor != null">vendor,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="terminalTypeId != null">#{terminalTypeId},</if>
+                <if test="vendor != null">#{vendor},</if>
+        </trim>
+    </insert>
+
+    <update id="updateByMacVendor" parameterType="com.metoo.nrsm.entity.TerminalMacVendor">
+        update metoo_terminal_mac_vendor
+        <set>
+            <if test="terminalTypeId != null">
+                terminalTypeId = #{terminalTypeId}
+            </if>
+        </set>
+        where
+        <if test="vendor != null">
+            vendor = #{vendor}
+        </if>
+    </update>
+
+    <update id="updateByMacType" parameterType="com.metoo.nrsm.entity.TerminalMacVendor">
+        update metoo_terminal_mac_vendor
+        <set>
+            <if test="terminalTypeId != null">
+                terminalTypeId = #{terminalTypeId}
+            </if>
+        </set>
+        where
+        <if test="terminalTypeId != null">
+            terminalTypeId = #{terminalTypeId}
+        </if>
+    </update>
+
+</mapper>

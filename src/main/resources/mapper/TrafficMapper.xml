@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.TrafficMapper">
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Traffic">
+        SELECT *
+        FROM metoo_traffic
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Traffic">
+        SELECT *
+        FROM metoo_traffic
+        ORDER BY addTime desc
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Traffic">
+        INSERT INTO metoo_traffic
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="vfourFlow != null and vfourFlow != ''">
+                vfourFlow,
+            </if>
+            <if test="vsixFlow != null and vsixFlow != ''">
+                vsixFlow,
+            </if>
+            <if test="unitName != null and unitName != ''">
+                unitName,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="vfourFlow != null and vfourFlow != ''">
+                #{vfourFlow},
+            </if>
+            <if test="vsixFlow != null and vsixFlow != ''">
+                #{vsixFlow},
+            </if>
+            <if test="unitName != null and unitName != ''">
+                #{unitName},
+            </if>
+        </trim>
+    </insert>
+
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.FlowStatisticsMapper">
+
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.FlowStatistics">
+        select * from metoo_flux_statistics
+        <where>
+            <if test="oneMinuteAgo != null">
+                AND addTime = (
+                SELECT
+                addTime
+                FROM
+                metoo_flux_statistics
+                WHERE
+                addTime &lt;= #{oneMinuteAgo}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+            <if test="time != null">
+                AND addTime = (
+                SELECT
+                addTime
+                FROM
+                metoo_flux_statistics
+                WHERE
+                addTime = #{time}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+            <if test="startOfDay != null and endOfDay != null">
+                AND addTime BETWEEN #{startOfDay} and #{endOfDay}
+            </if>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.FlowStatistics">
+        INSERT INTO metoo_flux_statistics
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="ipv6Rate != null">
+                ipv6Rate,
+            </if>
+            <if test="ipv4Sum != null">
+                ipv4Sum,
+            </if>
+            <if test="ipv6Sum != null">
+                ipv6Sum,
+            </if>
+            <if test="ipv4 != null and ipv4!= ''">
+                ipv4,
+            </if>
+            <if test="ipv6 != null and ipv6!= ''">
+                ipv6,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="ipv6Rate != null">
+                #{ipv6Rate},
+            </if>
+            <if test="ipv4Sum != null">
+                #{ipv4Sum},
+            </if>
+            <if test="ipv6Sum != null">
+                #{ipv6Sum},
+            </if>
+            <if test="ipv4 != null and ipv4!= ''">
+                #{ipv4},
+            </if>
+            <if test="ipv6 != null and ipv6!= ''">
+                #{ipv6},
+            </if>
+        </trim>
+    </insert>
+</mapper>

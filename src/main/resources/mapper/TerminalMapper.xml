@@ -1,0 +1,1350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.TerminalMapper">
+
+    <select id="selectObjById" resultType="com.metoo.nrsm.entity.Terminal">
+                select * from metoo_terminal where id = #{id}
+    </select>
+
+    <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalDTO" resultType="com.metoo.nrsm.entity.Terminal">
+        select * from metoo_terminal terminal
+        <where>
+            <if test="filter != null and filter != ''">
+                <bind name="pattern" value="'%' + filter + '%'"/>
+                OR terminal.v4ip
+                like
+                concat(concat('%',#{filter}),'%')
+                or  terminal.v4ip1
+                like concat(concat('%',#{filter}),'%')
+                or  terminal.v4ip2
+                like concat(concat('%',#{filter}),'%')
+                or  terminal.v4ip3
+                like concat(concat('%',#{filter}),'%')
+                or  terminal.v6ip
+                like concat(concat('%',#{filter}),'%')
+                or  terminal.v6ip1
+                like concat(concat('%',#{filter}),'%')
+                or  terminal.v6ip2
+                like concat(concat('%',#{filter}),'%')
+                or  terminal.v6ip3
+                like concat(concat('%',#{filter}),'%')
+                or terminal.name
+                like concat(concat('%',#{filter}),'%')
+                or terminal.mac
+                like concat(concat('%',#{filter}),'%')
+                OR terminal.asset_number
+                LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.serial_number
+                LIKE CONCAT('%', #{filter}, '%')
+            </if>
+            <if test="hostname != null and hostname != ''">
+                AND hostname = #{hostname}
+            </if>
+            <if test="client_hostname != null and client_hostname != ''">
+                AND client_hostname = #{client_hostname}
+            </if>
+            <if test="online != null">
+                AND online = #{online}
+            </if>
+            <if test="asset_number != null and asset_number != ''">
+                AND asset_number = #{asset_number}
+            </if>
+            <if test="serial_number != null and serial_number != ''">
+                AND serial_number = #{serial_number}
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                AND deviceTypeId = #{deviceTypeId}
+            </if>
+            <if test="start_purchase_time != null and end_purchase_time != null">
+                AND purchase_time BETWEEN #{start_purchase_time} AND #{end_purchase_time}
+            </if>
+            <if test="start_warranty_time != null and end_warranty_time != null">
+                AND warranty_time BETWEEN #{start_warranty_time} AND #{end_warranty_time}
+            </if>
+            <if test="projectId != null and projectId != ''">
+                AND projectId = #{projectId}
+            </if>
+            <if test="vendorId != null and vendorId != ''">
+                AND vendorId = #{vendorId}
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
+        </where>
+        ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+        select * from metoo_terminal
+        <where>
+            <if test="mac != null and mac != ''">
+                AND mac = #{mac}
+            </if>
+            <if test="v4ip != null and v4ip != ''">
+                AND v4ip = #{v4ip}
+            </if>
+            <if test="v6ip != null and v6ip != ''">
+                AND v6ip = #{v6ip}
+            </if>
+            <if test="hostname != null and hostname != ''">
+                AND hostname = #{hostname}
+            </if>
+            <if test="client_hostname != null and client_hostname != ''">
+                AND client_hostname = #{client_hostname}
+            </if>
+            <if test="remoteDevice != null and remoteDevice != ''">
+                AND remoteDevice = #{remoteDevice}
+            </if>
+            <if test="asset_number != null and asset_number !=''">
+                AND asset_number = #{asset_number}
+            </if>
+            <if test="tag != null and tag != ''">
+                AND tag = #{tag}
+            </if>
+            <if test="tagIsNull != null and tagIsNull != ''">
+                AND tag is null
+            </if>
+            <if test="notTag != null and notTag != ''">
+                AND tag != #{notTag}
+            </if>
+            <if test="tags != null">
+                AND tag in
+                <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="notTerminalSet != null">
+                AND mac not in
+                <foreach collection="notTerminalSet" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="terminalId != null">
+                AND `id` != #{terminalId}
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
+            <if test="online != null">
+                AND online = #{online}
+            </if>
+        </where>
+        ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+
+    <select id="selectV4ipIsNullAndV6ipIsNull" resultType="com.metoo.nrsm.entity.Terminal">
+        SELECT
+            terminal.*
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    metoo_mac
+                WHERE
+                    v4ip IS NULL
+                AND v6ip IS NULL
+            ) mac
+        JOIN metoo_terminal terminal ON mac.mac = terminal.mac
+        where terminal.type = 0
+    </select>
+
+    <select id="selectObjHistoryByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+        select * from metoo_terminal_history
+        <where>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
+            <if test="mac != null and mac != ''">
+                AND mac = #{mac}
+            </if>
+            <if test="online != null">
+                AND online = #{online}
+            </if>
+            <if test="time != null">
+                AND addTime = (
+                SELECT
+                addTime
+                FROM
+                metoo_terminal_history
+                WHERE
+                addTime &lt;= #{time}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+        </where>
+        ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+
+    <select id="selectObjIntersection" resultType="com.metoo.nrsm.entity.Terminal">
+         SELECT
+                     terminal.id,
+					 terminal.deviceTypeId,
+                     terminal.type,
+					 mac.mac,
+					 mac.port,
+					 mac.deviceIp,
+					 mac.deviceName,
+					 mac.tag,
+					 mac.hostname,
+					 mac.remoteDevice,
+					 mac.remotePort,
+					 mac.v4ip,
+					 mac.v4ip1,
+					 mac.v4ip2,
+					 mac.v4ip3,
+					 mac.v4ipDynamic,
+					 mac.v4ip1Dynamic,
+					 mac.v4ip2Dynamic,
+					 mac.v4ip3Dynamic,
+					 mac.v6ip,
+					 mac.v6ip1,
+					 mac.v6ip2,
+					 mac.v6ip3,
+					 mac.v6ipDynamic,
+					 mac.v6ip1Dynamic,
+					 mac.v6ip2Dynamic,
+					 mac.v6ip3Dynamic,
+					 mac.client_hostname
+        FROM
+            (
+                SELECT
+                    *,
+                IF (
+                    mac.v4ip IS NOT NULL,
+                    (
+                        SELECT
+
+                        IF (COUNT(*) > 0, 1, 0)
+                        FROM
+                            metoo_dhcp dhcp
+                        WHERE
+                            dhcp.lease = mac.v4ip
+                    ),
+                    0
+                ) AS v4ipDynamic,
+
+            IF (
+                mac.v4ip1 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac.v4ip1
+                ),
+                0
+            ) AS v4ip1Dynamic,
+
+        IF (
+            mac.v4ip2 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip2
+            ),
+            0
+        ) AS v4ip2Dynamic,
+
+        IF (
+            mac.v4ip3 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip3
+            ),
+            0
+        ) AS v4ip3Dynamic,
+
+        IF (
+            mac.v6ip IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip
+            ),
+            0
+        ) AS v6ipDynamic,
+
+        IF (
+            mac.v6ip1 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip1
+            ),
+            0
+        ) AS v6ip1Dynamic,
+
+        IF (
+            mac.v6ip2 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip2
+            ),
+            0
+        ) AS v6ip2Dynamic,
+
+        IF (
+            mac.v6ip3 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip3
+            ),
+            0
+        ) AS v6ip3Dynamic,
+
+        IF (
+            mac.v4ip IS NOT NULL,
+            (
+                SELECT
+                    client_hostname
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip
+                LIMIT 1
+            ),
+            NULL
+        ) AS client_hostname
+        FROM
+            metoo_mac mac
+        WHERE
+            tag = 'DT'
+        ) mac
+
+        join
+
+        metoo_terminal terminal on terminal.mac = mac.mac
+        /* and terminal.port = mac.port*/
+         /*and terminal.type = 0*/
+    </select>
+
+    <select id="selectObjLeftdifference" resultType="com.metoo.nrsm.entity.Terminal">
+        SELECT
+         mac.addTime,
+         mac.mac,
+         mac.port,
+         mac.deviceIp,
+         mac.deviceName,
+         mac.tag,
+         mac.hostname,
+         mac.remoteDevice,
+         mac.remotePort,
+         mac.v4ip,
+         mac.v4ip1,
+         mac.v4ip2,
+         mac.v4ip3,
+         mac.v4ipDynamic,
+         mac.v4ip1Dynamic,
+         mac.v4ip2Dynamic,
+         mac.v4ip3Dynamic,
+         mac.v6ip,
+         mac.v6ip1,
+         mac.v6ip2,
+         mac.v6ip3,
+         mac.v6ipDynamic,
+         mac.v6ip1Dynamic,
+         mac.v6ip2Dynamic,
+         mac.v6ip3Dynamic,
+         mac.client_hostname
+        FROM
+            (
+                SELECT
+                    *,
+                IF (
+                    mac.v4ip IS NOT NULL,
+                    (
+                        SELECT
+
+                        IF (COUNT(*) > 0, 1, 0)
+                        FROM
+                            metoo_dhcp dhcp
+                        WHERE
+                            dhcp.lease = mac.v4ip
+                    ),
+                    0
+                ) AS v4ipDynamic,
+
+            IF (
+                mac.v4ip1 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac.v4ip1
+                ),
+                0
+            ) AS v4ip1Dynamic,
+
+        IF (
+            mac.v4ip2 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip2
+            ),
+            0
+        ) AS v4ip2Dynamic,
+
+        IF (
+            mac.v4ip3 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip3
+            ),
+            0
+        ) AS v4ip3Dynamic,
+
+        IF (
+            mac.v6ip IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip
+            ),
+            0
+        ) AS v6ipDynamic,
+
+        IF (
+            mac.v6ip1 IS NOT NULL,
+            (
+                SELECT
+
+               IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip1
+            ),
+            0
+        ) AS v6ip1Dynamic,
+
+        IF (
+            mac.v6ip2 IS NOT NULL,
+            (
+                SELECT
+
+               IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip2
+            ),
+            0
+        ) AS v6ip2Dynamic,
+
+        IF (
+            mac.v6ip3 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip3
+            ),
+            0
+        ) AS v6ip3Dynamic,
+
+        IF (
+            mac.v4ip IS NOT NULL,
+            (
+                SELECT
+                    client_hostname
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip
+                LIMIT 1
+            ),
+            NULL
+        ) AS client_hostname
+        FROM
+            metoo_mac mac
+        WHERE
+            tag = 'DT'
+            ) mac
+        LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
+        WHERE
+            terminal.mac IS NULL
+        and (mac.v4ip is not null or mac.v6ip is not null)
+    </select>
+
+    <select id="selectObjRightdifference" resultType="com.metoo.nrsm.entity.Terminal">
+        /*SELECT
+           terminal.id
+        FROM
+            (
+                SELECT
+                    *,
+                IF (
+                    mac.v4ip IS NOT NULL,
+                    (
+                        SELECT
+
+                        IF (COUNT(*) > 0, 1, 0)
+                        FROM
+                            metoo_dhcp dhcp
+                        WHERE
+                            dhcp.lease = mac.v4ip
+                    ),
+                    0
+                ) AS v4ipDynamic,
+
+            IF (
+                mac.v4ip1 IS NOT NULL,
+                (
+                    SELECT
+
+                    IF (COUNT(*) > 0, 1, 0)
+                    FROM
+                        metoo_dhcp dhcp
+                    WHERE
+                        dhcp.lease = mac.v4ip1
+                ),
+                0
+            ) AS v4ip1Dynamic,
+
+        IF (
+            mac.v4ip2 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip2
+            ),
+            0
+        ) AS v4ip2Dynamic,
+
+        IF (
+            mac.v4ip3 IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip3
+            ),
+            0
+        ) AS v4ip3Dynamic,
+
+        IF (
+            mac.v6ip IS NOT NULL,
+            (
+                SELECT
+
+                IF (COUNT(*) > 0, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip
+            ),
+            0
+        ) AS v6ipDynamic,
+
+        IF (
+            mac.v6ip1 IS NOT NULL,
+            (
+                SELECT
+
+                IF (iaaddr IS NOT NULL, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip1
+            ),
+            0
+        ) AS v6ip1Dynamic,
+
+        IF (
+            mac.v6ip2 IS NOT NULL,
+            (
+                SELECT
+
+                IF (iaaddr IS NOT NULL, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip2
+            ),
+            0
+        ) AS v6ip2Dynamic,
+
+        IF (
+            mac.v6ip3 IS NOT NULL,
+            (
+                SELECT
+
+                IF (iaaddr IS NOT NULL, 1, 0)
+                FROM
+                    metoo_dhcp6 dhcp6
+                WHERE
+                    dhcp6.iaaddr = mac.v6ip3
+            ),
+            0
+        ) AS v6ip3Dynamic,
+
+        IF (
+            mac.v4ip IS NOT NULL,
+            (
+                SELECT
+                    client_hostname
+                FROM
+                    metoo_dhcp dhcp
+                WHERE
+                    dhcp.lease = mac.v4ip
+                LIMIT 1
+            ),
+            NULL
+        ) AS client_hostname
+        FROM
+            metoo_mac mac
+        WHERE
+            tag = 'DT'
+            ) mac
+
+        right join
+
+        metoo_terminal terminal on terminal.mac = mac.mac
+        where mac.mac is null*/
+        /*and terminal.type = 0*/
+        SELECT
+           terminal.id
+        FROM
+            (
+               SELECT
+                    *
+                FROM
+                    metoo_mac mac
+                WHERE
+                    tag = 'DT'
+            ) mac
+        right join
+          metoo_terminal terminal
+        on
+          terminal.mac = mac.mac/* and terminal.port = mac.port*/
+        where mac.mac is null
+
+    </select>
+
+    <resultMap id="Count_Result_Map" type="java.util.HashMap">
+        <result column="v4ip_count" property="v4ip_count" javaType="int"></result>
+        <result column="v6ip_count" property="v6ip_count" javaType="int"></result>
+        <result column="v4ip_v6ip_count" property="v4ip_v6ip_count" javaType="int"></result>
+    </resultMap>
+
+    <select id="terminalCount" resultMap="Count_Result_Map">
+       /* select DISTINCT(interfaceIndex), (select count(*) from metoo_terminal where (v4ip is not null and v6ip is null)
+        ) as v4ip_count, (select count(*) from metoo_terminal where (v6ip is not null and v4ip is null)
+        ) as v6ip_count,(select count(*) from metoo_terminal where (v6ip is not null and v4ip is not null)
+        )as v4ip_v6ip_count  from metoo_terminal *//*where (v6ip is not null and v4ip is not null)*/
+
+         SELECT DISTINCT
+        (interfaceIndex),
+        (
+            SELECT
+                count(*)
+            FROM
+                metoo_terminal
+            WHERE
+                (v4ip IS NOT NULL AND v6ip IS NULL) and deviceTypeId not in(10, 24)
+        ) AS v4ip_count,
+        (
+            SELECT
+                count(*)
+            FROM
+                metoo_terminal
+            WHERE
+                (v6ip IS NOT NULL AND v4ip IS NULL) and deviceTypeId not in(10, 24)
+        ) AS v6ip_count,
+        (
+            SELECT
+                count(*)
+            FROM
+                metoo_terminal
+            WHERE
+                (
+                    v6ip IS NOT NULL
+                    AND v4ip IS NOT NULL and deviceTypeId not in(10, 24)
+                )
+        ) AS v4ip_v6ip_count
+    FROM
+        metoo_terminal
+
+
+
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Terminal" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO metoo_terminal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="mac != null">
+                mac,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="deviceIp != null">
+                deviceIp,
+            </if>
+            <if test="deviceName != null">
+                deviceName,
+            </if>
+            <if test="deviceUuid != null">
+                deviceUuid,
+            </if>
+            <if test="tag != null">
+                tag,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="hostname != null">
+                hostname,
+            </if>
+            <if test="remoteDevice != null">
+                remoteDevice,
+            </if>
+            <if test="remotePort != null">
+                remotePort,
+            </if>
+            <if test="v4ip != null">
+                v4ip,
+            </if>
+            <if test="v4ip1 != null">
+                v4ip1,
+            </if>
+            <if test="v4ip2 != null">
+                v4ip2,
+            </if>
+            <if test="v4ip3 != null">
+                v4ip3,
+            </if>
+            <if test="v6ip != null">
+                v6ip,
+            </if>
+            <if test="v6ip1 != null">
+                v6ip1,
+            </if>
+            <if test="v6ip2 != null">
+                v6ip2,
+            </if>
+            <if test="v6ip3 != null">
+                v6ip3,
+            </if>
+            <if test="macVendor != null">
+                macVendor,
+            </if>
+            <if test="online != null">
+                online,
+            </if>
+            <if test="client_hostname != null">
+                client_hostname,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="interfaceName != null">
+                interfaceName,
+            </if>
+            <if test="index != null">
+                index,
+            </if>
+            <if test="uuid != null">
+                uuid,
+            </if>
+            <if test="interfaceIndex != null">
+                interfaceIndex,
+            </if>
+            <if test="interfaceStatus != null">
+                interfaceStatus,
+            </if>
+            <if test="remoteInterface != null">
+                remoteInterface,
+            </if>
+            <if test="remoteUuid != null">
+                remoteUuid,
+            </if>
+            <if test="vendor != null">
+                vendor,
+            </if>
+            <if test="vlan != null">
+                vlan,
+            </if>
+            <if test="duty != null">
+                duty,
+            </if>
+            <if test="location != null and location != ''">
+                location,
+            </if>
+            <if test="purchase_time != null">
+                purchase_time,
+            </if>
+            <if test="warranty_time != null">
+                warranty_time,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="serial_number != null">
+                serial_number,
+            </if>
+            <if test="asset_number != null">
+                asset_number,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="changeReasons != null">
+                change_reasons,
+            </if>
+            <if test="from != null">
+                `from`,
+            </if>
+            <if test="projectId != null and projectId != ''">
+                projectId,
+            </if>
+            <if test="vendorId != null and vendorId != ''">
+                vendorId,
+            </if>
+            <if test="model != null and model != ''">
+                model,
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                deviceTypeId,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="mac != null">
+                #{mac},
+            </if>
+            <if test="port != null">
+                #{port},
+            </if>
+            <if test="deviceIp != null">
+                #{deviceIp},
+            </if>
+            <if test="deviceName != null">
+                #{deviceName},
+            </if>
+            <if test="deviceUuid != null">
+                #{deviceUuid},
+            </if>
+            <if test="tag != null">
+                #{tag},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="hostname != null">
+                #{hostname},
+            </if>
+            <if test="remoteDevice != null">
+                #{remoteDevice},
+            </if>
+            <if test="remotePort != null">
+                #{remotePort},
+            </if>
+            <if test="v4ip != null">
+                #{v4ip},
+            </if>
+            <if test="v4ip1 != null">
+                #{v4ip1},
+            </if>
+            <if test="v4ip2 != null">
+                #{v4ip2},
+            </if>
+            <if test="v4ip3 != null">
+                #{v4ip3},
+            </if>
+            <if test="v6ip != null">
+                #{v6ip},
+            </if>
+            <if test="v6ip1 != null">
+                #{v6ip1},
+            </if>
+            <if test="v6ip2 != null">
+                #{v6ip2},
+            </if>
+            <if test="v6ip3 != null">
+                #{v6ip3},
+            </if>
+            <if test="macVendor != null">
+                #{macVendor},
+            </if>
+            <if test="online != null">
+                #{online},
+            </if>
+            <if test="client_hostname != null">
+                #{client_hostname},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="interfaceName != null">
+                #{interfaceName},
+            </if>
+            <if test="index != null">
+                #{index},
+            </if>
+            <if test="uuid != null">
+                #{uuid},
+            </if>
+            <if test="interfaceIndex != null">
+                #{interfaceIndex},
+            </if>
+            <if test="interfaceStatus != null">
+                #{interfaceStatus},
+            </if>
+            <if test="remoteInterface != null">
+                #{remoteInterface},
+            </if>
+            <if test="remoteUuid != null">
+                #{remoteUuid},
+            </if>
+            <if test="vendor != null">
+                #{vendor},
+            </if>
+            <if test="vlan != null">
+                #{vlan},
+            </if>
+            <if test="duty != null">
+                #{duty},
+            </if>
+            <if test="location != null and location != ''">
+                #{location},
+            </if>
+            <if test="purchase_time != null">
+                #{purchase_time},
+            </if>
+            <if test="warranty_time != null">
+                #{warranty_time},
+            </if>
+            <if test="price != null">
+                #{price},
+            </if>
+            <if test="serial_number != null">
+                #{serial_number},
+            </if>
+            <if test="asset_number != null">
+                #{asset_number},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="changeReasons != null">
+                #{changeReasons},
+            </if>
+            <if test="from != null">
+                #{from},
+            </if>
+            <if test="projectId != null and projectId != ''">
+                #{projectId},
+            </if>
+            <if test="vendorId != null and vendorId != ''">
+                #{vendorId},
+            </if>
+            <if test="model != null and model != ''">
+                #{model},
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                #{deviceTypeId},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Terminal">
+        UPDATE metoo_terminal
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="mac != null">
+                mac = #{mac},
+            </if>
+            <if test="port != null">
+                port = #{port},
+            </if>
+            <if test="deviceIp != null">
+                deviceIp = #{deviceIp},
+            </if>
+            <if test="deviceName != null">
+                deviceName = #{deviceName},
+            </if>
+            <if test="deviceUuid != null">
+                deviceUuid = #{deviceUuid},
+            </if>
+            <if test="tag != null">
+                tag = #{tag},
+            </if>
+            <if test="type != null">
+                `type` = #{type},
+            </if>
+            <if test="hostname != null">
+                hostname = #{hostname},
+            </if>
+            <if test="remoteDevice != null">
+                remoteDevice = #{remoteDevice},
+            </if>
+            <if test="remotePort != null">
+                remotePort = #{remotePort},
+            </if>
+            <if test="v4ip != null">
+                v4ip = #{v4ip},
+            </if>
+            <if test="v4ip1 != null">
+                v4ip1 = #{v4ip1},
+            </if>
+            <if test="v4ip2 != null">
+                v4ip2 = #{v4ip2},
+            </if>
+            <if test="v4ip3 != null">
+                v4ip3 = #{v4ip3},
+            </if>
+            <if test="v6ip != null">
+                v6ip = #{v6ip},
+            </if>
+            <if test="v6ip1 != null">
+                v6ip1 = #{v6ip1},
+            </if>
+            <if test="v6ip2 != null">
+                v6ip2 = #{v6ip2},
+            </if>
+            <if test="v6ip3 != null">
+                v6ip3 = #{v6ip3},
+            </if>
+            <if test="macVendor != null">
+                macVendor = #{macVendor},
+            </if>
+            <if test="online != null">
+                online = #{online},
+            </if>
+            <if test="client_hostname != null">
+                client_hostname = #{client_hostname},
+            </if>
+            <if test="interfaceName != null">
+                interfaceName = #{interfaceName},
+            </if>
+            <if test="index != null and index != ''">
+                index = #{index},
+            </if>
+            <if test="uuid != null">
+                uuid = #{uuid},
+            </if>
+            <if test="interfaceIndex != null">
+                interfaceIndex = #{interfaceIndex},
+            </if>
+            <if test="interfaceStatus != null">
+                interfaceStatus = #{interfaceStatus},
+            </if>
+            <if test="remoteInterface != null">
+                remoteInterface = #{remoteInterface},
+            </if>
+            <if test="remoteUuid != null">
+                remoteUuid = #{remoteUuid},
+            </if>
+            <if test="vendor != null">
+                vendor = #{vendor},
+            </if>
+            <if test="vlan != null">
+                vlan = #{vlan},
+            </if>
+            <if test="duty != null">
+                duty = #{duty},
+            </if>
+            <if test="location != null and location != ''">
+                location = #{location},
+            </if>
+            <if test="purchase_time != null">
+                purchase_time = #{purchase_time},
+            </if>
+            <if test="warranty_time != null">
+                warranty_time = #{warranty_time},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="serial_number != null">
+                serial_number = #{serial_number},
+            </if>
+            <if test="asset_number != null">
+                asset_number = #{asset_number},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="changeReasons != null">
+                changeReasons = #{changeReasons},
+            </if>
+            <if test="from != null">
+                `from` = #{from},
+            </if>
+            <if test="projectId != null and projectId != ''">
+                projectId = #{projectId},
+            </if>
+            <if test="vendorId != null and vendorId != ''">
+                vendorId = #{vendorId},
+            </if>
+            <if test="model != null and model != ''">
+                model = #{model},
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                deviceTypeId = #{deviceTypeId},
+            </if>
+            <if test="unitId != ''">
+                unitId = #{unitId},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="batchSave" parameterType="java.util.List">
+        INSERT INTO `metoo_terminal` (
+        addTime,
+        mac,
+        port,
+        type,
+        deviceIp,
+        deviceName,
+        deviceUuid,
+        tag,
+        hostname,
+        remoteDevice,
+        remotePort,
+        remoteUuid,
+        v4ip,
+        v4ip1,
+        v4ip2,
+        v4ip3,
+        v4ipDynamic,
+        v4ip1Dynamic,
+        v4ip2Dynamic,
+        v4ip3Dynamic,
+        v6ip,
+        v6ip1,
+        v6ip2,
+        v6ip3,
+        v6ipDynamic,
+        v6ip1Dynamic,
+        v6ip2Dynamic,
+        v6ip3Dynamic,
+        online,
+        client_hostname,
+        uuid,
+        deviceTypeId
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+            #{item.addTime},
+            #{item.mac},
+            #{item.port},
+            #{item.type},
+            #{item.deviceIp},
+            #{item.deviceName},
+            #{item.deviceUuid},
+            #{item.tag},
+            #{item.hostname},
+            #{item.remoteDevice},
+            #{item.remotePort},
+            #{item.remoteUuid},
+            #{item.v4ip},
+            #{item.v4ip1},
+            #{item.v4ip2},
+            #{item.v4ip3},
+            #{item.v4ipDynamic},
+            #{item.v4ip1Dynamic},
+            #{item.v4ip2Dynamic},
+            #{item.v4ip3Dynamic},
+            #{item.v6ip},
+            #{item.v6ip1},
+            #{item.v6ip2},
+            #{item.v6ip3},
+            #{item.v6ipDynamic},
+            #{item.v6ip1Dynamic},
+            #{item.v6ip2Dynamic},
+            #{item.v6ip3Dynamic},
+            #{item.online},
+            #{item.client_hostname},
+            #{item.uuid},
+            #{item.deviceTypeId}
+            )
+        </foreach>
+    </insert>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            UPDATE metoo_terminal
+            <set>
+                <if test="item.addTime != null">
+                    addTime = #{item.addTime},
+                </if>
+                <if test="item.online != null">
+                    online = #{item.online},
+                </if>
+                <if test="item.port != null and item.port != ''">
+                    port = #{item.port},
+                </if>
+                <if test="item.deviceIp != ''">
+                    deviceIp = #{item.deviceIp},
+                </if>
+                <if test="item.deviceName != ''">
+                    deviceName = #{item.deviceName},
+                </if>
+                <if test="item.deviceUuid != ''">
+                    deviceUuid = #{item.deviceUuid},
+                </if>
+                <if test="item.remoteDevice != ''">
+                    remoteDevice = #{item.remoteDevice},
+                </if>
+                <if test="item.remotePort != ''">
+                    remotePort = #{item.remotePort},
+                </if>
+                <if test="item.remoteUuid != ''">
+                    remoteUuid = #{item.remoteUuid},
+                </if>
+                <if test="item.deviceTypeId != null and item.deviceTypeId != ''">
+                    deviceTypeId = #{item.deviceTypeId},
+                </if>
+                <if test="item.v4ip != ''">
+                    v4ip = #{item.v4ip},
+                </if>
+                <if test="item.v4ip1 != ''">
+                    v4ip1 = #{item.v4ip1},
+                </if>
+                <if test="item.v4ip2 != ''">
+                    v4ip2 = #{item.v4ip2},
+                </if>
+                <if test="item.v4ip3 != ''">
+                    v4ip3 = #{item.v4ip3},
+                </if>
+                <if test="item.v6ip != ''">
+                    v6ip = #{item.v6ip},
+                </if>
+                <if test="item.v6ip1 != ''">
+                    v6ip1 = #{item.v6ip1},
+                </if>
+                <if test="item.v6ip2 != ''">
+                    v6ip2 = #{item.v6ip2},
+                </if>
+                <if test="item.v6ip3 != ''">
+                    v6ip3 = #{item.v6ip3},
+                </if>
+                <if test="item.v4ipDynamic != ''">
+                    v4ipDynamic = #{item.v4ipDynamic},
+                </if>
+                <if test="item.v4ip1Dynamic != ''">
+                    v4ip1Dynamic = #{item.v4ip1Dynamic},
+                </if>
+                <if test="item.v4ip2Dynamic != ''">
+                    v4ip2Dynamic = #{item.v4ip2Dynamic},
+                </if>
+                <if test="item.v4ip3Dynamic != ''">
+                    v4ip3Dynamic = #{item.v4ip3Dynamic},
+                </if>
+                <if test="item.v6ipDynamic != ''">
+                    v6ipDynamic = #{item.v6ipDynamic},
+                </if>
+                <if test="item.v6ip1Dynamic != ''">
+                    v6ip1Dynamic = #{item.v6ip1Dynamic},
+                </if>
+                <if test="item.v6ip2Dynamic != ''">
+                    v6ip2Dynamic = #{item.v6ip2Dynamic},
+                </if>
+                <if test="item.v6ip3Dynamic != ''">
+                    v6ip3Dynamic = #{item.v6ip3Dynamic},
+                </if>
+                <if test="item.client_hostname != ''">
+                    client_hostname = #{item.client_hostname},
+                </if>
+                <if test="item.hostname != ''">
+                    hostname = #{item.hostname},
+                </if>
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM metoo_terminal
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteObjByType">
+        DELETE FROM metoo_terminal
+        WHERE type = 0
+    </delete>
+
+    <update id="copyTerminalToTerminalHistory">
+        INSERT INTO metoo_terminal_history
+        SELECT * FROM metoo_terminal
+    </update>
+
+</mapper>

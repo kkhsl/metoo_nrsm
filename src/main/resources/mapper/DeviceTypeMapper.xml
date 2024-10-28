@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.DeviceTypeMapper">
+
+    <resultMap id="Join_Result_Map" type="com.metoo.nrsm.entity.DeviceType">
+        <id column="id" property="id"></id>
+        <result column="addTime" property="addTime"></result>
+        <result column="deleteStatus" property="deleteStatus"></result>
+        <result column="name" property="name"></result>
+        <result column="count" property="count"></result>
+        <result column="type" property="type"></result>
+        <collection property="networkElementList" javaType="list"
+                    ofType="com.metoo.nrsm.entity.NetworkElement">
+            <id column="ne_id" property="id"/>
+            <result column="ip" property="ip"></result>
+            <result column="device_name" property="deviceName"></result>
+            <result column="group_id" property="groupId"></result>
+            <result column="group_name" property="groupName"></result>
+            <result column="device_type_id" property="deviceTypeId"></result>
+            <result column="device_type_name" property="deviceTypeName"></result>
+            <result column="vendor_id" property="vendorId"></result>
+            <result column="vendor_name" property="vendorName"></result>
+            <result column="description" property="description"></result>
+            <result column="user_id" property="userId"></result>
+            <result column="user_name" property="userName"></result>
+            <result column="uuid" property="uuid"></result>
+            <result column="connect_type" property="connectType"></result>
+            <result column="port" property="port"></result>
+            <result column="credential_id" property="credentialId"></result>
+            <result column="web_url" property="webUrl"></result>
+            <result column="permit_connect" property="permitConnect"></result>
+        </collection>
+    </resultMap>
+
+    <resultMap id="Join_Terminal_Map" type="com.metoo.nrsm.entity.DeviceType">
+        <id column="id" property="id"></id>
+        <result column="addTime" property="addTime"></result>
+        <result column="deleteStatus" property="deleteStatus"></result>
+        <result column="name" property="name"></result>
+        <result column="count" property="count"></result>
+        <result column="type" property="type"></result>
+        <collection property="terminalList" javaType="list"
+                    ofType="com.metoo.nrsm.entity.Terminal">
+            <id column="rt_id" property="id"></id>
+            <result column="rt_name" property="name"></result>
+            <result column="rt_online" property="online"></result>
+        </collection>
+    </resultMap>
+
+    <sql id="Join_Column_List">
+        dt.id, dt.addTime, dt.deleteStatus, dt.name, n.id ne_id, n.*,
+        (
+			SELECT COUNT(*)
+			FROM metoo_ne n
+			WHERE dt.id = n.`device_type_id`
+	 ) count
+    </sql>
+
+    <sql id="Terminal_Join_Column_List">
+        dt.id, dt.name, rt.id rt_id, rt.name rt_name, rt.online rt_online,
+        (
+			SELECT COUNT(*)
+			FROM metoo_terminal rt
+			WHERE dt.id = rt.`deviceTypeId`
+	 ) count
+    </sql>
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.DeviceType">
+        SELECT * FROM metoo_device_type
+        where id = #{id}
+    </select>
+
+    <select id="selectObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.DeviceType">
+        SELECT * FROM metoo_device_type
+        where  `name` = #{name}
+    </select>
+
+    <select id="selectObjByType" parameterType="java.lang.Integer" resultType="com.metoo.nrsm.entity.DeviceType">
+        SELECT * FROM metoo_device_type
+        where  `type` = #{type}
+    </select>
+
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DeviceTypeDTO" resultType="com.metoo.nrsm.entity.DeviceType">
+        SELECT *
+        FROM metoo_device_type
+    </select>
+
+    <select id="selectObjByMap" resultType="com.metoo.nrsm.entity.DeviceType">
+        SELECT *
+        FROM metoo_device_type
+        <where>
+            <if test="types != null">
+                AND `type` in
+                <foreach collection="types" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="name != null and name != ''">
+                AND `name` = #{name}
+            </if>
+            <if test="type != null and type != ''">
+                AND `type` = #{type}
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                AND id != #{deviceTypeId}
+            </if>
+            <if test="diff != null">
+                AND diff = #{diff}
+            </if>
+        </where>
+        <if test = "orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test = "orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
+
+    <select id="selectCountByLeftJoin" resultType="com.metoo.nrsm.entity.DeviceType">
+        SELECT
+            dt.*, IF(d.device_type_id IS NULL,0,COUNT(*)) `count`
+        FROM
+            metoo_device_type dt
+        LEFT JOIN
+            rsms_device d
+        ON
+            d.device_type_id = dt.id
+        GROUP BY
+            dt.id
+    </select>
+
+    <select id="selectDeviceTypeAndNeByJoin" resultType="com.metoo.nrsm.entity.DeviceType">
+        SELECT
+            metoo_device_type.*,
+        IF (
+            metoo_ne.device_type_id IS NULL,
+            0,
+            COUNT(*)
+        ) `count`
+        FROM
+            metoo_device_type
+        LEFT JOIN metoo_ne ON metoo_device_type.id = metoo_ne.device_type_id
+        WHERE
+            diff = 0
+        GROUP BY
+            metoo_device_type.id;
+    </select>
+
+
+    <select id="selectDeviceTypeAndTerminalByJoin" resultMap="Join_Terminal_Map">
+        SELECT
+            metoo_device_type.*,
+        IF (
+            metoo_terminal.deviceTypeId IS NULL,
+            0,
+            COUNT(*)
+        ) `count`
+        FROM
+            metoo_device_type
+        LEFT JOIN metoo_terminal ON metoo_device_type.id = metoo_terminal.deviceTypeId
+        WHERE
+            diff = 1
+        GROUP BY
+            metoo_device_type.id;
+    </select>
+
+    <select id="selectCountByJoin" resultMap="Join_Result_Map">
+        SELECT
+            <include refid="Join_Column_List"/>
+         FROM metoo_device_type dt
+         LEFT JOIN
+            metoo_ne n
+        ON
+            n.device_type_id = dt.id
+        WHERE diff = 0 order by dt.sequence desc;
+    </select>
+
+    <select id="selectTerminalCountByJoin" resultMap="Join_Terminal_Map">
+        SELECT
+        <include refid="Terminal_Join_Column_List"/>
+        FROM metoo_device_type dt
+        LEFT JOIN
+        metoo_terminal rt
+        ON
+        rt.deviceTypeId = dt.id
+        WHERE diff = 1 order by dt.sequence desc;
+    </select>
+
+    <select id="selectNeSumByType" parameterType="java.util.Map" resultMap="Join_Result_Map">
+        SELECT
+            dt.*, IF(mn.device_type_id IS NULL,0,COUNT(*)) `count`
+        FROM
+            metoo_device_type dt
+         LEFT JOIN
+            metoo_ne mn
+        ON
+            mn.device_type_id = dt.id
+        <where>
+            <if test="diff != null">
+                AND diff = #{diff}
+            </if>
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+        </where>
+        <if test="group == null">
+            GROUP BY
+            dt.id
+        </if>
+    </select>
+
+    <select id="selectNeByType" parameterType="java.lang.Integer" resultMap="Join_Result_Map">
+        select * from metoo_device_type dt
+        join metoo_ne mn
+        on dt.id = mn.device_type_id
+        <where>
+            <if test="type != null">
+                AND dt.type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTerminalSumByType" parameterType="java.util.Map" resultMap="Join_Result_Map">
+        SELECT
+            dt.*, IF(rt.deviceTypeId IS NULL,0,COUNT(*)) `count`
+        FROM
+            metoo_device_type dt
+         JOIN
+          metoo_terminal rt
+        ON
+            rt.deviceTypeId = dt.id
+        <where>
+            <if test="type != null">
+                AND dt.type = #{type}
+            </if>
+            <if test="online != null">
+                AND rt.online = #{online}
+            </if>
+            <if test="diff != null">
+                AND dt.diff = 1
+            </if>
+        </where>
+        <if test="group == null">
+            GROUP BY
+            dt.id
+        </if>
+    </select>
+
+
+
+    <select id="statistics" resultType="com.metoo.nrsm.core.vo.DeviceTypeVO">
+        SELECT
+              t.*, IF(d.device_type_id IS NULL,0, d.`online`) `online`,
+	          IF(w.device_type_id IS NULL,0, w.overProtection) overProtection
+            FROM (
+            SELECT
+              dt.*, IF(d.device_type_id IS NULL,0,COUNT(*)) `count`
+            FROM
+             metoo_device_type dt
+            LEFT JOIN
+             rsms_device d
+            ON
+              d.device_type_id = dt.id
+            GROUP BY
+             dt.id
+            )t
+            LEFT JOIN
+            (
+                SELECT
+                  *, IF(device_type_id IS NULL,0,COUNT(*)) `online`
+                FROM
+                  rsms_device
+                WHERE
+                  status = 1
+                GROUP BY
+                  device_type_id
+            ) d
+            ON
+            t.id = d.device_type_id
+            LEFT JOIN
+            (
+                SELECT
+                  *, COUNT(*) `overProtection`
+                FROM rsms_device
+                WHERE
+                  to_days(warranty_time) - to_days(purchase_time) &lt; 60
+                GROUP BY device_type_id)w
+            ON
+            w.device_type_id = t.id
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.DeviceType">
+        INSERT INTO metoo_device_type
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="name != '' and name != null ">
+                `name`,
+            </if>
+            <if test="uuid != '' and uuid != null ">
+                `uuid`,
+            </if>
+            <if test="diff != '' and diff != null ">
+                `diff`,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="name != '' and name != null ">
+                #{name},
+            </if>
+            <if test="uuid != '' and uuid != null ">
+                #{uuid},
+            </if>
+            <if test="diff != '' and diff != null ">
+                #{diff},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.DeviceType">
+        UPDATE metoo_device_type
+        <set>
+            <if test="name != '' and name != null ">
+                `name` = #{name},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM metoo_device_type WHERE id = #{id}
+    </delete>
+
+    <delete id="batcheDel" parameterType="java.lang.Long">
+        DELETE FROM metoo_device_type
+        WHERE id in
+        <foreach collection="array" item="item"  separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

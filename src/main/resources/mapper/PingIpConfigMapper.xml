@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.PingIpConfigMapper">
+
+
+    <select id="selectOneObj"  resultType="com.metoo.nrsm.entity.PingIpConfig">
+        SELECT * FROM metoo_pingipconfig limit 1
+    </select>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.PingIpConfig">
+        UPDATE metoo_pingipconfig
+        <set>
+            <if test="v6ip1 != null">
+                status = #{status},
+            </if>
+            <if test="v6ip1 != null">
+                v6ip1 = #{v6ip1},
+            </if>
+            <if test="v6ip2 != null">
+                v6ip2 = #{v6ip2},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

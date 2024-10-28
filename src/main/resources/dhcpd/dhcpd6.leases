@@ -1,0 +1,187 @@
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.4.1
+
+# authoring-byte-order entry is generated, DO NOT DELETE
+authoring-byte-order little-endian;
+
+server-duid "\000\001\000\001-M\320\024XHI'T\373";
+
+ia-na "B\250D\032\000\001\000\001*q2OD\250B x\177" {
+  cltt 0 2024/06/30 09:50:49;
+  iaaddr 240e:381:119:c401::cb8 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 2 2024/07/23 09:50:51;
+  }
+}
+
+ia-na "\236\2640\017\000\001\000\001*y\032\325\230@\273 &9" {
+  cltt 5 2024/07/05 01:49:56;
+  iaaddr 240e:381:119:c400::c823 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 6 2024/08/03 07:49:56;
+  }
+}
+
+ia-na "\306\302\000\005\000\001\000\001*\342\255-\000\302\306\364#\210" {
+  cltt 5 2024/07/05 02:18:54;
+  iaaddr 240e:381:119:c400::fb8d {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 0 2024/08/04 02:18:54;
+  }
+}
+
+ia-na "\212O\024\005\000\001\000\001-v\013o\024O\212z\273~" {
+  cltt 4 2024/07/04 09:52:50;
+  iaaddr 240e:381:119:c400::494a {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 6 2024/08/03 03:52:51;
+  }
+}
+
+ia-na "L\340\000\006\000\001\000\001.\005A\037\000\340Lif6" {
+  cltt 5 2024/07/05 01:58:50;
+  iaaddr 240e:381:119:c400::9dcd {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 5 2024/08/02 00:58:43;
+  }
+}
+
+ia-na "T\026\370\017\000\001\000\001*\300\200G\260%\252)\306\374" {
+  cltt 2 2024/06/18 01:26:25;
+  iaaddr 240e:381:119:c400::46eb {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 4 2024/07/18 01:26:25;
+  }
+}
+
+ia-na "L\340\000\006\000\001\000\001.\004\226\277\000\340Lif6" {
+  cltt 4 2024/06/20 01:00:50;
+  iaaddr 240e:381:119:c400::6b72 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 5 2024/07/19 13:31:49;
+  }
+}
+
+ia-na "p_L\004\000\001\000\001-b\222\004\000\356\274\333n\360" {
+  cltt 3 2024/06/26 09:54:26;
+  iaaddr 240e:381:119:c400::c68f {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 5 2024/07/26 09:54:26;
+  }
+}
+
+ia-na "\236\2640\020\000\001\000\001,\237\012\365\000\340\0353\013\236" {
+  cltt 5 2024/07/05 01:38:12;
+  iaaddr 240e:381:119:c401::e1b {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 3 2024/07/31 19:38:00;
+  }
+}
+
+ia-na "F\037\372X\000\002\000\000\253\021\366[\202\216xY\265\303" {
+  cltt 1 2024/06/17 11:06:34;
+  iaaddr 240e:381:119:c400::8043 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 3 2024/07/17 09:11:04;
+  }
+}
+
+ia-na "\330\354\004\006\000\001\000\001,\334\377\013\010\217\303\277\202\227" {
+  cltt 3 2024/06/19 05:58:59;
+  iaaddr 240e:381:119:c400::5e4b {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 5 2024/07/19 05:58:59;
+  }
+}
+
+ia-na "N\025\310\010\000\001\000\001-S\345\357\000\356\274\333g1" {
+  cltt 4 2024/06/20 01:17:37;
+  iaaddr 240e:381:119:c400::9786 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 3 2024/07/17 08:59:58;
+  }
+}
+
+ia-na "\001\000\000\000\000\003\000\001P3\360\2443\304" {
+  cltt 5 2024/07/05 01:31:13;
+  iaaddr 240e:381:119:c400::50a9 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 4 2024/08/01 18:31:09;
+  }
+}
+
+ia-na "L\340\000\020\000\001\000\001-S\345\357\000\356\274\333g1" {
+  cltt 1 2024/06/17 09:59:23;
+  iaaddr 240e:381:119:c400::bb5f {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 3 2024/07/17 09:59:23;
+  }
+}
+
+ia-na "X3,\016\000\001\000\030+\016\016\327\204\214\211Q\\P" {
+  cltt 4 2024/07/04 06:48:36;
+  iaaddr 240e:381:119:c400::6916 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 6 2024/08/03 06:48:36;
+  }
+}
+
+ia-na "\2771\030\010\000\001\000\001*\207\256\315\000\340L\027\217}" {
+  cltt 3 2024/06/19 10:10:16;
+  iaaddr 240e:381:119:c400::dddd {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 3 2024/07/17 09:00:31;
+  }
+}
+
+ia-na "L\340\000.\000\001\000\001-b\222\004\000\356\274\333n\360" {
+  cltt 3 2024/06/26 08:58:09;
+  iaaddr 240e:381:119:c400::a015 {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 5 2024/07/26 02:58:05;
+  }
+}
+
+ia-na "\003\276\340\024\000\001\000\001'\310\307\022\340\276\003!\253\264" {
+  cltt 2 2024/07/02 10:41:57;
+  iaaddr 240e:381:119:c401::e8f {
+    binding state active;
+    preferred-life 604800;
+    max-life 2592000;
+    ends 2 2024/07/30 08:30:53;
+  }
+}
