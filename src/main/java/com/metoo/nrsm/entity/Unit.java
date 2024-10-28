@@ -15,34 +15,22 @@ import java.util.Date;
 @NoArgsConstructor
 public class Unit extends IdEntity {
 
-//    private String name;
-
     private String department;
     private String area;
     private String city;
     private String vlanNum;
-
     private Date date;
     private String time;
-
     private Long gatewayId;
     private String gatewayName;
-
-    private String pattern; // 0：共享vlan 1：独立vlan
-
+    private String pattern;
     private String rule;
-
     private String unitName;
-
     private boolean hidden;
-
     private String vfourFlow;
-
     private String vsixFlow;
-
     private String broadband_Account;
-
-
     private String random;
+    private String v4Traffic;
 
 }

@@ -10,7 +10,7 @@
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random
+        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, v4Traffic
         FROM metoo_unit
         <where>
             <if test="addTime != null">
