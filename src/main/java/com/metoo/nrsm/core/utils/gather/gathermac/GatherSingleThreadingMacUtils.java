@@ -51,8 +51,8 @@ public class GatherSingleThreadingMacUtils {
             this.gatherMacUtils.copyGatherData(date);
 
             try {
-//                this.terminalService.syncTerminal(date);
-                this.terminalService.v4Tov6Terminal(date);
+                this.terminalService.syncTerminal(date);
+//                this.terminalService.v4Tov6Terminal(date);
             } catch (Exception e) {
                 e.printStackTrace();
             }

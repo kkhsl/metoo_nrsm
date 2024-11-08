@@ -75,9 +75,8 @@ public class TrafficFactoryImpl implements Gather {
                             for (Unit unit : units) {
                                 try {
                                     // 根据pattern，判断使用哪种方式获取流量
-//                                    if (pattern.equals("1")) {
-//                                    } else
-                                     if (pattern.equals("0")) {
+                                    if (pattern.equals("1")) {
+                                    } else if (pattern.equals("0")) {
                                         insertTraffic(result, unit);
                                         unit.setAddTime(date);
                                         unitService.update(unit);

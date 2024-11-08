@@ -60,7 +60,7 @@ public class GatherTaskScheduledUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            log.info("unit traffic End=================================");
+            log.info("unit traffic End=================================" + (System.currentTimeMillis()-time));
         }
     }
 
