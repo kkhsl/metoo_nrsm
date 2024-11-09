@@ -383,7 +383,7 @@ public class Ssh2ExecUtils {
             String py_version = "python";
 
             if (Global.env.equals("prod")) {
-                py_version = "python3";
+                py_version = Global.py_name;
             }
 
             String[] args = new String[]{
