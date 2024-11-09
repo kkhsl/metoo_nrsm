@@ -110,7 +110,7 @@ public class TopologyServiceImpl implements ITopologyService {
                     try {
                         Calendar cal = Calendar.getInstance();
                         instance.setAddTime(cal.getTime());
-//                        this.saveHistory(instance);
+                        this.saveHistory(instance);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

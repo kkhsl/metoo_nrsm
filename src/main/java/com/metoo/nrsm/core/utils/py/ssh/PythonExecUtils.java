@@ -53,8 +53,8 @@ public class PythonExecUtils implements InitializingBean {
 
     public static String exec(String path) {
         String py_version = "python";
-        if (Global.env.equals("prod")) {
-            py_version = "python3";
+        if (!Global.env.equals("dev")) {
+            py_version = Global.py_name;
         }else if("dev".equals(Global.env)){
             return Ssh2Demo.exec(path);
         }
@@ -78,8 +78,8 @@ public class PythonExecUtils implements InitializingBean {
 
     public static String exec(String path, String[] params) {
         String py_version = "python";
-        if (Global.env.equals("prod")) {
-            py_version = "python3";
+        if (!Global.env.equals("dev")) {
+            py_version = Global.py_name;
         }else if("dev".equals(Global.env)){
             return Ssh2Demo.exec(path, params);
         }
@@ -138,8 +138,8 @@ public class PythonExecUtils implements InitializingBean {
 
     public static String exec(String path, String[] params, String prefix) {
         String py_version = "python";
-        if (Global.env.equals("prod")) {
-            py_version = "python3";
+        if (!Global.env.equals("dev")) {
+            py_version = Global.py_name;
         }else if("dev".equals(Global.env)){
             return Ssh2Demo.exec(path, params, prefix);
         }
@@ -210,8 +210,8 @@ public class PythonExecUtils implements InitializingBean {
 
     public static String execNohup(String path, String[] params, String prefix) {
         String py_version = "python";
-        if (Global.env.equals("prod")) {
-            py_version = "python3";
+        if (!Global.env.equals("dev")) {
+            py_version = Global.py_name;
         }else if("dev".equals(Global.env)){
             return Ssh2Demo.exec(path, params, prefix);
         }
@@ -288,8 +288,8 @@ public class PythonExecUtils implements InitializingBean {
 
     public String exec2(String path, String[] params) {
         String py_version = "python";
-        if (Global.env.equals("prod")) {
-            py_version = "python3";
+        if (!Global.env.equals("dev")) {
+            py_version = Global.py_name;
         }else if("dev".equals(Global.env)){
             return Ssh2Demo.exec(path, params);
         }

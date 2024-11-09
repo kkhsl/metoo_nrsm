@@ -97,6 +97,18 @@ public class GeneraFlowUtils {
 //        return bd.doubleValue();
     }
 
+    public static double generatev4Traffic(String random) {
+        if (StringUtil.isNotEmpty(random)) {
+            String[] range = random.split(",");
+            String min = range[0];
+            String max = range[1];
+            double randomNumber = generateRandomValueAbove(Double.parseDouble(min), Double.parseDouble(max));
+            return randomNumber;
+        } else {
+            return 0.0D;
+        }
+    }
+
     public static double generateRandomValueAbove(double lowerBound, double upperBound){
 
         // 确保生成的随机数大于 min
