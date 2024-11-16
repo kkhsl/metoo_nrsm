@@ -64,7 +64,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void gatherDhcp() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -78,7 +78,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void gatherDhcp6() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -93,7 +93,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void gatherArp() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -110,7 +110,7 @@ public class GatherTaskScheduledUtil {
     }
 
 //    @org.springframework.scheduling.annotation.Scheduled(cron = "*/10 * * * * ?")
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void gatherMac() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -126,7 +126,7 @@ public class GatherTaskScheduledUtil {
     }
 
 //    @Transactional // 可以结合该注解确调度任务在事务中运行，并在异常时正确回滚事务
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
     public void gatherIpv4() {
         if(flag){
@@ -142,7 +142,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
     public void gatherIpv4Detail() {
         if(flag){
@@ -158,7 +158,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void gatherIpv6() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -173,7 +173,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void gatherPort() {
         if(flag){
             Long time = System.currentTimeMillis();
@@ -187,7 +187,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void gatherPortIpv6() {
         if(flag){
             Long time = System.currentTimeMillis();
@@ -203,7 +203,7 @@ public class GatherTaskScheduledUtil {
 
     ////////////////////////////////////////////
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void isIpv6() {
         if(flag){
             Long time = System.currentTimeMillis();
@@ -217,7 +217,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void flux() {
         if(flag) {
             Long time = System.currentTimeMillis();
@@ -233,7 +233,7 @@ public class GatherTaskScheduledUtil {
 
     ////////////////
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void ping() {
         if(flag){
             Long time = System.currentTimeMillis();
@@ -261,7 +261,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 */3 * * * ?")
     public void snmpStatus() {
         if(flag){
             Long time = System.currentTimeMillis();

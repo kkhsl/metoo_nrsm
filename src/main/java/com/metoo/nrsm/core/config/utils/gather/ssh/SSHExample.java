@@ -12,9 +12,9 @@ import com.jcraft.jsch.Session;
 public class SSHExample {
 
     public static void main(String[] args) {
-        String host = "192.168.5.101";
-        String username = "root";
-        String password = "metoo89745000";
+        String host = "192.168.60.90";
+        String username = "zzf";
+        String password = "Transfar@123";
         String command1 = "cd /opt/sqlite/script && python3 /opt/sqlite/script/main.py h3c switch 192.168.100.1 ssh 22 metoo metoo89745000 aliveint";
 
         try {
