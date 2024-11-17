@@ -18,7 +18,6 @@ public class Topology extends IdEntity {
 
     private String name;
     private String suffix;
-    private Date updateTime;
     private Boolean isDefault;
     private String description;
     private Long groupId;

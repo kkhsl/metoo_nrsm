@@ -30,6 +30,4 @@ public class Group extends IdEntity {
     private String parentLevel;
     @ApiModelProperty("子集")
     private List<Group> branchList;
-    @ApiModelProperty("更新时间")
-    private Date updateTime;
 }
