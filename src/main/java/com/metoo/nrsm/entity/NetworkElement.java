@@ -2,6 +2,7 @@ package com.metoo.nrsm.entity;
 
 import com.metoo.nrsm.core.config.annotation.excel.ExcelImport;
 import com.metoo.nrsm.core.domain.IdEntity;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -92,6 +93,7 @@ public class NetworkElement extends IdEntity {
 
     private String timeticks;
 
+    @ApiModelProperty("默认：0 批量导入：2 ac：3")
     private Integer type;
 
     private List<Port> ports = new ArrayList<>();
