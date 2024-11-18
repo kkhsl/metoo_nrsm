@@ -411,16 +411,15 @@ public class GatherMacUtils {
                         obj.setDeviceIp(mac.getDeviceIp());
                         obj.setDeviceName(mac.getDeviceName());
                         obj.setHostname(mac.getHostname());
+
+                        // 对端设备信息
                         obj.setRemotePort("V0");
-                        // 查询nswitch名字
-//                        obj.setRemoteDevice("NSwitch" + i);
                         obj.setRemoteDevice(ns);
 
                         this.macService.save(obj);
 
 //                        // 增加虚拟网元
                         Map params = new HashMap();
-//                        params.put("deviceName", "NSwitch" + i);
                         params.put("deviceName", ns);
                         params.put("deleteStatus", 1);
                         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
@@ -428,15 +427,18 @@ public class GatherMacUtils {
                             NetworkElement ne = new NetworkElement();
                             ne.setAddTime(new Date());
                             ne.setDeleteStatus(1);
-//                            ne.setDeviceName("NSwitch" + i);
                             ne.setDeviceName(ns);
                             DeviceType deviceType = this.deviceTypeService.selectObjByType(29);
                             ne.setDeviceTypeId(deviceType.getId());
                             this.networkElementService.save(ne);
                         }
                     }
+
                     mac.setTag("DT");
                     mac.setPort("V1");
+                    mac.setDeviceName(ns);
+                    mac.setHostname(ns);
+                    mac.setDeviceIp(null);
 
                     // 查询ap用户列表
                     // 验证api是否可用

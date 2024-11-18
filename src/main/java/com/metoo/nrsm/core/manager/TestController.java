@@ -12,10 +12,7 @@ import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.manager.utils.TestUtils;
-import com.metoo.nrsm.core.service.ITerminalService;
-import com.metoo.nrsm.core.service.IUnitService;
-import com.metoo.nrsm.core.service.Ipv4DetailService;
-import com.metoo.nrsm.core.service.Ipv4Service;
+import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.api.ApiService;
@@ -29,6 +26,7 @@ import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,7 +65,17 @@ public class TestController {
     private ApiService apiService;
     @Autowired
     private ITerminalService terminalService;
+    @Autowired
+    private IGatherService gatherService;
 
+    @GetMapping("/gatherMac")
+    public void gatherMac() {
+        try {
+            gatherService.gatherMac(DateTools.gatherDate());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     @GetMapping("/traffic")

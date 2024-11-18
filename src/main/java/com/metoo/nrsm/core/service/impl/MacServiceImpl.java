@@ -465,7 +465,7 @@ public class MacServiceImpl implements IMacService {
                 mac.setHostname(hostname);
                 mac.setTag("DE");
                 mac.setRemotePort(obj.get("remoteport"));
-                mac.setRemoteDevice(obj.get("hostname"));
+                mac.setRemoteDeviceName(obj.get("hostname"));
                 this.macMapper.save(mac);
             }
         }
