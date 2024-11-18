@@ -447,16 +447,11 @@ public class GatherMacUtils {
 //                    if(!flag){
 //                        mac.setDeviceName(ns);
 //                        mac.setHostname(ns);
+//                    }else{
+//                        mac.setDeviceIp(null);
 //                    }
-
-
-
-//                    mac.setDeviceIp(null);
-
-
-
-//                        mac.setDeviceName("NSwitch" + i);
-//                        mac.setHostname("NSwitch" + i);
+//                    mac.setDeviceName("NSwitch" + i);
+//                    mac.setHostname("NSwitch" + i);
 
                     this.macService.update(mac);
                 }
