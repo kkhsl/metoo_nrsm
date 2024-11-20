@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Unbound extends IdEntity {
 
+    @ApiModelProperty("设置私有地址范围的过滤。::/0 表示所有的 IPv6 地址都视为私有地址，关闭外部向内部网络发送 IPv6 请求。")
     private Boolean privateAddress;
 
     @ApiModelProperty("转发地址：上游 DNS 服务器地址")

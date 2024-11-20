@@ -54,6 +54,13 @@ public class Global {
         Global.py_path = py_path;
     }
 
+    public static String unboundPath;
+
+    @Value("${config.unbound.path}")
+    public void setUnboundPath(String unboundPath) {
+        Global.unboundPath = unboundPath;
+    }
+
     public static String env;
 
     @Value("${spring.profiles.active}")

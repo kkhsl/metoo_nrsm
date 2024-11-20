@@ -11,8 +11,12 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LocalDataDTO {
-    private String zoneName;
-    @ApiModelProperty("区域类型，如 static、redirect")
-    private String zoneType; // 行为类型
+
+    @ApiModelProperty("主机名：需要解析的域名")
+    private String hostName;
+    @ApiModelProperty("记录类型 可选 A, AAAA, CNAME 等")
+    private String recordType;
+    @ApiModelProperty("映射地址：域名对应的 IP 地址")
+    private String mappedAddress;
 
 }

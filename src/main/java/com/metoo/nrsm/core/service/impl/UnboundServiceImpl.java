@@ -5,18 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metoo.nrsm.core.dto.UnboundDTO;
 import com.metoo.nrsm.core.mapper.UnboundMapper;
 import com.metoo.nrsm.core.service.IUnboundService;
+import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.unbound.UnboundConfUtil;
 import com.metoo.nrsm.entity.Unbound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 @Service
-@Transactional
 public class UnboundServiceImpl implements IUnboundService {
 
     @Resource
@@ -28,32 +28,53 @@ public class UnboundServiceImpl implements IUnboundService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     public boolean save(Unbound instance) {
         if(instance.getId() == null || instance.getId().equals("")){
             instance.setAddTime(new Date());
             instance.setUpdateTime(new Date());
             try {
-                this.unboundMapper.save(instance);
-                return true;
+                int i = this.unboundMapper.save(instance);
+                boolean flag = writeUnbound();
+                if(flag && i >= 1){
+                    return true;
+                }
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return false;
             } catch (Exception e) {
                 e.printStackTrace();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return false;
             }
         }else{
             try {
                 instance.setUpdateTime(new Date());
-                this.unboundMapper.update(instance);
-                return true;
+                int i = this.unboundMapper.update(instance);
+                boolean flag = writeUnbound();
+                if(flag && i >= 1){
+                    return true;
+                }
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return false;
             } catch (Exception e) {
                 e.printStackTrace();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return false;
             }
         }
     }
 
-    //List<String> forwardAddress = new ObjectMapper()
-    //                .readValue(config.getForwardAddress(), new TypeReference<List<String>>() {});
+    public boolean writeUnbound() throws Exception {
+        Unbound unbound = this.unboundMapper.selectObjByOne(Collections.EMPTY_MAP);
+        boolean flag = UnboundConfUtil.updateConfigFile(Global.unboundPath, unbound);
+        if (!flag) {
+            throw new IOException("Failed to update config file");
+        }
+        return flag;
+    }
+
     @Override
+    @Transactional()
     public boolean update(UnboundDTO instance) {
 
         Unbound unbound = this.selectObjByOne(Collections.emptyMap());
@@ -94,10 +115,16 @@ public class UnboundServiceImpl implements IUnboundService {
             unbound.setPrivateAddress(instance.getPrivateAddress());
             try {
                 unbound.setUpdateTime(new Date());
-                this.unboundMapper.update(unbound);
-                return true;
+                int i = this.unboundMapper.update(unbound);
+                boolean flag = writeUnbound();
+                if(flag && i >= 1){
+                    return true;
+                }
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return false;
             } catch (Exception e) {
                 e.printStackTrace();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return false;
             }
         }
@@ -113,4 +140,6 @@ public class UnboundServiceImpl implements IUnboundService {
             return false;
         }
     }
+
+
 }

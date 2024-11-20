@@ -20,8 +20,10 @@ public class UnboundDTO {
     @ApiModelProperty("转发地址：上游 DNS 服务器地址")
     private List<String> forwardAddress;
 
-    private List<LocalDataDTO> localData = new ArrayList<>();
-
+    @ApiModelProperty("本地 DNS 区域")
     private List<LocalZoneDTO> localZone = new ArrayList<>();
+
+    @ApiModelProperty("用于指定某个域名的静态解析记录")
+    private List<LocalDataDTO> localData = new ArrayList<>();
 
 }

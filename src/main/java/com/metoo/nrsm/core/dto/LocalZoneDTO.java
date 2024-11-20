@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -14,11 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class LocalZoneDTO {
 
-    @ApiModelProperty("主机名：需要解析的域名")
-    private String hostName;
-    @ApiModelProperty("记录类型 可选 A, AAAA, CNAME 等")
-    private String recordType;
-    @ApiModelProperty("映射地址：域名对应的 IP 地址")
-    private String mappedAddress;
+    private String zoneName;
+    @ApiModelProperty("区域类型，如 static、redirect")
+    private String zoneType; // 行为类型
 
+    private List<LocalDataDTO> localData = new ArrayList<>();
 }
