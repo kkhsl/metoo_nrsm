@@ -271,7 +271,7 @@ public class UnboundConfLocalZone {
             }
         }
 
-        if(existingZones.size() <= 0){
+        if(existingZones.isEmpty()){
             updatedLines.add(""); // 其他行不变
         }
 

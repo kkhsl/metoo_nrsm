@@ -66,7 +66,7 @@ public class UnboundConfPrivateAddress {
                     && trimmedLine.contains("\"")) {
                 String zoneName = trimmedLine.split(":")[1].trim().split(" ")[0].trim().replace("\"", "");
                 // 如果该 zoneName 不在 validZoneNames 中，则跳过这行及对应的 local-data 行
-                if(validZoneNames.size() > 0){
+                if(!validZoneNames.isEmpty()){
                     if (!validZoneNames.contains(zoneName)) {
                         skipLocalData = true;
                         continue; // 删除该 local-zone 行

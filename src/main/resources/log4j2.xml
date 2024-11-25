@@ -50,7 +50,7 @@
                 <!--在系统启动是时，触发拆分规则，产生一个日志文件-->
                 <OnStartupTriggeringPolicy />
                 <!--按照文件的大小进行拆分-->
-                <SizeBasedTriggeringPolicy size="1MB" />
+                <SizeBasedTriggeringPolicy size="10MB" />
                 <!--按照时间节点进行拆分 拆分规则就是filepattern-->
                 <TimeBasedTriggeringPolicy />
             </Policies>

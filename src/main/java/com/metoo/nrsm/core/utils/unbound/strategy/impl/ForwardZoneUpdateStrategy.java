@@ -28,7 +28,7 @@ public class ForwardZoneUpdateStrategy implements ConfigUpdateStrategy {
         for (String line : lines) {
             String trimmedLine = line.trim();
 
-            if(trimmedLine.startsWith("forward-zone:") && validForwardAddresses.size()<= 0){
+            if(trimmedLine.startsWith("forward-zone:") && validForwardAddresses.isEmpty()){
                 skipForwardZone = true; // 设置跳过标志，后续的行会被跳过
                 continue; // 跳过当前 forward-zone 配置块
             }
@@ -50,7 +50,7 @@ public class ForwardZoneUpdateStrategy implements ConfigUpdateStrategy {
         }
 
         // 如果没有找到 forward-zone 配置块，添加它
-        if(validForwardAddresses.size() > 0){
+        if(!validForwardAddresses.isEmpty()){
             if (!forwardZoneSectionFound) {
                 updatedLines.add("\nforward-zone:");
                 updatedLines.add("  name: \".\"");

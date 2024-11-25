@@ -65,6 +65,10 @@ public class LocalZoneUpdateStrategy implements ConfigUpdateStrategy {
             }
         }
 
+        if(existingZones.isEmpty()){
+            updatedLines.add(""); // 其他行不变
+        }
+
         // 新增缺失的 local-zone 和 local-data 行
         for (LocalZoneDTO zoneConfig : localZoneDTOS) {
             String zoneName = zoneConfig.getZoneName();

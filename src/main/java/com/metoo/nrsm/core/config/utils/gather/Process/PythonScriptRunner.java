@@ -154,6 +154,12 @@ public class PythonScriptRunner {
 //        }
 //    }
 
+    /**
+     *
+     * @param scriptPath
+     * @param args
+     * @return
+     */
     public String exec(String scriptPath, String... args) {
         try {
             // 构建命令行参数，包括 Python 解释器和脚本路径
