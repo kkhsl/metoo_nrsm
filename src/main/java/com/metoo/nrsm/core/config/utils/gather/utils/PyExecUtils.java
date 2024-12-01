@@ -26,43 +26,13 @@ public class PyExecUtils {
     private PythonScriptRunner pythonScriptRunner;
 
     public String exec(PyCommand pyCommand) {
-//        String result = "";
-//        pyCommand.setVersion("python3");
-//        if (Global.env.equals("prod")) {
-//            result = this.pythonScriptRunner.runPythonScript(pyCommand.toStringArray());
-//        }else if("dev".equals(Global.env)){
-//            result = this.sshUtils.executeCommand(pyCommand.toParamsString());
-//        }
         String result = this.sshUtils.executeCommand(pyCommand.toParamsString());
         return result;
     }
 
     public String exec(PyCommandBuilder pyCommand) {
-        String result = "";
-        if ("dev".equals(Global.env)) {
-            result = this.sshUtils.executeCommand(pyCommand.toParamsString());
-
-            log.info("command: " + pyCommand.toParamsString() + "result【" + result + "】end");
-
-
-        }else {
-            result = this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
-
-            log.info("command: " + pyCommand.toParamsString() + "result【" + result + "】end");
-
-        }
-
-//        result = this.sshUtils.executeCommand(pyCommand.toParamsString());
-//        result = this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
-
-//        if(isJsonObject(result)){
-//            return result;
-//        }
-//        if(isJsonArray(result)){
-//            return result;
-//        }
-
-        return result;
+        log.info("command: " + pyCommand.toParamsString());
+        return this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
     }
 
     public static boolean isJsonObject(String jsonString) {

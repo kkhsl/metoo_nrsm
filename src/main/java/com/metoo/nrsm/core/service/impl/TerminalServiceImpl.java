@@ -74,6 +74,11 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
+    public List<Terminal> selectObjToProbe(Map params) {
+        return this.terminalMapper.selectObjToProbe(params);
+    }
+
+    @Override
     public List<Terminal> selectObjHistoryByMap(Map params) {
         return this.terminalMapper.selectObjHistoryByMap(params);
     }

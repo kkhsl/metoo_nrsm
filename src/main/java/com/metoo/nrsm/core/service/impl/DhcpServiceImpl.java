@@ -10,7 +10,6 @@ import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.dhcp.DhcpUtils;
-import com.metoo.nrsm.core.utils.py.ssh.Ssh2Demo;
 import com.metoo.nrsm.entity.Dhcp;
 import com.metoo.nrsm.entity.Internet;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +36,8 @@ public class DhcpServiceImpl implements IDhcpService {
     private DhcpMapper dhcpMapper;
     @Autowired
     private IDhcpHistoryService dhcphistoryService;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @Override
     public Dhcp selectObjById(Long id) {
@@ -131,7 +132,7 @@ public class DhcpServiceImpl implements IDhcpService {
     @Override
     public String getdhcp() {
         String path = Global.PYPATH + "getdhcp.py";
-        String result = PythonExecUtils.exec(path);
+        String result = pythonExecUtils.exec(path);
         return result;
     }
 
@@ -140,7 +141,7 @@ public class DhcpServiceImpl implements IDhcpService {
         String path = Global.PYPATH + "modifydhcp.py";
         String[] params = {instance.getV4status(), instance.getV4int(),
                 instance.getV6status(), instance.getV6int()};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         return result;
     }
 
@@ -148,7 +149,7 @@ public class DhcpServiceImpl implements IDhcpService {
     public String checkdhcpd(String type) {
         String path = Global.PYPATH + "checkdhcpd.py";
         String[] params = {type};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         return result;
     }
 
@@ -156,7 +157,7 @@ public class DhcpServiceImpl implements IDhcpService {
     public String dhcpdop(String action, String type) {
         String path = Global.PYPATH + "dhcpdop.py";
         String[] params = {action, type};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         return result;
     }
 

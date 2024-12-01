@@ -43,6 +43,8 @@ public class FluxFreemakeManagerController {
     private IGradWeightService gradWeightService;
     @Autowired
     private FreemarkerUtil freemarkerUtil;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     public static void main(String[] args) {
         BigDecimal a = new BigDecimal(0);
@@ -115,7 +117,7 @@ public class FluxFreemakeManagerController {
             String path = Global.PYPATH + "gethostname.py";
             String[] params = {networkElement.getIp(), networkElement.getVersion(),
                     networkElement.getCommunity()};
-            String hostname = PythonExecUtils.exec(path, params);
+            String hostname = pythonExecUtils.exec(path, params);
             if (StringUtils.isNotEmpty(hostname)) {
                 return 1;
             }

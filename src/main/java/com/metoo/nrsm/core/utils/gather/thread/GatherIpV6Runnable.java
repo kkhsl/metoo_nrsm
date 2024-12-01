@@ -9,6 +9,7 @@ import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Ipv6;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -59,10 +60,13 @@ public class GatherIpV6Runnable implements Runnable{
      */
     @Override
     public void run() {
+
+        PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
+
         String path = Global.PYPATH +  "getarpv6.py";
         String[] params = {networkElement.getIp(), networkElement.getVersion(),
                 networkElement.getCommunity()};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         if(StringUtil.isNotEmpty(result)){
             try {
                 List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);

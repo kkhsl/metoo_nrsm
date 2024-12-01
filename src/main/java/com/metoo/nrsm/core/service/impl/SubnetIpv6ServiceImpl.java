@@ -29,6 +29,8 @@ public class SubnetIpv6ServiceImpl implements ISubnetIpv6Service {
 
     @Autowired
     private SubnetIpv6Mapper subnetIpv6Mapper;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @Override
     public SubnetIpv6 selectObjById(Long id) {
@@ -72,7 +74,7 @@ public class SubnetIpv6ServiceImpl implements ISubnetIpv6Service {
     public void getSubnet() {
         this.subnetIpv6Mapper.truncateTable();
         String path = Global.PYPATH + "subnetipv6.py";
-        String result = PythonExecUtils.exec(path);
+        String result = pythonExecUtils.exec(path);
         if(!"".equals(result)){
             JSONObject obj = JSONObject.parseObject(result);
             if(obj != null){

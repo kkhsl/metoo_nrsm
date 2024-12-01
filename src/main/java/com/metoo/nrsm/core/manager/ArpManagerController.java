@@ -34,6 +34,8 @@ public class ArpManagerController {
     private IArpService arpService;
     @Autowired
     private INetworkElementService networkElementService;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @GetMapping("getArp")
     public void ipv4(){
@@ -41,7 +43,7 @@ public class ArpManagerController {
 //        String[] params = {"v2c", "public@123"};
 //        String result = PythonExecUtils.exec(path, params);
         String path = "E:\\python\\project\\djangoProject\\app01\\nrsm\\getarp.py";
-        String result = PythonExecUtils.exec(path);
+        String result = pythonExecUtils.exec(path);
         if(!"".equals(result)){
             try {
                 List<Ipv4> array = JSONObject.parseArray(result, Ipv4.class);
@@ -63,7 +65,7 @@ public class ArpManagerController {
 //        String[] params = {"v2c", "public@123"};
 //        String result = PythonExecUtils.exec(path, params);
         String path = "E:\\python\\project\\djangoProject\\app01\\nrsm\\getarpv6.py";
-        String result = PythonExecUtils.exec(path);
+        String result = pythonExecUtils.exec(path);
         if(!"".equals(result)){
             try {
                 List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
@@ -90,7 +92,7 @@ public class ArpManagerController {
 
             for (NetworkElement networkElement : networkElements) {
                 String path = "E:\\python\\project\\djangoProject\\app01\\nrsm\\getarp.py";
-                String result = PythonExecUtils.exec(path);
+                String result = pythonExecUtils.exec(path);
                 if(!"".equals(result)){
                     try {
                         List<Ipv4> array = JSONObject.parseArray(result, Ipv4.class);
@@ -107,7 +109,7 @@ public class ArpManagerController {
                 }
 
                 path = "E:\\python\\project\\djangoProject\\app01\\nrsm\\getarpv6.py";
-                result = PythonExecUtils.exec(path);
+                result = pythonExecUtils.exec(path);
                 if(!"".equals(result)){
                     try {
                         List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);

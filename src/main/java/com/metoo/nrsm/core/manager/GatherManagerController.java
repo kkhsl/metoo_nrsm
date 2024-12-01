@@ -2,6 +2,8 @@ package com.metoo.nrsm.core.manager;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
 import com.metoo.nrsm.core.mapper.TerminalMapper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
@@ -45,41 +47,32 @@ public class GatherManagerController {
     private IGradWeightService gradWeightService;
     @Autowired
     private IFluxDailyRateService fluxDailyRateService;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
-    @GetMapping("fluxDailyRate")
-    public void fluxDailyRate() {
-        Date endOfDay = DateTools.getEndOfDay();
-        FluxDailyRate fluxDailyRate = new FluxDailyRate();
-        fluxDailyRate.setRate(new BigDecimal(0));
-        fluxDailyRate.setAddTime(endOfDay);
-        Map params = new HashMap();
-        params.clear();
-        params.put("startOfDay", DateTools.getStartOfDay());
-        params.put("endOfDay", endOfDay);
-        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
-        if(flowStatisticsList.size() > 0){
-            BigDecimal sum = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
-                    .collect(Collectors.toList())
-                    .stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+    @Autowired
+    private TerminalMapper terminalMapper;
+    @Autowired
+    private IProbeService probeService;
 
-            long count = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
-                    .collect(Collectors.toList())
-                    .stream().count();
 
-            if(sum.compareTo(new BigDecimal(0)) >= 1){
-                BigDecimal rate = sum.divide(new BigDecimal(count), 2, BigDecimal.ROUND_HALF_UP);
-                fluxDailyRate.setRate(rate);
-                GradeWeight gradeWeight = this.gradWeightService.selectObjOne();
-                if(gradeWeight != null){
-                    if(gradeWeight.getReach() != null && gradeWeight.getReach().compareTo(new BigDecimal(0)) >= 1){
-                        if(rate.compareTo(gradeWeight.getReach()) > -1){
-                            fluxDailyRate.setFlag(true);
-                        }
-                    }
-                }
-            }
-        }
-        this.fluxDailyRateService.save(fluxDailyRate);
+    @GetMapping("/scanByTerminal")
+    public void scanByTerminal(){
+        probeService.scanByTerminal();
+    }
+
+
+    @GetMapping("/gatherAll")
+    public void gather(){
+        dhcpService.gather(DateTools.gatherDate());
+        dhcp6Service.gather(DateTools.gatherDate());
+        gatherService.gatherIpv4Detail(DateTools.gatherDate());
+        gatherService.gatherPort(DateTools.gatherDate());
+        gatherService.gatherPortIpv6(DateTools.gatherDate());
+        gatherService.gatherIpv4(DateTools.gatherDate());
+        gatherService.gatherIpv6(DateTools.gatherDate());
+        gatherService.gatherArp(DateTools.gatherDate());
+        gatherService.gatherMac(DateTools.gatherDate());
     }
 
 
@@ -264,7 +257,7 @@ public class GatherManagerController {
         String path = Global.PYPATH +  "getarpv6.py";
         String[] params = {ip, "v2c",
                 "public@123"};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         if(StringUtil.isNotEmpty(result)) {
             try {
                 List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
@@ -275,16 +268,11 @@ public class GatherManagerController {
 
         }}
 
-
-    @Autowired
-    private TerminalMapper terminalMapper;
-
     @GetMapping("selectObjLeftdifference")
     public Object selectObjLeftdifference() {
         List<Terminal> left = this.terminalMapper.selectObjLeftdifference();
         return left;
     }
-
 
 
     @GetMapping("ping")
@@ -294,10 +282,67 @@ public class GatherManagerController {
         log.info("ping end......");
     }
 
+
+    @GetMapping("/gatherHostName")
+    public String gatherHostName() {
+        String path = Global.PYPATH + "gethostname.py";
+        String[] params = {"192.168.100.3", "v2c",
+                "public@123"};
+        String hostname = pythonExecUtils.exec(path, params);
+        return hostname;
+    }
+
     @GetMapping("clearAndcopyGatherDataToIpv4")
     public void clearAndcopyGatherDataToIpv4() {
         log.info("clearAndcopyGatherDataToIpv4......");
         ipv4Service.clearAndcopyGatherDataToIpv4();
         log.info("clearAndcopyGatherDataToIpv4......");
     }
+
+    @GetMapping("/traffic")
+    public void traffic(){
+        GatherFactory factory = new GatherFactory();
+        Gather gather = factory.getGather(Global.TRAFFIC);
+        gather.executeMethod();
+    }
+
+
+
+    @GetMapping("fluxDailyRate")
+    public void fluxDailyRate() {
+        Date endOfDay = DateTools.getEndOfDay();
+        FluxDailyRate fluxDailyRate = new FluxDailyRate();
+        fluxDailyRate.setRate(new BigDecimal(0));
+        fluxDailyRate.setAddTime(endOfDay);
+        Map params = new HashMap();
+        params.clear();
+        params.put("startOfDay", DateTools.getStartOfDay());
+        params.put("endOfDay", endOfDay);
+        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
+        if(flowStatisticsList.size() > 0){
+            BigDecimal sum = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
+                    .collect(Collectors.toList())
+                    .stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            long count = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
+                    .collect(Collectors.toList())
+                    .stream().count();
+
+            if(sum.compareTo(new BigDecimal(0)) >= 1){
+                BigDecimal rate = sum.divide(new BigDecimal(count), 2, BigDecimal.ROUND_HALF_UP);
+                fluxDailyRate.setRate(rate);
+                GradeWeight gradeWeight = this.gradWeightService.selectObjOne();
+                if(gradeWeight != null){
+                    if(gradeWeight.getReach() != null && gradeWeight.getReach().compareTo(new BigDecimal(0)) >= 1){
+                        if(rate.compareTo(gradeWeight.getReach()) > -1){
+                            fluxDailyRate.setFlag(true);
+                        }
+                    }
+                }
+            }
+        }
+        this.fluxDailyRateService.save(fluxDailyRate);
+    }
+
+
 }

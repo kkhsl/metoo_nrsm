@@ -16,6 +16,8 @@ public interface ITerminalService {
 
     List<Terminal> selectObjByMap(Map params);
 
+    List<Terminal> selectObjToProbe(Map params);
+
     List<Terminal> selectObjHistoryByMap(Map params);
 
     boolean save(Terminal instance);

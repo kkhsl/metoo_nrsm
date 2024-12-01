@@ -112,6 +112,7 @@
             <if test="notTag != null and notTag != ''">
                 AND tag != #{notTag}
             </if>
+
             <if test="tags != null">
                 AND tag in
                 <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
@@ -135,6 +136,18 @@
             </if>
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+    <select id="selectObjToProbe" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+        select * from metoo_terminal
+        <where>
+            <if test="ipv4IsNotNull">
+                AND v4ip IS NOT NULL
+            </if>
+            <if test="ipv6IsNotNull">
+                AND v6ip is not null and v4ip is null
+            </if>
+        </where>
     </select>
 
 

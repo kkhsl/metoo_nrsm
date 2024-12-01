@@ -61,6 +61,16 @@ public class GatherServiceImpl implements IGatherService {
     @Autowired
     private Ipv4DetailService ipV4DetailService;
 
+
+//    private final GatherIpV4Runnable gatherIpV4Runnable;
+    private final GatherDataThreadPool gatherDataThreadPool;
+
+    @Autowired
+    public GatherServiceImpl( GatherDataThreadPool gatherDataThreadPool) {
+//        this.gatherIpV4Runnable = gatherIpV4Runnable;
+        this.gatherDataThreadPool = gatherDataThreadPool;
+    }
+
     // 获取需要采集的设备
     public List<NetworkElement> getGatherDevice(){
         List<NetworkElement> networkElements = new ArrayList<>();
@@ -212,7 +222,7 @@ public class GatherServiceImpl implements IGatherService {
 
                 String[] params = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
-                String result = PythonExecUtils.exec(path, params);
+                String result = pythonExecUtils.exec(path, params);
                 if(!"".equals(result)){
                     try {
                         List<Ipv4> ipv4s = JSONObject.parseArray(result, Ipv4.class);
@@ -236,7 +246,6 @@ public class GatherServiceImpl implements IGatherService {
         }
     }
 
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void gatherIpv4Thread(Date date) {
 
@@ -246,7 +255,7 @@ public class GatherServiceImpl implements IGatherService {
             // （采集结束，复制到ipv4表中）
             // 多线程并行执行，避免出现采集未结束时，执行copy操作没有数据，所以将复制数据操作（不会出现空表操作，放到最后即可，避免放在前面数据非实时数据）
             // 放到采集前，复制上次采集结果即可
-            boolean flag = this.ipv4Service.clearAndcopyGatherDataToIpv4();
+            this.ipv4Service.clearAndcopyGatherDataToIpv4();
 
             // 移除重复项-arp采集时，使用metoo_ipv4_duplicates表
             this.removeDuplicatesIpv4();
@@ -263,7 +272,14 @@ public class GatherServiceImpl implements IGatherService {
                     latch.countDown();
                     continue;
                 }
-                GatherDataThreadPool.getInstance().addThread(new GatherIpV4Runnable(networkElement, date, latch));
+
+                GatherIpV4Runnable gatherIpV4Runnable = new GatherIpV4Runnable(networkElement, date, latch);
+
+                // 提交任务到线程池
+                gatherDataThreadPool.addThread(gatherIpV4Runnable);
+
+//                submitTask(networkElement, date, latch);
+//                GatherDataThreadPool.getInstance().addThread(new GatherIpV4Runnable(networkElement, date, latch));
             }
 
             try {
@@ -276,6 +292,25 @@ public class GatherServiceImpl implements IGatherService {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 提交一个任务到线程池
+     *
+     * @param networkElement 设备信息
+     * @param date 当前时间
+     * @param latch 同步器
+     */
+    public void submitTask(NetworkElement networkElement, Date date, CountDownLatch latch) {
+        // 设置任务的动态参数
+//        gatherIpV4Runnable.setNetworkElement(networkElement);
+//        gatherIpV4Runnable.setDate(date);
+//        gatherIpV4Runnable.setLatch(latch);
+
+        GatherIpV4Runnable gatherIpV4Runnable = new GatherIpV4Runnable(networkElement, date, latch);
+
+        // 提交任务到线程池
+        gatherDataThreadPool.addThread(gatherIpV4Runnable);
     }
 
     @Override
@@ -370,10 +405,10 @@ public class GatherServiceImpl implements IGatherService {
 
                 String path = Global.PYPATH + "getarp.py";
                 path = Global.PYPATH +  "getarpv6.py";
-//                result = PythonExecUtils.exec(path);
+//                result = pythonExecUtils.exec(path);
                 String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
-                String result = PythonExecUtils.exec(path, params2);
+                String result = pythonExecUtils.exec(path, params2);
                 if(!"".equals(result)){
                     try {
                         List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
@@ -673,8 +708,6 @@ public class GatherServiceImpl implements IGatherService {
             if(flowStatisticsList.size() > 0){
                 Date lastMinute = DateTools.getMinDate(-1, date);
                 FlowStatistics obj = flowStatisticsList.get(0);
-                System.out.println(lastMinute.getTime());
-                System.out.println(obj.getAddTime().getTime());
                 if(obj.getAddTime().getTime() != lastMinute.getTime()){
                     this.flowStatisticsService.save(flowStatistics);
                     return;
@@ -756,7 +789,7 @@ public class GatherServiceImpl implements IGatherService {
                 String path = Global.PYPATH + "gethostname.py";
                 String[] args = {ne.getIp(), ne.getVersion(),
                         ne.getCommunity()};
-                String hostname = PythonExecUtils.exec(path, args);
+                String hostname = pythonExecUtils.exec(path, args);
                 if(StringUtils.isNotEmpty(hostname)){
                     String key = keyPrefix + ne.getUuid();
                     keys.add(key);

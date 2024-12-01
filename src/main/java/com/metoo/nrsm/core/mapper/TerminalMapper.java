@@ -16,6 +16,8 @@ public interface TerminalMapper {
 
     List<Terminal> selectObjByMap(Map params);
 
+    List<Terminal> selectObjToProbe(Map params);
+
     List<Terminal> selectObjHistoryByMap(Map params);
 
     List<Terminal> selectObjIntersection();

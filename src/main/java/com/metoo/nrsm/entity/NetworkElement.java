@@ -98,4 +98,6 @@ public class NetworkElement extends IdEntity {
 
     private List<Port> ports = new ArrayList<>();
 
+
+
 }

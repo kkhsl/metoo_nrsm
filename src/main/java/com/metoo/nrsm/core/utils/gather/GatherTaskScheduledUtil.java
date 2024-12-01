@@ -133,8 +133,8 @@ public class GatherTaskScheduledUtil {
             Long time=System.currentTimeMillis();
             log.info("Ipv4 Start......");
             try {
-                gatherService.gatherIpv4(DateTools.gatherDate());
-//                gatherService.gatherIpv4Thread(DateTools.gatherDate());
+//                gatherService.gatherIpv4(DateTools.gatherDate());
+                gatherService.gatherIpv4Thread(DateTools.gatherDate());
             } catch (Exception e) {
                 e.printStackTrace();
             }

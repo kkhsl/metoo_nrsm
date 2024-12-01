@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.ProbeResultMapper">
+
+    <select id="selectObjByOne" resultType="com.metoo.nrsm.entity.scan.ProbeResult">
+        select * from metoo_probe_result
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.scan.ProbeResult">
+        SELECT *
+        FROM metoo_probe_result
+        <where>
+            <if test="result != null">
+                result = #{result}
+            </if>
+        </where>
+    </select>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.scan.ProbeResult">
+        UPDATE metoo_probe_result
+        <set>
+            <if test="result != null">
+                result = #{result}
+            </if>
+        </set>
+    </update>
+
+</mapper>

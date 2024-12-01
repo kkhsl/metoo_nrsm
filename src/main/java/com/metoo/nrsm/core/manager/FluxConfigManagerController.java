@@ -6,7 +6,7 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.service.IFluxConfigService;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.ip.Ipv6Util;
-import com.metoo.nrsm.core.utils.py.ssh.Ssh2Demo;
+import com.metoo.nrsm.core.utils.py.ssh.SSHExecutor;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.core.wsapi.utils.Md5Crypt;
 import com.metoo.nrsm.entity.FluxConfig;
@@ -184,7 +184,8 @@ public class FluxConfigManagerController {
         String path = "/opt/nrsm/py/gettraffic.py";
         String[] params = {ip, "v2c",
                 "public@123", in, out};
-        String result = Ssh2Demo.exec(path, params);
+        SSHExecutor sshExecutor = new SSHExecutor();
+        String result = sshExecutor.exec(path, params);
         if(StringUtil.isNotEmpty(result)){
             return result;
         }
@@ -195,7 +196,8 @@ public class FluxConfigManagerController {
         String path = "/opt/nrsm/py/gettraffic.py";
         String[] params = {ip, "v2c",
                 "public@123", in, out};
-        String result = Ssh2Demo.exec(path, params);
+        SSHExecutor sshExecutor = new SSHExecutor();
+        String result = sshExecutor.exec(path, params);
         if(StringUtil.isNotEmpty(result)){
             return result;
         }

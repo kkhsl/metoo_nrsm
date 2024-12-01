@@ -53,7 +53,6 @@ public class SnmpStatusUtils {
         Set<String> hash_keys = snmp.keys();
         if(hash_keys.size() > 0){
             for (String hash_key : hash_keys) {
-                System.out.println(snmp.get(hash_key));
                 Integer value = (Integer) snmp.get(hash_key);
                 if(value == 1){
                     uuids.add(hash_key);

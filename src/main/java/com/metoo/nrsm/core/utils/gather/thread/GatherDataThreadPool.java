@@ -1,8 +1,10 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.concurrent.*;
 
 /**
@@ -17,107 +19,82 @@ import java.util.concurrent.*;
          RejectedExecutionHandler handler// 拒绝策略
 
  多个线程池和使用单个线程池有以下主要区别:
+
+
+ * CPU 密集型：核心线程数=CPU核心数（CPU核心数+1）
+ * 1/O 密集型:核心线程数=2*CPU核心数( CPU核心数/ (1-阻塞系数) )
+ * 混合型:核心线程数=(线程等待时间/线程CPU时间+1) *CPU核心数
+ *
+
  */
 
 @Component
 public class GatherDataThreadPool {
 
+    private final ExecutorService fixedThreadPool;
 
-    public static final int POOL_SIZE;
+    // 线程池大小通过构造函数动态传入
+//    @Autowired
+//    public GatherDataThreadPool() {
+//        int poolSize = Integer.max(Runtime.getRuntime().availableProcessors() * 3, 15);
+//        this.fixedThreadPool = Executors.newFixedThreadPool(poolSize);
+//    }
 
-    static {
-        POOL_SIZE = Integer.max(Runtime.getRuntime().availableProcessors(), 15);
-    }
+    @Autowired
+    public GatherDataThreadPool() {
+        int poolSize = Integer.max(Runtime.getRuntime().availableProcessors() * 3, 15);
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                poolSize, // 核心池大小
+                poolSize * 2, // 最大池大小
+                60, // 空闲线程的最大存活时间
+                TimeUnit.SECONDS, // 存活时间单位
+                new LinkedBlockingQueue<>(), // 任务队列
+                new ThreadPoolExecutor.CallerRunsPolicy()); // 如果队列满了，当前线程执行任务
 
-
-    public static void main(String[] args) {
-        int s =  Runtime.getRuntime().availableProcessors();
-        int POOL_SIZE = Integer.max(Runtime.getRuntime().availableProcessors(), 20);
+        this.fixedThreadPool = executor;
     }
 
     /**
-     * CPU 密集型：核心线程数=CPU核心数（CPU核心数+1）
-     * 1/O 密集型:核心线程数=2*CPU核心数( CPU核心数/ (1-阻塞系数) )
-     * 混合型:核心线程数=(线程等待时间/线程CPU时间+1) *CPU核心数
+     * 获取线程池单例
      *
-     */
-    // ExecutorService fixedThreadPool = Executors.newSingleThreadExecutor();// 创建单线程池
-    // 不推荐使用，这种方式对现成的控制粒度比较低
-    ExecutorService fixedThreadPool = Executors
-            .newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 3);//定长线程池
-//     ExecutorService fixedThreadPool = Executors.newCachedThreadPool();//
-
-
-    private static GatherDataThreadPool pool = new GatherDataThreadPool();// 创建单例
-
-    /**
-     * 获取一个单例
-     * @return
-     */
-    public static GatherDataThreadPool getInstance(){
-        return pool;
-    }
-
-//    private static GatherDataThreadPool pool;
-//
-//    public static synchronized GatherDataThreadPool getInstance(){
-//        if(pool == null){
-//            pool = new GatherDataThreadPool();
-//        }
-//        return pool;
-//    }
-
-    /**
-     * 向线程池添加一个任务
-     * submit(): 向线程池提交单个异步任务
-     * invokeAll(): 向线程池提交批量异步任务
-     * @param run
-     */
-    public void addThread(Runnable run) {
-        fixedThreadPool.execute(run);
-    }
-
-//    public void addFutureTask(FutureTask futureTask) {
-//        fixedThreadPool.execute(futureTask);
-//    }
-
-
-    /**
-     * @description 获取线程池对象
-     * @return
+     * @return 线程池实例
      */
     public ExecutorService getService() {
         return fixedThreadPool;
     }
 
 
-    public ExecutorService getFixedThreadPool(int size){
-        return Executors.newFixedThreadPool(size);
+    /**
+     * 向线程池提交任务
+     *
+     * @param run 任务
+     */
+    public void addThread(Runnable run) {
+        fixedThreadPool.execute(run);
     }
 
+    /**
+     * 关闭线程池
+     */
+//    public void shutdown() {
+//        fixedThreadPool.shutdown();
+//    }
 
-
-    public void test(){
-        // 推荐手动创建线程池
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(
-                2,
-                4,
-                10,
-                TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(2),
-                new ThreadFactory() {
-                    @Override
-                    public Thread newThread(@NotNull Runnable r) {
-                        Thread t = new Thread(r);
-                        t.setName("t1");
-                        return t;
-                    }
-                }, new ThreadPoolExecutor.AbortPolicy());
-        // 线程池执行任务
-        executor.execute(() ->{
-            for (int i = 0; i <= 10; i++){
-                System.out.println(i);
+    @PreDestroy
+    public void shutdown() {
+        try {
+            if (!fixedThreadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+                fixedThreadPool.shutdownNow();
             }
-        });
+        } catch (InterruptedException e) {
+            fixedThreadPool.shutdownNow();
+        }
     }
+
+    private static GatherDataThreadPool pool = new GatherDataThreadPool();// 创建单例
+
+    public static GatherDataThreadPool getInstance(){
+        return pool;
+    }
+
 }

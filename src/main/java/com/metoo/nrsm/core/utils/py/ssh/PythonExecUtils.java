@@ -2,8 +2,8 @@ package com.metoo.nrsm.core.utils.py.ssh;
 
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.py.ssh.Ssh2Demo;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -18,6 +18,9 @@ import java.util.Arrays;
  */
 @Component
 public class PythonExecUtils implements InitializingBean {
+
+    @Autowired
+    private SSHExecutor sshExecutor;
 
 
     public static void main(String[] args) throws IOException {
@@ -51,12 +54,10 @@ public class PythonExecUtils implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
     }
 
-    public static String exec(String path) {
-        String py_version = "python";
-        if (!Global.env.equals("dev")) {
-            py_version = Global.py_name;
-        }else if("dev".equals(Global.env)){
-            return Ssh2Demo.exec(path);
+    public String exec(String path) {
+        String py_version = Global.py_name;
+        if("dev".equals(Global.env)){
+            return sshExecutor.exec(path);
         }
         StringBuffer sb = new StringBuffer();
         try {
@@ -76,12 +77,10 @@ public class PythonExecUtils implements InitializingBean {
         return sb.toString();
     }
 
-    public static String exec(String path, String[] params) {
-        String py_version = "python";
-        if (!Global.env.equals("dev")) {
-            py_version = Global.py_name;
-        }else if("dev".equals(Global.env)){
-            return Ssh2Demo.exec(path, params);
+    public String exec(String path, String[] params) {
+        String py_version = Global.py_name;;
+        if("dev".equals(Global.env)){
+            return sshExecutor.exec(path, params);
         }
         StringBuffer sb = new StringBuffer();
         try {
@@ -136,12 +135,10 @@ public class PythonExecUtils implements InitializingBean {
         return sb.toString();
     }
 
-    public static String exec(String path, String[] params, String prefix) {
-        String py_version = "python";
-        if (!Global.env.equals("dev")) {
-            py_version = Global.py_name;
-        }else if("dev".equals(Global.env)){
-            return Ssh2Demo.exec(path, params, prefix);
+    public String exec(String path, String[] params, String prefix) {
+        String py_version = Global.py_name;
+        if("dev".equals(Global.env)){
+            return sshExecutor.exec(path, params, prefix);
         }
         StringBuffer sb = new StringBuffer();
         try {
@@ -208,12 +205,10 @@ public class PythonExecUtils implements InitializingBean {
         return sb.toString();
     }
 
-    public static String execNohup(String path, String[] params, String prefix) {
-        String py_version = "python";
-        if (!Global.env.equals("dev")) {
-            py_version = Global.py_name;
-        }else if("dev".equals(Global.env)){
-            return Ssh2Demo.exec(path, params, prefix);
+    public String execNohup(String path, String[] params, String prefix) {
+        String py_version = Global.py_name;
+        if("dev".equals(Global.env)){
+            return sshExecutor.exec(path, params, prefix);
         }
         StringBuffer sb = new StringBuffer();
         try {
@@ -275,7 +270,7 @@ public class PythonExecUtils implements InitializingBean {
         return sb.toString();
     }
 
-    public static void execNohup() {
+    public void execNohup() {
         ProcessBuilder processBuilder = new ProcessBuilder("nohup", "python3", "/opt/nrsm/py/dnsredis.py", "0", "&");
         processBuilder.redirectErrorStream(true); //将错误输出重定向到标准输出
         try {
@@ -287,11 +282,9 @@ public class PythonExecUtils implements InitializingBean {
     }
 
     public String exec2(String path, String[] params) {
-        String py_version = "python";
-        if (!Global.env.equals("dev")) {
-            py_version = Global.py_name;
-        }else if("dev".equals(Global.env)){
-            return Ssh2Demo.exec(path, params);
+        String py_version = Global.py_name;
+        if("dev".equals(Global.env)){
+            return sshExecutor.exec(path, params);
         }
         StringBuffer sb = new StringBuffer();
         try {

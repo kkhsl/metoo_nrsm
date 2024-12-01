@@ -22,6 +22,8 @@ public class DNSServiceImpl implements IDNSService {
 
     @Autowired
     private DnsMapper dnsMapper;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @Override
     public List<Dns> selectObjByMap(Map params) {
@@ -82,14 +84,14 @@ public class DNSServiceImpl implements IDNSService {
     @Override
     public String get() {
         String path = Global.PYPATH + "getdns.py";
-        String result = PythonExecUtils.exec(path);
+        String result = pythonExecUtils.exec(path);
         return result;
     }
 
     @Override
     public String modifydns(String[] params) {
         String path = Global.PYPATH + "modifydns.py";
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         return result;
     }
 }

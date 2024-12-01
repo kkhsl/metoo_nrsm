@@ -21,6 +21,8 @@ public class DnsRunStatusServiceImpl implements IDnsRunStatusService {
 
     @Autowired
     private DnsRunStatusMapper dnsRunStatusMapper;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @Override
     public DnsRunStatus selectOneObj() {
@@ -41,7 +43,7 @@ public class DnsRunStatusServiceImpl implements IDnsRunStatusService {
     @Override
     public boolean checkdns() {
         String path = Global.PYPATH + "checkdns.py";
-        String result = PythonExecUtils.exec(path);
+        String result = pythonExecUtils.exec(path);
         if("None".equals(result)){
             return false;
         }else{

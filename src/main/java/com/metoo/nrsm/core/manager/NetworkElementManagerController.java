@@ -49,6 +49,8 @@ public class NetworkElementManagerController {
     private IRsmsDeviceService rsmsDeviceService;
     @Autowired
     private IPortService portService;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @ApiOperation("网元列表")
     @RequestMapping("/list")
@@ -207,7 +209,7 @@ public class NetworkElementManagerController {
                     String path = Global.PYPATH + "getuptime.py";
                     String[] params = {networkElement.getIp(), networkElement.getVersion(),
                             networkElement.getCommunity()};
-                    result = PythonExecUtils.exec(path, params);
+                    result = pythonExecUtils.exec(path, params);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

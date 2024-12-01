@@ -20,6 +20,8 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
 
     @Autowired
     private PingIpConfigMapper pingIpConfigMapper;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @Override
     public PingIpConfig selectOneObj() {
@@ -40,7 +42,7 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
     @Override
     public boolean checkaliveip() {
         String path = Global.PYPATH + "checkping.py";
-        String result = PythonExecUtils.exec(path);
+        String result = pythonExecUtils.exec(path);
         if("None".equals(result)){
             return false;
         }
@@ -51,7 +53,7 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
     public boolean start() {
         String path = Global.PYPATH + "pingop.py";
         String[] params = {"start", "checkaliveip"};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         return Boolean.valueOf(result);
     }
 
@@ -59,7 +61,7 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
     public boolean stop() {
         String path = Global.PYPATH + "pingop.py";
         String[] params = {"stop", "checkaliveip"};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         return Boolean.valueOf(result);
     }
 
@@ -67,7 +69,7 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
     public boolean restart() {
         String path = Global.PYPATH + "pingop.py";
         String[] params = {"restart", "checkaliveip"};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         return Boolean.valueOf(result);
     }
 }
