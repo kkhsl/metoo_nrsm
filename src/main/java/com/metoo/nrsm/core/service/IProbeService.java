@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.service;
 
-import com.metoo.nrsm.entity.scan.Probe;
+import com.metoo.nrsm.entity.Probe;
 
 import java.util.List;
 import java.util.Map;
@@ -8,6 +8,8 @@ import java.util.Map;
 public interface IProbeService {
 
     List<Probe> selectObjByMap(Map params);
+
+    List<Probe> mergeProbesByIp();
 
     List<Probe> selectDeduplicationByIp(Map params);
 

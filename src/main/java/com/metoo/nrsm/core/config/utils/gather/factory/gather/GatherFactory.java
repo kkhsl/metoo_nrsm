@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.config.utils.gather.factory.gather;
 
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.impl.GatherOsScanVersin;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.impl.TrafficFactoryImpl;
 import com.metoo.nrsm.core.utils.Global;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,9 @@ public class GatherFactory {
         if(shapeType.equalsIgnoreCase(Global.TRAFFIC)){
 //            return new TrafficByGatewayFactoryImpl();
             return new TrafficFactoryImpl();
+        } else if(shapeType.equalsIgnoreCase("fileToProbe")){
+            return new GatherOsScanVersin();
+
         }
         return null;
     }

@@ -37,6 +37,8 @@ public class GatherTaskScheduledUtil {
     @Autowired
     private IGatherService gatherService;
     @Autowired
+    private IProbeService probeService;
+    @Autowired
     private IPingService pingService;
     @Autowired
     private ISubnetService subnetService;
@@ -272,6 +274,20 @@ public class GatherTaskScheduledUtil {
                 e.printStackTrace();
             }
             log.info("snmp status End......" + (System.currentTimeMillis()-time));
+        }
+    }
+
+    @Scheduled(cron = "0 */3 * * * ?")
+    public void gatherProbe() {
+        if(flag){
+            Long time = System.currentTimeMillis();
+            log.info("Probe start......");
+            try {
+                probeService.scanByTerminal();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            log.info("Probe end......" + (System.currentTimeMillis()-time));
         }
     }
 

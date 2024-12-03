@@ -14,12 +14,10 @@ import com.metoo.nrsm.core.service.IProbeResultService;
 import com.metoo.nrsm.core.service.IProbeService;
 import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.utils.api.ApiService;
-import com.metoo.nrsm.core.utils.api.JsonRequest;
 import com.metoo.nrsm.core.vo.ProbeRequestVO;
-import com.metoo.nrsm.entity.Arp;
+import com.metoo.nrsm.entity.Probe;
 import com.metoo.nrsm.entity.Terminal;
-import com.metoo.nrsm.entity.scan.Probe;
-import com.metoo.nrsm.entity.scan.ProbeResult;
+import com.metoo.nrsm.entity.ProbeResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +54,12 @@ public class ProbeServiceImpl implements IProbeService {
     @Override
     public List<Probe> selectObjByMap(Map params) {
         List<Probe> probes = this.probeMapper.selectObjByMap(params);
+        return probes;
+    }
+
+    @Override
+    public List<Probe> mergeProbesByIp() {
+        List<Probe> probes = this.probeMapper.mergeProbesByIp();
         return probes;
     }
 
@@ -255,7 +259,7 @@ public class ProbeServiceImpl implements IProbeService {
                         List<Probe> probeList = null;
 
                         if (StringUtil.isNotEmpty(probe.getIp_addr())) {
-                            probeList = this.selectObjByMap(MapUtil.of("ip_addr", probe.getIp_addr()));
+                            probeList = this.selectObjByMap(MapUtil.of("ip_addr", terminal.getV4ip()));
                         } else {
                             probeList = this.selectObjByMap(MapUtil.of("ipv6", probe.getIpv6()));
                         }
@@ -269,23 +273,23 @@ public class ProbeServiceImpl implements IProbeService {
                     }
                 }
 
-//                GatherFactory factory = new GatherFactory();
-//                Gather gather = factory.getGather("fileToProbe");
-//                gather.executeMethod();
+                GatherFactory factory = new GatherFactory();
+                Gather gather = factory.getGather("fileToProbe");
+                gather.executeMethod();
+
 
 
                 this.deleteTableBack();
 
                 this.copyToBck();
 
+                this.writeTerminal();
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
 
-            List list = this.selectObjByMap(null);
-            log.info("chuangfa + os_scan========================================：" + JSONObject.toJSONString(list));
 
             log.info("Probe end===============");
 
@@ -442,4 +446,62 @@ public class ProbeServiceImpl implements IProbeService {
         return ipv6Str;
     }
 
+    public static void main(String[] args) {
+        String a = "2/adtran//total_access_904/";
+        String[] aa = a.split("/", 5);
+
+        // 输出第五个元素
+        System.out.println(aa[4]);
+    }
+
+
+    // 写回终端表
+    public void writeTerminal(){
+        List<Terminal> terminals = this.terminalService.selectObjByMap(Collections.EMPTY_MAP);
+        List<Probe> probes = this.probeMapper.mergeProbesByIp();
+        if(probes.isEmpty() || terminals.isEmpty()){
+            return;
+        }
+        Map<String, Probe> map = new HashMap<>();
+        for (Probe probe : probes) {
+            map.put(probe.getIp_addr(), probe);
+        }
+
+        for (Terminal terminal : terminals) {
+            Probe probe = map.get(terminal.getV4ip());
+            if(probe != null){
+//                terminal.setScan_port_number(probe.getPort_num());
+//                terminal.setScan_vendor(probe.getVendor());
+//                terminal.setScan_os_gen(probe.getOs_gen());
+//                terminal.setScan_os_famify(probe.getOs_family());
+//                terminal.setScan_application_protocol(probe.getApplication_protocol());
+//                this.terminalService.update(terminal);
+                List list = new ArrayList();
+                String combined = probe.getCombined();
+                String[] combineds = combined.split(",");
+                if(combineds.length > 0){
+                    for (String ele : combineds) {
+                        Map stats = new HashMap();
+                        String[] eles = ele.split("/", 5);// 字符串的末尾或连续分隔符之间可能会包括一个分隔符本身
+                        if(eles.length > 0){
+                            String port_num = eles[0];
+                            String vendor = eles[1];
+                            String os_family = eles[2];
+                            String os_gen = eles[3];
+                            String application_protocol = eles[4];
+                            stats.put("port_num", port_num);
+                            stats.put("vendor", vendor);
+                            stats.put("os_family", os_family);
+                            stats.put("os_gen", os_gen);
+                            stats.put("application_protocol", application_protocol);
+                            list.add(stats);
+                        }
+                    }
+                }
+                System.out.println(JSONObject.toJSONString(list));
+                terminal.setCombined(JSONObject.toJSONString(list));
+                this.terminalService.update(terminal);
+            }
+        }
+    }
 }

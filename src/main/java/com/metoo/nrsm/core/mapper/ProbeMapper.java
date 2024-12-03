@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.metoo.nrsm.entity.scan.Probe;
+import com.metoo.nrsm.entity.Probe;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,6 +15,8 @@ import java.util.Map;
 public interface ProbeMapper {
 
     List<Probe> selectObjByMap(Map params);
+
+    List<Probe> mergeProbesByIp();
 
     int insert(Probe instance);
 

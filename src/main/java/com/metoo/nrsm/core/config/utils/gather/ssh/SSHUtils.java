@@ -9,6 +9,7 @@ package com.metoo.nrsm.core.config.utils.gather.ssh;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 import com.metoo.nrsm.core.config.utils.gather.common.PyCommand;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -39,6 +40,11 @@ public class SSHUtils {
         this.username = username;
         this.password = password;
     }
+
+    @Test
+    public void testExecuteCommand(){
+        this.executeCommand("cd /opt/netmap/os-scanner/os-scanner4 && ./OS-scanner -i 192.168.100.1 -o 443 -c 1");
+    };
 
     public String executeCommand(String command) {
         StringBuilder outputBuffer = new StringBuilder();

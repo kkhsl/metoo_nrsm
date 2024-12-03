@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ToString
-public class PyCommandBuilder2 {
+public class PyCommandBuilder3 {
 
     // 链式调用方法连续设置多个属性值
     @ApiModelProperty("前缀")
@@ -30,7 +30,43 @@ public class PyCommandBuilder2 {
 
     private List<String> params2 = new ArrayList();
 
-    public PyCommandBuilder2() {
+    public PyCommandBuilder3() {
+    }
+
+//    public static void main(String[] args) {
+//        PyCommandBuilder3 pyCommandBuilder = new PyCommandBuilder3()
+//                .prefix("nohup")
+//                .name("java -jar netmap.jar")
+//                .params(new String[]{"abc", "def"})
+//                .addParams2("ghl")
+//                .addParams2("ljk");
+//        System.out.println(pyCommandBuilder.toString());
+//
+//        String command = pyCommandBuilder.toParamsString();
+//        System.out.println("命令行：" + command);
+//    }
+
+    public static void main(String[] args) {
+
+        PyCommandBuilder3 pyCommand = new PyCommandBuilder3();
+        pyCommand.setVersion("py.exe");
+        pyCommand.setPy_prefix("-W ignore");
+        pyCommand.setPath("C:\\\\netmap\\\\script");
+        pyCommand.setName("main.py");
+//        pyCommand.setParams(new String[]{
+//                "h3c",
+//                "switch",
+//                "192.168.100.1",
+//                "ssh",
+//                "22",
+//                "metoo",
+//                "metoo89745000", Global.PY_SUFFIX_GET_FIREWALL});
+        String[] command = pyCommand.toStringArray();
+        System.out.println(command);
+    }
+
+    public String getPrefix() {
+        return prefix;
     }
 
     public void setPrefix(String prefix) {
@@ -77,38 +113,38 @@ public class PyCommandBuilder2 {
         this.params = params;
     }
 
-    public PyCommandBuilder2 prefix(String prefix) {
+    public PyCommandBuilder3 prefix(String prefix) {
         this.prefix = prefix;
         return this;
     }
 
-    public PyCommandBuilder2 py_prefix(String py_prefix) {
+    public PyCommandBuilder3 py_prefix(String py_prefix) {
         this.py_prefix = py_prefix;
         return this;
     }
 
 
-    public PyCommandBuilder2 version(String version) {
+    public PyCommandBuilder3 version(String version) {
         this.version = version;
         return this;
     }
 
-    public PyCommandBuilder2 path(String path) {
+    public PyCommandBuilder3 path(String path) {
         this.path = path;
         return this;
     }
 
-    public PyCommandBuilder2 name(String name) {
+    public PyCommandBuilder3 name(String name) {
         this.name = name;
         return this;
     }
 
-    public PyCommandBuilder2 params(String[] params) {
+    public PyCommandBuilder3 params(String[] params) {
         this.params = params;
         return this;
     }
 
-    public PyCommandBuilder2 addParams2(String params) {
+    public PyCommandBuilder3 addParams2(String params) {
         this.params2.add(params);
         return this;
     }
@@ -199,6 +235,47 @@ public class PyCommandBuilder2 {
         String[] array = new String[list.size()];
         return list.toArray(array);
     }
+    public String[] toStringArrayReomveName() {
+        List<String> list = new ArrayList<>();
+        if (prefix != null && !prefix.isEmpty()) {
+            list.add(prefix);
+        }
+        if (version != null && !version.isEmpty()) {
+            list.add(version);
+        }
 
+
+        if (py_prefix != null && !py_prefix.isEmpty()) {
+            list.add(py_prefix);
+        }
+//        // 改为cd到文件所在目录
+//        if (path != null && !path.isEmpty()) {
+//            if (name != null && !name.isEmpty()) {
+//                list.add(path + name);
+//            }else{
+//                list.add(path);
+//            }
+//        }
+//        if (name != null && !name.isEmpty()) {
+//            list.add(name);
+//        }
+        if (params != null) {
+            for (String param : params) {
+                if (param != null && !param.isEmpty()) {
+                    list.add(param);
+                }
+            }
+        }
+        if (params2 != null && params2.size() > 0) {
+            for (String param : params2) {
+                if (param != null && !param.isEmpty()) {
+                    list.add(param);
+                }
+            }
+        }
+        // Convert list to array
+        String[] array = new String[list.size()];
+        return list.toArray(array);
+    }
 
 }

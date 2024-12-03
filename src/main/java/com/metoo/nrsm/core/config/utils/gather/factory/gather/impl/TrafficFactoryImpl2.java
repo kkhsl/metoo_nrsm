@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.config.utils.gather.factory.gather.impl;
 
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
-import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder;
+import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder3;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
 import com.metoo.nrsm.core.service.IGatewayService;
@@ -49,7 +49,7 @@ public class TrafficFactoryImpl2 implements Gather {
                             pattern = unit.getPattern();
                         }
 
-                        PyCommandBuilder pyCommand = new PyCommandBuilder();
+                        PyCommandBuilder3 pyCommand = new PyCommandBuilder3();
                         pyCommand.setVersion(Global.py_name);
                         pyCommand.setPath(Global.py_path);
                         pyCommand.setPy_prefix("-W ignore");

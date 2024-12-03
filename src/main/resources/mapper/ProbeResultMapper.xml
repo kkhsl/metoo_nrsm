@@ -4,11 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.ProbeResultMapper">
 
-    <select id="selectObjByOne" resultType="com.metoo.nrsm.entity.scan.ProbeResult">
+    <select id="selectObjByOne" resultType="com.metoo.nrsm.entity.ProbeResult">
         select * from metoo_probe_result
     </select>
 
-    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.scan.ProbeResult">
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.ProbeResult">
         SELECT *
         FROM metoo_probe_result
         <where>
@@ -18,7 +18,7 @@
         </where>
     </select>
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.scan.ProbeResult">
+    <update id="update" parameterType="com.metoo.nrsm.entity.ProbeResult">
         UPDATE metoo_probe_result
         <set>
             <if test="result != null">

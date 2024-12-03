@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.ProbeResultMapper;
 import com.metoo.nrsm.core.service.IProbeResultService;
-import com.metoo.nrsm.entity.scan.ProbeResult;
+import com.metoo.nrsm.entity.ProbeResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

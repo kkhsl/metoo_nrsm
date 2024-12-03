@@ -1,4 +1,4 @@
-package com.metoo.nrsm.entity.scan;
+package com.metoo.nrsm.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * @author HKK
  * @version 1.0
@@ -22,7 +24,7 @@ public class Probe {
     private Integer id;
 
     @ApiModelProperty("创建时间")
-    private String createTime;
+    private Date createTime;
 
     @ApiModelProperty("目标IP")
     private String ip_addr;
@@ -81,4 +83,7 @@ public class Probe {
     public Probe(String port_num) {
         this.port_num = port_num;
     }
+
+    @ApiModelProperty("port_num + vendor + os_family + os_gen + application_protocol")
+    private String combined;
 }

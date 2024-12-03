@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -154,6 +155,13 @@ public class PythonScriptRunner {
 //        }
 //    }
 
+    @Test
+    public void execTest(){
+        String path = "/opt/netmap/os-scanner/os-scanner/";
+        String commond = "cd /opt/netmap/os-scanner/os-scanner1/ && ./OS-scanner -i 192.168.6.1 -o 22 -c 1";
+        this.exec(path, commond);
+    }
+
     /**
      *
      * @param scriptPath
@@ -251,6 +259,62 @@ public class PythonScriptRunner {
         } catch (IOException e) {
             e.printStackTrace();
             return ""; // 或者抛出异常，根据需求处理
+        }
+    }
+
+    public String exec_exe(String scriptPath, String scriptName, String... args) {
+        try {
+            // 构建命令行参数
+            List<String> command = new ArrayList<>();
+            command.add(scriptPath + File.separator + scriptName);
+            command.addAll(Arrays.asList(args));
+
+            // 初始化 ProcessBuilder
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.directory(new File(scriptPath));
+            pb.redirectErrorStream(true); // 将错误流合并到标准输出流
+
+            // 启动进程
+            Process process = pb.start();
+
+            StringBuffer output = new StringBuffer();// StringBuilder
+
+            // 创建线程读取标准输出流
+            Thread outputThread = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        output.append(line).append(System.lineSeparator());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            // 启动线程
+            outputThread.start();
+
+            // 等待进程完成
+            try {
+                int exitCode = process.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                // 等待线程完成
+                outputThread.join();
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            String cleanedOutput = output.toString().replaceAll("[\n\r]", "");
+            return cleanedOutput;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ""; // 或者根据需求抛出异常
         }
     }
 

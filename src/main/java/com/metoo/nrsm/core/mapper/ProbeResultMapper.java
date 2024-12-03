@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.metoo.nrsm.entity.scan.ProbeResult;
+import com.metoo.nrsm.entity.ProbeResult;
 
 import java.util.List;
 import java.util.Map;
