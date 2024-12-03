@@ -17,7 +17,7 @@ public class ConfigUpdater {
         strategyMap = new HashMap<>();
         strategyMap.put("forward-zone", new ForwardZoneUpdateStrategy());
         strategyMap.put("local-zone", new LocalZoneUpdateStrategy());
-        strategyMap.put("private-address", new PrivateAddressUpdateStrategy());
+        //strategyMap.put("private-address", new PrivateAddressUpdateStrategy());
     }
 
     public List<String> updateConfig(String configType, List<String> lines, Object configData) throws IOException {

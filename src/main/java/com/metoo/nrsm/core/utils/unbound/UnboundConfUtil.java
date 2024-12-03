@@ -52,12 +52,130 @@ public class UnboundConfUtil {
     }
 
     public static boolean updateConfigFile(String filePath, Unbound unbound) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            List<LocalZoneDTO> localZoneDTOS = new ObjectMapper().readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {});
-            Set<String> forwardAddress = new ObjectMapper().readValue(unbound.getForwardAddress(), Set.class);
+            // 解析数据
+            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {});
             List<String> lines = Files.readAllLines(Paths.get(filePath));
 
+            // 更新配置
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            lines = configUpdater.updateConfig("local-zone", lines, localZoneDTOS);
+
+            // 将更新后的内容写回配置文件
+            try {
+                Files.write(Paths.get(filePath), lines, StandardOpenOption.TRUNCATE_EXISTING);
+                return true; // 更新成功
+            } catch (IOException e) {
+                System.err.println("写入配置文件时发生错误: " + e.getMessage());
+                return false; // 写入失败
+            }
+        } catch (IOException e) {
+            System.err.println("更新配置文件时发生错误: " + e.getMessage());
+            return false; // 解析或读取失败
+        }
+    }
+    public static boolean updateConfigDNSFile(String filePath, Unbound unbound) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            // 解析数据
+            Set<String> forwardAddress = objectMapper.readValue(unbound.getForwardAddress(), new TypeReference<Set<String>>() {});
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 更新配置
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            lines = configUpdater.updateConfig("forward-zone", lines, forwardAddress);
+            // 将更新后的内容写回配置文件
+            try {
+                Files.write(Paths.get(filePath), lines, StandardOpenOption.TRUNCATE_EXISTING);
+                return true; // 更新成功
+            } catch (IOException e) {
+                System.err.println("写入配置文件时发生错误: " + e.getMessage());
+                return false; // 写入失败
+            }
+        } catch (IOException e) {
+            System.err.println("更新配置文件时发生错误: " + e.getMessage());
+            return false; // 解析或读取失败
+        }
+    }
+
+
+    public static boolean deleteConfigFile(String filePath, Unbound unbound) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            // 解析数据
+            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {});
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 收集要删除的 zone 名称
+            Set<String> zonesToDelete = new HashSet<>();
+            for (LocalZoneDTO zone : localZoneDTOS) {
+                zonesToDelete.add(zone.getZoneName());
+            }
+
+            // 删除配置
+            List<String> updatedLines = removeLocalZoneAndData(lines, zonesToDelete);
+
+            // 将更新后的内容写回配置文件
+            try {
+                Files.write(Paths.get(filePath), updatedLines, StandardOpenOption.TRUNCATE_EXISTING);
+                return true; // 更新成功
+            } catch (IOException e) {
+                System.err.println("写入配置文件时发生错误: " + e.getMessage());
+                return false; // 写入失败
+            }
+        } catch (IOException e) {
+            System.err.println("更新配置文件时发生错误: " + e.getMessage());
+            return false; // 解析或读取失败
+        }
+    }
+
+    private static List<String> removeLocalZoneAndData(List<String> lines, Set<String> zonesToDelete) {
+        boolean skipLocalData = false;
+        List<String> updatedLines = new ArrayList<>();
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+
+            if (trimmedLine.startsWith("local-zone:")) {
+                String zoneName = trimmedLine.split(":")[1].trim().split(" ")[0].replace("\"", "");
+                if (zonesToDelete.contains(zoneName)) {
+                    skipLocalData = true; // 设置标志以跳过后续的 local-data 行
+                    continue; // 跳过该 local-zone 行
+                }
+            }
+            // 处理 local-data 行
+            else if (skipLocalData && trimmedLine.startsWith("local-data:")) {
+                continue; // 跳过对应的 local-data 行
+            }
+            // 如果不是要删除的配置，则保留该行
+            else {
+                updatedLines.add(line);
+            }
+
+            // 如果遇到下一个 local-zone，重置标志
+            if (trimmedLine.startsWith("local-zone:") && !zonesToDelete.contains(trimmedLine.split(":")[1].trim().split(" ")[0].replace("\"", ""))) {
+                skipLocalData = false;
+            }
+        }
+
+        return updatedLines;
+    }
+
+
+    public static boolean updateAllConfigFile(String filePath, Unbound unbound) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            // 解析数据
+            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {});
+            Set<String> forwardAddress = objectMapper.readValue(unbound.getForwardAddress(), new TypeReference<Set<String>>() {});
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 更新配置
             ConfigUpdater configUpdater = new ConfigUpdater();
             lines = configUpdater.updateConfig("private-address", lines, unbound.getPrivateAddress());
             lines = configUpdater.updateConfig("forward-zone", lines, forwardAddress);
@@ -66,19 +184,19 @@ public class UnboundConfUtil {
             // 将更新后的内容写回配置文件
             try {
                 Files.write(Paths.get(filePath), lines, StandardOpenOption.TRUNCATE_EXISTING);
-                return true;
+                return true; // 更新成功
             } catch (IOException e) {
-                e.printStackTrace();
-                return false;
+                System.err.println("写入配置文件时发生错误: " + e.getMessage());
+                return false; // 写入失败
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("更新配置文件时发生错误: " + e.getMessage());
+            return false; // 解析或读取失败
         }
-        return false;
     }
 
 
-    private static final String configFilePath = "C:\\Users\\hkk\\Desktop\\nrsm\\需求\\unbound\\unbound.conf";
+    private static final String configFilePath = "C:\\Users\\leo\\Desktop\\unbound.conf";
 
     // 根据 validZoneNames 配置删除不必要的 local-zone 和 local-data 行，并新增缺失的行
     public static boolean updateConfigFileTest(String filePath, Set<String> validZoneNames, JSONArray localZoneConfig,

@@ -16,7 +16,6 @@ public class ForwardZoneUpdateStrategy implements ConfigUpdateStrategy {
     }
 
     public List<String> updateLines(List<String> lines, Set<String> validForwardAddresses) throws IOException {
-        // 读取配置文件内容
         List<String> updatedLines = new ArrayList<>();
         boolean forwardZoneSectionFound = false;
         boolean skipForwardZone = false;
@@ -28,19 +27,24 @@ public class ForwardZoneUpdateStrategy implements ConfigUpdateStrategy {
         for (String line : lines) {
             String trimmedLine = line.trim();
 
-            if(trimmedLine.startsWith("forward-zone:") && validForwardAddresses.isEmpty()){
+            // 如果没有有效的 forward 地址，跳过 forward-zone 部分
+            if (trimmedLine.startsWith("forward-zone:") && validForwardAddresses.isEmpty()) {
                 skipForwardZone = true; // 设置跳过标志，后续的行会被跳过
                 continue; // 跳过当前 forward-zone 配置块
             }
 
-            if(skipForwardZone){
-                skipForwardZone = false;
+            // 跳过 forward-zone 部分的行
+            if (skipForwardZone) {
+                skipForwardZone = false; // 重置跳过标志
                 continue;
             }
+
+            // 检查 forward-zone 配置块
             if (trimmedLine.startsWith("forward-zone:")) {
                 forwardZoneSectionFound = true;
                 updatedLines.add(line); // 保留 forward-zone 配置块的起始部分
             } else if (forwardZoneSectionFound && trimmedLine.startsWith("forward-addr:")) {
+                // 处理存在的 forward-addr 地址
                 String address = trimmedLine.split(" ")[1].trim();
                 existingAddresses.add(address); // 将文件中存在的 forward-addr 地址加入集合
                 updatedLines.add(line); // 保留现有的 forward-addr
@@ -50,12 +54,11 @@ public class ForwardZoneUpdateStrategy implements ConfigUpdateStrategy {
         }
 
         // 如果没有找到 forward-zone 配置块，添加它
-        if(!validForwardAddresses.isEmpty()){
-            if (!forwardZoneSectionFound) {
-                updatedLines.add("\nforward-zone:");
-                updatedLines.add("  name: \".\"");
-            }
+        if (!validForwardAddresses.isEmpty() && !forwardZoneSectionFound) {
+            updatedLines.add("\nforward-zone:");
+            updatedLines.add("  name: \".\"");
         }
+
         // 删除不需要的 forward-addr 地址
         ListIterator<String> iterator = updatedLines.listIterator();
         while (iterator.hasNext()) {
@@ -75,7 +78,8 @@ public class ForwardZoneUpdateStrategy implements ConfigUpdateStrategy {
             }
         }
 
-        // 写回更新后的内容到配置文件
+        // 返回更新后的内容
         return updatedLines;
     }
+
 }

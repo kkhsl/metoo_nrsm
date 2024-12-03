@@ -121,6 +121,27 @@
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">
-        DELETE FROM metoo_unbound where id = #{id}
+        UPDATE metoo_unbound
+        SET
+            localZone = NULL,
+            localData = NULL,
+            hostName = NULL,
+            recordType = NULL,
+            mappedAddress = NULL,
+            zoneName = NULL,
+            zoneType = NULL
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteDNS" parameterType="java.lang.Long">
+        UPDATE metoo_unbound
+        SET
+            forwardAddress = NULL
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteAll" parameterType="java.lang.Long">
+        DELETE FROM metoo_unbound
+        WHERE id = #{id};
     </delete>
 </mapper>

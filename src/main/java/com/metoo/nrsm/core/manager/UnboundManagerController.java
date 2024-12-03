@@ -17,13 +17,66 @@ public class UnboundManagerController {
     @Autowired
     private IUnboundService unboundService;
 
-    @GetMapping
+    @PostMapping("/save")
+    private Result add(@RequestBody UnboundDTO instance){
+        boolean flag = this.unboundService.add(instance);
+        if(flag){
+            return ResponseUtil.ok();
+        }
+        return ResponseUtil.error();
+    }
+
+
+    @DeleteMapping("/delete")
+    private Result unbound(@RequestParam String id){
+        boolean flag = this.unboundService.delete(Long.parseLong(id));
+        if(flag){
+            return ResponseUtil.ok();
+        }
+        return ResponseUtil.error("重复删除");
+    }
+
+
+    @GetMapping("/select")
     private Result unbound(){
         Unbound unbound = this.unboundService.selectObjByOne(Collections.emptyMap());
         return ResponseUtil.ok(unbound);
     }
 
-    @PostMapping
+
+    @PostMapping("/saveDNS")
+    private Result DNS(@RequestBody UnboundDTO instance){
+        boolean flag = this.unboundService.addDNS(instance);
+        if(flag){
+            return ResponseUtil.ok();
+        }
+        return ResponseUtil.error();
+    }
+
+    @DeleteMapping("/resetDNS")
+    private Result resetDNS(@RequestParam String id){
+        boolean flag = this.unboundService.deleteDNS(Long.parseLong(id));
+        if(flag){
+            return ResponseUtil.ok();
+        }
+        return ResponseUtil.error("重复删除");
+    }
+
+
+
+
+
+
+    @DeleteMapping("/deleteAll")
+    private Result delete(@RequestParam String id){
+        boolean flag = this.unboundService.delete(Long.parseLong(id));
+        if(flag){
+            return ResponseUtil.ok();
+        }
+        return ResponseUtil.error();
+    }
+
+    @PostMapping("/savaAll")
     private Result unbound(@RequestBody UnboundDTO instance){
         boolean flag = this.unboundService.update(instance);
         if(flag){
@@ -32,13 +85,8 @@ public class UnboundManagerController {
         return ResponseUtil.error();
     }
 
-    @DeleteMapping
-    private Result unbound(@RequestParam String id){
-        boolean flag = this.unboundService.delete(Long.parseLong(id));
-        if(flag){
-            return ResponseUtil.ok();
-        }
-        return ResponseUtil.error();
-    }
+
+
+
 
 }
