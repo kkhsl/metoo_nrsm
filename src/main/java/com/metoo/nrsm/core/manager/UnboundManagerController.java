@@ -117,7 +117,6 @@ public class UnboundManagerController {
 
 
 
-    @GetMapping("/status")
     public Boolean restart() throws Exception {
         String host = "192.168.6.101";
         String username = "metoo";
