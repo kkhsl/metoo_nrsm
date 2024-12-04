@@ -30,7 +30,8 @@ public class LicenseFilter implements Filter {
                 "/nrsm/admin/index/nav",
                 "/nrsm/license/systemInfo",
                 "/nrsm/license/query",
-                "/nrsm/license/update"
+                "/nrsm/license/update",
+                "/nrsm/admin/unbound"
             );
 
     @Autowired

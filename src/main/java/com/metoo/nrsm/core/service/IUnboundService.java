@@ -15,9 +15,13 @@ public interface IUnboundService {
     Unbound selectObjByOne(Map params);
 
     boolean save(Unbound instance);
+    boolean open(UnboundDTO instance);
 
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     boolean saveDNS(Unbound instance);
+
+    @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
+    boolean openAdress(Unbound instance);
 
     boolean update(UnboundDTO instance);
 
