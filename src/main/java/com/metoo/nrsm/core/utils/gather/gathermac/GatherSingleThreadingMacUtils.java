@@ -47,7 +47,7 @@ public class GatherSingleThreadingMacUtils {
     public void gatherMac(List<NetworkElement> networkElements, Date date) {
         if (networkElements.size() > 0) {
 
-            // mac 复制数据写入标签和ip地址信息等
+            // mac 复制数据、写入标签、ip地址信息等
             this.gatherMacUtils.copyGatherData(date);
 
             try {
@@ -58,7 +58,6 @@ public class GatherSingleThreadingMacUtils {
             }
 
             // 统计终端属于哪个单位
-            //...
             try {
                 this.terminalService.writeTerminalUnit();
             } catch (Exception e) {
@@ -99,6 +98,8 @@ public class GatherSingleThreadingMacUtils {
                 e.printStackTrace();
             }
 
+            // 扫描终端
+
             // 同步终端到终端历史表
             this.terminalService.syncTerminalToTerminalHistory();
 
@@ -112,33 +113,36 @@ public class GatherSingleThreadingMacUtils {
                     continue;
                 }
 
-                String path = Global.PYPATH + "gethostname.py";
+                String gethostnamePath = Global.PYPATH + "gethostname.py";
 
                 PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
 
-                String[] params = {networkElement.getIp(), networkElement.getVersion(),
+                String[] gethostnameParams = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
-                String hostname = pythonExecUtils.exec2(path, params);
+
+                String hostname = pythonExecUtils.exec2(gethostnamePath, gethostnameParams);
+
                 if (StringUtils.isNotEmpty(hostname)) {
 
                     PythonExecUtils pythonExecUtils2 = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
-                    String path2 = Global.PYPATH + "getlldp.py";
-                    String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
+                    String getlldpPath = Global.PYPATH + "getlldp.py";
+                    String[] getlldpParams = {networkElement.getIp(), networkElement.getVersion(),
                             networkElement.getCommunity()};
-                    String result = pythonExecUtils2.exec2(path2, params2);
+
+                    String result = pythonExecUtils2.exec2(getlldpPath, getlldpParams);
                     if (StringUtil.isNotEmpty(result)) {
                         List<Map> lldps = JSONObject.parseArray(result, Map.class);
                         this.setRemoteDevice(networkElement, lldps, hostname, date);
                     }
 
                     PythonExecUtils pythonExecUtils3 = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
-                    String path3 = Global.PYPATH + "getmac.py";
-                    String[] params3 = {networkElement.getIp(), networkElement.getVersion(),
+                    String getMacPath = Global.PYPATH + "getmac.py";
+                    String[] getMacParams = {networkElement.getIp(), networkElement.getVersion(),
                             networkElement.getCommunity()};
-                    String result3 = pythonExecUtils3.exec2(path3, params3);
-                    if (StringUtil.isNotEmpty(result3)) {
+                    String resultMac = pythonExecUtils3.exec2(getMacPath, getMacParams);
+                    if (StringUtil.isNotEmpty(resultMac)) {
                         try {
-                            List<Mac> array = JSONObject.parseArray(result3, Mac.class);
+                            List<Mac> array = JSONObject.parseArray(resultMac, Mac.class);
                             if (array.size() > 0) {
                                 List<Mac> list = new ArrayList();
                                 MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");

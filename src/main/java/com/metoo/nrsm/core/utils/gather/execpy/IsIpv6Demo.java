@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.utils.gather.execpy;
 
-import com.metoo.nrsm.core.utils.py.ssh.Ssh2Demo;
+import com.metoo.nrsm.core.utils.py.ssh.SSHExecutor;
 
 /**
  * @author HKK
@@ -13,7 +13,8 @@ public class IsIpv6Demo {
         String path = "/opt/nrsm/py/isipv6.py";
         String[] params = {"192.168.5.51", "v2c",
                 "public@123"};
-        String result = Ssh2Demo.exec(path, params);
+        SSHExecutor sshExecutor = new SSHExecutor();
+        String result = sshExecutor.exec(path, params);
         if(Boolean.valueOf(result)){
             System.out.println(true);
         }else{

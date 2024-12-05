@@ -1,12 +1,10 @@
 package com.metoo.nrsm.core.config.utils.gather.factory.gather.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
-import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder;
-import com.metoo.nrsm.core.config.utils.gather.factory.gather.FlowUtils;
+import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder3;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.utils.GeneraFlowUtils;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
@@ -14,17 +12,12 @@ import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.ITrafficService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Traffic;
 import com.metoo.nrsm.entity.Unit;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -61,7 +54,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                             pattern = unit.getPattern();
                         }
 
-                        PyCommandBuilder pyCommand = new PyCommandBuilder();
+                        PyCommandBuilder3 pyCommand = new PyCommandBuilder3();
                         pyCommand.setVersion(Global.py_name);
                         pyCommand.setPath(Global.py_path);
                         pyCommand.setPy_prefix("-W ignore");

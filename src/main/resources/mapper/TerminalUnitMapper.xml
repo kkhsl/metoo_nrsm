@@ -75,6 +75,7 @@
         <result column="duty" property="duty" />
         <result column="location" property="location" />
         <result column="unit_name" property="unitName" />
+        <result column="combined" property="combined" />
     </resultMap>
 
 

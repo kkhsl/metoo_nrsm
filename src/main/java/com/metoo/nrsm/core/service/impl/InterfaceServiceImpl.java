@@ -17,6 +17,8 @@ public class InterfaceServiceImpl implements IInterfaceService {
 
     @Autowired
     private InterfaceMapper interfaceMapper;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @Override
     public Interface selectObjById(Long id) {
@@ -121,7 +123,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
         String path = "/opt/nrsm/py/modifyip.py";
         String[] params = {instance.getName(), instance.getIpv4address(),
                 instance.getIpv6address(), instance.getGateway4(), instance.getGateway6()};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         if(result.equals("0")){
             return true;
         }

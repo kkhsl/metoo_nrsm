@@ -112,6 +112,7 @@
             <if test="notTag != null and notTag != ''">
                 AND tag != #{notTag}
             </if>
+
             <if test="tags != null">
                 AND tag in
                 <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
@@ -135,6 +136,18 @@
             </if>
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+    <select id="selectObjToProbe" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+        select * from metoo_terminal
+        <where>
+            <if test="ipv4IsNotNull">
+                AND v4ip IS NOT NULL
+            </if>
+            <if test="ipv6IsNotNull">
+                AND v6ip is not null and v4ip is null
+            </if>
+        </where>
     </select>
 
 
@@ -1160,6 +1173,27 @@
             </if>
             <if test="unitId != ''">
                 unitId = #{unitId},
+            </if>
+            <if test="scan_port_number != ''">
+                scan_port_number = #{scan_port_number},
+            </if>
+            <if test="scan_vendor != ''">
+                scan_vendor = #{scan_vendor},
+            </if>
+            <if test="scan_os_famify != ''">
+                scan_os_famify = #{scan_os_famify},
+            </if>
+            <if test="scan_os_gen != ''">
+                scan_os_gen = #{scan_os_gen},
+            </if>
+            <if test="scan_application_protocol != ''">
+                scan_application_protocol = #{scan_application_protocol},
+            </if>
+            <if test="combined != ''">
+                combined = #{combined},
+            </if>
+            <if test="os != ''">
+                os = #{os},
             </if>
         </set>
         WHERE id = #{id}

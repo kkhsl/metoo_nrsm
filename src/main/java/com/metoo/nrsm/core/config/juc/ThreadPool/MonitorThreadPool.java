@@ -17,7 +17,6 @@ public class MonitorThreadPool {
             @Override
             public void run() {
                 int num = new Random().nextInt();
-                System.out.println(num);
                 System.out.println(Thread.currentThread().getId() + "--" + System.currentTimeMillis() + "开始睡眠：" + num + "秒");
                 try {
                     Thread.sleep(2000);

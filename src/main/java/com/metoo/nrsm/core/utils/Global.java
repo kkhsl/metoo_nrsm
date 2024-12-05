@@ -61,6 +61,35 @@ public class Global {
         Global.unboundPath = unboundPath;
     }
 
+
+    public static String os_scanner;
+    @Value("${os_scanner}")
+    public void setOs_scanner(String os_scanner) {
+        Global.os_scanner = os_scanner;
+    }
+    public static String os_scanner_name;
+    @Value("${os_scanner_name}")
+    public void setOs_scanner_name(String os_scanner_name) {
+        Global.os_scanner_name = os_scanner_name;
+    }
+    public static String os_scanner_result_path;
+    @Value("${os_scanner_result_path}")
+    public void setOs_scanner_result_path(String os_scanner_result_path) {
+        Global.os_scanner_result_path = os_scanner_result_path;
+    }
+    public static String os_scanner_result_name;
+    @Value("${os_scanner_result_name}")
+    public void setOs_scanner_result_name(String os_scanner_result_name) {
+        Global.os_scanner_result_name = os_scanner_result_name;
+    }
+
+    public static String encrypt_path;
+    @Value("${encrypt_path}")
+    public void setEncrypt_path(String encrypt_path) {
+        Global.encrypt_path = encrypt_path;
+    }
+
+
     public static String env;
 
     @Value("${spring.profiles.active}")

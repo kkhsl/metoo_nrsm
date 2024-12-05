@@ -8,7 +8,6 @@ import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.file.DownLoadFileUtil;
 import com.metoo.nrsm.core.utils.file.FileUtil;
-import com.metoo.nrsm.core.utils.py.ssh.Ssh2Demo;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.entity.BackupSql;
 import io.swagger.annotations.ApiOperation;
@@ -21,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.sql.*;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**

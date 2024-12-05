@@ -16,6 +16,12 @@
         SELECT *
         FROM metoo_arp
         <where>
+            <if test="v4ip != '' and v4ip != null">
+                AND v4ip = #{v4ip}
+            </if>
+            <if test="v6ip != '' and v6ip != null">
+                AND v6ip = #{v6ip}
+            </if>
             <if test="port != '' and port != null">
                 AND port = #{port}
             </if>

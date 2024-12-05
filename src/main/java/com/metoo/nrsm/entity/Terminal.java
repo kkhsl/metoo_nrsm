@@ -172,4 +172,16 @@ public class Terminal extends IdEntity {
     private Long unitId;
     private Integer isIpv6;
 
+    private String scan_port_number;
+    private String scan_vendor;
+    private String scan_os_famify;
+    private String scan_os_gen;
+    private String scan_application_protocol;
+
+
+    @ApiModelProperty("操作系统")
+    private String os;
+    @ApiModelProperty("扫描结果")
+    private String combined;
+
 }

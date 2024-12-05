@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.config.utils.gather.common;
 
 
-import com.metoo.nrsm.core.utils.Global;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.ToString;
 
@@ -32,42 +31,6 @@ public class PyCommandBuilder {
     private List<String> params2 = new ArrayList();
 
     public PyCommandBuilder() {
-    }
-
-//    public static void main(String[] args) {
-//        PyCommandBuilder pyCommandBuilder = new PyCommandBuilder()
-//                .prefix("nohup")
-//                .name("java -jar netmap.jar")
-//                .params(new String[]{"abc", "def"})
-//                .addParams2("ghl")
-//                .addParams2("ljk");
-//        System.out.println(pyCommandBuilder.toString());
-//
-//        String command = pyCommandBuilder.toParamsString();
-//        System.out.println("命令行：" + command);
-//    }
-
-    public static void main(String[] args) {
-
-        PyCommandBuilder pyCommand = new PyCommandBuilder();
-        pyCommand.setVersion("py.exe");
-        pyCommand.setPy_prefix("-W ignore");
-        pyCommand.setPath("C:\\\\netmap\\\\script");
-        pyCommand.setName("main.py");
-//        pyCommand.setParams(new String[]{
-//                "h3c",
-//                "switch",
-//                "192.168.100.1",
-//                "ssh",
-//                "22",
-//                "metoo",
-//                "metoo89745000", Global.PY_SUFFIX_GET_FIREWALL});
-        String[] command = pyCommand.toStringArray();
-        System.out.println(command);
-    }
-
-    public String getPrefix() {
-        return prefix;
     }
 
     public void setPrefix(String prefix) {
@@ -218,6 +181,49 @@ public class PyCommandBuilder {
         if (name != null && !name.isEmpty()) {
             list.add(name);
         }
+        if (params != null) {
+            for (String param : params) {
+                if (param != null && !param.isEmpty()) {
+                    list.add(param);
+                }
+            }
+        }
+        if (params2 != null && params2.size() > 0) {
+            for (String param : params2) {
+                if (param != null && !param.isEmpty()) {
+                    list.add(param);
+                }
+            }
+        }
+        // Convert list to array
+        String[] array = new String[list.size()];
+        return list.toArray(array);
+    }
+
+    public String[] toStringArrayReomveName() {
+        List<String> list = new ArrayList<>();
+        if (prefix != null && !prefix.isEmpty()) {
+            list.add(prefix);
+        }
+        if (version != null && !version.isEmpty()) {
+            list.add(version);
+        }
+
+
+        if (py_prefix != null && !py_prefix.isEmpty()) {
+            list.add(py_prefix);
+        }
+//        // 改为cd到文件所在目录
+//        if (path != null && !path.isEmpty()) {
+//            if (name != null && !name.isEmpty()) {
+//                list.add(path + name);
+//            }else{
+//                list.add(path);
+//            }
+//        }
+//        if (name != null && !name.isEmpty()) {
+//            list.add(name);
+//        }
         if (params != null) {
             for (String param : params) {
                 if (param != null && !param.isEmpty()) {

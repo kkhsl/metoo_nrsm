@@ -33,6 +33,8 @@ public class InterfaceManagerController {
     
     @Autowired
     private IInterfaceService interfaceService;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @GetMapping({"/write"})
     public Result write() {
@@ -81,7 +83,7 @@ public class InterfaceManagerController {
     public Result info() {
         List<Interface> list = new ArrayList<>();
         String path = "/opt/nrsm/py/getnetintf.py";
-        String result = PythonExecUtils.exec(path);
+        String result = pythonExecUtils.exec(path);
         if(!"".equals(result)){
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {

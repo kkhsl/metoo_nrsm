@@ -37,6 +37,8 @@ public class MacServiceImpl implements IMacService {
     private IArpService arpService;
     @Autowired
     private INetworkElementService networkElementService;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @Override
     public List<Mac> selectObjByMap(Map params) {
@@ -251,14 +253,14 @@ public class MacServiceImpl implements IMacService {
                 String path = Global.PYPATH + "gethostname.py";
                 String[] params1 = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
-                String hostname = PythonExecUtils.exec(path, params1);
+                String hostname = pythonExecUtils.exec(path, params1);
 
                 // mac表增加remote-device，remote-port
                 try {
                     path = Global.PYPATH + "getlldp.py";
                     String[] params3 = {networkElement.getIp(), networkElement.getVersion(),
                             networkElement.getCommunity()};
-                    String getlldp = PythonExecUtils.exec(path, params3);
+                    String getlldp = pythonExecUtils.exec(path, params3);
                     List<Map> lldps = JSONObject.parseArray(getlldp, Map.class);
                     this.setRemoteDevice(networkElement, lldps, hostname, date);
                 } catch (Exception e) {
@@ -269,7 +271,7 @@ public class MacServiceImpl implements IMacService {
                 // String result = PythonExecUtils.exec(path);
                 String[] params = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
-                String result = PythonExecUtils.exec(path, params);
+                String result = pythonExecUtils.exec(path, params);
                 if(!"".equals(result)){
                     try {
 
@@ -303,7 +305,7 @@ public class MacServiceImpl implements IMacService {
                 // String result = PythonExecUtils.exec(path);
                 String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
-                result = PythonExecUtils.exec(path, params2);
+                result = pythonExecUtils.exec(path, params2);
                 if(!"".equals(result)){
                     try {
                         List<Mac> array = JSONObject.parseArray(result, Mac.class);

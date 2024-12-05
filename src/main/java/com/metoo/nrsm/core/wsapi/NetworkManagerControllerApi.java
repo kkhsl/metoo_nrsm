@@ -36,6 +36,8 @@ public class NetworkManagerControllerApi {
     private INetworkElementService networkElementService;
     @Autowired
     private RedisResponseUtils redisResponseUtils;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     /**
      *{"noticeType":"201","userId":"1","params":{"currentPage":1,"pageSize":20}}
@@ -65,7 +67,7 @@ public class NetworkManagerControllerApi {
                         String path = Global.PYPATH + "gethostname.py";
                         String[] params = {ne.getIp(), ne.getVersion(),
                                 ne.getCommunity()};
-                        String hostname = PythonExecUtils.exec(path, params);
+                        String hostname = pythonExecUtils.exec(path, params);
                         result.put(ne.getIp(), "2");
                         if(StringUtils.isNotEmpty(hostname)){
                             result.put(ne.getIp(), "1");
@@ -125,7 +127,7 @@ public class NetworkManagerControllerApi {
                                 String path = Global.PYPATH + "gethostname.py";
                                 String[] args = {ne.getIp(), ne.getVersion(),
                                         ne.getCommunity()};
-                                String hostname = PythonExecUtils.exec(path, args);
+                                String hostname = pythonExecUtils.exec(path, args);
                                 map.put("snmp", "2");
                                 if(StringUtils.isNotEmpty(hostname)){
                                     map.put("snmp", "1");

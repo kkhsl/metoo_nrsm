@@ -88,6 +88,9 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/buyer/test", "anon");
         filterChainDefinitionMap.put("/idempotent", "anon");
 
+        filterChainDefinitionMap.put("/probeNmap/uploadScanResult", "anon");
+        filterChainDefinitionMap.put("/admin/test/**", "anon");
+
         filterChainDefinitionMap.put("/buyer/captcha", "anon");
         filterChainDefinitionMap.put("/buyer/login", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
         filterChainDefinitionMap.put("/buyer/logout", "anon");

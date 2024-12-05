@@ -5,7 +5,6 @@ import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
-import com.metoo.nrsm.core.utils.py.ssh.Ssh2Demo;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -56,10 +55,11 @@ public class GatherIsIpv6Runnable implements Runnable{
      */
     @Override
     public void run() {
+        PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
         String path = Global.PYPATH +  "isipv6.py";
         String[] params = {networkElement.getIp(), networkElement.getVersion(),
                 networkElement.getCommunity()};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         if(StringUtil.isNotEmpty(result)){
             INetworkElementService networkElementServiceImpl = (INetworkElementService) ApplicationContextUtils.getBean("networkElementServiceImpl");
             try {

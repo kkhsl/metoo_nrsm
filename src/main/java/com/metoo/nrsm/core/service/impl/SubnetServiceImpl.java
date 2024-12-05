@@ -32,6 +32,8 @@ public class SubnetServiceImpl implements ISubnetService {
     private IPortService portService;
     @Autowired
     private SubnetUtils subnetUtils;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
     @Override
     public Subnet selectObjById(Long id) {
@@ -223,7 +225,7 @@ public class SubnetServiceImpl implements ISubnetService {
                         public void run() {
                             String path = Global.PYPATH + "pingtest.py";
                             String[] params = {subnet.getIp(), String.valueOf(subnet.getMask())};
-                            String result = PythonExecUtils.exec(path, params);
+                            String result = pythonExecUtils.exec(path, params);
                             System.out.println(result);
                         }
                     });

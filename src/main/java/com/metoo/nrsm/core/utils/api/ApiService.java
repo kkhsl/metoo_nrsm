@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.utils.api;
 
 import com.alibaba.fastjson.JSON;
+import com.metoo.nrsm.core.vo.ProbeRequestVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -55,26 +56,14 @@ public class ApiService {
         System.out.println(response);
     }
 
-    public String callThirdPartyApi(String apiUrl, JsonRequest request) {
+    public String callThirdPartyApi(String apiUrl, ProbeRequestVO request) {
+        log.info("Chuangfa api ==============================");
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
-
-        String nonce = "asdf";
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        headers.set("nonce", nonce);
-        headers.set("timestamp", timestamp);
-        try {
-            String signature = sha1(timestamp + nonce);
-            headers.set("signature", signature);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-
-
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // 设置请求体参数
-        HttpEntity<JsonRequest> requestBody = new HttpEntity<>(request, headers);
+        HttpEntity<ProbeRequestVO> requestBody = new HttpEntity<>(request, headers);
 
         // 发起POST请求，并获取响应
         ResponseEntity<String> response = restTemplate.exchange(
@@ -83,9 +72,42 @@ public class ApiService {
                 requestBody,
                 String.class
         );
+
         // 返回响应内容
         return response.getBody();
     }
+
+//    public String callThirdPartyApi(String apiUrl, JsonRequest request) {
+//        // 设置请求头
+//        HttpHeaders headers = new HttpHeaders();
+//
+//        String nonce = "asdf";
+//        String timestamp = String.valueOf(System.currentTimeMillis());
+//        headers.set("nonce", nonce);
+//        headers.set("timestamp", timestamp);
+//        try {
+//            String signature = sha1(timestamp + nonce);
+//            headers.set("signature", signature);
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//
+//        // 设置请求体参数
+//        HttpEntity<JsonRequest> requestBody = new HttpEntity<>(request, headers);
+//
+//        // 发起POST请求，并获取响应
+//        ResponseEntity<String> response = restTemplate.exchange(
+//                apiUrl,
+//                HttpMethod.POST,
+//                requestBody,
+//                String.class
+//        );
+//        // 返回响应内容
+//        return response.getBody();
+//    }
 
     public String callThirdPartyApiT(String apiUrl, JindustryUnitRequest jindustryUnitRequest) {
 

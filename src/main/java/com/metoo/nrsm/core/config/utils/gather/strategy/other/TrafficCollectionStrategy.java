@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder;
+import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder3;
 import com.metoo.nrsm.core.config.utils.gather.strategy.Context;
 import com.metoo.nrsm.core.config.utils.gather.strategy.DataCollectionStrategy;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
@@ -24,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.DecimalFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author HKK
@@ -61,7 +60,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                 if(StringUtil.isNotEmpty(String.valueOf(unit.getGatewayId()))){
                     Gateway gateway = gatewayService.selectObjById(unit.getGatewayId());
                     if(gateway != null){
-                        PyCommandBuilder pyCommand = new PyCommandBuilder();
+                        PyCommandBuilder3 pyCommand = new PyCommandBuilder3();
                         pyCommand.setVersion(Global.py_name);
                         pyCommand.setPath(Global.py_path);
                         pyCommand.setPy_prefix("-W ignore");

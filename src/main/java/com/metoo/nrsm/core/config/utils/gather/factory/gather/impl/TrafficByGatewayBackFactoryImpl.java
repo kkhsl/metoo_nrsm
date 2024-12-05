@@ -5,7 +5,7 @@
 //import com.alibaba.fastjson.JSONObject;
 //import com.github.pagehelper.util.StringUtil;
 //import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
-//import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder;
+//import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder3;
 //import com.metoo.nrsm.core.config.utils.gather.factory.gather.FlowUtils;
 //import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 //import com.metoo.nrsm.core.config.utils.gather.strategy.Context;
@@ -85,7 +85,7 @@
 //                            pattern = unit.getPattern();
 //                        }
 //
-//                        PyCommandBuilder pyCommand = new PyCommandBuilder();
+//                        PyCommandBuilder3 pyCommand = new PyCommandBuilder3();
 //                        pyCommand.setVersion(Global.py_name);
 //                        pyCommand.setPath(Global.py_path);
 //                        pyCommand.setPy_prefix("-W ignore");

@@ -2,6 +2,8 @@ package com.metoo.nrsm.core.manager;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
 import com.metoo.nrsm.core.mapper.TerminalMapper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
@@ -11,16 +13,14 @@ import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
 import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -45,41 +45,114 @@ public class GatherManagerController {
     private IGradWeightService gradWeightService;
     @Autowired
     private IFluxDailyRateService fluxDailyRateService;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
 
-    @GetMapping("fluxDailyRate")
-    public void fluxDailyRate() {
-        Date endOfDay = DateTools.getEndOfDay();
-        FluxDailyRate fluxDailyRate = new FluxDailyRate();
-        fluxDailyRate.setRate(new BigDecimal(0));
-        fluxDailyRate.setAddTime(endOfDay);
-        Map params = new HashMap();
-        params.clear();
-        params.put("startOfDay", DateTools.getStartOfDay());
-        params.put("endOfDay", endOfDay);
-        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
-        if(flowStatisticsList.size() > 0){
-            BigDecimal sum = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
-                    .collect(Collectors.toList())
-                    .stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+    @Autowired
+    private TerminalMapper terminalMapper;
+    @Autowired
+    private IProbeService probeService;
+    @Autowired
+    private ITerminalService terminalService;
 
-            long count = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
-                    .collect(Collectors.toList())
-                    .stream().count();
+    @GetMapping("/scanByWriteTerminal")
+    public void writeTerminal(){
+        List<Terminal> terminals = this.terminalService.selectObjByMap(Collections.EMPTY_MAP);
+        List<Probe> probes = this.probeService.mergeProbesByIp();
+        if(probes.isEmpty() || terminals.isEmpty()){
+            return;
+        }
+        Map<String, Probe> map = new HashMap<>();
+        for (Probe probe : probes) {
+            map.put(probe.getIp_addr(), probe);
+        }
+        outerLoop: // 给外层循环加个标签
+        for (Terminal terminal : terminals) {
+            Probe probe = map.get(terminal.getV4ip());
+            if(probe != null){
 
-            if(sum.compareTo(new BigDecimal(0)) >= 1){
-                BigDecimal rate = sum.divide(new BigDecimal(count), 2, BigDecimal.ROUND_HALF_UP);
-                fluxDailyRate.setRate(rate);
-                GradeWeight gradeWeight = this.gradWeightService.selectObjOne();
-                if(gradeWeight != null){
-                    if(gradeWeight.getReach() != null && gradeWeight.getReach().compareTo(new BigDecimal(0)) >= 1){
-                        if(rate.compareTo(gradeWeight.getReach()) > -1){
-                            fluxDailyRate.setFlag(true);
+                List list = new ArrayList();
+                String combined = probe.getCombined();
+                String[] combineds = combined.split(",");
+                if(combineds.length > 0){
+                    for (String ele : combineds) {
+                        Map stats = new HashMap();
+                        String[] eles = ele.split("/", 2);// 字符串的末尾或连续分隔符之间可能会包括一个分隔符本身
+                        if(eles.length > 0){
+                            String port_num = eles[0];
+                            if(port_num.equals("2")){
+                                continue outerLoop; // 使用标签跳出外层循环
+                            }
+                            String application_protocol = eles[1];
+                            stats.put("port_num", port_num);
+                            stats.put("application_protocol", application_protocol);
+                            list.add(stats);
                         }
                     }
                 }
+                String os = "";
+                String combined_os = probe.getCombined_os();
+                boolean flag = false;
+                String combined_ttl = probe.getCombined_ttl();
+                if(StringUtils.isNotBlank(combined_ttl)){
+                    String[] ttls = combined_ttl.split(",");
+                    if(ttls.length > 0){
+                        for (String ttl : ttls) {
+                            if(Integer.parseInt(ttl) > 120 && Integer.parseInt(ttl) < 129){
+                                if(StringUtil.isEmpty(combined_os)){
+                                    os = "Windows";
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                String vendor = probe.getCombined_vendor();
+                if(!flag && vendor != null && (
+                        vendor.toLowerCase().contains("microsoft")
+                                || vendor.toLowerCase().contains("apple")
+                                || vendor.toLowerCase().contains("google"))){
+                    os = combined_os;
+                    flag = true;
+                }
+
+                String application_protocol = probe.getCombined_application_protocol();
+
+                if(!flag && application_protocol != null && (application_protocol.toLowerCase().contains("msrpc")
+                        || application_protocol.toLowerCase().contains("netbios-ssn")
+                        || application_protocol.toLowerCase().contains("ms-wbt-server")
+                        || application_protocol.toLowerCase().contains("microsoft-ds"))){
+                    os = "Windows";
+                }
+
+
+                terminal.setOs(os);
+                terminal.setCombined(JSONObject.toJSONString(list));
+                this.terminalService.update(terminal);
             }
         }
-        this.fluxDailyRateService.save(fluxDailyRate);
+    }
+
+
+    @GetMapping("/scanByTerminal")
+    public void scanByTerminal(){
+        probeService.scanByTerminal();
+    }
+
+
+    @GetMapping("/gatherAll")
+    public void gather(){
+        dhcpService.gather(DateTools.gatherDate());
+        dhcp6Service.gather(DateTools.gatherDate());
+        gatherService.gatherIpv4Detail(DateTools.gatherDate());
+        gatherService.gatherPort(DateTools.gatherDate());
+        gatherService.gatherPortIpv6(DateTools.gatherDate());
+        gatherService.gatherIpv4(DateTools.gatherDate());
+        gatherService.gatherIpv6(DateTools.gatherDate());
+        gatherService.gatherArp(DateTools.gatherDate());
+        gatherService.gatherMac(DateTools.gatherDate());
     }
 
 
@@ -264,7 +337,7 @@ public class GatherManagerController {
         String path = Global.PYPATH +  "getarpv6.py";
         String[] params = {ip, "v2c",
                 "public@123"};
-        String result = PythonExecUtils.exec(path, params);
+        String result = pythonExecUtils.exec(path, params);
         if(StringUtil.isNotEmpty(result)) {
             try {
                 List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
@@ -275,16 +348,11 @@ public class GatherManagerController {
 
         }}
 
-
-    @Autowired
-    private TerminalMapper terminalMapper;
-
     @GetMapping("selectObjLeftdifference")
     public Object selectObjLeftdifference() {
         List<Terminal> left = this.terminalMapper.selectObjLeftdifference();
         return left;
     }
-
 
 
     @GetMapping("ping")
@@ -294,10 +362,67 @@ public class GatherManagerController {
         log.info("ping end......");
     }
 
+
+    @GetMapping("/gatherHostName")
+    public String gatherHostName() {
+        String path = Global.PYPATH + "gethostname.py";
+        String[] params = {"192.168.100.3", "v2c",
+                "public@123"};
+        String hostname = pythonExecUtils.exec(path, params);
+        return hostname;
+    }
+
     @GetMapping("clearAndcopyGatherDataToIpv4")
     public void clearAndcopyGatherDataToIpv4() {
         log.info("clearAndcopyGatherDataToIpv4......");
         ipv4Service.clearAndcopyGatherDataToIpv4();
         log.info("clearAndcopyGatherDataToIpv4......");
     }
+
+    @GetMapping("/traffic")
+    public void traffic(){
+        GatherFactory factory = new GatherFactory();
+        Gather gather = factory.getGather(Global.TRAFFIC);
+        gather.executeMethod();
+    }
+
+
+
+    @GetMapping("fluxDailyRate")
+    public void fluxDailyRate() {
+        Date endOfDay = DateTools.getEndOfDay();
+        FluxDailyRate fluxDailyRate = new FluxDailyRate();
+        fluxDailyRate.setRate(new BigDecimal(0));
+        fluxDailyRate.setAddTime(endOfDay);
+        Map params = new HashMap();
+        params.clear();
+        params.put("startOfDay", DateTools.getStartOfDay());
+        params.put("endOfDay", endOfDay);
+        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
+        if(flowStatisticsList.size() > 0){
+            BigDecimal sum = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
+                    .collect(Collectors.toList())
+                    .stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            long count = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
+                    .collect(Collectors.toList())
+                    .stream().count();
+
+            if(sum.compareTo(new BigDecimal(0)) >= 1){
+                BigDecimal rate = sum.divide(new BigDecimal(count), 2, BigDecimal.ROUND_HALF_UP);
+                fluxDailyRate.setRate(rate);
+                GradeWeight gradeWeight = this.gradWeightService.selectObjOne();
+                if(gradeWeight != null){
+                    if(gradeWeight.getReach() != null && gradeWeight.getReach().compareTo(new BigDecimal(0)) >= 1){
+                        if(rate.compareTo(gradeWeight.getReach()) > -1){
+                            fluxDailyRate.setFlag(true);
+                        }
+                    }
+                }
+            }
+        }
+        this.fluxDailyRateService.save(fluxDailyRate);
+    }
+
+
 }
