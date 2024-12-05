@@ -178,6 +178,9 @@ public class Terminal extends IdEntity {
     private String scan_os_gen;
     private String scan_application_protocol;
 
+
+    @ApiModelProperty("操作系统")
+    private String os;
     @ApiModelProperty("扫描结果")
     private String combined;
 

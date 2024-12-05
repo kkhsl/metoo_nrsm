@@ -84,6 +84,16 @@ public class Probe {
         this.port_num = port_num;
     }
 
-    @ApiModelProperty("port_num + vendor + os_family + os_gen + application_protocol")
+    @ApiModelProperty("port_num + application_protocol")
     private String combined;
+
+    @ApiModelProperty("vendor + os_family + os_gen")
+    private String combined_os;
+
+    @ApiModelProperty("ttl")
+    private String combined_ttl;
+    @ApiModelProperty("vendor")
+    private String combined_vendor;
+    @ApiModelProperty("application_protocol")
+    private String combined_application_protocol;
 }

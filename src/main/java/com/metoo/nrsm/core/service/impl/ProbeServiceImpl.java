@@ -19,6 +19,7 @@ import com.metoo.nrsm.entity.Probe;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.ProbeResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -273,6 +274,7 @@ public class ProbeServiceImpl implements IProbeService {
                     }
                 }
 
+                log.info("================================ os-scanner ========================");
                 GatherFactory factory = new GatherFactory();
                 Gather gather = factory.getGather("fileToProbe");
                 gather.executeMethod();
@@ -455,10 +457,11 @@ public class ProbeServiceImpl implements IProbeService {
     }
 
 
-    // 写回终端表
+    // 写回终端表 合并vendor,os_gen,os_family
+    // 判断ttl写os
     public void writeTerminal(){
         List<Terminal> terminals = this.terminalService.selectObjByMap(Collections.EMPTY_MAP);
-        List<Probe> probes = this.probeMapper.mergeProbesByIp();
+        List<Probe> probes = this.mergeProbesByIp();
         if(probes.isEmpty() || terminals.isEmpty()){
             return;
         }
@@ -466,39 +469,69 @@ public class ProbeServiceImpl implements IProbeService {
         for (Probe probe : probes) {
             map.put(probe.getIp_addr(), probe);
         }
-
+        outerLoop: // 给外层循环加个标签
         for (Terminal terminal : terminals) {
             Probe probe = map.get(terminal.getV4ip());
             if(probe != null){
-//                terminal.setScan_port_number(probe.getPort_num());
-//                terminal.setScan_vendor(probe.getVendor());
-//                terminal.setScan_os_gen(probe.getOs_gen());
-//                terminal.setScan_os_famify(probe.getOs_family());
-//                terminal.setScan_application_protocol(probe.getApplication_protocol());
-//                this.terminalService.update(terminal);
+
                 List list = new ArrayList();
                 String combined = probe.getCombined();
                 String[] combineds = combined.split(",");
                 if(combineds.length > 0){
                     for (String ele : combineds) {
                         Map stats = new HashMap();
-                        String[] eles = ele.split("/", 5);// 字符串的末尾或连续分隔符之间可能会包括一个分隔符本身
+                        String[] eles = ele.split("/", 2);// 字符串的末尾或连续分隔符之间可能会包括一个分隔符本身
                         if(eles.length > 0){
                             String port_num = eles[0];
-                            String vendor = eles[1];
-                            String os_family = eles[2];
-                            String os_gen = eles[3];
-                            String application_protocol = eles[4];
+                            if(port_num.equals("2")){
+                                continue outerLoop; // 使用标签跳出外层循环
+                            }
+                            String application_protocol = eles[1];
                             stats.put("port_num", port_num);
-                            stats.put("vendor", vendor);
-                            stats.put("os_family", os_family);
-                            stats.put("os_gen", os_gen);
                             stats.put("application_protocol", application_protocol);
                             list.add(stats);
                         }
                     }
                 }
-                System.out.println(JSONObject.toJSONString(list));
+                String os = "";
+                String combined_os = probe.getCombined_os();
+                boolean flag = false;
+                String combined_ttl = probe.getCombined_ttl();
+                if(StringUtils.isNotBlank(combined_ttl)){
+                    String[] ttls = combined_ttl.split(",");
+                    if(ttls.length > 0){
+                        for (String ttl : ttls) {
+                            if(Integer.parseInt(ttl) > 120 && Integer.parseInt(ttl) < 129){
+                                if(StringUtil.isEmpty(combined_os)){
+                                    os = "Windows";
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                String vendor = probe.getCombined_vendor();
+                if(!flag && vendor != null && (
+                        vendor.toLowerCase().contains("microsoft")
+                                || vendor.toLowerCase().contains("apple")
+                                || vendor.toLowerCase().contains("google"))){
+                    os = combined_os;
+                    flag = true;
+                }
+
+                String application_protocol = probe.getCombined_application_protocol();
+
+                if(!flag && application_protocol != null && (application_protocol.toLowerCase().contains("msrpc")
+                        || application_protocol.toLowerCase().contains("netbios-ssn")
+                        || application_protocol.toLowerCase().contains("ms-wbt-server")
+                        || application_protocol.toLowerCase().contains("microsoft-ds"))){
+                    os = "Windows";
+                }
+
+
+                terminal.setOs(os);
                 terminal.setCombined(JSONObject.toJSONString(list));
                 this.terminalService.update(terminal);
             }

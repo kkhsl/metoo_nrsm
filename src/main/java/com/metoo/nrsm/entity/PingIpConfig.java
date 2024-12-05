@@ -10,6 +10,8 @@ import lombok.experimental.Accessors;
  * @author HKK
  * @version 1.0
  * @date 2024-04-18 16:24
+ *
+ * 保持表里默认有一条数据
  */
 @ApiModel("")
 @Data
