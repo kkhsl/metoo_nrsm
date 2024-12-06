@@ -22,6 +22,140 @@ public class LocalZoneUpdateStrategy implements ConfigUpdateStrategy {
     }
 
     public static List<String> updateLines(List<String> lines, List<LocalZoneDTO> localZoneDTOS) throws IOException {
+        Set<String> validZoneNames = new HashSet<>();
+        if (localZoneDTOS != null && !localZoneDTOS.isEmpty()) {
+            localZoneDTOS.forEach(e -> {
+                String zoneName = e.getZoneName();
+                if (StringUtil.isNotEmpty(zoneName)) {
+                    validZoneNames.add(zoneName);
+                }
+            });
+        }
+
+        List<String> updatedLines = new ArrayList<>();
+        Set<String> existingZones = new HashSet<>();
+        String currentIndentation = "";
+        boolean skipLocalData = false;
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+            String indentation = line.substring(0, line.indexOf(trimmedLine));
+
+            if (trimmedLine.startsWith("local-zone:") && trimmedLine.contains("\"")) {
+                String zoneName = trimmedLine.split(":")[1].trim().split(" ")[0].trim().replace("\"", "");
+                if (!validZoneNames.contains(zoneName)) {
+                    skipLocalData = true;
+                    continue; // 删除该 local-zone 和 local-data 行
+                } else {
+                    skipLocalData = false;
+                    existingZones.add(zoneName);
+                    currentIndentation = indentation;
+                    updatedLines.add(line); // 保留该 local-zone
+                }
+            } else if (skipLocalData && trimmedLine.startsWith("local-data:")) {
+                continue; // 删除对应的 local-data 行
+            } else {
+                updatedLines.add(line); // 其他行不变
+            }
+        }
+
+        if (existingZones.isEmpty()) {
+            updatedLines.add("");
+        }
+
+        List<String> newLocalZoneLines = new ArrayList<>();
+        for (LocalZoneDTO zoneConfig : localZoneDTOS) {
+            String zoneName = zoneConfig.getZoneName();
+
+            if (!existingZones.contains(zoneName)) {
+                newLocalZoneLines.add(currentIndentation + "local-zone: \"" + zoneName + "\" static");
+
+                Set<String> existingHostNames = new HashSet<>();
+                for (LocalDataDTO localDataItem : zoneConfig.getLocalData()) {
+                    String hostName = localDataItem.getHostName();
+                    if (!existingHostNames.contains(hostName)) {
+                        newLocalZoneLines.add(currentIndentation + "local-data: \"" + hostName + " IN "
+                                + localDataItem.getRecordType() + " " + localDataItem.getMappedAddress() + "\"");
+                        existingHostNames.add(hostName);
+                    }
+                }
+            } else {
+                updateLocalData(updatedLines, zoneName, zoneConfig.getLocalData(), currentIndentation);
+            }
+        }
+
+        int remoteControlIndex = -1;
+        for (int i = 0; i < updatedLines.size(); i++) {
+            if (updatedLines.get(i).trim().startsWith("remote-control:")) {
+                remoteControlIndex = i;
+                break;
+            }
+        }
+
+        if (remoteControlIndex != -1) {
+            updatedLines.addAll(remoteControlIndex, newLocalZoneLines);
+        } else {
+            updatedLines.addAll(newLocalZoneLines);
+        }
+
+        return updatedLines;
+    }
+
+    private static void updateLocalData(List<String> updatedLines, String zoneName, List<LocalDataDTO> newLocalData, String currentIndentation) {
+        Set<String> newHostNames = new HashSet<>();
+        for (LocalDataDTO localData : newLocalData) {
+            newHostNames.add(localData.getHostName());
+        }
+
+        // 遍历更新后的行，查找对应的 local-zone 和 local-data 进行更新
+        boolean zoneFound = false; // 标记是否找到 zone
+        for (int i = 0; i < updatedLines.size(); i++) {
+            String line = updatedLines.get(i).trim();
+            if (line.startsWith("local-zone: \"" + zoneName + "\"")) {
+                zoneFound = true;
+                int j = i + 1;
+                boolean localDataUpdated = false; // 是否更新了 local-data
+
+                while (j < updatedLines.size()) {
+                    String localDataLine = updatedLines.get(j).trim();
+
+                    if (localDataLine.startsWith("local-data:")) {
+                        String hostName = localDataLine.split(":")[1].trim().split(" ")[0].trim().replace("\"", "");
+
+                        if (newHostNames.contains(hostName)) {
+                            // 更新现有的 local-data
+                            for (LocalDataDTO localData : newLocalData) {
+                                if (localData.getHostName().equals(hostName)) {
+                                    updatedLines.set(j, currentIndentation + "local-data: \"" + localData.getHostName() + " IN "
+                                            + localData.getRecordType() + " " + localData.getMappedAddress() + "\"");
+                                    newHostNames.remove(hostName); // 删除已更新的 hostName
+                                }
+                            }
+                        } else {
+                            // 删除无用的 local-data
+                            updatedLines.remove(j);
+                            j--; // 删除后需要回退一步，继续检查新的行
+                        }
+                    } else {
+                        // 如果遇到下一个 local-zone 或结束，就停止
+                        break;
+                    }
+                    j++;
+                }
+
+                // 如果当前 zone 下的 local-data 行没有包含所有新的数据，新增缺失的 local-data
+                for (LocalDataDTO localData : newLocalData) {
+                    if (newHostNames.contains(localData.getHostName())) {
+                        updatedLines.add(i + 1, currentIndentation + "local-data: \"" + localData.getHostName() + " IN "
+                                + localData.getRecordType() + " " + localData.getMappedAddress() + "\"");
+                        newHostNames.remove(localData.getHostName()); // 删除已添加的 hostName
+                    }
+                }
+            }
+        }
+    }
+
+    /*public static List<String> updateLines(List<String> lines, List<LocalZoneDTO> localZoneDTOS) throws IOException {
         // 记录有效的 zone 名称
         Set<String> validZoneNames = new HashSet<>();
         if (localZoneDTOS != null && !localZoneDTOS.isEmpty()) {
@@ -155,5 +289,5 @@ public class LocalZoneUpdateStrategy implements ConfigUpdateStrategy {
             }
 
         }
-    }
+    }*/
 }

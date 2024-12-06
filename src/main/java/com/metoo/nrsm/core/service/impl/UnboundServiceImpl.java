@@ -68,7 +68,7 @@ public class UnboundServiceImpl implements IUnboundService {
                 unbound.setLocalZone(localZone);
 
                 // 动态赋值
-                for (LocalZoneDTO zone : instance.getLocalZone()) {
+                /*for (LocalZoneDTO zone : instance.getLocalZone()) {
                     String zoneName = zone.getZoneName();
                     String zoneType = zone.getZoneType();
                     String local = new ObjectMapper().writeValueAsString(zone.getLocalData());
@@ -83,7 +83,7 @@ public class UnboundServiceImpl implements IUnboundService {
                         unbound.setRecordType(recordType);
                         unbound.setMappedAddress(mappedAddress);
                     }
-                }
+                }*/
 
             } catch (JsonProcessingException e) {
                 e.printStackTrace();

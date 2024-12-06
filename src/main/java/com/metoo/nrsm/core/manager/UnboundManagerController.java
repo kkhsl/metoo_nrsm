@@ -169,7 +169,6 @@ public class UnboundManagerController {
         session = conn.openSession();
         session.execCommand("systemctl status unbound");
         String statusOutput = consumeInputStream(session.getStdout());
-        System.out.println("Unbound 状态:\n" + statusOutput);
         session.close(); // 关闭会话
 
         // 检查 Unbound 服务状态
@@ -201,7 +200,6 @@ public class UnboundManagerController {
         session = conn.openSession();
         session.execCommand("systemctl status unbound");
         String statusOutput = consumeInputStream(session.getStdout());
-        System.out.println("Unbound 状态:\n" + statusOutput);
         session.close(); // 关闭会话
 
         // 检查 Unbound 服务状态
