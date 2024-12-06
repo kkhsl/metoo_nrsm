@@ -31,38 +31,46 @@
         ip_addr,
 				reliability,
         GROUP_CONCAT(
-        CONCAT(
+					CONCAT(
 
-        IF (
-        port_num IS NOT NULL
-        AND port_num > 0,
-        port_num,
-        ''
-        ),
-        '/',
+						IF (
+						port_num IS NOT NULL
+						AND port_num > 0,
+						port_num,
+						''
+						),
 
-        IF (
-        application_protocol IS NOT NULL
-        AND application_protocol != '',
-        application_protocol,
-        ''
-        )
-        )
-        ORDER BY
-        port_num SEPARATOR ', '
+						'/',
+
+						IF (
+						application_protocol IS NOT NULL
+						AND application_protocol != '',
+						application_protocol,
+						''
+						)
+					)
+					ORDER BY
+					port_num SEPARATOR ', '
         ) AS combined,
-        TRIM(BOTH ':' FROM CONCAT(
-        TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, '') ORDER BY vendor SEPARATOR ',')),
-        ':',
-        TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_gen IS NOT NULL AND os_gen != ''AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_gen, '') ORDER BY os_gen SEPARATOR ',')),
-        ':',
-        TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_family IS NOT NULL AND os_family != ''AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '') ORDER BY os_family SEPARATOR ','))
-        ))AS combined_os,
+--         TRIM(BOTH ':' FROM CONCAT(
+--         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, '') ORDER BY vendor SEPARATOR ',')),
+--         ':',
+--         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_gen IS NOT NULL AND os_gen != ''AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_gen, '') ORDER BY os_gen SEPARATOR ',')),
+--         ':',
+--         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_family IS NOT NULL AND os_family != ''AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '') ORDER BY os_family SEPARATOR ','))
+--         ))AS aa,
         GROUP_CONCAT(DISTINCT ttl SEPARATOR ',') as combined_ttl,
-        GROUP_CONCAT(DISTINCT vendor SEPARATOR ',') as combined_vendor,
-        GROUP_CONCAT(DISTINCT os_gen SEPARATOR ',') as combined_os_gen,
-        GROUP_CONCAT(DISTINCT os_family SEPARATOR ',') as combined_os_family
-
+				TRIM(BOTH ',' FROM
+						GROUP_CONCAT(
+						TRIM(BOTH ':' FROM
+							CONCAT(
+									if(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, ''), ':',
+									if(os_gen IS NOT NULL AND os_gen != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_gen, ''), ':',
+									if(os_family IS NOT NULL AND os_family != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '')
+								)
+							)
+				 ORDER BY port_num SEPARATOR ',')
+				) as combined_os
         FROM
         metoo_probe_bck
         WHERE

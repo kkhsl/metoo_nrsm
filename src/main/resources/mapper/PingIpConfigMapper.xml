@@ -12,7 +12,7 @@
     <update id="update" parameterType="com.metoo.nrsm.entity.PingIpConfig">
         UPDATE metoo_pingipconfig
         <set>
-            <if test="v6ip1 != null">
+            <if test="status != null">
                 status = #{status},
             </if>
             <if test="v6ip1 != null">
