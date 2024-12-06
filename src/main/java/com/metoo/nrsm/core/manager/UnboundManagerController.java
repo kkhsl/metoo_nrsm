@@ -10,10 +10,7 @@ import com.metoo.nrsm.entity.Unbound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
@@ -98,6 +95,9 @@ public class UnboundManagerController {
         return ResponseUtil.error("重复删除");
     }
 
+
+
+
     @PostMapping("/openAddress")
     private Result openAddress(@RequestBody UnboundDTO instance){
         boolean flag = this.unboundService.open(instance);
@@ -119,8 +119,8 @@ public class UnboundManagerController {
     @GetMapping("/status")
     public Boolean restart() throws Exception {
         String host = "192.168.6.101";
-        String username = "metoo";
-        String password = "metoo89745000";
+        String username = "root";
+        String password = "Metoo89745000!";
         int port = 22;
 
         // 创建连接
@@ -132,6 +132,7 @@ public class UnboundManagerController {
         // 重启 Unbound 服务
         Session session = conn.openSession();
         session.execCommand("systemctl restart unbound");
+        Thread.sleep(1000);
         session.close(); // 关闭会话
 
         // 检查 Unbound 服务状态
@@ -151,6 +152,46 @@ public class UnboundManagerController {
             return false;
         }
     }
+
+    @GetMapping("/stop")
+    public Boolean stop() throws Exception {
+        String host = "192.168.6.101";
+        String username = "root";
+        String password = "Metoo89745000!";
+        int port = 22;
+
+        // 创建连接
+        Connection conn = new Connection(host, port);
+        // 启动连接
+        conn.connect();
+        // 验证用户密码
+        conn.authenticateWithPassword(username, password);
+        // 重启 Unbound 服务
+        Session session = conn.openSession();
+        session.execCommand("systemctl stop unbound");
+        Thread.sleep(1000);
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        session = conn.openSession();
+        session.execCommand("systemctl status unbound");
+        String statusOutput = consumeInputStream(session.getStdout());
+        System.out.println("Unbound 状态:\n" + statusOutput);
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        boolean isRunning = checkUnboundStatus(conn);
+        // 关闭连接
+        conn.close();
+        if (isRunning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
 
 
     private String consumeInputStream(InputStream inputStream) throws IOException {

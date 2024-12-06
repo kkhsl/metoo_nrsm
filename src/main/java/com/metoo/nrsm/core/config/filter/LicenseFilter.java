@@ -31,7 +31,8 @@ public class LicenseFilter implements Filter {
                 "/nrsm/license/systemInfo",
                 "/nrsm/license/query",
                 "/nrsm/license/update",
-                "/nrsm/admin/unbound"
+                "/nrsm/admin/unbound",
+                "/nrsm/admin/ping/ip/config"
             );
 
     @Autowired

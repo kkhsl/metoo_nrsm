@@ -1,14 +1,18 @@
 package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.dto.UnboundDTO;
 import com.metoo.nrsm.core.service.IPingIpConfigService;
 import com.metoo.nrsm.core.service.IPingService;
+import com.metoo.nrsm.core.service.impl.UnboundServiceImpl;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.core.wsapi.utils.Md5Crypt;
 import com.metoo.nrsm.entity.Ping;
 import com.metoo.nrsm.entity.PingIpConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 /**
  * @author HKK
@@ -24,6 +28,9 @@ public class PingIpConfigManagerController {
     @Autowired
     private IPingService pingService;
 
+    @Resource
+    private UnboundServiceImpl unboundService;
+
 
     @GetMapping
     public Result ipConfig(){
@@ -35,6 +42,7 @@ public class PingIpConfigManagerController {
     public Result update(@RequestBody PingIpConfig instance){
         PingIpConfig oldPingIpConfig = this.pingIpConfigService.selectOneObj();
         boolean flag = this.pingIpConfigService.update(instance);
+        UnboundDTO unboundDTO = new UnboundDTO();
         if(flag){
             try {
                 Integer status = instance.getStatus();
@@ -51,12 +59,16 @@ public class PingIpConfigManagerController {
                 if(bool && !checkaliveip /*&& diffrent*/){
                     boolean start = this.pingIpConfigService.start();
                     if(!start){
+                        unboundDTO.setPrivateAddress(true);
+                        unboundService.open(unboundDTO);
                         return ResponseUtil.ok("进程启动失败");
                     }
                 }
                 if(bool && !diffrent){
                     boolean restart = this.pingIpConfigService.restart();
                     if(!restart){
+                        unboundDTO.setPrivateAddress(true);
+                        unboundService.open(unboundDTO);
                         return ResponseUtil.ok("进程重启失败");
                     }
                 }
@@ -64,13 +76,21 @@ public class PingIpConfigManagerController {
                 if(!bool && checkaliveip){
                     boolean stop = this.pingIpConfigService.stop();
                     if(!stop){
+                        unboundDTO.setPrivateAddress(false);
+                        unboundService.open(unboundDTO);
                         return ResponseUtil.ok("进程关闭失败");
                     }
                 }
-                if(!bool && !checkaliveip){}
+                if(!bool && !checkaliveip){
+                    unboundDTO.setPrivateAddress(false);
+                    unboundService.open(unboundDTO);
+                    return ResponseUtil.ok("进程关闭失败");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            unboundDTO.setPrivateAddress(false);
+            unboundService.open(unboundDTO);
             return ResponseUtil.ok();
         }
         return ResponseUtil.error();
