@@ -22,12 +22,18 @@ public class UnboundManagerController {
     @Autowired
     private IUnboundService unboundService;
 
+
+    private String host = "192.168.6.101";
+    private String username = "root";
+    private String password = "Metoo89745000!";
+    private int port = 22;
+
     @PostMapping("/save")
-    private Result add(@RequestBody UnboundDTO instance){
+    private Result add(@RequestBody UnboundDTO instance) {
         boolean flag = this.unboundService.add(instance);
-        if(flag){
+        if (flag) {
             try {
-                if (restart()){
+                if (restart()) {
                     return ResponseUtil.ok();
                 }
                 return ResponseUtil.error("启动失败");
@@ -40,11 +46,11 @@ public class UnboundManagerController {
 
 
     @DeleteMapping("/delete")
-    private Result unbound(@RequestParam String id){
+    private Result unbound(@RequestParam String id) {
         boolean flag = this.unboundService.delete(Long.parseLong(id));
-        if(flag){
+        if (flag) {
             try {
-                if (restart()){
+                if (restart()) {
                     return ResponseUtil.ok();
                 }
                 return ResponseUtil.error("启动失败");
@@ -57,18 +63,18 @@ public class UnboundManagerController {
 
 
     @GetMapping("/select")
-    private Result unbound(){
+    private Result unbound() {
         Unbound unbound = this.unboundService.selectObjByOne(Collections.emptyMap());
         return ResponseUtil.ok(unbound);
     }
 
 
     @PostMapping("/saveDNS")
-    private Result DNS(@RequestBody UnboundDTO instance){
+    private Result DNS(@RequestBody UnboundDTO instance) {
         boolean flag = this.unboundService.addDNS(instance);
-        if(flag){
+        if (flag) {
             try {
-                if (restart()){
+                if (restart()) {
                     return ResponseUtil.ok();
                 }
                 return ResponseUtil.error("启动失败");
@@ -80,11 +86,11 @@ public class UnboundManagerController {
     }
 
     @DeleteMapping("/resetDNS")
-    private Result resetDNS(@RequestParam String id){
+    private Result resetDNS(@RequestParam String id) {
         boolean flag = this.unboundService.deleteDNS(Long.parseLong(id));
-        if(flag){
+        if (flag) {
             try {
-                if (restart()){
+                if (restart()) {
                     return ResponseUtil.ok();
                 }
                 return ResponseUtil.error("启动失败");
@@ -96,14 +102,12 @@ public class UnboundManagerController {
     }
 
 
-
-
     @PostMapping("/openAddress")
-    private Result openAddress(@RequestBody UnboundDTO instance){
+    private Result openAddress(@RequestBody UnboundDTO instance) {
         boolean flag = this.unboundService.open(instance);
-        if(flag){
+        if (flag) {
             try {
-                if (restart()){
+                if (restart()) {
                     return ResponseUtil.ok();
                 }
                 return ResponseUtil.error("启动失败");
@@ -116,13 +120,39 @@ public class UnboundManagerController {
 
 
 
-    @GetMapping("/status")
-    public Boolean restart() throws Exception {
-        String host = "192.168.6.101";
-        String username = "root";
-        String password = "Metoo89745000!";
-        int port = 22;
 
+
+    @GetMapping("/status")
+    public Boolean status() throws Exception {
+        // 创建连接
+        Connection conn = new Connection(host, port);
+        // 启动连接
+        conn.connect();
+        // 验证用户密码
+        conn.authenticateWithPassword(username, password);
+        // 重启 Unbound 服务
+        Session session = conn.openSession();
+        // 检查 Unbound 服务状态
+        session = conn.openSession();
+        session.execCommand("systemctl status unbound");
+        String statusOutput = consumeInputStream(session.getStdout());
+        System.out.println("Unbound 状态:\n" + statusOutput);
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        boolean isRunning = checkUnboundStatus(conn);
+        // 关闭连接
+        conn.close();
+        if (isRunning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    @GetMapping("/restart")
+    public Boolean restart() throws Exception {
         // 创建连接
         Connection conn = new Connection(host, port);
         // 启动连接
@@ -155,11 +185,6 @@ public class UnboundManagerController {
 
     @GetMapping("/stop")
     public Boolean stop() throws Exception {
-        String host = "192.168.6.101";
-        String username = "root";
-        String password = "Metoo89745000!";
-        int port = 22;
-
         // 创建连接
         Connection conn = new Connection(host, port);
         // 启动连接
@@ -189,9 +214,6 @@ public class UnboundManagerController {
             return false;
         }
     }
-
-
-
 
 
     private String consumeInputStream(InputStream inputStream) throws IOException {
@@ -234,9 +256,6 @@ public class UnboundManagerController {
         }
         return ResponseUtil.error();
     }*/
-
-
-
 
 
 }
