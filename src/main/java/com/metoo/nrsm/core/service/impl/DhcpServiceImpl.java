@@ -231,7 +231,7 @@ public class DhcpServiceImpl implements IDhcpService {
             this.dhcphistoryService.batchInsert();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+//            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
 

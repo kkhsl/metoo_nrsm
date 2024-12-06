@@ -493,44 +493,21 @@ public class ProbeServiceImpl implements IProbeService {
                         }
                     }
                 }
-                String os = "";
-                String combined_os = probe.getCombined_os();
-                boolean flag = false;
+                String os = probe.getCombined_os();
                 String combined_ttl = probe.getCombined_ttl();
                 if(StringUtils.isNotBlank(combined_ttl)){
                     String[] ttls = combined_ttl.split(",");
                     if(ttls.length > 0){
                         for (String ttl : ttls) {
                             if(Integer.parseInt(ttl) > 120 && Integer.parseInt(ttl) < 129){
-                                if(StringUtil.isEmpty(combined_os)){
+                                if(StringUtil.isEmpty(os)){
                                     os = "Windows";
-                                    flag = true;
                                     break;
                                 }
                             }
                         }
                     }
                 }
-
-                String vendor = probe.getCombined_vendor();
-                if(!flag && vendor != null && (
-                        vendor.toLowerCase().contains("microsoft")
-                                || vendor.toLowerCase().contains("apple")
-                                || vendor.toLowerCase().contains("google"))){
-                    os = combined_os;
-                    flag = true;
-                }
-
-                String application_protocol = probe.getCombined_application_protocol();
-
-                if(!flag && application_protocol != null && (application_protocol.toLowerCase().contains("msrpc")
-                        || application_protocol.toLowerCase().contains("netbios-ssn")
-                        || application_protocol.toLowerCase().contains("ms-wbt-server")
-                        || application_protocol.toLowerCase().contains("microsoft-ds"))){
-                    os = "Windows";
-                }
-
-
                 terminal.setOs(os);
                 terminal.setCombined(JSONObject.toJSONString(list));
                 this.terminalService.update(terminal);

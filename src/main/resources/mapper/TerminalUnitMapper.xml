@@ -76,6 +76,7 @@
         <result column="location" property="location" />
         <result column="unit_name" property="unitName" />
         <result column="combined" property="combined" />
+        <result column="os" property="os" />
     </resultMap>
 
 
