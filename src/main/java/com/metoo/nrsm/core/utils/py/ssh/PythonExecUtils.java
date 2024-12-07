@@ -62,7 +62,7 @@ public class PythonExecUtils implements InitializingBean {
         StringBuffer sb = new StringBuffer();
         try {
             String[] args = new String[]{
-                    py_version, path};
+                    py_version, path, " -W ignor "};
             Process proc = Runtime.getRuntime().exec(args);
             BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
             String line = null;
@@ -85,7 +85,7 @@ public class PythonExecUtils implements InitializingBean {
         StringBuffer sb = new StringBuffer();
         try {
             String[] args = new String[]{
-                    py_version, path};
+                    py_version, path, " -W ignor "};
             Process proc = null;
             String[] filteredArray = null;
             if (params.length > 0) {

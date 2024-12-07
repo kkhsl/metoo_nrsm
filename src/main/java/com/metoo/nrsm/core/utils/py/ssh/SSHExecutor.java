@@ -45,7 +45,7 @@ public class SSHExecutor {
             String py_version = Global.py_name;
 
             String[] args = new String[]{
-                    py_version, path};
+                    py_version, path, " -W ignor "};
 
             try {
                 StringBuilder sb = new StringBuilder();
@@ -88,7 +88,7 @@ public class SSHExecutor {
             String py_name = Global.py_name;
 
             String[] args = new String[]{
-                    py_name, path};
+                    py_name, path, " -W ignor "};
 
             if (params.length > 0) {
                 String[] mergedArray = new String[args.length + params.length];
