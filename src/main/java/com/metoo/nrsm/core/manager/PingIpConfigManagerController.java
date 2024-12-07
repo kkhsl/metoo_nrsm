@@ -54,7 +54,7 @@ public class PingIpConfigManagerController {
             try {
                 Integer status = instance.getStatus();
 
-                //boolean checkaliveip = this.pingIpConfigService.checkaliveip();
+                boolean checkaliveip1 = this.pingIpConfigService.checkaliveip();
                 Ping ping = this.pingService.selectOneObj();
                 boolean checkaliveip = "1".equals(ping.getV6isok());
 
