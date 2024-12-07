@@ -60,28 +60,28 @@ public class PingIpConfigManagerController {
 
                 boolean diffrent = Md5Crypt.getDiffrent(oldPingIpConfig, instance);
                 if(bool && !checkaliveip /*&& diffrent*/){
+                    unboundDTO.setPrivateAddress(true);
+                    unboundService.open(unboundDTO);
                     boolean start = this.pingIpConfigService.start();
                     if(!start){
-                        unboundDTO.setPrivateAddress(true);
-                        unboundService.open(unboundDTO);
                         return ResponseUtil.ok("进程启动失败");
                     }
                 }
 
                 if(bool && checkaliveip /*&& diffrent*/){
+                    unboundDTO.setPrivateAddress(false);
+                    unboundService.open(unboundDTO);
                     boolean start = this.pingIpConfigService.start();
                     if(!start){
-                        unboundDTO.setPrivateAddress(false);
-                        unboundService.open(unboundDTO);
                         return ResponseUtil.ok("进程启动成功");
                     }
                 }
 
                 if(!bool && checkaliveip){
+                    unboundDTO.setPrivateAddress(false);
+                    unboundService.open(unboundDTO);
                     boolean stop = this.pingIpConfigService.stop();
                     if(!stop){
-                        unboundDTO.setPrivateAddress(false);
-                        unboundService.open(unboundDTO);
                         return ResponseUtil.ok("进程关闭失败");
                     }
                 }
@@ -92,18 +92,16 @@ public class PingIpConfigManagerController {
                 }
 
                 if(bool && !diffrent){
+                    unboundDTO.setPrivateAddress(true);
+                    unboundService.open(unboundDTO);
                     boolean restart = this.pingIpConfigService.restart();
                     if(!restart){
-                        unboundDTO.setPrivateAddress(true);
-                        unboundService.open(unboundDTO);
                         return ResponseUtil.ok("进程重启失败");
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            unboundDTO.setPrivateAddress(false);
-            unboundService.open(unboundDTO);
             return ResponseUtil.ok();
         }
         return ResponseUtil.error();
