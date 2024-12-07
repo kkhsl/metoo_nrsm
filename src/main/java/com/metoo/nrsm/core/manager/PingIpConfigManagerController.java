@@ -105,8 +105,8 @@ public class PingIpConfigManagerController {
                 }
 
                 if(bool && !diffrent){
-                    unboundDTO.setPrivateAddress(true);
-                    unboundService.open(unboundDTO);
+//                    unboundDTO.setPrivateAddress(true);
+//                    unboundService.open(unboundDTO);
                     boolean restart = this.pingIpConfigService.restart();
                     if(!restart){
                         return ResponseUtil.ok("进程重启失败");
