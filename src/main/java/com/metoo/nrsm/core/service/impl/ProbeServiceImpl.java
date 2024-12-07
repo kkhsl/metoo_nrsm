@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
@@ -448,15 +449,6 @@ public class ProbeServiceImpl implements IProbeService {
         return ipv6Str;
     }
 
-    public static void main(String[] args) {
-        String a = "2/adtran//total_access_904/";
-        String[] aa = a.split("/", 5);
-
-        // 输出第五个元素
-        System.out.println(aa[4]);
-    }
-
-
     // 写回终端表 合并vendor,os_gen,os_family
     // 判断ttl写os
     public void writeTerminal(){
@@ -493,6 +485,7 @@ public class ProbeServiceImpl implements IProbeService {
                         }
                     }
                 }
+                boolean flag = false;
                 String os = probe.getCombined_os();
                 String combined_ttl = probe.getCombined_ttl();
                 if(StringUtils.isNotBlank(combined_ttl)){
@@ -502,16 +495,90 @@ public class ProbeServiceImpl implements IProbeService {
                             if(Integer.parseInt(ttl) > 120 && Integer.parseInt(ttl) < 129){
                                 if(StringUtil.isEmpty(os)){
                                     os = "Windows";
+                                    flag = true;
                                     break;
                                 }
                             }
                         }
                     }
                 }
-                terminal.setOs(os);
-                terminal.setCombined(JSONObject.toJSONString(list));
+                List<JSONObject> osList = new ArrayList();
+                if(StringUtils.isNotEmpty(os)){
+                    if(!flag){
+                        osList = parseInputToJsonList(os);
+                    }else{
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("vendor", os);
+                        osList.add(jsonObject);
+                    }
+                }
+                if(osList.size() > 0){
+                    JSONObject jsonObject = osList.get(0);
+                    String vendor = jsonObject.getString("vendor");
+                    terminal.setOs(vendor);
+                }
+                terminal.setCombined_vendor_gen_family(JSONObject.toJSONString(osList));
+                terminal.setCombined_port_protocol(JSONObject.toJSONString(list));
                 this.terminalService.update(terminal);
             }
         }
     }
+
+    public static List<JSONObject> parseInputToJsonList(String input) {
+        // 存储解析后的 JSON 对象列表
+        List<JSONObject> jsonList = new ArrayList<>();
+
+        if((input == null || !input.isEmpty()) && !input.contains(":")){
+            return jsonList;
+        }
+
+        // 分割输入字符串，基于逗号分割多个数据项
+        String[] items = input.split(",");
+
+        // 遍历每个数据项
+        for (String item : items) {
+            // 按冒号分割
+            String[] parts = item.split(":", 3);
+
+            // 确保每个项包含三部分
+            if (parts.length == 3) {
+                String vendor = parts[0];
+                String osGen = parts[1];
+                String osFamily = parts[2];
+                if(!StringUtils.isEmpty(vendor)
+                        || !StringUtils.isEmpty(osGen) || !StringUtils.isEmpty(osFamily)){
+                    // 创建 JSON 对象并存储数据
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("vendor", vendor);
+                    jsonObject.put("os_gen", osGen);
+                    jsonObject.put("os_family", osFamily);
+                    // 将 JSON 对象添加到列表中
+                    jsonList.add(jsonObject);
+                }
+            }
+        }
+
+        return jsonList;
+    }
+
+
+    public static void main(String[] args) {
+
+//        // 1
+//        String a = "2/adtran//total_access_904/";
+//        String[] aa = a.split("/", 5);
+//
+//        // 输出第五个元素
+//        System.out.println(aa[4]);
+//
+
+        // 2
+        String input = "::"; // 输入数据
+
+        List jsonList = parseInputToJsonList(input);
+        // 输出结果
+        System.out.println(jsonList);
+    }
+
+
 }

@@ -1189,8 +1189,11 @@
             <if test="scan_application_protocol != ''">
                 scan_application_protocol = #{scan_application_protocol},
             </if>
-            <if test="combined != ''">
-                combined = #{combined},
+            <if test="combined_port_protocol != ''">
+                combined_port_protocol = #{combined_port_protocol},
+            </if>
+            <if test="combined_vendor_gen_family != ''">
+                combined_vendor_gen_family = #{combined_vendor_gen_family},
             </if>
             <if test="os != ''">
                 os = #{os},

@@ -90,16 +90,15 @@ public class GatherManagerController {
                         }
                     }
                 }
-                String os = "";
-                String combined_os = probe.getCombined_os();
                 boolean flag = false;
+                String os = probe.getCombined_os();
                 String combined_ttl = probe.getCombined_ttl();
                 if(StringUtils.isNotBlank(combined_ttl)){
                     String[] ttls = combined_ttl.split(",");
                     if(ttls.length > 0){
                         for (String ttl : ttls) {
                             if(Integer.parseInt(ttl) > 120 && Integer.parseInt(ttl) < 129){
-                                if(StringUtil.isEmpty(combined_os)){
+                                if(StringUtil.isEmpty(os)){
                                     os = "Windows";
                                     flag = true;
                                     break;
@@ -108,31 +107,63 @@ public class GatherManagerController {
                         }
                     }
                 }
-
-                String vendor = probe.getCombined_vendor();
-                if(!flag && vendor != null && (
-                        vendor.toLowerCase().contains("microsoft")
-                                || vendor.toLowerCase().contains("apple")
-                                || vendor.toLowerCase().contains("google"))){
-                    os = combined_os;
-                    flag = true;
+                List<JSONObject> osList = new ArrayList();
+                if(StringUtils.isNotEmpty(os)){
+                    if(!flag){
+                        osList = parseInputToJsonList(os);
+                    }else{
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("vendor", os);
+                        osList.add(jsonObject);
+                    }
                 }
-
-                String application_protocol = probe.getCombined_application_protocol();
-
-                if(!flag && application_protocol != null && (application_protocol.toLowerCase().contains("msrpc")
-                        || application_protocol.toLowerCase().contains("netbios-ssn")
-                        || application_protocol.toLowerCase().contains("ms-wbt-server")
-                        || application_protocol.toLowerCase().contains("microsoft-ds"))){
-                    os = "Windows";
+                if(osList.size() > 0){
+                    JSONObject jsonObject = osList.get(0);
+                    String vendor = jsonObject.getString("vendor");
+                    terminal.setOs(vendor);
                 }
-
-
-                terminal.setOs(os);
-                terminal.setCombined(JSONObject.toJSONString(list));
+                terminal.setCombined_vendor_gen_family(JSONObject.toJSONString(osList));
+                terminal.setCombined_port_protocol(JSONObject.toJSONString(list));
                 this.terminalService.update(terminal);
             }
         }
+    }
+
+    public static List<JSONObject> parseInputToJsonList(String input) {
+        // 存储解析后的 JSON 对象列表
+        List<JSONObject> jsonList = new ArrayList<>();
+
+        if((input == null || !input.isEmpty()) && !input.contains(":")){
+            return jsonList;
+        }
+
+        // 分割输入字符串，基于逗号分割多个数据项
+        String[] items = input.split(",");
+
+        // 遍历每个数据项
+        for (String item : items) {
+            // 按冒号分割
+            String[] parts = item.split(":", 3);
+
+            // 确保每个项包含三部分
+            if (parts.length == 3) {
+                String vendor = parts[0];
+                String osGen = parts[1];
+                String osFamily = parts[2];
+                if(!StringUtils.isEmpty(vendor)
+                        || !StringUtils.isEmpty(osGen) || !StringUtils.isEmpty(osFamily)){
+                    // 创建 JSON 对象并存储数据
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("vendor", vendor);
+                    jsonObject.put("os_gen", osGen);
+                    jsonObject.put("os_family", osFamily);
+                    // 将 JSON 对象添加到列表中
+                    jsonList.add(jsonObject);
+                }
+            }
+        }
+
+        return jsonList;
     }
 
 

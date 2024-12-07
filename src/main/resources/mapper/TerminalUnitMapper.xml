@@ -75,7 +75,8 @@
         <result column="duty" property="duty" />
         <result column="location" property="location" />
         <result column="unit_name" property="unitName" />
-        <result column="combined" property="combined" />
+        <result column="combined_port_protocol" property="combined_port_protocol" />
+        <result column="combined_vendor_gen_family" property="combined_vendor_gen_family" />
         <result column="os" property="os" />
     </resultMap>
 

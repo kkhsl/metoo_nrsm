@@ -60,17 +60,16 @@
 --         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_family IS NOT NULL AND os_family != ''AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '') ORDER BY os_family SEPARATOR ','))
 --         ))AS aa,
         GROUP_CONCAT(DISTINCT ttl SEPARATOR ',') as combined_ttl,
-				TRIM(BOTH ',' FROM
+
 						GROUP_CONCAT(DISTINCT
-						TRIM(BOTH ':' FROM
+
 							CONCAT(
 									if(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, ''), ':',
 									if(os_gen IS NOT NULL AND os_gen != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_gen, ''), ':',
 									if(os_family IS NOT NULL AND os_family != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '')
 								)
-							)
 				 ORDER BY port_num SEPARATOR ',')
-				) as combined_os
+				 as combined_os
         FROM
         metoo_probe_bck
         WHERE
