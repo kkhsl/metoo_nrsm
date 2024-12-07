@@ -28,7 +28,7 @@ public class PrivateAddressUpdateStrategy implements ConfigUpdateStrategy {
             System.out.println(trimmedLine.replaceFirst("^#\\s*", ""));
 
             // 判断该行是否包含 "private-address: ::/0"（无论是否有注释）
-            if (trimmedLine.replaceFirst("^#\\s*", "").equals("private-address: ::/0")) {
+            if (trimmedLine.replaceFirst("^#\\s*", "").startsWith("private-address: ::/0")) {
                 // 获取当前行的缩进部分
                 if (privateAddress) {
                     // 如果 privateAddress 为 true 且该行是注释掉的，则去掉注释

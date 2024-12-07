@@ -54,9 +54,9 @@ public class PingIpConfigManagerController {
             try {
                 Integer status = instance.getStatus();
 
-                boolean checkaliveip1 = this.pingIpConfigService.checkaliveip();
-                Ping ping = this.pingService.selectOneObj();
-                boolean checkaliveip = "1".equals(ping.getV6isok());
+                boolean checkaliveip = this.pingIpConfigService.checkaliveip();
+//                Ping ping = this.pingService.selectOneObj();
+//                boolean checkaliveip = "1".equals(ping.getV6isok());
 
                 boolean bool = status != 0;
 
@@ -66,8 +66,8 @@ public class PingIpConfigManagerController {
 
                 boolean diffrent = Md5Crypt.getDiffrent(oldPingIpConfig, instance);
                 if(bool && !checkaliveip /*&& diffrent*/){
-                    unboundDTO.setPrivateAddress(true);
-                    unboundService.open(unboundDTO);
+//                    unboundDTO.setPrivateAddress(true);
+//                    unboundService.open(unboundDTO);
                     boolean start = this.pingIpConfigService.start();
                     if(!start){
                         return ResponseUtil.ok("进程启动失败");
@@ -75,8 +75,8 @@ public class PingIpConfigManagerController {
                 }
 
                 if(bool && checkaliveip /*&& diffrent*/){
-                    unboundDTO.setPrivateAddress(false);
-                    unboundService.open(unboundDTO);
+//                    unboundDTO.setPrivateAddress(false);
+//                    unboundService.open(unboundDTO);
                     boolean start = this.pingIpConfigService.start();
                     if(!start){
                         return ResponseUtil.ok("进程启动成功");
@@ -92,23 +92,35 @@ public class PingIpConfigManagerController {
                     }
                 }
                 if(!bool && !checkaliveip){
-                    unboundDTO.setPrivateAddress(true);
-                    unboundService.open(unboundDTO);
+//                    unboundDTO.setPrivateAddress(true);
+//                    unboundService.open(unboundDTO);
                     return ResponseUtil.ok("进程关闭成功");
                 }
 
                 if(bool && !diffrent){
-                    unboundDTO.setPrivateAddress(true);
-                    unboundService.open(unboundDTO);
+//                    unboundDTO.setPrivateAddress(true);
+//                    unboundService.open(unboundDTO);
                     boolean restart = this.pingIpConfigService.restart();
                     if(!restart){
                         return ResponseUtil.ok("进程重启失败");
                     }
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }finally {
                 try {
+                    // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
+                    Ping ping = this.pingService.selectOneObj();
+                    boolean checkaliveip = "1".equals(ping.getV6isok());// 链路通，注释
+                    if(!checkaliveip){
+                        unboundDTO.setPrivateAddress(true);// 链路不通，去掉注释：true
+                        unboundService.open(unboundDTO);
+                    }else{
+                        unboundDTO.setPrivateAddress(false);
+                        unboundService.open(unboundDTO);
+                    }
+
                     boolean restart = iUnboundService.restart();
                     if (restart){
                         return ResponseUtil.ok("重启成功");

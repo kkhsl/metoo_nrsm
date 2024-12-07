@@ -42,7 +42,7 @@ public class SSHExecutor {
             // 验证用户密码
             conn.authenticateWithPassword(username, password);
             session = conn.openSession();
-            String py_version = "python3";
+            String py_version = Global.py_name;
 
             String[] args = new String[]{
                     py_version, path};
