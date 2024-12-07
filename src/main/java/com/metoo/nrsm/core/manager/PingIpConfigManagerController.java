@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.manager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.UnboundDTO;
 import com.metoo.nrsm.core.service.IPingIpConfigService;
@@ -47,7 +48,9 @@ public class PingIpConfigManagerController {
             try {
                 Integer status = instance.getStatus();
 
-                boolean checkaliveip = this.pingIpConfigService.checkaliveip();
+                //boolean checkaliveip = this.pingIpConfigService.checkaliveip();
+                Ping ping = this.pingService.selectOneObj();
+                boolean checkaliveip = "1".equals(ping.getV6isok());
 
                 boolean bool = status != 0;
 
@@ -64,12 +67,13 @@ public class PingIpConfigManagerController {
                         return ResponseUtil.ok("进程启动失败");
                     }
                 }
-                if(bool && !diffrent){
-                    boolean restart = this.pingIpConfigService.restart();
-                    if(!restart){
-                        unboundDTO.setPrivateAddress(true);
+
+                if(bool && checkaliveip /*&& diffrent*/){
+                    boolean start = this.pingIpConfigService.start();
+                    if(!start){
+                        unboundDTO.setPrivateAddress(false);
                         unboundService.open(unboundDTO);
-                        return ResponseUtil.ok("进程重启失败");
+                        return ResponseUtil.ok("进程启动成功");
                     }
                 }
 
@@ -82,9 +86,18 @@ public class PingIpConfigManagerController {
                     }
                 }
                 if(!bool && !checkaliveip){
-                    unboundDTO.setPrivateAddress(false);
+                    unboundDTO.setPrivateAddress(true);
                     unboundService.open(unboundDTO);
-                    return ResponseUtil.ok("进程关闭失败");
+                    return ResponseUtil.ok("进程关闭成功");
+                }
+
+                if(bool && !diffrent){
+                    boolean restart = this.pingIpConfigService.restart();
+                    if(!restart){
+                        unboundDTO.setPrivateAddress(true);
+                        unboundService.open(unboundDTO);
+                        return ResponseUtil.ok("进程重启失败");
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
