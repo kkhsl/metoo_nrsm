@@ -61,7 +61,7 @@
 --         ))AS aa,
         GROUP_CONCAT(DISTINCT ttl SEPARATOR ',') as combined_ttl,
 				TRIM(BOTH ',' FROM
-						GROUP_CONCAT(
+						GROUP_CONCAT(DISTINCT
 						TRIM(BOTH ':' FROM
 							CONCAT(
 									if(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, ''), ':',

@@ -193,7 +193,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
             this.dhcp6historyService.batchInsert();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+//            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
 
