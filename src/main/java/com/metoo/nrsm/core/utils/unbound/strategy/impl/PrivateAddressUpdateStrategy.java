@@ -25,20 +25,18 @@ public class PrivateAddressUpdateStrategy implements ConfigUpdateStrategy {
             // 去掉行首尾的空格并去除注释符号（如果有）
             String trimmedLine = line.trim();
             String indentation = line.substring(0, line.indexOf(trimmedLine));
-            System.out.println(trimmedLine.replaceFirst("^#\\s*", ""));
 
             // 判断该行是否包含 "private-address: ::/0"（无论是否有注释）
             if (trimmedLine.replaceFirst("^#\\s*", "").startsWith("private-address: ::/0")) {
                 // 获取当前行的缩进部分
-                String value = trimmedLine.replaceFirst("^#\\s*", "");
+                trimmedLine = trimmedLine.replaceFirst("^#\\s*", "");
                 if (privateAddress) {
                     // 如果 privateAddress 为 true 且该行是注释掉的，则去掉注释
-
-                    String provateAddres = trimmedLine.startsWith("#") ? indentation + value : indentation + "# " + value;
+                    String provateAddres = indentation + trimmedLine;
                     updatedLines.add(provateAddres);
                 } else {
                     // 如果 privateAddress 为 false，则注释掉该行
-                    String provateAddres = trimmedLine.startsWith("#") ? indentation + value : indentation + "# " + value;
+                    String provateAddres = indentation + "# " + trimmedLine;
                     updatedLines.add(provateAddres);
                 }
             }
