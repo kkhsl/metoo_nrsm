@@ -235,7 +235,7 @@ public class GatherTaskScheduledUtil {
 
     ////////////////
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(cron = "0 */2 * * * ?")
     public void ping() {
         if(flag){
             Long time = System.currentTimeMillis();
