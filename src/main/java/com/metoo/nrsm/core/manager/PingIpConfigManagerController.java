@@ -80,7 +80,7 @@ public class PingIpConfigManagerController {
                     unboundService.open(unboundDTO);
                     boolean start = this.pingIpConfigService.start();
                     if(!start){
-                        return ResponseUtil.ok("进程启动成功");
+                        return ResponseUtil.ok("进程启动失败");
                     }
                     return ResponseUtil.ok();
                 }
