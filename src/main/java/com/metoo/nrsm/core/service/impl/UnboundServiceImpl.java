@@ -1,5 +1,7 @@
 package com.metoo.nrsm.core.service.impl;
 
+import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metoo.nrsm.core.dto.LocalDataDTO;
@@ -15,7 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -23,6 +29,12 @@ public class UnboundServiceImpl implements IUnboundService {
 
     @Resource
     private UnboundMapper unboundMapper;
+
+
+    private String host = "192.168.6.101";
+    private String username = "root";
+    private String password = "Metoo89745000!";
+    private int port = 22;
 
 
     @Override
@@ -432,9 +444,55 @@ public class UnboundServiceImpl implements IUnboundService {
 
 
 
+    public boolean restart() throws Exception {
+        // 创建连接
+        Connection conn = new Connection(host, port);
+        // 启动连接
+        conn.connect();
+        // 验证用户密码
+        conn.authenticateWithPassword(username, password);
+        // 重启 Unbound 服务
+        Session session = conn.openSession();
+        session.execCommand("systemctl restart unbound");
+        Thread.sleep(1000);
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        session = conn.openSession();
+        session.execCommand("systemctl status unbound");
+        String statusOutput = consumeInputStream(session.getStdout());
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        boolean isRunning = checkUnboundStatus(conn);
+        // 关闭连接
+        conn.close();
+        if (isRunning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private String consumeInputStream(InputStream inputStream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        return sb.toString();
+    }
 
 
-
+    private boolean checkUnboundStatus(Connection conn) throws Exception {
+        Session session = conn.openSession();
+        session.execCommand("systemctl status unbound");
+        String statusOutput = consumeInputStream(session.getStdout());
+        session.close(); // 关闭会话
+        // 判断服务状态
+        return statusOutput.contains("Active: active (running)");
+    }
 
 
 

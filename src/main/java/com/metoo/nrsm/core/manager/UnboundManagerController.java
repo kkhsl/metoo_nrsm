@@ -21,8 +21,6 @@ public class UnboundManagerController {
 
     @Autowired
     private IUnboundService unboundService;
-
-
     private String host = "192.168.6.101";
     private String username = "root";
     private String password = "Metoo89745000!";
