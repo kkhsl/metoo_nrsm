@@ -4,6 +4,7 @@ import com.metoo.nrsm.core.dto.UnboundDTO;
 import com.metoo.nrsm.entity.Unbound;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public interface IUnboundService {
 
     boolean save(Unbound instance);
     boolean open(UnboundDTO instance);
+    boolean restart() throws Exception;
 
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     boolean saveDNS(Unbound instance);
