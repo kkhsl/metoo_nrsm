@@ -54,7 +54,7 @@ public class PingIpConfigManagerController {
             try {
                 Integer status = instance.getStatus();
 
-                boolean checkaliveip1 = this.pingIpConfigService.checkaliveip();
+                //boolean checkaliveip1 = this.pingIpConfigService.checkaliveip();
                 Ping ping = this.pingService.selectOneObj();
                 boolean checkaliveip = "1".equals(ping.getV6isok());
 
@@ -72,6 +72,7 @@ public class PingIpConfigManagerController {
                     if(!start){
                         return ResponseUtil.ok("进程启动失败");
                     }
+                    return ResponseUtil.ok();
                 }
 
                 if(bool && checkaliveip /*&& diffrent*/){
@@ -81,6 +82,7 @@ public class PingIpConfigManagerController {
                     if(!start){
                         return ResponseUtil.ok("进程启动成功");
                     }
+                    return ResponseUtil.ok();
                 }
 
                 if(!bool && checkaliveip){
@@ -90,11 +92,16 @@ public class PingIpConfigManagerController {
                     if(!stop){
                         return ResponseUtil.ok("进程关闭失败");
                     }
+                    return ResponseUtil.ok();
                 }
                 if(!bool && !checkaliveip){
                     unboundDTO.setPrivateAddress(true);
                     unboundService.open(unboundDTO);
-                    return ResponseUtil.ok("进程关闭成功");
+                    boolean stop = this.pingIpConfigService.stop();
+                    if(!stop){
+                        return ResponseUtil.ok("进程关闭失败");
+                    }
+                    return ResponseUtil.ok();
                 }
 
                 if(bool && !diffrent){
@@ -104,6 +111,7 @@ public class PingIpConfigManagerController {
                     if(!restart){
                         return ResponseUtil.ok("进程重启失败");
                     }
+                    return ResponseUtil.ok();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
