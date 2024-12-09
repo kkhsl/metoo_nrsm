@@ -17,6 +17,8 @@ public interface IPingIpConfigService {
 
     boolean checkaliveip();
 
+    boolean status();
+
     boolean start();
 
     boolean stop();

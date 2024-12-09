@@ -1,7 +1,9 @@
 package com.metoo.nrsm.core.utils.py.ssh;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.utils.Global;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import java.util.Arrays;
  * @version 1.0
  * @date 2024-01-29 10:11
  */
+@Slf4j
 @Component
 public class PythonExecUtils implements InitializingBean {
 
@@ -56,24 +59,44 @@ public class PythonExecUtils implements InitializingBean {
 
     public String exec(String path) {
         String py_version = Global.py_name;
+//        if(true){
+//            return sshExecutor.exec(path);
+//        }
         if("dev".equals(Global.env)){
             return sshExecutor.exec(path);
         }
         StringBuffer sb = new StringBuffer();
         try {
             String[] args = new String[]{
-                    py_version, path, " -W ignor "};
+                    py_version, "-W", "ignor", path};
             Process proc = Runtime.getRuntime().exec(args);
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
-            String line = null;
+//            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
+//            String line = null;
+//            while ((line = in.readLine()) != null) {
+//                sb.append(line);
+//            }
+//            in.close();
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "UTF-8"));
+            BufferedReader err = new BufferedReader(new InputStreamReader(proc.getErrorStream(), "UTF-8"));
+
+// 读取标准输出
+            String line;
             while ((line = in.readLine()) != null) {
                 sb.append(line);
+                log.info("============= 输出" + line);
+                System.out.println("输出: " + line);
             }
-            in.close();
+
+// 读取错误输出
+            while ((line = err.readLine()) != null) {
+                log.info("============= 错误" + line);
+                System.out.println("错误: " + line);
+            }
             proc.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+        log.info("============= " + sb.toString());
         return sb.toString();
     }
 
@@ -85,7 +108,7 @@ public class PythonExecUtils implements InitializingBean {
         StringBuffer sb = new StringBuffer();
         try {
             String[] args = new String[]{
-                    py_version, path, " -W ignor "};
+                    py_version, "-W", "ignor", path};
             Process proc = null;
             String[] filteredArray = null;
             if (params.length > 0) {
@@ -109,12 +132,16 @@ public class PythonExecUtils implements InitializingBean {
                     }
                 }
                 try {
+
+                    log.info("=========mergedArray" + JSONObject.toJSONString(mergedArray));
                     proc = Runtime.getRuntime().exec(mergedArray);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
                 try {
+
+                    log.info("=========args" + JSONObject.toJSONString(args));
                     proc = Runtime.getRuntime().exec(args);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -125,6 +152,7 @@ public class PythonExecUtils implements InitializingBean {
                 String line = null;
                 while ((line = in.readLine()) != null) {
                     sb.append(line);
+                    log.info("==========" + line);
                 }
                 in.close();
                 proc.waitFor();
@@ -145,10 +173,10 @@ public class PythonExecUtils implements InitializingBean {
             String[] args = null;
             if(StringUtil.isNotEmpty(prefix)){
                 args = new String[]{
-                        prefix, py_version, path};
+                        prefix, py_version, "-W", "ignor", path};
             }else{
                 args = new String[]{
-                        py_version, path};
+                        py_version, "-W", "ignor", path};
             }
 
             Process proc = null;
@@ -215,10 +243,10 @@ public class PythonExecUtils implements InitializingBean {
             String[] args = null;
             if(StringUtil.isNotEmpty(prefix)){
                 args = new String[]{
-                        prefix, py_version, path};
+                        prefix, py_version, "-W", "ignor", path};
             }else{
                 args = new String[]{
-                        py_version, path};
+                        py_version, "-W", "ignor", path};
             }
 
             ProcessBuilder processBuilder = null;
@@ -289,7 +317,7 @@ public class PythonExecUtils implements InitializingBean {
         StringBuffer sb = new StringBuffer();
         try {
             String[] args = new String[]{
-                    py_version, path};
+                    py_version, "-W", "ignor", path};
             Process proc = null;
             String[] filteredArray = null;
             if (params.length > 0) {

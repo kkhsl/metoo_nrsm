@@ -39,22 +39,22 @@ import java.util.List;
 @Configuration
 public class WebConfiguration {
 
-    @Bean
-    public LicenseFilter licenseFilter(){
-        LicenseFilter licenseFilter = new LicenseFilter();
-        return licenseFilter;
-    };
-
-    @Bean
-    public FilterRegistrationBean registerTestFilter(){
-        FilterRegistrationBean  registration = new FilterRegistrationBean ();
-        registration.setFilter(licenseFilter());
-//        registration.addInitParameter("excludedPaths", "/nrsm/admin/gather/mac"); // 设置不需要过滤的路径
-        registration.addUrlPatterns("/admin/*"/*,"/nmap/*"*/);// 过滤规则
-        registration.setName("License");
-        registration.setOrder(1);
-        return registration;
-    }
+//    @Bean
+//    public LicenseFilter2 licenseFilter(){
+//        LicenseFilter2 licenseFilter = new LicenseFilter2();
+//        return licenseFilter;
+//    };
+//
+//    @Bean
+//    public FilterRegistrationBean registerTestFilter(){
+//        FilterRegistrationBean  registration = new FilterRegistrationBean ();
+//        registration.setFilter(licenseFilter());
+////        registration.addInitParameter("excludedPaths", "/nrsm/admin/gather/mac"); // 设置不需要过滤的路径
+//        registration.addUrlPatterns("/admin/*"/*,"/nmap/*"*/);// 过滤规则
+//        registration.setName("License");
+//        registration.setOrder(1);
+//        return registration;
+//    }
 
     public static void main(String[] args) {
         final List<String> excludedPaths = Arrays.asList("/nrsm/admin/gather/*");

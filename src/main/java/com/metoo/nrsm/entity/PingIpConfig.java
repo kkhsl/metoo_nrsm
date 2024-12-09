@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * @author HKK
  * @version 1.0
@@ -21,6 +23,10 @@ import lombok.experimental.Accessors;
 public class PingIpConfig {
 
     private Long id;
+
+    private Date addTime;
+
+    private Date updateTime;
 
     private Integer status;
 

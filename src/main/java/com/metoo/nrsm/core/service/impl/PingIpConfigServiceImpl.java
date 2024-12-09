@@ -5,6 +5,7 @@ import com.metoo.nrsm.core.service.IPingIpConfigService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.PingIpConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @version 1.0
  * @date 2024-04-18 16:34
  */
+@Slf4j
 @Service
 @Transactional
 public class PingIpConfigServiceImpl implements IPingIpConfigService {
@@ -46,6 +48,15 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
         if("None".equals(result)){
             return false;
         }
+        return Boolean.valueOf(result);
+    }
+
+    @Override
+    public boolean status() {
+        String path = Global.PYPATH + "pingop.py";
+        String[] params = {"status", "checkaliveip"};
+        String result = pythonExecUtils.exec(path, params);
+        log.info("=========status" + params);
         return Boolean.valueOf(result);
     }
 

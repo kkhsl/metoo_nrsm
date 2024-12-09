@@ -131,7 +131,7 @@ public class DhcpServiceImpl implements IDhcpService {
 
     @Override
     public String getdhcp() {
-        String path = Global.PYPATH + " getdhcp.py";
+        String path = Global.PYPATH + "getdhcp.py";
         String result = pythonExecUtils.exec(path);
         return result;
     }

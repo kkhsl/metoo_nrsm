@@ -1,8 +1,10 @@
 package com.metoo.nrsm.core.config.shiro;
 
-//import com.metoo.nrsm.core.config.global.LicenseFilter;
+//import com.metoo.nrsm.core.config.global.LicenseFilter2;
 
+import com.metoo.nrsm.core.config.filter.LicenseFilter;
 import com.metoo.nrsm.core.config.shiro.filter.MyAccessControlFilter;
+import com.metoo.nrsm.core.service.ILicenseService;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
@@ -45,10 +47,14 @@ import java.util.Map;
 public class ShiroConfig {
 
 
+    private LicenseFilter createLicenseFilter(ILicenseService licenseService) {
+        return new LicenseFilter(licenseService);
+    }
+
     // 1, 创建ShiroFilter  //负责拦截所有请求
     // 配置访问资源所需要的权限
     @Bean
-    public ShiroFilterFactoryBean getShiroFilterFactoryBean(DefaultWebSecurityManager defaultWebSecurityManager) {
+    public ShiroFilterFactoryBean getShiroFilterFactoryBean(DefaultWebSecurityManager defaultWebSecurityManager, ILicenseService licenseService) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
 
         // 1,给过滤器设置安全管理器
@@ -60,7 +66,7 @@ public class ShiroConfig {
          */
         HashMap<String, Filter> myFilters = new HashMap<>(16);
         myFilters.put("rmb", new MyAccessControlFilter());
-//        myFilters.put("licenseFilter", new LicenseFilter());
+        myFilters.put("licenseFilter", createLicenseFilter(licenseService));
         shiroFilterFactoryBean.setFilters(myFilters);
 
         // 2,配置系统受限资源
@@ -118,6 +124,12 @@ public class ShiroConfig {
 //        filterChainDefinitionMap.put("/admin/**", "licenseFilter");
 //        filterChainDefinitionMap.put("/nrsm/**", "licenseFilter");
         filterChainDefinitionMap.put("/monitor/**", "authc");
+
+
+
+//        filterChainDefinitionMap.put("/admin/**", "myAccessControlFilter, licenseFilter");
+
+
 
 
         // 放行静态资源
