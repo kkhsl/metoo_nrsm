@@ -103,19 +103,21 @@ public class PingIpConfigManagerController {
         UnboundDTO unboundDTO = new UnboundDTO();
 
         PingIpConfig pingIpConfig = this.pingIpConfigService.selectOneObj();
+        Ping ping = this.pingService.selectOneObj();
         boolean bool = pingIpConfig.getStatus() != 0;
         if(!bool){// 不启用，注释
             unboundDTO.setPrivateAddress(false);
             unboundService.open(unboundDTO);
-            return ResponseUtil.ok();
+            return ResponseUtil.ok(ping);
         }
         // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
         // 异步执行链路检测
         CompletableFuture.runAsync(() -> {
             for (int i = 0; i < 3; i++) {
-                Ping ping = this.pingService.selectOneObj();
-                pingResults.add(ping);
-                pingIpConfigs.add(pingIpConfig); // 存储当前配置
+                Ping ping1 = this.pingService.selectOneObj();
+                PingIpConfig pingIpConfig2 = this.pingIpConfigService.selectOneObj();
+                pingResults.add(ping1);
+                pingIpConfigs.add(pingIpConfig2); // 存储当前配置
                 /*boolean checkaliveip = "1".equals(ping.getV6isok()); // 链路通，注释
                 if(!checkaliveip){
                     unboundDTO.setPrivateAddress(true);// 链路不通，去掉注释：true
@@ -125,7 +127,7 @@ public class PingIpConfigManagerController {
                     unboundService.open(unboundDTO);
                 }*/
                 try {
-                    Thread.sleep(60 * 1000); // 每次查询之间间隔1分钟
+                    Thread.sleep(20 * 1000); // 每次查询之间间隔1分钟
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -133,7 +135,7 @@ public class PingIpConfigManagerController {
             // 启动定时任务
             startScheduledTask();
         });
-        return ResponseUtil.ok();
+        return ResponseUtil.ok(ping);
     }
 
     // 定义一个定时任务，三分钟后执行；参数，ip地址，开关，如果任意数据改变，则重启开启一个三分钟的任务？
@@ -144,6 +146,9 @@ public class PingIpConfigManagerController {
             boolean allEqual = pingResults.stream().allMatch(result -> result.equals(pingResults.get(0)));
             boolean configEqual = pingIpConfigs.stream().allMatch(config -> config.equals(pingIpConfigs.get(0)));
             if (!allEqual || !configEqual) {
+                pingResults.clear();
+                pingIpConfigs.clear();
+                System.out.println(0);
                 // 结果不一致
                 return;
             }
@@ -153,13 +158,17 @@ public class PingIpConfigManagerController {
             boolean checkaliveip = "1".equals(lastPingResult.getV6isok());
             if (!checkaliveip) {
                 unboundDTO.setPrivateAddress(true); // 链路不通，去掉注释：true
+                System.out.println(1);
             } else {
                 unboundDTO.setPrivateAddress(false); // 链路通
+                System.out.println(2);
             }
             unboundService.open(unboundDTO);
+            pingResults.clear();
+            pingIpConfigs.clear();
         };
         // 安排任务在3分钟后执行
-        scheduler.schedule(task, 0, TimeUnit.MINUTES);
+        scheduler.schedule(task, 1, TimeUnit.MINUTES);
     }
 
 
