@@ -65,16 +65,7 @@ public class PingIpConfigManagerController {
                 if(checkaliveStatus){
                     this.pingIpConfigService.restart();
                     this.pingIpConfigService.checkaliveip();
-//                    boolean diffrent = Md5Crypt.getDiffrent(oldPingIpConfig, instance);
-//                    if(!diffrent){
-//                        try {
-//                            this.pingIpConfigService.restart();
-//                            this.pingIpConfigService.checkaliveip();
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
+
                 }else{
                     // 程序未启动如何提示？
                 }
@@ -92,120 +83,6 @@ public class PingIpConfigManagerController {
         return ResponseUtil.error();
     }
 
-//    @PutMapping
-//    public Result update(@RequestBody PingIpConfig instance){
-//        PingIpConfig oldPingIpConfig = this.pingIpConfigService.selectOneObj();
-//        boolean flag = this.pingIpConfigService.update(instance);
-//        if(flag){
-//            try {
-//                Integer status = instance.getStatus();
-//
-//                boolean checkaliveip = this.pingIpConfigService.checkaliveip();
-//
-//                boolean bool = status != 0;
-//
-//                oldPingIpConfig.setStatus(0);
-//
-//                instance.setStatus(0);
-//
-//                boolean diffrent = Md5Crypt.getDiffrent(oldPingIpConfig, instance);
-//                if(bool && !checkaliveip /*&& diffrent*/){
-//                    boolean start = this.pingIpConfigService.start();
-//                    if(!start){
-//                        return ResponseUtil.ok("进程启动失败");
-//                    }
-//                }
-//                if(bool && !diffrent){
-//                    boolean restart = this.pingIpConfigService.restart();
-//                    if(!restart){
-//                        return ResponseUtil.ok("进程重启失败");
-//                    }
-//                }
-//
-//                if(!bool && checkaliveip){
-//                    boolean stop = this.pingIpConfigService.stop();
-//                    if(!stop){
-//                        return ResponseUtil.ok("进程关闭失败");
-//                    }
-//                }
-//                if(!bool && !checkaliveip){}
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            return ResponseUtil.ok();
-//        }
-//        return ResponseUtil.error();
-//    }
-
-//    @PutMapping
-//    public Result update(@RequestBody PingIpConfig instance){
-//        PingIpConfig oldPingIpConfig = this.pingIpConfigService.selectOneObj();
-//        boolean flag = this.pingIpConfigService.update(instance);
-//        UnboundDTO unboundDTO = new UnboundDTO();
-//        if(flag){
-//            try {
-//                Integer status = instance.getStatus();
-//
-//                boolean checkaliveip = this.pingIpConfigService.checkaliveip();
-//
-//                boolean bool = status != 0;
-//
-//                oldPingIpConfig.setStatus(0);
-//
-//                instance.setStatus(0);
-//
-//                boolean diffrent = Md5Crypt.getDiffrent(oldPingIpConfig, instance);
-//
-//                if(bool && !checkaliveip /*&& diffrent*/){
-//                    boolean start = this.pingIpConfigService.start();
-//                    if(!start){
-//                        return ResponseUtil.ok("进程启动失败");
-//                    }
-//                }
-//
-//                if(bool && checkaliveip /*&& diffrent*/){
-//                    boolean start = this.pingIpConfigService.start();
-//                    if(!start){
-//                        return ResponseUtil.ok("进程启动成功");
-//                    }
-//                }
-//
-//                if(!bool && checkaliveip){
-//                    boolean stop = this.pingIpConfigService.stop();
-//                    if(!stop){
-//                        return ResponseUtil.ok("进程关闭失败");
-//                    }
-//                }
-//                if(!bool && !checkaliveip){
-//                    return ResponseUtil.ok("进程关闭成功");
-//                }
-//
-//                if(bool && !diffrent){
-//                    boolean restart = this.pingIpConfigService.restart();
-//                    if(!restart){
-//                        return ResponseUtil.ok("进程重启失败");
-//                    }
-//                }
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }finally {
-//                try {
-//
-//                    boolean restart = iUnboundService.restart();
-//                    if (restart){
-//                        return ResponseUtil.ok("重启成功");
-//                    }else {
-//                        return ResponseUtil.ok("重启失败");
-//                    }
-//                } catch (Exception e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        }
-//        return ResponseUtil.error();
-//    }
-
     @GetMapping("/checkaliveip")
     public Result checkaliveip(){
         boolean flag = this.pingIpConfigService.checkaliveip();
@@ -214,6 +91,12 @@ public class PingIpConfigManagerController {
 
     @GetMapping("/ipv6isok")
     public Result ipv6isok(){
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         UnboundDTO unboundDTO = new UnboundDTO();
 
         PingIpConfig pingIpConfig = this.pingIpConfigService.selectOneObj();
@@ -236,4 +119,6 @@ public class PingIpConfigManagerController {
         }
         return ResponseUtil.ok(ping);
     }
+
+    // 定义一个定时任务，三分钟后执行；参数，ip地址，开关，如果任意数据改变，则重启开启一个三分钟的任务？
 }
