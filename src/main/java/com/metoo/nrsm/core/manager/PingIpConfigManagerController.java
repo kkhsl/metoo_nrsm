@@ -69,7 +69,31 @@ public class PingIpConfigManagerController {
                 if(checkaliveStatus){
                     this.pingIpConfigService.restart();
                     this.pingIpConfigService.checkaliveip();
-
+                    // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
+                    // 异步执行链路检测
+                    CompletableFuture.runAsync(() -> {
+                        for (int i = 0; i < 3; i++) {
+                            Ping ping1 = this.pingService.selectOneObj();
+                            PingIpConfig pingIpConfig2 = this.pingIpConfigService.selectOneObj();
+                            pingResults.add(ping1);
+                            pingIpConfigs.add(pingIpConfig2); // 存储当前配置
+                /*boolean checkaliveip = "1".equals(ping.getV6isok()); // 链路通，注释
+                if(!checkaliveip){
+                    unboundDTO.setPrivateAddress(true);// 链路不通，去掉注释：true
+                    unboundService.open(unboundDTO);
+                }else{
+                    unboundDTO.setPrivateAddress(false);
+                    unboundService.open(unboundDTO);
+                }*/
+                            try {
+                                Thread.sleep(60 * 1000); // 每次查询之间间隔1分钟
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        // 启动定时任务
+                        startScheduledTask();
+                    });
                 }else{
                     // 程序未启动如何提示？
                 }
@@ -101,7 +125,6 @@ public class PingIpConfigManagerController {
             e.printStackTrace();
         }
         UnboundDTO unboundDTO = new UnboundDTO();
-
         PingIpConfig pingIpConfig = this.pingIpConfigService.selectOneObj();
         Ping ping = this.pingService.selectOneObj();
         boolean bool = pingIpConfig.getStatus() != 0;
@@ -111,31 +134,6 @@ public class PingIpConfigManagerController {
             boolean restart = unboundService.restart();
             return ResponseUtil.ok(ping);
         }
-        // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
-        // 异步执行链路检测
-        CompletableFuture.runAsync(() -> {
-            for (int i = 0; i < 3; i++) {
-                Ping ping1 = this.pingService.selectOneObj();
-                PingIpConfig pingIpConfig2 = this.pingIpConfigService.selectOneObj();
-                pingResults.add(ping1);
-                pingIpConfigs.add(pingIpConfig2); // 存储当前配置
-                /*boolean checkaliveip = "1".equals(ping.getV6isok()); // 链路通，注释
-                if(!checkaliveip){
-                    unboundDTO.setPrivateAddress(true);// 链路不通，去掉注释：true
-                    unboundService.open(unboundDTO);
-                }else{
-                    unboundDTO.setPrivateAddress(false);
-                    unboundService.open(unboundDTO);
-                }*/
-                try {
-                    Thread.sleep(60 * 1000); // 每次查询之间间隔1分钟
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            // 启动定时任务
-            startScheduledTask();
-        });
         return ResponseUtil.ok(ping);
     }
 
