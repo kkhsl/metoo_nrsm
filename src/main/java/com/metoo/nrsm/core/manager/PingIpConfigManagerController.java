@@ -127,7 +127,7 @@ public class PingIpConfigManagerController {
                     unboundService.open(unboundDTO);
                 }*/
                 try {
-                    Thread.sleep(20 * 1000); // 每次查询之间间隔1分钟
+                    Thread.sleep(60 * 1000); // 每次查询之间间隔1分钟
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -164,11 +164,15 @@ public class PingIpConfigManagerController {
                 System.out.println(2);
             }
             unboundService.open(unboundDTO);
+            try {
+                boolean restart = unboundService.restart();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             pingResults.clear();
             pingIpConfigs.clear();
         };
-        // 安排任务在3分钟后执行
-        scheduler.schedule(task, 1, TimeUnit.MINUTES);
+        scheduler.schedule(task, 1, TimeUnit.SECONDS);
     }
 
 
