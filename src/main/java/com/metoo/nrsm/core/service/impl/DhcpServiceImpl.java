@@ -138,7 +138,7 @@ public class DhcpServiceImpl implements IDhcpService {
 
     @Override
     public String modifydhcp(Internet instance) {
-        String path = Global.PYPATH + " modifydhcp.py";
+        String path = Global.PYPATH + "modifydhcp.py";
         String[] params = {instance.getV4status(), instance.getV4int(),
                 instance.getV6status(), instance.getV6int()};
         String result = pythonExecUtils.exec(path, params);

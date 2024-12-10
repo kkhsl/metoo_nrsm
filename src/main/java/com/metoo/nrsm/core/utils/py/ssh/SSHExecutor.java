@@ -45,7 +45,7 @@ public class SSHExecutor {
             String py_version = Global.py_name;
 
             String[] args = new String[]{
-                    py_version, " -W ignor ", path};
+                    py_version, "-W", "ignor",path};
 
             try {
                 StringBuilder sb = new StringBuilder();
@@ -88,7 +88,7 @@ public class SSHExecutor {
             String py_name = Global.py_name;
 
             String[] args = new String[]{
-                    py_name, " -W ignor ", path};
+                    py_name, "-W", "ignor", path};
 
             if (params.length > 0) {
                 String[] mergedArray = new String[args.length + params.length];
@@ -153,9 +153,9 @@ public class SSHExecutor {
 
             String[] args = null;
             if(StringUtil.isNotEmpty(prefix)){
-                args = new String[]{prefix, py_version, " -W ignor ", path};
+                args = new String[]{prefix, py_version, "-W", "ignor",path};
             }else{
-                args = new String[]{py_version, " -W ignor ", path};
+                args = new String[]{py_version, "-W", "ignor",path};
             }
 
             if (params.length > 0) {
@@ -233,10 +233,10 @@ public class SSHExecutor {
             String[] args = null;
             if(StringUtil.isNotEmpty(prefix)){
                 args = new String[]{
-                        prefix, py_version, " -W ignor ", path};
+                        prefix, py_version, "-W", "ignor",path};
             }else{
                 args = new String[]{
-                        py_version, " -W ignor ", path};
+                        py_version, "-W", "ignor",path};
             }
 
             if (params.length > 0) {
