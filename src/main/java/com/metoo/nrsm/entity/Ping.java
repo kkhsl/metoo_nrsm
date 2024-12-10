@@ -21,4 +21,5 @@ public class Ping {
     private String ip1status;
     private String ip2status;
     private String v6isok;
+    private String uptime;
 }

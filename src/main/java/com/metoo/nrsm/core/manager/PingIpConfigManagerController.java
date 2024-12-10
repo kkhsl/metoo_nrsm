@@ -71,9 +71,7 @@ public class PingIpConfigManagerController {
                     CompletableFuture.runAsync(() -> {
                         CopyOnWriteArrayList<Ping> pingResults = new CopyOnWriteArrayList<>();
                         CopyOnWriteArrayList<PingIpConfig> pingIpConfigs = new CopyOnWriteArrayList<>();
-                        for (int i = 0; i < 3; i++) {
-                            Ping ping1 = this.pingService.selectOneObj();
-                            PingIpConfig pingIpConfig2 = this.pingIpConfigService.selectOneObj();
+                        /*for (int i = 0; i < 3; i++) {
                             pingResults.add(ping1);
                             pingIpConfigs.add(pingIpConfig2); // 存储当前配置
                             try {
@@ -81,7 +79,27 @@ public class PingIpConfigManagerController {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
+                        }*/
+
+                        while (pingResults.size() < 3 || pingIpConfigs.size() < 3) {
+                            try {
+                                // 查询并存储记录
+                                Ping ping1 = this.pingService.selectOneObj();
+                                PingIpConfig pingIpConfig2 = this.pingIpConfigService.selectOneObj();
+
+                                // 确保只保存不重复的数据
+                                if (!pingResults.contains(ping1)) {
+                                    pingResults.add(ping1);
+                                }
+                                pingIpConfigs.add(pingIpConfig2);
+                                // 查询之间间隔 1 分钟
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                                Thread.currentThread().interrupt(); // 恢复中断状态
+                            }
                         }
+
                         // 启动定时任务
                         startScheduledTask(pingResults,pingIpConfigs);
                     });
@@ -132,11 +150,14 @@ public class PingIpConfigManagerController {
     private void startScheduledTask(CopyOnWriteArrayList<Ping> pingResults,CopyOnWriteArrayList<PingIpConfig> pingIpConfigs) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable task = () -> {
-            // 检查前三次的结果是否一致
-            boolean allEqual = pingResults.stream().allMatch(result -> result.equals(pingResults.get(0)));
+            // 检查三条结果是否一致
+            boolean allEqual = pingResults.stream()
+                    .map(Ping::getV6isok) // 提取 v6isok 属性
+                    .allMatch(v6isok -> v6isok.equals(pingResults.get(0).getV6isok()));
             boolean configEqual = pingIpConfigs.stream().allMatch(config -> config.equals(pingIpConfigs.get(0)));
             if (!allEqual || !configEqual) {
                 // 结果不一致
+                System.out.println(0);
                 return;
             }
             // 如果结果一致，检查链路状态并执行修改
