@@ -94,7 +94,7 @@ public class PingIpConfigManagerController {
     }
 
     @GetMapping("/ipv6isok")
-    public Result ipv6isok(){
+    public Result ipv6isok() throws Exception {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
@@ -108,6 +108,7 @@ public class PingIpConfigManagerController {
         if(!bool){// 不启用，注释
             unboundDTO.setPrivateAddress(false);
             unboundService.open(unboundDTO);
+            boolean restart = unboundService.restart();
             return ResponseUtil.ok(ping);
         }
         // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
