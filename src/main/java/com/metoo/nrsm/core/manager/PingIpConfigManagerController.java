@@ -33,9 +33,6 @@ public class PingIpConfigManagerController {
     @Resource
     private UnboundServiceImpl unboundService;
 
-    private final CopyOnWriteArrayList<Ping> pingResults = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<PingIpConfig> pingIpConfigs = new CopyOnWriteArrayList<>();
-
     @GetMapping("status")
     public Result status(){
         boolean f = this.pingIpConfigService.status();
@@ -72,19 +69,13 @@ public class PingIpConfigManagerController {
                     // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
                     // 异步执行链路检测
                     CompletableFuture.runAsync(() -> {
+                        CopyOnWriteArrayList<Ping> pingResults = new CopyOnWriteArrayList<>();
+                        CopyOnWriteArrayList<PingIpConfig> pingIpConfigs = new CopyOnWriteArrayList<>();
                         for (int i = 0; i < 3; i++) {
                             Ping ping1 = this.pingService.selectOneObj();
                             PingIpConfig pingIpConfig2 = this.pingIpConfigService.selectOneObj();
                             pingResults.add(ping1);
                             pingIpConfigs.add(pingIpConfig2); // 存储当前配置
-                /*boolean checkaliveip = "1".equals(ping.getV6isok()); // 链路通，注释
-                if(!checkaliveip){
-                    unboundDTO.setPrivateAddress(true);// 链路不通，去掉注释：true
-                    unboundService.open(unboundDTO);
-                }else{
-                    unboundDTO.setPrivateAddress(false);
-                    unboundService.open(unboundDTO);
-                }*/
                             try {
                                 Thread.sleep(60 * 1000); // 每次查询之间间隔1分钟
                             } catch (InterruptedException e) {
@@ -92,7 +83,7 @@ public class PingIpConfigManagerController {
                             }
                         }
                         // 启动定时任务
-                        startScheduledTask();
+                        startScheduledTask(pingResults,pingIpConfigs);
                     });
                 }else{
                     // 程序未启动如何提示？
@@ -137,17 +128,14 @@ public class PingIpConfigManagerController {
         return ResponseUtil.ok(ping);
     }
 
-    // 定义一个定时任务，三分钟后执行；参数，ip地址，开关，如果任意数据改变，则重启开启一个三分钟的任务？
-    private void startScheduledTask() {
+    // 定义一个定时任务，三分钟后执行
+    private void startScheduledTask(CopyOnWriteArrayList<Ping> pingResults,CopyOnWriteArrayList<PingIpConfig> pingIpConfigs) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable task = () -> {
             // 检查前三次的结果是否一致
             boolean allEqual = pingResults.stream().allMatch(result -> result.equals(pingResults.get(0)));
             boolean configEqual = pingIpConfigs.stream().allMatch(config -> config.equals(pingIpConfigs.get(0)));
             if (!allEqual || !configEqual) {
-                pingResults.clear();
-                pingIpConfigs.clear();
-                System.out.println(0);
                 // 结果不一致
                 return;
             }
@@ -168,8 +156,6 @@ public class PingIpConfigManagerController {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            pingResults.clear();
-            pingIpConfigs.clear();
         };
         scheduler.schedule(task, 1, TimeUnit.SECONDS);
     }
