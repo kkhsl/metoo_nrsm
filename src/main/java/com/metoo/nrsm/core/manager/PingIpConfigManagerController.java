@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -85,7 +86,7 @@ public class PingIpConfigManagerController {
                     CompletableFuture.runAsync(() -> {
                         CopyOnWriteArrayList<Ping> pingResults = new CopyOnWriteArrayList<>();
                         CopyOnWriteArrayList<PingIpConfig> pingIpConfigs = new CopyOnWriteArrayList<>();
-                        while (pingResults.size() < 3 || pingIpConfigs.size() < 3) {
+                        while (pingResults.size() < 4 || pingIpConfigs.size() < 3) {
                             try {
                                 // 查询并存储记录
                                 Ping ping1 = this.pingService.selectOneObj();
@@ -153,10 +154,11 @@ public class PingIpConfigManagerController {
     private void startScheduledTask(CopyOnWriteArrayList<Ping> pingResults,CopyOnWriteArrayList<PingIpConfig> pingIpConfigs) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable task = () -> {
-            // 检查连续三条结果是否一致
-            boolean allEqual = pingResults.stream()
+            List<Ping> lastThreePings = pingResults.subList(pingResults.size() - 3, pingResults.size());
+            // 检查最后三条结果是否一致
+            boolean allEqual = lastThreePings.stream()
                     .map(Ping::getV6isok) // 提取 v6isok 属性
-                    .allMatch(v6isok -> v6isok.equals(pingResults.get(0).getV6isok()));
+                    .allMatch(v6isok -> v6isok.equals(lastThreePings.get(0).getV6isok()));
             boolean configEqual = pingIpConfigs.stream().allMatch(config -> config.equals(pingIpConfigs.get(0)));
             if (!allEqual || !configEqual) {
                 // 结果不一致
