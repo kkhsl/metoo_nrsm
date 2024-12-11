@@ -90,6 +90,34 @@ public class Global {
     }
 
 
+
+    @Value("${ssh.hostname}")
+    public static String host;
+    @Value("${ssh.port}")
+    public static int port;
+    @Value("${ssh.username}")
+    public static String username;
+    @Value("${ssh.password}")
+    public static String password;
+
+    public static void setHost(String host) {
+        Global.host = host;
+    }
+
+    public static void setPort(int port) {
+        Global.port = port;
+    }
+
+    public static void setUsername(String username) {
+        Global.username = username;
+    }
+
+    public static void setPassword(String password) {
+        Global.password = password;
+    }
+
+
+
     public static String env;
 
     @Value("${spring.profiles.active}")

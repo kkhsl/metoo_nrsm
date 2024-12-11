@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
 import com.metoo.nrsm.core.mapper.InterfaceMapper;
 import com.metoo.nrsm.core.service.IInterfaceService;
+import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Interface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,7 +121,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 
     @Override
     public boolean modify_ip(Interface instance){
-        String path = "/opt/nrsm/py/modifyip.py";
+        String path = Global.PYPATH + "modifyip.py";
         String[] params = {instance.getName(), instance.getIpv4address(),
                 instance.getIpv6address(), instance.getGateway4(), instance.getGateway6()};
         String result = pythonExecUtils.exec(path, params);

@@ -7,16 +7,22 @@ import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
 import com.metoo.nrsm.core.service.IInterfaceService;
+import com.metoo.nrsm.core.service.IUnboundService;
+import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.ip.CIDRUtils;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.ip.Ipv6CIDRUtils;
 import com.metoo.nrsm.core.utils.ip.Ipv6Util;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
+import com.metoo.nrsm.core.utils.unbound.RestartUnboundUtils;
+import com.metoo.nrsm.core.utils.unbound.UnboundConfUtil;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Interface;
+import com.metoo.nrsm.entity.Unbound;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +31,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @Api("接口设置")
 @RequestMapping("/admin/interface")
@@ -35,6 +44,44 @@ public class InterfaceManagerController {
     private IInterfaceService interfaceService;
     @Autowired
     private PythonExecUtils pythonExecUtils;
+
+    @Autowired
+    private IUnboundService unboundService;
+
+
+    @GetMapping({"/restart"})
+    public boolean restart()  {
+        boolean flag = RestartUnboundUtils.restartUnboundService();
+        return flag;
+    }
+    @GetMapping({"/writeUnbound"})
+    public String writeUnbound() throws Exception {
+        Unbound unbound = this.unboundService.selectObjByOne(Collections.EMPTY_MAP);
+
+        Set<String> list = new HashSet<>();
+        String path = Global.PYPATH + "getnetintf.py";
+        String result = pythonExecUtils.exec(path);
+        if(!"".equals(result)){
+            LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
+            for (String key : map.keySet()) {
+                Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
+                if(inteface.getIsup().equals("up")){
+                    if(Ipv6Util.verifyCidr(inteface.getIpv6address())){
+                        list.add(inteface.getIpv6address());
+                    }
+                }
+            }
+            unbound.setInterfaces(list);
+            boolean flag = UnboundConfUtil.updateInterfaceFile(Global.unboundPath, unbound);
+            if (!flag) {
+                return "文件更新失败";
+            }else{
+                boolean result1 = RestartUnboundUtils.restartUnboundService();
+                return "文件更新成功";
+            }
+        }
+        return "文件更新成功 None";
+    }
 
     @GetMapping({"/write"})
     public Result write() {
@@ -139,6 +186,9 @@ public class InterfaceManagerController {
         }
 
         int i = this.interfaceService.save(instance);
+
+        // 判断两次保存不一致，则修改配置，重启unbound
+
         return i >= 1 ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
     }
 
@@ -149,35 +199,79 @@ public class InterfaceManagerController {
             return ResponseUtil.badArgument ("网络接口不能为空");
         }
         // 校验Ipv4地址
-        if(!Ipv4Util.verifyCidr(instance.getIpv4address())){
+        if(StringUtils.isNotEmpty(instance.getIpv4address()) &&!Ipv4Util.verifyCidr(instance.getIpv4address())){
             return ResponseUtil.badArgument("Ipv4格式错误，不符合CIDR格式");
         }
-        if(!Ipv4Util.verifyIp(instance.getGateway4())){
+        if(StringUtils.isNotEmpty(instance.getGateway4()) && !Ipv4Util.verifyIp(instance.getGateway4())){
             return ResponseUtil.badArgument("Ipv4网关格式错误");
         }
 
-        if(!Ipv6Util.verifyCidr(instance.getIpv6address())){
+        if(StringUtils.isNotEmpty(instance.getIpv6address()) && !Ipv6Util.verifyCidr(instance.getIpv6address())){
             return ResponseUtil.badArgument("Ipv6格式错误，不符合CIDR格式");
         }
 
-        if(!Ipv6Util.verifyIpv6(instance.getGateway6())){
+        if(StringUtils.isNotEmpty(instance.getGateway6()) &&!Ipv6Util.verifyIpv6(instance.getGateway6())){
             return ResponseUtil.badArgument("Ipv6网关格式错误");
         }
 
-        boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4address(), instance.getGateway4());
-
-        if(!ipv4){
-            return ResponseUtil.badArgument("Ipv4地址和网关不一致");
+        if(StringUtils.isNotEmpty(instance.getIpv4address()) && StringUtils.isNotEmpty(instance.getGateway4())){
+            boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4address(), instance.getGateway4());
+            if(!ipv4){
+                return ResponseUtil.badArgument("Ipv4地址和网关不一致");
+            }
         }
 
-        boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6address(), instance.getGateway6());
+        if(StringUtils.isNotEmpty(instance.getIpv6address()) && StringUtils.isNotEmpty(instance.getGateway6())){
+            boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6address(), instance.getGateway6());
 
-        if(!ipv6){
-            return ResponseUtil.badArgument("Ipv6地址和网关不一致");
+            if(!ipv6){
+                return ResponseUtil.badArgument("Ipv6地址和网关不一致");
+            }
         }
 
         boolean i = this.interfaceService.modify_ip(instance);
-        return i ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
+
+
+         boolean flag = i ? true : false;
+
+         if(flag){
+             unbound();
+         }
+
+        return flag ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
+    }
+
+    public boolean unbound() {
+        Unbound unbound = this.unboundService.selectObjByOne(Collections.EMPTY_MAP);
+
+        Set<String> list = new HashSet<>();
+        String path = Global.PYPATH + "getnetintf.py";
+        String result = pythonExecUtils.exec(path);
+        if(!"".equals(result)){
+            LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
+            for (String key : map.keySet()) {
+                Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
+                if(inteface.getIsup().equals("up")){
+                    if(Ipv6Util.verifyCidr(inteface.getIpv6address())){
+                        String[] cidr = inteface.getIpv6address().split("/");
+                        list.add(cidr[0]);
+                    }
+                }
+            }
+            unbound.setInterfaces(list);
+            try {
+                boolean flag = UnboundConfUtil.updateInterfaceFile(Global.unboundPath, unbound);
+                if (!flag) {
+                    return flag;
+                }else{
+                    boolean result1 = RestartUnboundUtils.restartUnboundService();
+                    return result1;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 
     public boolean isIPAddressMatchingGateway(String ip, String gateway){

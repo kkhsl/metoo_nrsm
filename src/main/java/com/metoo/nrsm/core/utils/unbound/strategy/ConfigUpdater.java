@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.utils.unbound.strategy;
 
 import com.metoo.nrsm.core.utils.unbound.strategy.impl.ForwardZoneUpdateStrategy;
+import com.metoo.nrsm.core.utils.unbound.strategy.impl.IntefaceUpdateStrategy;
 import com.metoo.nrsm.core.utils.unbound.strategy.impl.LocalZoneUpdateStrategy;
 import com.metoo.nrsm.core.utils.unbound.strategy.impl.PrivateAddressUpdateStrategy;
 
@@ -18,6 +19,7 @@ public class ConfigUpdater {
         strategyMap.put("forward-zone", new ForwardZoneUpdateStrategy());
         strategyMap.put("local-zone", new LocalZoneUpdateStrategy());
         strategyMap.put("private-address", new PrivateAddressUpdateStrategy());
+        strategyMap.put("interface", new IntefaceUpdateStrategy());
     }
 
     public List<String> updateConfig(String configType, List<String> lines, Object configData) throws IOException {

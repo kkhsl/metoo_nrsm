@@ -12,6 +12,7 @@ import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.unbound.UnboundConfUtil;
 import com.metoo.nrsm.entity.Unbound;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -30,11 +31,14 @@ public class UnboundServiceImpl implements IUnboundService {
     @Resource
     private UnboundMapper unboundMapper;
 
-
-    private String host = "192.168.6.101";
-    private String username = "root";
-    private String password = "Metoo89745000!";
-    private int port = 22;
+    @Value("${ssh.hostname}")
+    private String host;
+    @Value("${ssh.port}")
+    private int port;
+    @Value("${ssh.username}")
+    private String username;
+    @Value("${ssh.password}")
+    private String password;
 
 
     @Override

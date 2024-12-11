@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @ApiModel("配置 DNS 解析器")
 @Data
 @AllArgsConstructor
@@ -33,6 +36,8 @@ public class Unbound extends IdEntity {
     private String localData;
 
     private String localZone;
+
+    private Set<String> interfaces = new HashSet();
 
 //    private String forwardAddress = "223.5.5.5";
 //    private String hostName = "www.szzs.com.";

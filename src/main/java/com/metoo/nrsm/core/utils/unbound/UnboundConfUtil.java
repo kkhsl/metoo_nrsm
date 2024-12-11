@@ -121,6 +121,31 @@ public class UnboundConfUtil {
         }
     }
 
+    public static boolean updateInterfaceFile(String filePath, Unbound unbound) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            // 解析数据
+            Set<String> forwardAddress = unbound.getInterfaces();
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 更新配置
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            lines = configUpdater.updateConfig("interface", lines, forwardAddress);
+            // 将更新后的内容写回配置文件
+            try {
+                Files.write(Paths.get(filePath), lines, StandardOpenOption.TRUNCATE_EXISTING);
+                return true; // 更新成功
+            } catch (IOException e) {
+                System.err.println("写入配置文件时发生错误: " + e.getMessage());
+                return false; // 写入失败
+            }
+        } catch (IOException e) {
+            System.err.println("更新配置文件时发生错误: " + e.getMessage());
+            return false; // 解析或读取失败
+        }
+    }
+
 
     public static boolean deleteConfigFile(String filePath, Unbound unbound) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();

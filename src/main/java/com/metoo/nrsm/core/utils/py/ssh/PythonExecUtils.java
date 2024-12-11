@@ -59,9 +59,6 @@ public class PythonExecUtils implements InitializingBean {
 
     public String exec(String path) {
         String py_version = Global.py_name;
-//        if(true){
-//            return sshExecutor.exec(path);
-//        }
         if("dev".equals(Global.env)){
             return sshExecutor.exec(path);
         }
