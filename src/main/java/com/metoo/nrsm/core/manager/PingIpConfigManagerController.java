@@ -34,8 +34,8 @@ public class PingIpConfigManagerController {
     @Resource
     private UnboundServiceImpl unboundService;
 
-//    String previousV6isok = null;
-//    boolean isStateUnchanged = false;
+    String previousV6isok = null;
+    boolean isStateUnchanged = false;
 
 
     @GetMapping("status")
@@ -71,7 +71,7 @@ public class PingIpConfigManagerController {
                 if(checkaliveStatus){
                     this.pingIpConfigService.restart();
                     this.pingIpConfigService.checkaliveip();
-                    /*String currentV6isok = pingService.selectOneObj().getV6isok();
+                    String currentV6isok = pingService.selectOneObj().getV6isok();
                     if (previousV6isok != null && previousV6isok.equals(currentV6isok)) {
                         previousV6isok = currentV6isok;
                         isStateUnchanged = true;
@@ -80,7 +80,7 @@ public class PingIpConfigManagerController {
                     } else {
                         previousV6isok = currentV6isok;
                         isStateUnchanged = false;
-                    }*/
+                    }
                     // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
                     // 异步执行链路检测
                     CompletableFuture.runAsync(() -> {
@@ -155,7 +155,7 @@ public class PingIpConfigManagerController {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable task = () -> {
             List<Ping> lastThreePings = pingResults.subList(pingResults.size() - 3, pingResults.size());
-            // 检查最后三条结果是否一致
+            // 检查后连续三条结果是否一致
             boolean allEqual = lastThreePings.stream()
                     .map(Ping::getV6isok) // 提取 v6isok 属性
                     .allMatch(v6isok -> v6isok.equals(lastThreePings.get(0).getV6isok()));
@@ -165,22 +165,27 @@ public class PingIpConfigManagerController {
                 System.out.println(0);
                 return;
             }
-            // 如果结果一致，检查链路状态并执行修改
-            Ping lastPingResult = lastThreePings.get(0);
-            UnboundDTO unboundDTO = new UnboundDTO();
-            boolean checkaliveip = "1".equals(lastPingResult.getV6isok());
-            if (!checkaliveip) {
-                unboundDTO.setPrivateAddress(true); // 链路不通，去掉注释：true
-                System.out.println(1);
-            } else {
-                unboundDTO.setPrivateAddress(false); // 链路通
-                System.out.println(2);
-            }
-            unboundService.open(unboundDTO);
-            try {
-                boolean restart = unboundService.restart();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (isStateUnchanged){
+                System.out.println(3);
+                return;
+            }else {
+                // 如果结果一致，检查链路状态并执行修改
+                Ping lastPingResult = lastThreePings.get(0);
+                UnboundDTO unboundDTO = new UnboundDTO();
+                boolean checkaliveip = "1".equals(lastPingResult.getV6isok());
+                if (!checkaliveip) {
+                    unboundDTO.setPrivateAddress(true); // 链路不通，去掉注释：true
+                    System.out.println(1);
+                } else {
+                    unboundDTO.setPrivateAddress(false); // 链路通
+                    System.out.println(2);
+                }
+                unboundService.open(unboundDTO);
+                try {
+                    boolean restart = unboundService.restart();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
         scheduler.schedule(task, 1, TimeUnit.SECONDS);
