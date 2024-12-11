@@ -33,6 +33,10 @@ public class PingIpConfigManagerController {
     @Resource
     private UnboundServiceImpl unboundService;
 
+//    String previousV6isok = null;
+//    boolean isStateUnchanged = false;
+
+
     @GetMapping("status")
     public Result status(){
         boolean f = this.pingIpConfigService.status();
@@ -66,21 +70,21 @@ public class PingIpConfigManagerController {
                 if(checkaliveStatus){
                     this.pingIpConfigService.restart();
                     this.pingIpConfigService.checkaliveip();
+                    /*String currentV6isok = pingService.selectOneObj().getV6isok();
+                    if (previousV6isok != null && previousV6isok.equals(currentV6isok)) {
+                        previousV6isok = currentV6isok;
+                        isStateUnchanged = true;
+                        System.out.println(4);
+                        return ResponseUtil.ok();
+                    } else {
+                        previousV6isok = currentV6isok;
+                        isStateUnchanged = false;
+                    }*/
                     // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
                     // 异步执行链路检测
                     CompletableFuture.runAsync(() -> {
                         CopyOnWriteArrayList<Ping> pingResults = new CopyOnWriteArrayList<>();
                         CopyOnWriteArrayList<PingIpConfig> pingIpConfigs = new CopyOnWriteArrayList<>();
-                        /*for (int i = 0; i < 3; i++) {
-                            pingResults.add(ping1);
-                            pingIpConfigs.add(pingIpConfig2); // 存储当前配置
-                            try {
-                                Thread.sleep(60 * 1000); // 每次查询之间间隔1分钟
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }*/
-
                         while (pingResults.size() < 3 || pingIpConfigs.size() < 3) {
                             try {
                                 // 查询并存储记录
@@ -92,14 +96,13 @@ public class PingIpConfigManagerController {
                                     pingResults.add(ping1);
                                 }
                                 pingIpConfigs.add(pingIpConfig2);
-                                // 查询之间间隔 1 分钟
+                                // 查询之间间隔
                                 Thread.sleep(10000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                                 Thread.currentThread().interrupt(); // 恢复中断状态
                             }
                         }
-
                         // 启动定时任务
                         startScheduledTask(pingResults,pingIpConfigs);
                     });
@@ -146,11 +149,11 @@ public class PingIpConfigManagerController {
         return ResponseUtil.ok(ping);
     }
 
-    // 定义一个定时任务，三分钟后执行
+    // 定义一个定时任务
     private void startScheduledTask(CopyOnWriteArrayList<Ping> pingResults,CopyOnWriteArrayList<PingIpConfig> pingIpConfigs) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable task = () -> {
-            // 检查三条结果是否一致
+            // 检查连续三条结果是否一致
             boolean allEqual = pingResults.stream()
                     .map(Ping::getV6isok) // 提取 v6isok 属性
                     .allMatch(v6isok -> v6isok.equals(pingResults.get(0).getV6isok()));
