@@ -34,53 +34,39 @@ public class PingIpConfigManagerController {
     @Resource
     private UnboundServiceImpl unboundService;
 
-    String previousV6isok = null;
-    boolean isStateUnchanged = false;
-
-
     @GetMapping("status")
-    public Result status(){
+    public Result status() {
         boolean f = this.pingIpConfigService.status();
         return ResponseUtil.ok(f);
     }
 
 
     @GetMapping
-    public Result ipConfig(){
+    public Result ipConfig() {
         PingIpConfig pingIpConfig = this.pingIpConfigService.selectOneObj();
         return ResponseUtil.ok(pingIpConfig);
     }
 
     @PutMapping
-    public Result update(@RequestBody PingIpConfig instance){
+    public Result update(@RequestBody PingIpConfig instance) {
         //PingIpConfig oldPingIpConfig = this.pingIpConfigService.selectOneObj();
         boolean flag = this.pingIpConfigService.update(instance);
-        if(flag){
+        if (flag) {
             Integer status = instance.getStatus();
             boolean bool = status != 0;
             // 查询checkaliveip状态
             boolean checkaliveStatus = this.pingIpConfigService.status();
-            if(bool){
-                if(!checkaliveStatus){
+            if (bool) {
+                if (!checkaliveStatus) {
                     try {
                         this.pingIpConfigService.start();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                if(checkaliveStatus){
+                if (checkaliveStatus) {
                     this.pingIpConfigService.restart();
                     this.pingIpConfigService.checkaliveip();
-                    String currentV6isok = pingService.selectOneObj().getV6isok();
-                    if (previousV6isok != null && previousV6isok.equals(currentV6isok)) {
-                        previousV6isok = currentV6isok;
-                        isStateUnchanged = true;
-                        System.out.println(4);
-                        return ResponseUtil.ok();
-                    } else {
-                        previousV6isok = currentV6isok;
-                        isStateUnchanged = false;
-                    }
                     // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
                     // 异步执行链路检测
                     CompletableFuture.runAsync(() -> {
@@ -105,13 +91,13 @@ public class PingIpConfigManagerController {
                             }
                         }
                         // 启动定时任务
-                        startScheduledTask(pingResults,pingIpConfigs);
+                        startScheduledTask(pingResults, pingIpConfigs);
                     });
-                }else{
+                } else {
                     // 程序未启动如何提示？
                 }
-            }else{
-                if(checkaliveStatus){
+            } else {
+                if (checkaliveStatus) {
                     try {
                         this.pingIpConfigService.stop();
                     } catch (Exception e) {
@@ -125,7 +111,7 @@ public class PingIpConfigManagerController {
     }
 
     @GetMapping("/checkaliveip")
-    public Result checkaliveip(){
+    public Result checkaliveip() {
         boolean flag = this.pingIpConfigService.checkaliveip();
         return ResponseUtil.ok(flag);
     }
@@ -141,7 +127,7 @@ public class PingIpConfigManagerController {
         PingIpConfig pingIpConfig = this.pingIpConfigService.selectOneObj();
         Ping ping = this.pingService.selectOneObj();
         boolean bool = pingIpConfig.getStatus() != 0;
-        if(!bool){// 不启用，注释
+        if (!bool) {// 不启用，注释
             unboundDTO.setPrivateAddress(false);
             unboundService.open(unboundDTO);
             boolean restart = unboundService.restart();
@@ -151,7 +137,7 @@ public class PingIpConfigManagerController {
     }
 
     // 定义一个定时任务
-    private void startScheduledTask(CopyOnWriteArrayList<Ping> pingResults,CopyOnWriteArrayList<PingIpConfig> pingIpConfigs) {
+    private void startScheduledTask(CopyOnWriteArrayList<Ping> pingResults, CopyOnWriteArrayList<PingIpConfig> pingIpConfigs) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable task = () -> {
             List<Ping> lastThreePings = pingResults.subList(pingResults.size() - 3, pingResults.size());
@@ -165,28 +151,24 @@ public class PingIpConfigManagerController {
                 System.out.println(0);
                 return;
             }
-            if (isStateUnchanged){
-                System.out.println(3);
-                return;
-            }else {
-                // 如果结果一致，检查链路状态并执行修改
-                Ping lastPingResult = lastThreePings.get(0);
-                UnboundDTO unboundDTO = new UnboundDTO();
-                boolean checkaliveip = "1".equals(lastPingResult.getV6isok());
-                if (!checkaliveip) {
-                    unboundDTO.setPrivateAddress(true); // 链路不通，去掉注释：true
-                    System.out.println(1);
-                } else {
-                    unboundDTO.setPrivateAddress(false); // 链路通
-                    System.out.println(2);
-                }
-                unboundService.open(unboundDTO);
-                try {
-                    boolean restart = unboundService.restart();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            // 如果结果一致，检查链路状态并执行修改
+            Ping lastPingResult = lastThreePings.get(0);
+            UnboundDTO unboundDTO = new UnboundDTO();
+            boolean checkaliveip = "1".equals(lastPingResult.getV6isok());
+            if (!checkaliveip) {
+                unboundDTO.setPrivateAddress(true); // 链路不通，去掉注释：true
+                System.out.println(1);
+            } else {
+                unboundDTO.setPrivateAddress(false); // 链路通
+                System.out.println(2);
             }
+            unboundService.open(unboundDTO);
+            try {
+                boolean restart = unboundService.restart();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
         };
         scheduler.schedule(task, 1, TimeUnit.SECONDS);
     }
