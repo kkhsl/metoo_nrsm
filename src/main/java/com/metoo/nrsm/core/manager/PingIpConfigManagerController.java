@@ -147,6 +147,7 @@ public class PingIpConfigManagerController {
                     .allMatch(v6isok -> v6isok.equals(lastThreePings.get(0).getV6isok()));
             boolean configEqual = pingIpConfigs.stream().allMatch(config -> config.equals(pingIpConfigs.get(0)));
             if (!allEqual || !configEqual) {
+
                 // 结果不一致
                 System.out.println(0);
                 return;
