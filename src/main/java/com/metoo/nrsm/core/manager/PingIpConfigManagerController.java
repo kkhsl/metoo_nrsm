@@ -166,7 +166,7 @@ public class PingIpConfigManagerController {
                 return;
             }
             // 如果结果一致，检查链路状态并执行修改
-            Ping lastPingResult = pingResults.get(0);
+            Ping lastPingResult = lastThreePings.get(0);
             UnboundDTO unboundDTO = new UnboundDTO();
             boolean checkaliveip = "1".equals(lastPingResult.getV6isok());
             if (!checkaliveip) {
