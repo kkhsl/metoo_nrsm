@@ -3,6 +3,9 @@ package com.metoo.nrsm.core.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import com.metoo.nrsm.core.dto.DhcpDto;
 import com.metoo.nrsm.core.mapper.DhcpMapper;
 import com.metoo.nrsm.core.service.IDhcpHistoryService;
@@ -170,7 +173,9 @@ public class DhcpServiceImpl implements IDhcpService {
             InputStream inputStream = null;
 
             if (Global.env.equals("prod")) {
-                File file = new File("/var/lib/dhcp/dhcpd.leases");
+//                File file = new File("/var/lib/dhcp/dhcpd.leases");
+
+                File file = new File(Global.dhcpPath +Global.dhcpName);
                 inputStream = new FileInputStream(file);
             } else if ("dev".equals(Global.env)) {
                 inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd.leases");
@@ -234,5 +239,59 @@ public class DhcpServiceImpl implements IDhcpService {
 //            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
+
+        public static void main(String[] args) {
+            String host = "192.168.6.101"; // 远程主机 IP
+            int port = 22; // SSH 端口
+            String user = "root"; // 用户名
+            String password = "Metoo89745000!"; // 密码
+            String filePath = "/etc/dhcp/dhcpd.conf"; // 配置文件路径
+
+            try {
+                // 初始化 JSch
+                JSch jsch = new JSch();
+                Session session = jsch.getSession(user, host, port);
+
+                // 设置密码
+                session.setPassword(password);
+
+                // 忽略主机验证
+                session.setConfig("StrictHostKeyChecking", "no");
+
+                // 建立连接
+                System.out.println("Connecting to " + host + "...");
+                session.connect();
+                System.out.println("Connected to " + host);
+
+                // 执行命令以读取文件内容
+                String command = "cat " + filePath;
+                ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+                channelExec.setCommand(command);
+
+                // 获取命令的输入流
+                InputStream in = channelExec.getInputStream();
+
+                // 打开通道
+                channelExec.connect();
+
+                // 读取文件内容
+                try (Scanner scanner = new Scanner(in)) {
+                    System.out.println("File Content:");
+                    while (scanner.hasNextLine()) {
+                        System.out.println(scanner.nextLine());
+                    }
+                }
+
+                // 关闭通道和会话
+                channelExec.disconnect();
+                session.disconnect();
+                System.out.println("Disconnected from " + host);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
 
 }

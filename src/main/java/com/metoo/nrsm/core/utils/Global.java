@@ -116,7 +116,24 @@ public class Global {
         Global.password = password;
     }
 
+    @Value("${dhcp.path}")
+    public static String dhcpPath;
+    @Value("${dhcp.name}")
+    public static String dhcpName;
+    @Value("${dhcp6.name}")
+    public static String dhcp6Name;
 
+    public static void setDhcpPath(String dhcpPath) {
+        Global.dhcpPath = dhcpPath;
+    }
+
+    public static void setDhcpName(String dhcpName) {
+        Global.dhcpName = dhcpName;
+    }
+
+    public static void setDhcp6Name(String dhcp6Name) {
+        Global.dhcp6Name = dhcp6Name;
+    }
 
     public static String env;
 

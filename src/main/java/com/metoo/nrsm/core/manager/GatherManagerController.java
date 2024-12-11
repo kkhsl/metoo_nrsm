@@ -175,14 +175,23 @@ public class GatherManagerController {
 
     @GetMapping("/gatherAll")
     public void gather(){
+        log.info("dhcp");
         dhcpService.gather(DateTools.gatherDate());
+        log.info("dhcp6");
         dhcp6Service.gather(DateTools.gatherDate());
+        log.info("Ipv4Detail");
         gatherService.gatherIpv4Detail(DateTools.gatherDate());
+        log.info("Port");
         gatherService.gatherPort(DateTools.gatherDate());
+        log.info("PortIpv6");
         gatherService.gatherPortIpv6(DateTools.gatherDate());
+        log.info("Ipv4");
         gatherService.gatherIpv4(DateTools.gatherDate());
+        log.info("Ipv6");
         gatherService.gatherIpv6(DateTools.gatherDate());
+        log.info("Arp");
         gatherService.gatherArp(DateTools.gatherDate());
+        log.info("Mac");
         gatherService.gatherMac(DateTools.gatherDate());
     }
 
