@@ -61,6 +61,7 @@ public class TerminalManagerControllerApi {
                 for (String uuid : list) {
                     params.clear();
                     params.put("deviceUuid", uuid);
+                    params.put("deviceUuidAndDeviceTypeId", uuid);
                     params.put("online", true);
                     List<Terminal> terminals = terminalService.selectObjByMap(params);
                     macUtils.terminalJoint(terminals);
@@ -92,6 +93,7 @@ public class TerminalManagerControllerApi {
                 for (String uuid : list) {
                     params.clear();
                     params.put("deviceUuid", uuid);
+                    params.put("deviceUuidAndDeviceTypeId", uuid);
                     params.put("online", true);
                     params.put("time", map.get("time"));
                     List<Terminal> terminals = terminalService.selectObjHistoryByMap(params);

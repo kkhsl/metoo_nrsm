@@ -47,13 +47,85 @@ public class GatherManagerController {
     private IFluxDailyRateService fluxDailyRateService;
     @Autowired
     private PythonExecUtils pythonExecUtils;
-
     @Autowired
     private TerminalMapper terminalMapper;
     @Autowired
     private IProbeService probeService;
     @Autowired
     private ITerminalService terminalService;
+    @Autowired
+    private INetworkElementService networkElementService;
+
+    @GetMapping("/vm/mac/terminal")
+    public String mac_terminal(){
+
+    // mac 复制数据、写入标签、ip地址信息等
+        this.gatherMacUtils.copyGatherData(new Date());
+
+        try {
+            this.terminalService.syncTerminal(new Date());
+
+            // nswitch分析-vm
+            this.terminalService.updateVMHostDeviceType();
+
+            this.terminalService.updateVMDeviceType();
+
+            this.terminalService.updateVMDeviceIp();
+
+            this.networkElementService.updateObjDisplay();
+
+//                this.terminalService.v4Tov6Terminal(date);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+        return "ok";
+    }
+
+
+
+
+
+
+    @GetMapping("/vm/copyGatherData")
+    public String copyGatherData(){
+        gatherMacUtils.copyGatherData(new Date());
+        return "ok";
+    }
+
+    @GetMapping("/vm/syncTerminal")
+    public String syncTerminal(){
+        this.terminalService.syncTerminal(new Date());
+        return "ok";
+    }
+
+
+    @GetMapping("/vm/devicetype")
+    public String devicetype(){
+
+        terminalService.updateVMHostDeviceType();
+        terminalService.updateVMDeviceType();
+        return "ok";
+    }
+
+    @GetMapping("/vm")
+    public String vm(){
+        terminalService.updateVMDeviceIp();
+        return "ok";
+    }
+
+
+    @GetMapping("/nswitch")
+    public String nswitch(){
+        gatherMacUtils.rtTovdt(new Date());
+        return "ok";
+    }
+
+
+    @GetMapping("/probe/start")
+    public String start_probe(){
+        probeService.scanByTerminal();
+        return "ok";
+    }
 
     @GetMapping("/scanByWriteTerminal")
     public void writeTerminal(){
@@ -70,7 +142,7 @@ public class GatherManagerController {
         for (Terminal terminal : terminals) {
             Probe probe = map.get(terminal.getV4ip());
             if(probe != null){
-
+                boolean device = false;
                 List list = new ArrayList();
                 String combined = probe.getCombined();
                 String[] combineds = combined.split(",");
@@ -80,10 +152,14 @@ public class GatherManagerController {
                         String[] eles = ele.split("/", 2);// 字符串的末尾或连续分隔符之间可能会包括一个分隔符本身
                         if(eles.length > 0){
                             String port_num = eles[0];
-                            if(port_num.equals("2")){
+//                            if(port_num.equals("2")){
+//                                continue outerLoop; // 使用标签跳出外层循环
+//                            }
+                            String application_protocol = eles[1];
+                            if(application_protocol.contains("telnet")){
+                                device = true;
                                 continue outerLoop; // 使用标签跳出外层循环
                             }
-                            String application_protocol = eles[1];
                             stats.put("port_num", port_num);
                             stats.put("application_protocol", application_protocol);
                             list.add(stats);
@@ -91,39 +167,70 @@ public class GatherManagerController {
                     }
                 }
                 boolean flag = false;
-                String os = probe.getCombined_os();
+
+                String combined_os = probe.getCombined_os();
                 String combined_ttl = probe.getCombined_ttl();
                 if(StringUtils.isNotBlank(combined_ttl)){
                     String[] ttls = combined_ttl.split(",");
                     if(ttls.length > 0){
                         for (String ttl : ttls) {
                             if(Integer.parseInt(ttl) > 120 && Integer.parseInt(ttl) < 129){
-                                if(StringUtil.isEmpty(os)){
-                                    os = "Windows";
+                                if(StringUtil.isEmpty(combined_os)){
+                                    combined_os = "Windows";
                                     flag = true;
                                     break;
                                 }
+                            }else if(Integer.parseInt(ttl) > 200){
+                                flag = true;
+                                device = true;
+//                                combined_os = "device";
+                                break;
                             }
                         }
                     }
                 }
                 List<JSONObject> osList = new ArrayList();
-                if(StringUtils.isNotEmpty(os)){
+                if(StringUtils.isNotEmpty(combined_os)){
                     if(!flag){
-                        osList = parseInputToJsonList(os);
+                        osList = parseInputToJsonList(combined_os);
                     }else{
                         JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("vendor", os);
+                        jsonObject.put("vendor", combined_os);
                         osList.add(jsonObject);
                     }
                 }
                 if(osList.size() > 0){
                     JSONObject jsonObject = osList.get(0);
-                    String vendor = jsonObject.getString("vendor");
-                    terminal.setOs(vendor);
+                    terminal.setOs(jsonObject.getString("vendor"));
+
                 }
+
+                if(probe.getCombined_vendor().toLowerCase().contains("Ruijie".toLowerCase()) ||
+                        probe.getCombined_vendor().toLowerCase().contains("Tenda".toLowerCase()) ||
+                        probe.getCombined_vendor().toLowerCase().contains("h3c".toLowerCase()) ||
+                        probe.getCombined_vendor().toLowerCase().contains("TP-LINK".toLowerCase()) ||
+                        probe.getCombined_vendor().toLowerCase().contains("mercury".toLowerCase()) ||
+                        probe.getCombined_vendor().toLowerCase().contains("Device".toLowerCase())){
+                    device = true;
+                }
+                if(probe.getCombined_application_protocol().toLowerCase().contains("telnet".toLowerCase())){
+                    device = true;
+                }
+
                 terminal.setCombined_vendor_gen_family(JSONObject.toJSONString(osList));
                 terminal.setCombined_port_protocol(JSONObject.toJSONString(list));
+                if(device){
+                    terminal.setDeviceType(1);
+                }
+                this.terminalService.update(terminal);
+            }
+        }
+
+
+        // 更新nswitch终端设备ip
+        List<Terminal> terminalList = this.terminalService.selectDeviceIpByNSwitch();
+        if(!terminalList.isEmpty()){
+            for (Terminal terminal : terminalList) {
                 this.terminalService.update(terminal);
             }
         }

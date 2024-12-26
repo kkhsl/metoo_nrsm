@@ -20,6 +20,18 @@ public interface ITerminalService {
 
     List<Terminal> selectObjHistoryByMap(Map params);
 
+    List<Terminal> selectDeviceIpByNSwitch();
+
+    List<Terminal> selectObjByNeIp();
+
+    List<Terminal> selectVMHost();
+
+    boolean updateVMHostDeviceType();
+
+    boolean updateVMDeviceType();
+
+    boolean updateVMDeviceIp();
+
     boolean save(Terminal instance);
 
     boolean update(Terminal instance);
@@ -43,6 +55,8 @@ public interface ITerminalService {
     void dualStackTerminal();
 
     void writeTerminalType();
+
+    void writeTerminalDeviceTypeToVendor();
 
     void syncTerminalToTerminalHistory();
 

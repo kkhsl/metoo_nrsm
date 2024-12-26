@@ -8,6 +8,7 @@ import com.metoo.nrsm.core.mapper.Dhcp6Mapper;
 import com.metoo.nrsm.core.service.IDhcp6HistoryService;
 import com.metoo.nrsm.core.service.IDhcp6Service;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.command.DhcpdConfigReader;
 import com.metoo.nrsm.core.utils.dhcp.Dhcp6Utils;
 import com.metoo.nrsm.entity.Dhcp6;
 import org.apache.commons.lang3.StringUtils;
@@ -128,6 +129,69 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
 
     @Override
     public void gather(Date time)  {
+
+        this.deleteTable();
+
+        DhcpdConfigReader reader = new DhcpdConfigReader();
+        Map<String, String> data = null;
+        List<Map<String, String>> dataList = new ArrayList();
+        List<String> lines = null;
+        try {
+            lines = reader.readDhcpdConfig(Global.env, Global.host, Global.port, Global.username, Global.password, Global.dhcp6);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(lines == null || lines.isEmpty()){
+            return;
+        }
+        for (String line : lines) {
+            if (StringUtil.isNotEmpty(line)) {
+                line = line.trim();
+                String key = Dhcp6Utils.getKey(line);
+                if (StringUtil.isNotEmpty(key)) {
+                    if (key.equals("ia-na")) {
+                        if (data != null) {
+                            dataList.add(data);
+                        }
+                        data = new HashMap();
+                    }
+                    if(data != null){
+                        Dhcp6Utils.parseValue(key, line, data);
+                    }
+                }
+
+            }
+        }
+
+        // 最后一个
+        if (data != null && StringUtils.isNotBlank(data.get("ia-na"))) {
+            dataList.add(data);
+        }
+
+        if(dataList.size() > 0){
+            for (Map<String, String> map : dataList) {
+                Map<String, String> modifiedMap = new HashMap();
+                Set<Map.Entry<String, String>> set =  map.entrySet();
+                for (Map.Entry<String, String> entry : set) {
+                    if(entry.getKey().contains(" ")){
+                        modifiedMap.put(entry.getKey().replaceAll(" ", "_"), entry.getValue());
+                    }else if(entry.getKey().contains("-")){
+                        modifiedMap.put(entry.getKey().replaceAll("-", "_"), entry.getValue());
+                    } else{
+                        modifiedMap.put(entry.getKey(), entry.getValue());
+                    }
+                }
+                Dhcp6 dhcp6 = new Dhcp6();
+                dhcp6.setAddTime(time);
+                BeanMap beanMap = BeanMap.create(dhcp6);
+                beanMap.putAll(modifiedMap);
+                this.save(dhcp6);
+            }
+        }
+        this.dhcp6historyService.batchInsert();
+    }
+
+    public void gather2(Date time)  {
         try {
 
             this.deleteTable();
@@ -155,7 +219,9 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
                                     }
                                     data = new HashMap();
                                 }
-                                Dhcp6Utils.parseValue(key, line, data);
+                                if(data != null){
+                                    Dhcp6Utils.parseValue(key, line, data);
+                                }
                             }
 
                         }

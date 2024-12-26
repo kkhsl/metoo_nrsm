@@ -37,20 +37,32 @@
         </where>
     </select>
 
+    <select id="selectTagByDE" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+            *
+        FROM
+            metoo_mac d1
+        WHERE
+            tag = 'DE'
+        AND NOT EXISTS (
+            SELECT
+                1
+            FROM
+                metoo_terminal d2
+            WHERE
+                d2.deviceTypeId = 34
+            AND d2.deviceUuid = d1.deviceUuid
+        )
+    </select>
+
     <select id="selectTagToX" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         select * from metoo_mac mac1
-
         left join
-
-        (
-            select * from(
+        (select * from(
                 select * from metoo_mac where tag in ('L', 'LV') group by deviceIp
             )mac3
         )mac2
-
-
         on mac1.deviceIp = mac2.deviceIp and mac1.mac != mac2.mac
-
         where mac1.tag is null
     </select>
 
@@ -1293,6 +1305,9 @@
             <if test="deviceName != null and deviceName != '' ">
                 deviceName,
             </if>
+            <if test="deviceUuid != null and deviceUuid != '' ">
+                deviceUuid,
+            </if>
             <if test="tag != null and tag != '' ">
                 tag,
             </if>
@@ -1324,6 +1339,9 @@
             </if>
             <if test="deviceName != null and deviceName != '' ">
                 #{deviceName},
+            </if>
+            <if test="deviceUuid != null and deviceUuid != '' ">
+                #{deviceUuid},
             </if>
             <if test="tag != null and tag != '' ">
                 #{tag},
@@ -1401,6 +1419,15 @@
             <if test="macVendor != null and macVendor != '' ">
                 macVendor = #{macVendor},
             </if>
+            <if test="deviceIp2 != null and deviceIp2 != '' ">
+                deviceIp2 = #{deviceIp2},
+            </if>
+            <if test="deviceName2 != null and deviceName2 != '' ">
+                deviceName2 = #{deviceName2},
+            </if>
+            <if test="devicePort2 != null and devicePort2 != '' ">
+                devicePort2 = #{devicePort2},
+            </if>
         </set>
         WHERE id = #{id}
     </update>
@@ -1466,9 +1493,9 @@
                 <if test="item.v6ip3 != null and item.v6ip3 != ''">
                     v6ip3 = #{item.v6ip3},
                 </if>
-                <if test="item.macVendor != null and item.macVendor != ''">
-                    macVendor = #{item.macVendor},
-                </if>
+                <!--<if test="item.macVendor != null and item.macVendor != ''">-->
+                    <!--macVendor = #{item.macVendor},-->
+                <!--</if>-->
                 <if test="item.remotePort != null and item.remotePort != ''">
                     remotePort = #{item.remotePort},
                 </if>
@@ -1587,26 +1614,30 @@
 
     <insert id="batchSaveGather" parameterType="java.util.List">
         INSERT INTO `metoo_mac_gather` (
-        addTime,
-        mac,
-        port,
-        type,
-        deviceIp,
-        deviceName,
-        tag,
-        hostname,
-        remoteDevice,
-        remotePort
+            addTime,
+            mac,
+            mac1,
+            port,
+            `type`,
+            deviceIp,
+            deviceName,
+            deviceUuid,
+            tag,
+            hostname,
+            remoteDevice,
+            remotePort
         )
         VALUES
         <foreach collection ="list" item="item" separator ="," >
             (
             #{item.addTime},
             #{item.mac},
+            #{item.mac1},
             #{item.port},
             #{item.type},
             #{item.deviceIp},
             #{item.deviceName},
+            #{item.deviceUuid},
             #{item.tag},
             #{item.hostname},
             #{item.remoteDevice},
@@ -1628,13 +1659,29 @@
     </delete>
 
     <sql id="COPY_COLUMN">
-       addTime, mac, port, deviceIp, deviceName, tag, type, hostname, remoteDevice, remotePort
+       addTime, mac, port, deviceIp, deviceName, deviceUuid, tag, type, hostname, remoteDevice, remotePort, macVendor
     </sql>
 
     <insert id="copyGatherDataToMac" parameterType="java.util.Date">
+        <!--INSERT INTO metoo_mac( <include refid="COPY_COLUMN"/> )-->
+        <!--SELECT #{addTime}, mac, port, deviceIp, deviceName, deviceUuid, tag, type, hostname, remoteDevice, remotePort-->
+        <!--FROM metoo_mac_gather-->
+
+        <!--INSERT INTO metoo_mac( <include refid="COPY_COLUMN"/> )-->
+        <!--SELECT d1.mac, d1.port, d1.deviceIp, d1.deviceName, d1.deviceUuid, d1.tag, d1.type,d1.hostname, d1.remoteDevice, d1.remotePort,-->
+        <!--d2.vendor as macVendor-->
+        <!--FROM metoo_mac_gather d1-->
+        <!--join metoo_mac_vendor d2 on d1.mac LIKE CONCAT(d2.mac, '%');-->
+
+--         SELECT d1.addTime, d1.mac, d1.port, d1.deviceIp, d1.deviceName, d1.deviceUuid, d1.tag, d1.type,d1.hostname, d1.remoteDevice, d1.remotePort, d2.vendor as macVendor
+--         FROM metoo_mac_gather d1
+--         join metoo_mac_vendor d2 ON LEFT(d1.mac, LENGTH(d2.mac)) = d2.mac;
         INSERT INTO metoo_mac( <include refid="COPY_COLUMN"/> )
-        SELECT #{addTime}, mac, port, deviceIp, deviceName, tag, type, hostname, remoteDevice, remotePort
-        FROM metoo_mac_gather
+        SELECT #{addTime}, d1.mac, d1.port, d1.deviceIp, d1.deviceName, d1.deviceUuid, d1.tag, d1.type,d1.hostname, d1.remoteDevice, d1.remotePort,
+        d2.vendor as macVendor
+        FROM metoo_mac_gather d1
+        left join metoo_mac_vendor d2 on d1.mac1 = d2.mac
+
     </insert>
 
     <select id="lock">

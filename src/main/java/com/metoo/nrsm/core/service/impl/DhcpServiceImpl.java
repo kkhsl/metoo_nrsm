@@ -11,6 +11,7 @@ import com.metoo.nrsm.core.mapper.DhcpMapper;
 import com.metoo.nrsm.core.service.IDhcpHistoryService;
 import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.command.DhcpdConfigReader;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.dhcp.DhcpUtils;
 import com.metoo.nrsm.entity.Dhcp;
@@ -166,6 +167,65 @@ public class DhcpServiceImpl implements IDhcpService {
 
     @Override
     public void gather(Date time) {
+        this.deleteTable();
+        Map<String, String> data = null;
+        List<Map<String, String>> dataList = new ArrayList();
+        DhcpdConfigReader reader = new DhcpdConfigReader();
+        try {
+            // 示例: 开启 dev 模式读取
+            List<String> lines = reader.readDhcpdConfig(Global.env, Global.host, Global.port, Global.username, Global.password, Global.dhcp);
+            for (String line : lines) {
+                if (StringUtil.isNotEmpty(line)) {
+                    line = line.trim();
+                    String key = DhcpUtils.getKey(line);
+                    if (StringUtil.isNotEmpty(key)) {
+                        if (key.equals("lease")) {
+                            if (data != null) {
+                                dataList.add(data);
+                            }else{
+                                data = new HashMap();
+                            }
+                        }
+                        if(data != null){
+                            DhcpUtils.parseValue(key, line, data);
+                        }
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (data != null && StringUtils.isNotBlank(data.get("lease"))) {
+            dataList.add(data);
+        }
+
+        if (dataList.size() > 0) {
+            for (Map<String, String> map : dataList) {
+                Map<String, String> modifiedMap = new HashMap();
+                Set<Map.Entry<String, String>> set = map.entrySet();
+                for (Map.Entry<String, String> entry : set) {
+                    String key = entry.getKey();
+                    if (key.contains(" ")) {
+                        key = key.replaceAll(" ", "_");
+                    }
+                    if (key.contains("-")) {
+                        key = key.replaceAll("-", "_");
+                    }
+                    modifiedMap.put(key, entry.getValue());
+                }
+                Dhcp dhcp = new Dhcp();
+                dhcp.setAddTime(time);
+                BeanMap beanMap = BeanMap.create(dhcp);
+                beanMap.putAll(modifiedMap);
+                this.save(dhcp);
+            }
+        }
+        this.dhcphistoryService.batchInsert();
+    }
+
+    public void gather2(Date time) {
         try {
 
             this.deleteTable();
@@ -174,8 +234,7 @@ public class DhcpServiceImpl implements IDhcpService {
 
             if (Global.env.equals("prod")) {
 //                File file = new File("/var/lib/dhcp/dhcpd.leases");
-
-                File file = new File(Global.dhcpPath +Global.dhcpName);
+                File file = new File(Global.dhcp);
                 inputStream = new FileInputStream(file);
             } else if ("dev".equals(Global.env)) {
                 inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd.leases");

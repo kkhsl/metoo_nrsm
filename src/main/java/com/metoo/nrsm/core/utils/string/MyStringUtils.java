@@ -71,13 +71,53 @@ public class MyStringUtils {
         return s.trim();
     }
 
-    /**
-     * 测试指定字符串出现的位置
-     */
-    public static void acquireCharacterPosition() {
-        int i = acquireCharacterPositions("00", ":", 1);
-        System.out.println(i);
+    @Test
+    public void acquireCharacterPositionTest(){
+        String param = "aa:bb:cc:dd:ee:ff";
+        String position = getSubstringAfterNthDelimiter(param, ":", 3);
+        System.out.println(position);
+        String result = getSubstringBeforNthDelimiter(param, ":", 3);
+        System.out.println(result);
+
     }
+
+    public static String getSubstringAfterNthDelimiter(String str, String delimiter, int occurrence) {
+        int position = acquireCharacterPosition(str, delimiter, occurrence);
+
+        if (position != -1) {
+            return str.substring(position + 1);
+        } else {
+            return "";
+        }
+    }
+
+    public static String getSubstringBeforNthDelimiter(String str, String delimiter, int occurrence) {
+        int position = acquireCharacterPosition(str, delimiter, occurrence);
+
+        if (position != -1) {
+            return str.substring(0, position);
+        } else {
+            return "";
+        }
+    }
+
+    public static int acquireCharacterPosition(String str, String delimiter, int occurrence) {
+        if (str == null || delimiter == null || occurrence <= 0) {
+            return -1;  // 返回 -1 表示未找到符合条件的分隔符
+        }
+
+        int count = 0;
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) == delimiter.charAt(0)) {
+                count++;
+                if (count == occurrence) {
+                    return i;  // 返回第 occurrence 次分隔符的位置
+                }
+            }
+        }
+        return -1;  // 如果未找到足够的分隔符，返回 -1
+    }
+
 
 
     /**

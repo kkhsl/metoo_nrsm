@@ -542,6 +542,7 @@ public class NetworkElementManagerController {
             for (String uuid : uuids) {
                 params.put("online", true);
                 params.put("deviceUuid", uuid);
+                params.put("deviceUuidAndDeviceTypeId", uuid);
                 List<Terminal> terminals = this.terminalService.selectObjByMap(params);
                 terminals.stream().forEach(e -> {
                     if(e.getDeviceTypeId() != null

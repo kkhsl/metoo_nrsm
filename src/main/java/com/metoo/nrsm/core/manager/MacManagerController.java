@@ -60,9 +60,7 @@ public class MacManagerController {
     // mac - DE 直连
     @RequestMapping("de")
     public Result mac_de(){
-        Map params = new HashMap();
-        params.put("tag", "DE");
-        List<Mac> deMacList = this.macService.selectObjByMap(params);
+        List<Mac> deMacList = this.macService.selectTagByDE();
 
         if(deMacList.size() > 0){
             Map<String, Mac> map = new HashMap<>();
@@ -83,6 +81,7 @@ public class MacManagerController {
             }
         }
 
+        Map params = new HashMap();
         if(deMacList.size() > 0){
             for (Mac DE : deMacList) {
                 params.clear();
@@ -93,6 +92,7 @@ public class MacManagerController {
                         NetworkElement networkElement = networkElements.get(0);
                         // 设置设备Uuid
                         DE.setDeviceUuid(networkElement.getUuid());
+                        DE.setDeviceDisplay(networkElement.isDisplay());
                         if(networkElement.getDeviceTypeId() != null){
                             DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
                             DE.setDeviceTypeUuid(deviceType.getUuid());

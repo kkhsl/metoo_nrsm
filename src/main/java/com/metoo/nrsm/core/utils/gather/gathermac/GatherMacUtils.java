@@ -76,7 +76,6 @@ public class GatherMacUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-//            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
 
@@ -108,6 +107,7 @@ public class GatherMacUtils {
                 mac.setAddTime(date);
                 mac.setDeviceIp(e.getIp());
                 mac.setDeviceName(e.getDeviceName());
+                mac.setDeviceUuid(e.getUuid());
 //                mac.setPort(e.getPort());
                 mac.setMac("00:00:00:00:00:00");
                 mac.setHostname(hostname);
@@ -137,14 +137,19 @@ public class GatherMacUtils {
 //        this.RTToDT();
         this.RTToDT2();
         this.copyArpIpToMacByDT();
+
         // NSwitchn
         this.rtTovdt(date);
+
         // （无线路由器）
         this.dtTode();
         this.rtTode();
         this.rtTodt();
         // 删除mac与为ap mac地址相同的数据
         this.removeApTerminal();
+
+        // VM
+//        this.vm();
     }
 
     // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V
@@ -373,6 +378,21 @@ public class GatherMacUtils {
         }
     }
 
+//    // 同一个端口下有mac为vmware的条目，且只有一个不为vmware的条目，则这个不为vmware的条目是DT
+    private void vm(){
+        try {
+            this.terminalService.updateVMHostDeviceType();
+
+            this.terminalService.updateVMDeviceType();
+
+            this.terminalService.updateVMDeviceIp();
+
+            this.networkElementService.updateObjDisplay();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void rtTovdt(Date date){
         try {
             List<Mac> macs = this.macService.selectRTToVDT();
@@ -380,20 +400,20 @@ public class GatherMacUtils {
             if(macs != null && macs.size() > 0){
                 Set ports = new HashSet();
                 for (Mac mac : macs) {
-                    String ns = "";
+                    String nswitchName = "";
                     String name = mac.getDeviceIp() + mac.getPort();
                     Nswitch nswitch = this.nswitchService.selectObjByName(name);
                     if(nswitch != null){
-                        ns = "NSwitch" + nswitch.getIndex();
+                        nswitchName = "NSwitch" + nswitch.getIndex();
                     }else{
                         List<Nswitch> nswitchs = this.nswitchService.selectObjAll();
                         Integer index = 1;
                         if(nswitchs.size() > 0){
                             Nswitch nswitch1 = nswitchs.get(0);
                             index = nswitch1.getIndex() + index;
-                            ns = "NSwitch" + index;
+                            nswitchName = "NSwitch" + index;
                         }else{
-                            ns = "NSwitch" + index;
+                            nswitchName = "NSwitch" + index;
                         }
                         Nswitch nswitch2 = new Nswitch();
                         nswitch2.setName(name);
@@ -409,35 +429,40 @@ public class GatherMacUtils {
                         obj.setTag("DE");
                         obj.setPort(mac.getPort());
                         obj.setDeviceIp(mac.getDeviceIp());
+                        obj.setDeviceUuid(mac.getDeviceUuid());
                         obj.setDeviceName(mac.getDeviceName());
                         obj.setHostname(mac.getHostname());
 
                         // 对端设备信息
                         obj.setRemotePort("V0");
-                        obj.setRemoteDevice(ns);
+                        obj.setRemoteDevice(nswitchName);
 
                         this.macService.save(obj);
 
 //                        // 增加虚拟网元
                         Map params = new HashMap();
-                        params.put("deviceName", ns);
+                        params.put("deviceName", nswitchName);
                         params.put("deleteStatus", 1);
                         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
                         if(networkElements.size() <= 0){
                             NetworkElement ne = new NetworkElement();
                             ne.setAddTime(new Date());
                             ne.setDeleteStatus(1);
-                            ne.setDeviceName(ns);
+                            ne.setDeviceName(nswitchName);
                             DeviceType deviceType = this.deviceTypeService.selectObjByType(29);
                             ne.setDeviceTypeId(deviceType.getId());
                             this.networkElementService.save(ne);
                         }
                     }
 
+                    mac.setDeviceIp2(mac.getDeviceIp());
+                    mac.setDeviceName2(mac.getDeviceName());
+                    mac.setDevicePort2(mac.getPort());
+
                     mac.setTag("DT");
                     mac.setPort("V1");
-                    mac.setDeviceName(ns);
-                    mac.setHostname(ns);
+                    mac.setDeviceName(nswitchName);
+                    mac.setHostname(nswitchName);
                     mac.setDeviceIp(null);
 
                     // 查询ap用户列表

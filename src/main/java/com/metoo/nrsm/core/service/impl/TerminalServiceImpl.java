@@ -84,6 +84,55 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
+    public List<Terminal> selectDeviceIpByNSwitch() {
+        return this.terminalMapper.selectDeviceIpByNSwitch();
+    }
+
+    @Override
+    public List<Terminal> selectObjByNeIp() {
+        return this.terminalMapper.selectObjByNeIp();
+    }
+
+    @Override
+    public List<Terminal> selectVMHost() {
+        return this.terminalMapper.selectVMHost();
+    }
+
+    @Override
+    public boolean updateVMHostDeviceType() {
+        try {
+            this.terminalMapper.updateVMHostDeviceType();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateVMDeviceType() {
+        try {
+            this.terminalMapper.updateVMDeviceType();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    @Override
+    public boolean updateVMDeviceIp() {
+        try {
+            this.terminalMapper.updateVMDeviceIp();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public boolean save(Terminal instance) {
         if (instance.getId() == null) {
             if (instance.getId() == null || instance.getId().equals("")) {
@@ -215,21 +264,39 @@ public class TerminalServiceImpl implements ITerminalService {
         }
 
         // 批量更新
-        if (inner.size() > 0) {
+        if (!inner.isEmpty()) {
+//            for (Terminal terminal : inner) {
+//                this.terminalMapper.update(terminal);
+//            }
             this.terminalMapper.batchUpdate(inner);
         }
 
-        // 删除没有Ip地址的终端
-        List<Terminal> terminals = this.terminalMapper.selectV4ipIsNullAndV6ipIsNull();
-        if(terminals.size() > 0){
-            for (Terminal terminal : terminals) {
+        List<Terminal> neTerminalList = this.terminalMapper.selectObjByNeIp();
+        if(!neTerminalList.isEmpty()){
+            for (Terminal terminal : neTerminalList) {
                 try {
-                    this.terminalMapper.delete(terminal.getId());
+                    this.terminalMapper.update(terminal);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
+
+//        // 删除没有Ip地址的终端
+//        List<Terminal> terminals = this.terminalMapper.selectV4ipIsNullAndV6ipIsNull();
+//        if(terminals.size() > 0){
+//            for (Terminal terminal : terminals) {
+//                try {
+//                    this.terminalMapper.delete(terminal.getId());
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+
+
+
+
     }
 
     // 已存在更新
@@ -547,6 +614,24 @@ public class TerminalServiceImpl implements ITerminalService {
         }
     }
 
+    @Override
+    public void writeTerminalDeviceTypeToVendor() {
+        String vendor = "VMware, Inc.";
+        Map params = new HashMap();
+        params.put("macVendor", vendor);
+        List<Terminal> terminals = this.terminalMapper.selectObjByMap(params);
+        if(!terminals.isEmpty()){
+            terminals.forEach(e -> {
+                try {
+                    e.setDeviceTypeId(9L);
+                    this.terminalMapper.update(e);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            });
+        }
+    }
+
     public void setDevice(Terminal e, Date date, DeviceType type1, DeviceType type2) {
         Map params = new HashMap();
         if (StringUtils.isNotEmpty(e.getDeviceIp())) {
@@ -569,6 +654,7 @@ public class TerminalServiceImpl implements ITerminalService {
                 e.setDeviceUuid(ne.getUuid());
                 e.setDeviceIp(ne.getIp());
                 e.setAddTime(date);
+
             } else {
                 // 写入ap设备信息
                 // ...

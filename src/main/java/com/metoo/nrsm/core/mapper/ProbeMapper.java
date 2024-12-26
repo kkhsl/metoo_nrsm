@@ -16,6 +16,8 @@ public interface ProbeMapper {
 
     List<Probe> selectObjByMap(Map params);
 
+    List<String> selectObjDistinctByIp();
+
     List<Probe> mergeProbesByIp();
 
     int insert(Probe instance);

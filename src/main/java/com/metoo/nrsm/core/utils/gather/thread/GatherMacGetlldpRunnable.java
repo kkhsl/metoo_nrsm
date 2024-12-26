@@ -92,6 +92,7 @@ public class GatherMacGetlldpRunnable implements Runnable{
                 mac.setAddTime(date);
                 mac.setDeviceIp(e.getIp());
                 mac.setDeviceName(e.getDeviceName());
+                mac.setDeviceUuid(e.getUuid());
 //                mac.setPort(e.getPort());
                 mac.setMac("00:00:00:00:00:00");
                 mac.setHostname(hostname);

@@ -796,7 +796,7 @@ public class GatherServiceImpl implements IGatherService {
                 }
             }
         }
-        if(keys.size() > 0){
+        if(keys != null && !keys.isEmpty()){
             // 更新redis
             this.snmpStatusUtils.editSnmpStatus(keys);
         }

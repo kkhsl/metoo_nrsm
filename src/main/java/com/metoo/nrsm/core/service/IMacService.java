@@ -18,6 +18,8 @@ public interface IMacService {
 
     List<Mac> selectObjByMap(Map params);
 
+    List<Mac> selectTagByDE();
+
     List<Mac> selectTagToX(Map params);
 
     List<Mac> selectTagToU(Map params);

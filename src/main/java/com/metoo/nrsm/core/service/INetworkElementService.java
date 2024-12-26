@@ -25,6 +25,8 @@ public interface INetworkElementService {
 
     int update(NetworkElement instance);
 
+    int updateObjDisplay();
+
     int delete(Long id);
 
     int batchInsert(List<NetworkElement> instance);

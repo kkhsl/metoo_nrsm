@@ -493,8 +493,28 @@
             <if test="isipv6 != null">
                 isipv6 = #{isipv6},
             </if>
+            <if test="display != null">
+                display = #{display},
+            </if>
         </set>
         where id = #{id}
+    </update>
+
+    <update id="updateObjDisplay">
+        UPDATE metoo_ne d1
+        JOIN (
+            SELECT
+                *
+            FROM
+                metoo_terminal
+            WHERE
+                deviceTypeId = 34
+            GROUP BY
+                deviceName
+        ) AS d2 ON d1.device_name = d2.deviceName
+        SET d1.display = 1;
+
+
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">

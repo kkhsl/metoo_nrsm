@@ -129,27 +129,22 @@ public class PythonExecUtils implements InitializingBean {
                     }
                 }
                 try {
-
-                    log.info("=========mergedArray" + JSONObject.toJSONString(mergedArray));
                     proc = Runtime.getRuntime().exec(mergedArray);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
                 try {
-
-                    log.info("=========args" + JSONObject.toJSONString(args));
                     proc = Runtime.getRuntime().exec(args);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
             if(proc != null){
-                BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
+                BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));
                 String line = null;
                 while ((line = in.readLine()) != null) {
                     sb.append(line);
-                    log.info("==========" + line);
                 }
                 in.close();
                 proc.waitFor();

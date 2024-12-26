@@ -22,6 +22,7 @@ import java.util.List;
 public class Mac extends IdEntity {
 
     private String mac;
+    private String mac1;
     private String port;
     private String type;// 3 从外部学习到的mac
 
@@ -62,6 +63,7 @@ public class Mac extends IdEntity {
     private String deviceName;
     @ApiModelProperty("设备Uuid")
     private String deviceUuid;
+    private boolean deviceDisplay;
 
     @ApiModelProperty("设备类型")
     private String deviceType;
@@ -91,5 +93,10 @@ public class Mac extends IdEntity {
     private List<Long> macList = new ArrayList();
 
     private String client_hostname;
+
+
+    private String deviceIp2;
+    private String deviceName2;
+    private String devicePort2;
 
 }

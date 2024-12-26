@@ -7,9 +7,9 @@ import com.jcraft.jsch.Session;
 public class JSchSSHConnectionExample {
 
     public static void main(String[] args) {
-        String hostname = "192.168.6.101";  // 服务器 IP
-        String username = "metoo";  // SSH 用户名
-        String password = "metoo89745000";  // SSH 密码
+        String hostname = "192.168.60.90";  // 服务器 IP
+        String username = "zzf";  // SSH 用户名
+        String password = "Transfar@123";  // SSH 密码
 
         JSch jsch = new JSch();
         Session session = null;

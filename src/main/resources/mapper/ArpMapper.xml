@@ -31,6 +31,24 @@
             <if test="deviceIp != '' and deviceIp != null">
                 AND deviceIp = #{deviceIp}
             </if>
+            <if test="ipv4IsNotNull">
+                AND v4ip IS NOT NULL
+            </if>
+            <if test="ipv6IsNotNull">
+                AND v6ip is not null and v4ip is null
+            </if>
+            <if test="notInIpv4s != null">
+                AND v4ip not in
+                <foreach collection="notInIpv4s" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="notInIpv6s != null">
+                AND v6ip not in
+                <foreach collection="notInIpv6s" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
         </where>
     </select>
 

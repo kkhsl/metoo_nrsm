@@ -120,13 +120,14 @@ public class LoginController {
                         return new Result(420, msg);
                     }
                 }else{
-                    return new Result(200, "用户已登录");
+                    User user = this.userService.findByUserName(username);
+                    return new Result(200, "用户已登录", user.getId());
                 }
             }else{
                 return new Result(430, "验证码错误");
             }
         }else{
-            return new Result(400,  "Captcha has expired");
+            return new Result(400,  "验证码已过期");
         }
     }
 

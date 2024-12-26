@@ -67,7 +67,7 @@ public class GatherTaskScheduledUtil {
     }
 
     @Scheduled(cron = "0 */3 * * * ?")
-    public void gatherDhcp() {
+    public void dhcp() {
         if(flag){
             Long time=System.currentTimeMillis();
             log.info("DHCP Start......");
@@ -81,7 +81,7 @@ public class GatherTaskScheduledUtil {
     }
 
     @Scheduled(cron = "0 */3 * * * ?")
-    public void gatherDhcp6() {
+    public void dhcp6() {
         if(flag){
             Long time=System.currentTimeMillis();
             log.info("DHCP6 Start......");
@@ -96,7 +96,7 @@ public class GatherTaskScheduledUtil {
     }
 
     @Scheduled(cron = "0 */3 * * * ?")
-    public void gatherArp() {
+    public void arp() {
         if(flag){
             Long time=System.currentTimeMillis();
             log.info("arp Start......");
@@ -113,7 +113,7 @@ public class GatherTaskScheduledUtil {
 
 //    @org.springframework.scheduling.annotation.Scheduled(cron = "*/10 * * * * ?")
     @Scheduled(cron = "0 */3 * * * ?")
-    public void gatherMac() {
+    public void mac() {
         if(flag){
             Long time=System.currentTimeMillis();
             log.info("mac Start......");
@@ -130,7 +130,7 @@ public class GatherTaskScheduledUtil {
 //    @Transactional // 可以结合该注解确调度任务在事务中运行，并在异常时正确回滚事务
     @Scheduled(cron = "0 */3 * * * ?")
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
-    public void gatherIpv4() {
+    public void ipv4() {
         if(flag){
             Long time=System.currentTimeMillis();
             log.info("Ipv4 Start......");
@@ -146,7 +146,7 @@ public class GatherTaskScheduledUtil {
 
     @Scheduled(cron = "0 */3 * * * ?")
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
-    public void gatherIpv4Detail() {
+    public void ipv4Detail() {
         if(flag){
             Long time=System.currentTimeMillis();
             log.info("Ipv4 Start......");
@@ -161,7 +161,7 @@ public class GatherTaskScheduledUtil {
     }
 
     @Scheduled(cron = "0 */3 * * * ?")
-    public void gatherIpv6() {
+    public void ipv6() {
         if(flag){
             Long time=System.currentTimeMillis();
             log.info("Ipv6 Start......");
@@ -176,7 +176,7 @@ public class GatherTaskScheduledUtil {
     }
 
     @Scheduled(cron = "0 */3 * * * ?")
-    public void gatherPort() {
+    public void port() {
         if(flag){
             Long time = System.currentTimeMillis();
             log.info("Port Start......");
@@ -190,7 +190,7 @@ public class GatherTaskScheduledUtil {
     }
 
     @Scheduled(cron = "0 */3 * * * ?")
-    public void gatherPortIpv6() {
+    public void portIpv6() {
         if(flag){
             Long time = System.currentTimeMillis();
             log.info("PortIpv6 Start......");
@@ -235,19 +235,19 @@ public class GatherTaskScheduledUtil {
 
     ////////////////
 
-    @Scheduled(cron = "0 */2 * * * ?")
-    public void ping() {
-        if(flag){
-            Long time = System.currentTimeMillis();
-            log.info("ping Start......");
-            try {
-                pingService.exec();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            log.info("ping End......" + (System.currentTimeMillis()-time));
-        }
-    }
+//    @Scheduled(cron = "0 */2 * * * ?")
+//    public void ping() {
+//        if(flag){
+//            Long time = System.currentTimeMillis();
+//            log.info("ping Start......");
+//            try {
+//                pingService.exec();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            log.info("ping End......" + (System.currentTimeMillis()-time));
+//        }
+//    }
 
     @Scheduled(cron = "0 */30 * * * ?")
     public void pingSubnet() {
@@ -277,19 +277,19 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
-    public void gatherProbe() {
-        if(flag){
-            Long time = System.currentTimeMillis();
-            log.info("Probe start......");
-            try {
-                probeService.scanByTerminal();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            log.info("Probe end......" + (System.currentTimeMillis()-time));
-        }
-    }
+//    @Scheduled(cron = "0 */3 * * * ?")
+//    public void probe() {
+//        if(flag){
+//            Long time = System.currentTimeMillis();
+//            log.info("Probe start......");
+//            try {
+//                probeService.scanByTerminal();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            log.info("Probe end......" + (System.currentTimeMillis()-time));
+//        }
+//    }
 
 
     @Scheduled(cron = "59 59 23 * * ?")

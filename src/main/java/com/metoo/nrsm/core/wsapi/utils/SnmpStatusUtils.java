@@ -50,8 +50,13 @@ public class SnmpStatusUtils {
     // 频繁取，每分钟取，存
     public Set<String> getOnlineDevice(){
         Set<String> uuids = new HashSet<>();
-        Set<String> hash_keys = snmp.keys();
-        if(hash_keys.size() > 0){
+        Set<String> hash_keys = null;
+        try {
+            hash_keys = snmp.keys();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(hash_keys != null && !hash_keys.isEmpty()){
             for (String hash_key : hash_keys) {
                 Integer value = (Integer) snmp.get(hash_key);
                 if(value == 1){

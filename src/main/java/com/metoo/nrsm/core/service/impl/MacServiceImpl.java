@@ -46,6 +46,11 @@ public class MacServiceImpl implements IMacService {
     }
 
     @Override
+    public List<Mac> selectTagByDE() {
+        return this.macMapper.selectTagByDE();
+    }
+
+    @Override
     public List<Mac> selectTagToX(Map params) {
         return this.macMapper.selectTagToX(params);
     }
@@ -462,6 +467,7 @@ public class MacServiceImpl implements IMacService {
                 mac.setAddTime(date);
                 mac.setDeviceIp(e.getIp());
                 mac.setDeviceName(e.getDeviceName());
+                mac.setDeviceUuid(e.getUuid());
 //                mac.setPort(e.getPort());
                 mac.setMac("00:00:00:00:00:00");
                 mac.setHostname(hostname);

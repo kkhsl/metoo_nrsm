@@ -28,6 +28,12 @@ public interface TerminalMapper {
 
     List<Terminal> selectV4ipIsNullAndV6ipIsNull();
 
+    List<Terminal> selectDeviceIpByNSwitch();
+
+    List<Terminal> selectObjByNeIp();
+
+    List<Terminal> selectObjByVM();
+
     int save(Terminal instance);
 
     int update(Terminal instance);
@@ -35,6 +41,14 @@ public interface TerminalMapper {
     int batchSave(List<Terminal> instance);
 
     int batchUpdate(List<Terminal> instance);
+
+    List<Terminal> selectVMHost();
+
+    boolean updateVMHostDeviceType();
+
+    boolean updateVMDeviceType();
+
+    boolean updateVMDeviceIp();
 
     int delete(Long id);
 

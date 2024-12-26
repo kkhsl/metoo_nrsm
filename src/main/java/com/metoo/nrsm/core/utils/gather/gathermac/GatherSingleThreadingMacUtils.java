@@ -10,6 +10,7 @@ import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.service.impl.MacServiceImpl;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
+import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.entity.Mac;
 import com.metoo.nrsm.entity.NetworkElement;
 import com.metoo.nrsm.entity.TerminalCount;
@@ -18,10 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,6 +40,8 @@ public class GatherSingleThreadingMacUtils {
     private ITerminalService terminalService;
     @Autowired
     private ITerminalCountService terminalCountService;
+    @Autowired
+    private INetworkElementService networkElementService;
 
     // 单线程采集
     public void gatherMac(List<NetworkElement> networkElements, Date date) {
@@ -52,6 +52,16 @@ public class GatherSingleThreadingMacUtils {
 
             try {
                 this.terminalService.syncTerminal(date);
+
+                // nswitch分析-vm
+                this.terminalService.updateVMHostDeviceType();
+
+                this.terminalService.updateVMDeviceType();
+
+                this.terminalService.updateVMDeviceIp();
+
+                this.networkElementService.updateObjDisplay();
+
 //                this.terminalService.v4Tov6Terminal(date);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -72,6 +82,8 @@ public class GatherSingleThreadingMacUtils {
 
             // 根据vendor判断终端类型
             this.terminalService.writeTerminalType();
+
+            this.terminalService.writeTerminalDeviceTypeToVendor();
 
             // 统计终端是否属于双栈终端
             this.terminalService.dualStackTerminal();
@@ -98,11 +110,8 @@ public class GatherSingleThreadingMacUtils {
                 e.printStackTrace();
             }
 
-            // 扫描终端
-
             // 同步终端到终端历史表
             this.terminalService.syncTerminalToTerminalHistory();
-
 
             this.macService.truncateTableGather();
 
@@ -124,40 +133,46 @@ public class GatherSingleThreadingMacUtils {
 
                 if (StringUtils.isNotEmpty(hostname)) {
 
-                    PythonExecUtils pythonExecUtils2 = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
+                    log.info("getlldp.py ===== {}", networkElement.getIp());
+
                     String getlldpPath = Global.PYPATH + "getlldp.py";
                     String[] getlldpParams = {networkElement.getIp(), networkElement.getVersion(),
                             networkElement.getCommunity()};
 
-                    String result = pythonExecUtils2.exec2(getlldpPath, getlldpParams);
-                    if (StringUtil.isNotEmpty(result)) {
-                        List<Map> lldps = JSONObject.parseArray(result, Map.class);
+                    String getlldp = pythonExecUtils.exec2(getlldpPath, getlldpParams);
+                    if (StringUtil.isNotEmpty(getlldp)) {
+                        List<Map> lldps = JSONObject.parseArray(getlldp, Map.class);
                         this.setRemoteDevice(networkElement, lldps, hostname, date);
                     }
 
-                    PythonExecUtils pythonExecUtils3 = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
+                    log.info("getmac.py ====={}", networkElement.getIp());
+
                     String getMacPath = Global.PYPATH + "getmac.py";
                     String[] getMacParams = {networkElement.getIp(), networkElement.getVersion(),
                             networkElement.getCommunity()};
-                    String resultMac = pythonExecUtils3.exec2(getMacPath, getMacParams);
-                    if (StringUtil.isNotEmpty(resultMac)) {
+                    String getmac = pythonExecUtils.exec2(getMacPath, getMacParams);
+                    if (StringUtil.isNotEmpty(getmac)) {
                         try {
-                            List<Mac> array = JSONObject.parseArray(resultMac, Mac.class);
-                            if (array.size() > 0) {
+                            List<Mac> macList = JSONObject.parseArray(getmac, Mac.class);
+                            if (macList.size() > 0) {
                                 List<Mac> list = new ArrayList();
                                 MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");
-                                array.forEach(e -> {
-                                    if ("3".equals(e.getType())) {
-                                        e.setAddTime(date);
-                                        e.setDeviceIp(networkElement.getIp());
-                                        e.setDeviceName(networkElement.getDeviceName());
-                                        e.setHostname(hostname);
-                                        String patten = "^" + "00:00:5e";
-                                        boolean flag = this.parseLineBeginWith(e.getMac(), patten);
-                                        if (flag) {
-                                            e.setTag("LV");
+                                macList.forEach(mac -> {
+                                    if ("3".equals(mac.getType())) {
+                                        mac.setAddTime(date);
+                                        mac.setDeviceIp(networkElement.getIp());
+                                        mac.setDeviceName(networkElement.getDeviceName());
+                                        mac.setDeviceUuid(networkElement.getUuid());
+                                        mac.setHostname(hostname);
+                                        if(StringUtils.isNotEmpty(mac.getMac())){
+                                            mac.setMac1(MyStringUtils.getSubstringBeforNthDelimiter(mac.getMac(), ":", 3));
                                         }
-                                        list.add(e);
+                                        String patten = "^" + "00:00:5e";
+                                        boolean flag = this.parseLineBeginWith(mac.getMac(), patten);
+                                        if (flag) {
+                                            mac.setTag("LV");
+                                        }
+                                        list.add(mac);
                                     }
                                 });
                                 if (list.size() > 0) {
@@ -169,14 +184,15 @@ public class GatherSingleThreadingMacUtils {
                         }
                     }
 
-                    PythonExecUtils pythonExecUtils4 = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
+                    log.info("getportmac.py ====={}", networkElement.getIp());
+
                     String path4 = Global.PYPATH + "getportmac.py";
                     String[] params4 = {networkElement.getIp(), networkElement.getVersion(),
                             networkElement.getCommunity()};
-                    String result4 = pythonExecUtils4.exec2(path4, params4);
-                    if (StringUtil.isNotEmpty(result4)) {
+                    String getportmac = pythonExecUtils.exec2(path4, params4);
+                    if (StringUtil.isNotEmpty(getportmac)) {
                         try {
-                            List<Mac> array = JSONObject.parseArray(result4, Mac.class);
+                            List<Mac> array = JSONObject.parseArray(getportmac, Mac.class);
                             if (array.size() > 0) {
                                 List<Mac> list = new ArrayList();
                                 MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");
@@ -185,8 +201,12 @@ public class GatherSingleThreadingMacUtils {
                                         e.setAddTime(date);
                                         e.setDeviceIp(networkElement.getIp());
                                         e.setDeviceName(networkElement.getDeviceName());
+                                        e.setDeviceUuid(networkElement.getUuid());
                                         e.setTag("L");
                                         e.setHostname(hostname);
+                                        if(StringUtils.isNotEmpty(e.getMac())){
+                                            e.setMac1(MyStringUtils.getSubstringBeforNthDelimiter(e.getMac(), ":", 3));
+                                        }
                                         String patten = "^" + "00:00:5e";
                                         boolean flag = this.parseLineBeginWith(e.getMac(), patten);
                                         if (flag) {
@@ -244,17 +264,31 @@ public class GatherSingleThreadingMacUtils {
 
             MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");
             List<Mac> list = new ArrayList();
+            Map params = new HashMap();
             for(Map<String, String> obj : lldps){
                 Mac mac = new Mac();
+                if(StringUtils.isNotEmpty(e.getDeviceName())){
+                    params.clear();
+                    params.put("deviceIp", e.getIp());
+                    List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
+                    if(!networkElements.isEmpty()){
+                        mac.setDeviceUuid(networkElements.get(0).getUuid());
+                    }
+                }
+
                 mac.setAddTime(date);
                 mac.setDeviceIp(e.getIp());
                 mac.setDeviceName(e.getDeviceName());
+                mac.setDeviceUuid(e.getUuid());
 //                mac.setPort(e.getPort());
                 mac.setMac("00:00:00:00:00:00");
                 mac.setHostname(hostname);
                 mac.setTag("DE");
                 mac.setRemotePort(obj.get("remoteport"));
                 mac.setRemoteDevice(obj.get("hostname"));
+                if(StringUtils.isNotEmpty(mac.getMac())){
+                    mac.setMac1(MyStringUtils.getSubstringBeforNthDelimiter(mac.getMac(), ":", 3));
+                }
 //                macService.save(mac);
                 list.add(mac);
             }

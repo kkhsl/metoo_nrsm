@@ -19,7 +19,7 @@ public class RestartUnboundUtils {
             String command = "sudo systemctl restart unbound";
             String result = "";
             if ("dev".equals(Global.env)) {
-                result = CommandExecutorSsh.exec("sudo systemctl restart unbound");
+                result = CommandExecutorSsh.execCommand("sudo systemctl restart unbound");
 
             } else {
                 result = CommandExecutor.executeCommand(command);  // 执行命令

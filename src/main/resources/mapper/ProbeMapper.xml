@@ -26,8 +26,12 @@
         </where>
     </select>
 
+    <select id="selectObjDistinctByIp" resultType="java.lang.String">
+        SELECT DISTINCT ip_addr FROM metoo_probe_bck
+    </select>
+
     <select id="mergeProbesByIp" resultType="com.metoo.nrsm.entity.Probe">
-        SELECT
+       SELECT
         ip_addr,
 				reliability,
         GROUP_CONCAT(
@@ -69,7 +73,11 @@
 									if(os_family IS NOT NULL AND os_family != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '')
 								)
 				 ORDER BY port_num SEPARATOR ',')
-				 as combined_os
+				 as combined_os,
+				TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(mac_vendor IS NOT NULL AND mac_vendor != '', mac_vendor, '') ORDER BY mac_vendor SEPARATOR ','))
+        AS combined_vendor,
+				TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(application_protocol IS NOT NULL AND application_protocol != '', application_protocol, '') ORDER BY application_protocol SEPARATOR ','))
+        AS combined_application_protocol
         FROM
         metoo_probe_bck
         WHERE

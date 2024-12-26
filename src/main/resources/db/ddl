@@ -14,3 +14,17 @@ CREATE TABLE `metoo_unbound` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
+
+# 去重macVendor
+CREATE TEMPORARY TABLE tmp AS
+SELECT * FROM metoo_mac_vendor
+WHERE id IN (
+    SELECT MAX(id) FROM metoo_mac_vendor GROUP BY mac
+);
+
+TRUNCATE TABLE metoo_mac_vendor;
+
+INSERT INTO metoo_mac_vendor
+SELECT * FROM tmp;
+
+DROP TEMPORARY TABLE tmp;

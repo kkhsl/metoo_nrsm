@@ -43,6 +43,20 @@ public class TerminalManagerController {
     @Autowired
     private TerminalMacIpv6Mapper terminalMacIpv6Mapper;
 
+    @GetMapping("/vdt")
+    public Result vdt(String ip){
+        if(StringUtils.isNotEmpty(ip)){
+            Map params = new HashMap();
+            params.put("deviceIp", ip);
+//            params.put("deviceIp", ip);
+            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+            if(!terminals.isEmpty()){
+                return ResponseUtil.ok(terminals);
+            }
+        }
+      return ResponseUtil.ok();
+    }
+
     @PostMapping("/list")
     public Object list(@RequestBody TerminalDTO dto){
         if(dto.getStart_purchase_time() != null && dto.getEnd_purchase_time() != null){

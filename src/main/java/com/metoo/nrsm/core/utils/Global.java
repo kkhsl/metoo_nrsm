@@ -90,49 +90,39 @@ public class Global {
     }
 
 
-
-    @Value("${ssh.hostname}")
     public static String host;
-    @Value("${ssh.port}")
     public static int port;
-    @Value("${ssh.username}")
     public static String username;
-    @Value("${ssh.password}")
     public static String password;
 
-    public static void setHost(String host) {
+    @Value("${ssh.hostname}")
+    public void setHost(String host) {
         Global.host = host;
     }
-
-    public static void setPort(int port) {
+    @Value("${ssh.port}")
+    public void setPort(int port) {
         Global.port = port;
     }
-
-    public static void setUsername(String username) {
+    @Value("${ssh.username}")
+    public void setUsername(String username) {
         Global.username = username;
     }
-
-    public static void setPassword(String password) {
+    @Value("${ssh.password}")
+    public void setPassword(String password) {
         Global.password = password;
     }
 
-    @Value("${dhcp.path}")
-    public static String dhcpPath;
-    @Value("${dhcp.name}")
-    public static String dhcpName;
-    @Value("${dhcp6.name}")
-    public static String dhcp6Name;
 
-    public static void setDhcpPath(String dhcpPath) {
-        Global.dhcpPath = dhcpPath;
+    public static String dhcp;
+    public static String dhcp6;
+
+    @Value("${file.dhcp}")
+    public void setDhcp(String dhcp) {
+        Global.dhcp = dhcp;
     }
-
-    public static void setDhcpName(String dhcpName) {
-        Global.dhcpName = dhcpName;
-    }
-
-    public static void setDhcp6Name(String dhcp6Name) {
-        Global.dhcp6Name = dhcp6Name;
+    @Value("${file.dhcp6}")
+    public void setDhcp6(String dhcp6) {
+        Global.dhcp6 = dhcp6;
     }
 
     public static String env;

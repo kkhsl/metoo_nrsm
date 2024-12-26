@@ -29,6 +29,7 @@
             <result column="credential_id" property="credentialId"></result>
             <result column="web_url" property="webUrl"></result>
             <result column="permit_connect" property="permitConnect"></result>
+            <result column="display" property="display"></result>
         </collection>
     </resultMap>
 
@@ -167,11 +168,11 @@
     <select id="selectCountByJoin" resultMap="Join_Result_Map">
         SELECT
             <include refid="Join_Column_List"/>
-         FROM metoo_device_type dt
-         LEFT JOIN
-            metoo_ne n
+        FROM metoo_device_type dt
+        LEFT JOIN
+        metoo_ne n
         ON
-            n.device_type_id = dt.id
+        n.device_type_id = dt.id
         WHERE diff = 0 order by dt.sequence desc;
     </select>
 

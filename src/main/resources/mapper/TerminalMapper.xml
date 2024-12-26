@@ -79,11 +79,33 @@
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
     </select>
 
+    <sql id="Base_Column_Sql">
+
+    </sql>
+
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
         select * from metoo_terminal
         <where>
+            <if test="deviceIp != null and deviceIp != ''">
+                AND deviceIp = #{deviceIp}
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
+            <if test="deviceIp2 != null and deviceIp2 != ''">
+                AND deviceIp2 = #{deviceIp2}
+            </if>
+            <if test="deviceUuid2 != null and deviceUuid2 != ''">
+                OR deviceUuid2 = #{deviceUuid2}
+            </if>
+            <if test="deviceUuidAndDeviceTypeId != null and deviceUuidAndDeviceTypeId != ''">
+                or (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34)
+            </if>
             <if test="mac != null and mac != ''">
                 AND mac = #{mac}
+            </if>
+            <if test="macVendor != null and macVendor != ''">
+                AND macVendor = #{macVendor}
             </if>
             <if test="v4ip != null and v4ip != ''">
                 AND v4ip = #{v4ip}
@@ -125,11 +147,14 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="notInIps != null">
+                AND v4ip not in
+                <foreach collection="notInIps" index = "index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
             <if test="terminalId != null">
                 AND `id` != #{terminalId}
-            </if>
-            <if test="deviceUuid != null and deviceUuid != ''">
-                AND deviceUuid = #{deviceUuid}
             </if>
             <if test="online != null">
                 AND online = #{online}
@@ -171,8 +196,20 @@
     <select id="selectObjHistoryByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
         select * from metoo_terminal_history
         <where>
+            <if test="deviceIp != null and deviceIp != ''">
+                AND deviceIp = #{deviceIp}
+            </if>
             <if test="deviceUuid != null and deviceUuid != ''">
                 AND deviceUuid = #{deviceUuid}
+            </if>
+            <if test="deviceIp2 != null and deviceIp2 != ''">
+                AND deviceIp2 = #{deviceIp2}
+            </if>
+            <if test="deviceUuid2 != null and deviceUuid2 != ''">
+                OR deviceUuid2 = #{deviceUuid2}
+            </if>
+            <if test="deviceUuidAndDeviceTypeId != null and deviceUuidAndDeviceTypeId != ''">
+                or (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34)
             </if>
             <if test="mac != null and mac != ''">
                 AND mac = #{mac}
@@ -204,7 +241,7 @@
 					 mac.mac,
 					 mac.port,
 					 mac.deviceIp,
-					 mac.deviceName,
+                     IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
 					 mac.tag,
 					 mac.hostname,
 					 mac.remoteDevice,
@@ -225,7 +262,11 @@
 					 mac.v6ip1Dynamic,
 					 mac.v6ip2Dynamic,
 					 mac.v6ip3Dynamic,
-					 mac.client_hostname
+					 mac.client_hostname,
+                     mac.deviceUuid as deviceUuid2,
+                     mac.deviceName2,
+                     mac.deviceIp2,
+                     mac.devicePort2
         FROM
             (
                 SELECT
@@ -358,7 +399,7 @@
         FROM
             metoo_mac mac
         WHERE
-            tag = 'DT'
+            tag in('DT', 'VDT')
         ) mac
 
         join
@@ -374,7 +415,7 @@
          mac.mac,
          mac.port,
          mac.deviceIp,
-         mac.deviceName,
+         IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
          mac.tag,
          mac.hostname,
          mac.remoteDevice,
@@ -395,7 +436,12 @@
          mac.v6ip1Dynamic,
          mac.v6ip2Dynamic,
          mac.v6ip3Dynamic,
-         mac.client_hostname
+         mac.client_hostname,
+         mac.macVendor,
+         mac.deviceUuid as deviceUuid2,
+         mac.deviceName2,
+         mac.deviceIp2,
+         mac.devicePort2
         FROM
             (
                 SELECT
@@ -528,12 +574,12 @@
         FROM
             metoo_mac mac
         WHERE
-            tag = 'DT'
+            tag in('DT', 'VDT')
             ) mac
         LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
         WHERE
             terminal.mac IS NULL
-        and (mac.v4ip is not null or mac.v6ip is not null)
+       /* and (mac.v4ip is not null or mac.v6ip is not null)*/
     </select>
 
     <select id="selectObjRightdifference" resultType="com.metoo.nrsm.entity.Terminal">
@@ -688,7 +734,7 @@
                 FROM
                     metoo_mac mac
                 WHERE
-                    tag = 'DT'
+                    tag in('DT', 'VDT')
             ) mac
         right join
           metoo_terminal terminal
@@ -741,9 +787,40 @@
         ) AS v4ip_v6ip_count
     FROM
         metoo_terminal
+    </select>
 
+    <select id="selectDeviceIpByNSwitch" resultType="com.metoo.nrsm.entity.Terminal">
+        select terminal1.id, terminal2.v4ip as deviceIp from metoo_terminal terminal1
+        join
+        (
+        select * from metoo_terminal where deviceType = 1 and deviceName like 'NSwitch%' group by deviceName
+        )terminal2
 
+        on terminal1.deviceName = terminal2.deviceName
 
+        where terminal1.deviceType is null and terminal1.deviceIp is null
+    </select>
+
+    <select id="selectObjByNeIp" resultType="com.metoo.nrsm.entity.Terminal">
+       SELECT
+            terminal.id, 0 as deviceType
+        FROM
+            metoo_terminal terminal
+        JOIN metoo_ne ne ON terminal.v4ip = ne.ip
+    </select>
+
+    <select id="selectObjByVM" resultType="com.metoo.nrsm.entity.Terminal">
+        SELECT deviceName,
+               CASE
+                   WHEN macVendor LIKE '%VMware%' THEN 'VMware'
+                   ELSE 'Other'
+               END AS macVendorCategory,
+               COUNT(*) AS count,
+                v4ip
+        FROM metoo_terminal
+        where  macVendor IS NOT NULL AND v4ip IS NOT NULL
+        GROUP BY deviceName, macVendorCategory
+        HAVING (macVendorCategory = 'Other' AND COUNT(*) = 1)
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Terminal" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
@@ -1045,13 +1122,13 @@
             <if test="port != null">
                 port = #{port},
             </if>
-            <if test="deviceIp != null">
+            <if test="deviceIp != null and deviceIp != ''">
                 deviceIp = #{deviceIp},
             </if>
-            <if test="deviceName != null">
+            <if test="deviceName != null and deviceName != ''">
                 deviceName = #{deviceName},
             </if>
-            <if test="deviceUuid != null">
+            <if test="deviceUuid != null and deviceUuid != ''">
                 deviceUuid = #{deviceUuid},
             </if>
             <if test="tag != null">
@@ -1198,8 +1275,120 @@
             <if test="os != ''">
                 os = #{os},
             </if>
+            <if test="deviceType != null and deviceType != ''">
+                deviceType = #{deviceType},
+            </if>
+            <if test="deviceUuid2 != null and deviceUuid2 != ''">
+                deviceUuid2 = #{deviceUuid2},
+            </if>
+            <if test="deviceName2 != null and deviceName2 != ''">
+                deviceName2 = #{deviceName2},
+            </if>
+            <if test="deviceIp2 != null and deviceIp2 != ''">
+                deviceIp2 = #{deviceIp2},
+            </if>
+            <if test="devicePort2 != null and devicePort2 != ''">
+                devicePort2 = #{devicePort2},
+            </if>
         </set>
         WHERE id = #{id}
+    </update>
+
+    <update id="updateVMHostDeviceType">
+         UPDATE metoo_terminal d1
+            JOIN (
+               SELECT
+                    deviceName,
+                    deviceUuid2,
+                    PORT,
+                    v4ip,
+                    COUNT(
+                        CASE
+                        WHEN macVendor LIKE 'VMware%' THEN
+                            1
+                        END
+                    ) AS vmwareCount,
+                    COUNT(
+                        CASE
+                        WHEN macVendor NOT LIKE 'VMware%' OR macVendor IS NULL
+                        THEN 1
+                        END
+                    ) AS otherCount
+                FROM
+                    metoo_terminal
+                GROUP BY
+                    deviceName,
+                    PORT
+                HAVING
+                    vmwareCount >= 1 -- 至少有一条包含 'VMware' 的记录
+                AND otherCount = 1
+            ) AS d2
+            ON d1.deviceName = d2.deviceName AND d1.port = d2.port
+            -- 只更新符合条件的记录
+            SET d1.deviceTypeId = 34,  d1.deviceUuid = d1.deviceUuid2
+            WHERE d1.macVendor NOT LIKE 'VMware%' OR macVendor IS NULL;
+    </update>
+
+    <update id="updateVMDeviceType">
+         UPDATE metoo_terminal d1
+         JOIN (
+                SELECT *
+                FROM metoo_terminal
+                WHERE macVendor
+                LIKE 'VMware%'
+            )d2
+        ON d1.id = d2.id
+        SET d1.deviceTypeId = 9;
+--       update metoo_terminal d1 where EXISTS(select 1 from metoo_terminal d2 where d2.macVendor like 'VMware%' and d1.id = d2.id);
+    </update>
+
+    <update id="updateVMDeviceIp">
+--         UPDATE metoo_terminal d1
+--             JOIN (
+--                 SELECT deviceName, v4ip
+--                 -- 子查询：选择所有 macVendor 为非 'VMware' 的记录，排除空值，确保 v4ip 是唯一的
+--                 FROM metoo_terminal
+--                 WHERE macVendor NOT LIKE '%VMware%' AND macVendor IS NOT NULL AND v4ip IS NOT NULL
+--                 GROUP BY deviceName, port, v4ip
+--                 HAVING COUNT(*) = 1
+--             ) AS d2
+--             ON d1.deviceName = d2.deviceName
+--             -- 仅更新 macVendor 为 'VMware' 的条目
+--             SET d1.deviceIp = d2.v4ip, d1.deviceName = null, d1.hostname = null, d1.deviceTypeId = 9, d1.tag = 'VDT'
+--             WHERE d1.macVendor LIKE '%VMware%';
+        -- 所有操作在同一个 SQL 块中执行
+        BEGIN;
+
+        -- 创建临时表
+        CREATE TEMPORARY TABLE tmp_table AS
+        SELECT deviceName, port, v4ip
+        FROM metoo_terminal t1
+        WHERE t1.macVendor NOT LIKE 'VMware%'
+          AND EXISTS (
+              SELECT 1
+              FROM metoo_terminal t2
+              WHERE t1.deviceName = t2.deviceName
+                AND t1.port = t2.port
+              GROUP BY t2.deviceName, t2.port
+              HAVING COUNT(CASE WHEN t2.macVendor LIKE 'VMware%' THEN 1 END) >= 1
+                 AND COUNT(CASE WHEN t2.macVendor NOT LIKE 'VMware%' OR t2.macVendor IS NULL THEN 1 END) = 1
+        );
+
+        -- 执行更新操作
+        UPDATE metoo_terminal d1
+        JOIN tmp_table d2 ON d1.deviceName = d2.deviceName
+            AND d1.port = d2.port
+        SET
+            d1.deviceIp = d2.v4ip,
+            d1.deviceName = NULL,
+            d1.hostname = NULL,
+            d1.tag = 'VDT'
+        WHERE d1.macVendor LIKE 'VMware%';
+
+        -- 删除临时表
+        DROP TEMPORARY TABLE tmp_table;
+
+        COMMIT;
     </update>
 
     <insert id="batchSave" parameterType="java.util.List">
@@ -1235,7 +1424,12 @@
         online,
         client_hostname,
         uuid,
-        deviceTypeId
+        deviceTypeId,
+        macVendor,
+        deviceUuid2,
+        deviceName2,
+        deviceIp2,
+        devicePort2
         )
         VALUES
         <foreach collection ="list" item="item" separator ="," >
@@ -1271,7 +1465,12 @@
             #{item.online},
             #{item.client_hostname},
             #{item.uuid},
-            #{item.deviceTypeId}
+            #{item.deviceTypeId},
+            #{item.macVendor},
+            #{item.deviceUuid2},
+            #{item.deviceName2},
+            #{item.deviceIp2},
+            #{item.devicePort2}
             )
         </foreach>
     </insert>
@@ -1289,13 +1488,13 @@
                 <if test="item.port != null and item.port != ''">
                     port = #{item.port},
                 </if>
-                <if test="item.deviceIp != ''">
+                <if test="item.deviceIp != null and item.deviceIp != ''">
                     deviceIp = #{item.deviceIp},
                 </if>
-                <if test="item.deviceName != ''">
+                <if test="item.deviceName != null and item.deviceName != ''">
                     deviceName = #{item.deviceName},
                 </if>
-                <if test="item.deviceUuid != ''">
+                <if test="item.deviceUuid != null and item.deviceUuid != ''">
                     deviceUuid = #{item.deviceUuid},
                 </if>
                 <if test="item.remoteDevice != ''">

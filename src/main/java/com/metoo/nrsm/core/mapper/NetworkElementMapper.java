@@ -28,6 +28,8 @@ public interface NetworkElementMapper {
 
     int update(NetworkElement instance);
 
+    int updateObjDisplay();
+
     int delete(Long id);
 
     NetworkElement selectAccessoryByUuid(String uuid);

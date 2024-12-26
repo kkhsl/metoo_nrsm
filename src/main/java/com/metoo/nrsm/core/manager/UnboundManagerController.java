@@ -8,6 +8,7 @@ import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Unbound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
@@ -21,10 +22,14 @@ public class UnboundManagerController {
 
     @Autowired
     private IUnboundService unboundService;
-    private String host = "192.168.6.101";
-    private String username = "root";
-    private String password = "Metoo89745000!";
+    @Value("${ssh.hostname}")
+    private String host;
+    @Value("${ssh.port}")
     private int port = 22;
+    @Value("${ssh.username}")
+    private String username;
+    @Value("${ssh.password}")
+    private String password;
 
     @PostMapping("/save")
     private Result add(@RequestBody UnboundDTO instance) {
@@ -58,7 +63,6 @@ public class UnboundManagerController {
         }
         return ResponseUtil.error("重复删除");
     }
-
 
     @GetMapping("/select")
     private Result unbound() {
@@ -99,7 +103,6 @@ public class UnboundManagerController {
         return ResponseUtil.error("重复删除");
     }
 
-
     @PostMapping("/openAddress")
     private Result openAddress(@RequestBody UnboundDTO instance) {
         boolean flag = this.unboundService.open(instance);
@@ -115,10 +118,6 @@ public class UnboundManagerController {
         }
         return ResponseUtil.error();
     }
-
-
-
-
 
     @GetMapping("/status")
     public Boolean status() throws Exception {

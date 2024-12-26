@@ -78,6 +78,10 @@
         <result column="combined_port_protocol" property="combined_port_protocol" />
         <result column="combined_vendor_gen_family" property="combined_vendor_gen_family" />
         <result column="os" property="os" />
+        <result column="deviceUuid2" property="deviceUuid2"/>
+        <result column="deviceName2" property="deviceName2" />
+        <result column="devicePort2" property="devicePort2" />
+        <result column="os" property="os" />
     </resultMap>
 
 

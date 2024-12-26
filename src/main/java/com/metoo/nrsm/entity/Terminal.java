@@ -31,6 +31,11 @@ public class Terminal extends IdEntity {
     @ApiModelProperty("类型 0: 普通终端 1：资产终端")
     private Integer type;
 
+    @ApiModelProperty("类型 0: 网元列表里的ip在terminal里面的devicetype设置为0 " +
+            " 1：设备" +
+            " 2：vmware ")
+    private Integer deviceType;
+
     private String macVendor;
 
     private String v4ip;
@@ -60,9 +65,12 @@ public class Terminal extends IdEntity {
     @ApiModelProperty("设备名称")
     private String deviceName;
 
-    private String deviceType;
-
     private String deviceUuid;
+
+    private String deviceUuid2;
+    private String deviceName2;
+    private String deviceIp2;
+    private String devicePort2;
 
     @ApiModelProperty("设备类型")
     private Long deviceTypeId;
@@ -185,5 +193,7 @@ public class Terminal extends IdEntity {
     private String combined_port_protocol;
     @ApiModelProperty("vendor + gen + family")
     private String combined_vendor_gen_family;
+
+
 
 }

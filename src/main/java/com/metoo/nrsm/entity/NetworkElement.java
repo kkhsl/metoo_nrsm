@@ -2,6 +2,7 @@ package com.metoo.nrsm.entity;
 
 import com.metoo.nrsm.core.config.annotation.excel.ExcelImport;
 import com.metoo.nrsm.core.domain.IdEntity;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -99,5 +100,7 @@ public class NetworkElement extends IdEntity {
     private List<Port> ports = new ArrayList<>();
 
 
+    @ApiModelProperty("nswitch: 0：显示 1：隐藏")
+    private boolean display;
 
 }

@@ -124,6 +124,17 @@ public class NetworkElementServiceImpl implements INetworkElementService {
     }
 
     @Override
+    public int updateObjDisplay() {
+        try {
+            this.networkElementMapper.updateObjDisplay();
+            return 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    @Override
     public int delete(Long id) {
         try {
             this.networkElementMapper.delete(id);
