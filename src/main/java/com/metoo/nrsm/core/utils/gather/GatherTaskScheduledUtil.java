@@ -118,7 +118,7 @@ public class GatherTaskScheduledUtil {
             Long time=System.currentTimeMillis();
             log.info("mac Start......");
             try {
-                gatherService.gatherMac(DateTools.gatherDate());
+                this.gatherService.gatherMac(DateTools.gatherDate());
 //                gatherService.gatherMacThread(DateTools.gatherDate());
             } catch (Exception e) {
                 e.printStackTrace();

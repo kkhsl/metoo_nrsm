@@ -13,5 +13,7 @@ public interface PingIpConfigMapper {
 
     PingIpConfig selectOneObj();
 
+    int save(PingIpConfig install);
+
     int update(PingIpConfig install);
 }

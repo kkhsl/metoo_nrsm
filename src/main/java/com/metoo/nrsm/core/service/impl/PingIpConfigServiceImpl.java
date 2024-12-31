@@ -33,6 +33,10 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
     @Override
     public boolean update(PingIpConfig install) {
         try {
+            PingIpConfig config = this.pingIpConfigMapper.selectOneObj();
+            if(config == null){
+                this.pingIpConfigMapper.save(install);
+            }
             this.pingIpConfigMapper.update(install);
             return true;
         } catch (Exception e) {

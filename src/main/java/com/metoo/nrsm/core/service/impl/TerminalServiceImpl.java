@@ -6,6 +6,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.dto.TerminalDTO;
 import com.metoo.nrsm.core.manager.utils.MacUtils;
 import com.metoo.nrsm.core.manager.utils.TerminalUtils;
+import com.metoo.nrsm.core.manager.utils.VerifyMacVendorUtils;
 import com.metoo.nrsm.core.mapper.MacVendorMapper;
 import com.metoo.nrsm.core.mapper.TerminalMacIpv6Mapper;
 import com.metoo.nrsm.core.mapper.TerminalMacVendorMapper;
@@ -133,6 +134,26 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
+    public boolean updateObjDeviceTypeByMac() {
+        Map params = new HashMap();
+        params.put("v4ipIsNull", "v4ipIsNull");
+        params.put("deviceType", 0);
+        List<Terminal> TerminalList = this.terminalMapper.selectObjByMap(params);
+        if(!TerminalList.isEmpty()){
+            for (Terminal terminal : TerminalList) {
+                String vendor = VerifyMacVendorUtils.toDevice(terminal.getMacVendor());
+                if(StringUtil.isNotEmpty(vendor)){
+                    terminal.setDeviceType(1);
+                    this.terminalMapper.update(terminal);
+                }
+            }
+
+        }
+
+        return false;
+    }
+
+    @Override
     public boolean save(Terminal instance) {
         if (instance.getId() == null) {
             if (instance.getId() == null || instance.getId().equals("")) {
@@ -173,6 +194,7 @@ public class TerminalServiceImpl implements ITerminalService {
     @Override
     public boolean update(Terminal instance) {
         try {
+            instance.setUpdateTime(new Date());
             this.terminalMapper.update(instance);
             return true;
         } catch (Exception e) {

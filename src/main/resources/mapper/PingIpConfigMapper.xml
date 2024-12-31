@@ -9,6 +9,32 @@
         SELECT * FROM metoo_pingipconfig limit 1
     </select>
 
+    <insert id="save" parameterType="com.metoo.nrsm.entity.PingIpConfig">
+        INSERT INTO metoo_pingipconfig
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="status != null">
+                status,
+            </if>
+            <if test="v6ip1 != null">
+                v6ip1,
+            </if>
+            <if test="v6ip2 != null">
+                v6ip2,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="v6ip1 != null">
+                #{v6ip1},
+            </if>
+            <if test="v6ip2 != null">
+                #{v6ip2},
+            </if>
+        </trim>
+    </insert>
+
     <update id="update" parameterType="com.metoo.nrsm.entity.PingIpConfig">
         UPDATE metoo_pingipconfig
         <set>

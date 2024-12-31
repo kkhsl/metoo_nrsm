@@ -61,13 +61,17 @@ public class GatherSingleThreadingMacUtils {
                 this.terminalService.updateVMDeviceIp();
 
                 this.networkElementService.updateObjDisplay();
-
+//
 //                this.terminalService.v4Tov6Terminal(date);
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            // 统计终端属于哪个单位
+            // 标记deviceType是否为设备。（v4ip为空，根据mac地址判断）
+            this.terminalService.updateObjDeviceTypeByMac();
+
+
+          // 统计终端属于哪个单位
             try {
                 this.terminalService.writeTerminalUnit();
             } catch (Exception e) {

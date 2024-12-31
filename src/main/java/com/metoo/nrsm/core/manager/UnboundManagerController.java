@@ -164,8 +164,10 @@ public class UnboundManagerController {
 
         // 检查 Unbound 服务状态
         session = conn.openSession();
-        session.execCommand("systemctl status unbound");
-        String statusOutput = consumeInputStream(session.getStdout());
+
+//        session.execCommand("systemctl status unbound");
+//        String statusOutput = consumeInputStream(session.getStdout());
+
         session.close(); // 关闭会话
 
         // 检查 Unbound 服务状态

@@ -32,6 +32,8 @@ public interface ITerminalService {
 
     boolean updateVMDeviceIp();
 
+    boolean updateObjDeviceTypeByMac();
+
     boolean save(Terminal instance);
 
     boolean update(Terminal instance);

@@ -131,6 +131,12 @@
             <if test="tagIsNull != null and tagIsNull != ''">
                 AND tag is null
             </if>
+            <if test="v4ipIsNull != null and v4ipIsNull != ''">
+                AND v4ip IS NULL
+            </if>
+            <if test="deviceType != null">
+                AND deviceType = #{deviceType}
+            </if>
             <if test="notTag != null and notTag != ''">
                 AND tag != #{notTag}
             </if>
@@ -1113,6 +1119,9 @@
             <if test="addTime != null">
                 addTime = #{addTime},
             </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime},
+            </if>
             <if test="name != null and name != ''">
                 `name` = #{name},
             </if>
@@ -1481,6 +1490,9 @@
             <set>
                 <if test="item.addTime != null">
                     addTime = #{item.addTime},
+                </if>
+                <if test="item.updateTime != null">
+                    updateTime = #{item.updateTime},
                 </if>
                 <if test="item.online != null">
                     online = #{item.online},

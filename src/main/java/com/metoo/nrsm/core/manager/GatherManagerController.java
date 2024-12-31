@@ -56,6 +56,33 @@ public class GatherManagerController {
     @Autowired
     private INetworkElementService networkElementService;
 
+
+    @GetMapping("/insertTerminal")
+    public void insertTerminal(){
+        try {
+            this.terminalService.syncTerminal(new Date());
+
+            // nswitch分析-vm
+            this.terminalService.updateVMHostDeviceType();
+
+            this.terminalService.updateVMDeviceType();
+
+            this.terminalService.updateVMDeviceIp();
+
+            this.networkElementService.updateObjDisplay();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @GetMapping("/terminal/device/type")
+    public String updateDeviceType(){
+        this.terminalService.updateObjDeviceTypeByMac();
+        return "ok";
+    }
+
+
     @GetMapping("/vm/mac/terminal")
     public String mac_terminal(){
 
@@ -80,11 +107,6 @@ public class GatherManagerController {
     }
         return "ok";
     }
-
-
-
-
-
 
     @GetMapping("/vm/copyGatherData")
     public String copyGatherData(){
@@ -152,9 +174,10 @@ public class GatherManagerController {
                         String[] eles = ele.split("/", 2);// 字符串的末尾或连续分隔符之间可能会包括一个分隔符本身
                         if(eles.length > 0){
                             String port_num = eles[0];
-//                            if(port_num.equals("2")){
+                            if(port_num.equals("2")){
 //                                continue outerLoop; // 使用标签跳出外层循环
-//                            }
+                                continue;
+                            }
                             String application_protocol = eles[1];
                             if(application_protocol.contains("telnet")){
                                 device = true;
