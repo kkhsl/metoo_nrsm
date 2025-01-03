@@ -211,7 +211,9 @@ public class ProbeServiceImpl implements IProbeService {
     @Override
     public void scanByTerminal() {
         // 1.查询全部终端（采集表）
-        List<Terminal> terminals = this.terminalService.selectObjByMap(Collections.EMPTY_MAP);
+        Map params = new HashMap();
+        params.put("v4ipIsNull", "v4ipIsNull");
+        List<Terminal> terminals = this.terminalService.selectObjByMap(params);
         if(!terminals.isEmpty()){
             // 调用创发接口
             getProbeResult();

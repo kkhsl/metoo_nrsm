@@ -44,8 +44,6 @@ import java.util.stream.Collectors;
 @Component
 public class GatherMacUtils {
     @Autowired
-    private IMacService macService;
-    @Autowired
     private IDeviceTypeService deviceTypeService;
     @Autowired
     private INetworkElementService networkElementService;
@@ -53,142 +51,59 @@ public class GatherMacUtils {
     private INswitchService nswitchService;
     @Autowired
     private ITerminalService terminalService;
+    @Autowired
+    private IMacService macService;
 
-    /**
-     *     REQUIRED(0), 如果当前存在事务，则加入该事务；如果当前没有事务，则创建一个新的事务。这是最常见的传播行为，适用于大部分情况。
-     *     SUPPORTS(1),如果当前存在事务，则加入该事务；如果当前没有事务，则以非事务的方式执行。这种传播行为适用于不需要事务支持的方法。
-     *     MANDATORY(2),如果当前存在事务，则加入该事务；如果当前没有事务，则抛出异常。这种传播行为适用于必须在事务中执行的方法
-     *     REQUIRES_NEW(3),无论当前是否存在事务，都创建一个新的事务。如果当前存在事务，则将当前事务挂起。这种传播行为适用于需要独立事务的方法。
-     *     NOT_SUPPORTED(4),以非事务的方式执行方法。如果当前存在事务，则将当前事务挂起。这种传播行为适用于不需要事务支持的方法。
-     *     NEVER(5),以非事务的方式执行方法。如果当前存在事务，则抛出异常。这种传播行为适用于不允许在事务中执行的方法。
-     *     NESTED(6);如果当前存在事务，则在嵌套事务中执行；如果当前没有事务，则创建一个新的事务。嵌套事务是保存在当前事务中的子事务，它可以独立于父事务进行提交或回滚。这种传播行为适用于需要嵌套事务支持的方法。
-     *     以上是Java中事务的七种传播行为，根据具体的业务需求和场景选择合适的传播行为可以有效地管理事务。
-     *
-     *     @Transactional(timeout = 5, readOnly = true) // methodD 的事务超时时间为 5 秒，且为只读事务
-     */
-    // 复制采集数据到Mac表
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void copyGatherData(Date date){
-        try {
-            this.macService.copyGatherDataToMac(date);
 
-            this.mac_tag(date);
+        try {
+
+            copyData(date);
+
+            updateMacTag(date);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error method copyGatherData: {}", date, e);
         }
     }
 
-
-    // 如何让这两个操作在同一个事务中（什么是事务传播 ）
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void testTransaction(Date date){
-
-        this.macService.deleteTable();
-
-        this.macService.copyGather(date);
-
+    private void copyData(Date date) {
+        macService.copyGatherDataToMac(date);
     }
 
 
+    private void updateMacTag(Date date){
+        setTagToX(); // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V
+        setTagToU();// 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
+        setTagToS();
+        setTagSToE();
+        setTagSToRT();
+        setTagXToE();
+        setTagUToE();
+        setTagUToRT();
+//        RTToDT();
+        setTagRTToDT();
+        copyArpIpToMacByDT();
+        setTagRTToVDT(date);  // NSwitch
+        setTagDTToVDE(); // （无线路由器）
+        setTagRTToVDE();
+        setTagRTToDTByDE();
+        removeApTerminal(); // 删除mac与为ap mac地址相同的数据
 
-    /**
-     * mac对端设备
-     * @param e
-     * @param lldps
-     * @param hostname
-     * @param date
-     */
-    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date){
-        // 写入对端信息
-        if(lldps != null && lldps.size() > 0){
-            for(Map<String, String> obj : lldps){
-                Mac mac = new Mac();
-                mac.setAddTime(date);
-                mac.setDeviceIp(e.getIp());
-                mac.setDeviceName(e.getDeviceName());
-                mac.setDeviceUuid(e.getUuid());
-//                mac.setPort(e.getPort());
-                mac.setMac("00:00:00:00:00:00");
-                mac.setHostname(hostname);
-                mac.setTag("DE");
-                mac.setRemotePort(obj.get("remoteport"));
-                mac.setRemoteDevice(obj.get("hostname"));
-                this.macService.save(mac);
-            }
-        }
     }
-
-    // Mac-DT
-    public void mac_tag(Date date){
-
-        // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V
-        this.tag_x();
-        // 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
-        this.tag_u();
-        this.tag_s();
-        this.tag_STOE();
-        this.tag_STORT();
-//        this.copyArpMacAndIpToMac()
-        this.tag_XToE();
-        this.tag_UToE();
-//        this.selectXToUTByMap();
-        this.selectUToRT();
-//        this.RTToDT();
-        this.RTToDT2();
-        this.copyArpIpToMacByDT();
-
-        // NSwitchn
-        this.rtTovdt(date);
-
-        // （无线路由器）
-        this.dtTode();
-        this.rtTode();
-        this.rtTodt();
-        // 删除mac与为ap mac地址相同的数据
-        this.removeApTerminal();
-
-        // VM
-//        this.vm();
-    }
-
-    // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V
-//    public void tag_x(){// 全部设备
-//        Map params = new HashMap();
-//        params.put("tags", Arrays.asList("L", "LV"));
-//        List<Mac> macs = this.macService.selectObjByMap(params);
-//        if(macs.size() > 0){
-//            Set<String> macSet = new HashSet<>();
-//            macs.forEach(e -> {
-//                macSet.add(e.getMac());
-//            });
-//
-//            params.clear();
-//            params.put("notMacSet", macSet);
-//            params.put("tagIsNull", "tagIsNull");
-////            params.put("notTag", "DE");
-//            List<Mac> unequalToUpMac = this.macService.selectObjByMap(params);
-//            if(unequalToUpMac.size() > 0){
-//                unequalToUpMac.stream().forEach(e -> e.setTag(setTag("X", e.getMac())));
-////                for (Mac mac : unequalToUpMac) {
-////                    mac.setTag(setTag("X", mac.getMac()));
-////                }
-//                this.macService.batchUpdate(unequalToUpMac);
-//            }
-//        }
-//    }
 
     // 标记为X
-    public void tag_x(){// 单台设备
-        List<Mac> unequalToUpMac = this.macService.selectTagToX(null);
+    private void setTagToX(){// 单台设备
+        List<Mac> unequalToUpMac = macService.selectTagToX(null);
         if(unequalToUpMac.size() > 0){
             unequalToUpMac.stream().forEach(e -> e.setTag(setTag("X", e.getMac())));
-            this.macService.batchUpdate(unequalToUpMac);
+            macService.batchUpdate(unequalToUpMac);
         }
     }
 
     // 根据mac地址，标记V
-    public String setTag(String tag, String mac){
+    private String setTag(String tag, String mac){
         String patten = "^" + "00:00:5e";
         boolean flag = this.parseLineBeginWith(mac, patten);
         if (flag) {
@@ -203,7 +118,7 @@ public class GatherMacUtils {
      * @param head
      * @return
      */
-    public boolean parseLineBeginWith(String lineText, String head){
+    private boolean parseLineBeginWith(String lineText, String head){
 
         if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
             String patten = "^" + head;
@@ -220,7 +135,7 @@ public class GatherMacUtils {
     }
 
     // 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
-    public void tag_u(){// 单台设备
+    private void setTagToU(){// 单台设备
         List<Mac> macs = this.macService.selectTagToU(null);
         if(macs.size() > 0){
             macs.stream().forEach(e -> e.setTag("U"));
@@ -228,7 +143,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void tag_s(){
+    private void setTagToS(){
         List<Mac> macs = this.macService.selectTagToS(null);
         if(macs.size() > 0){
             macs.stream().forEach(e -> e.setTag("S"));
@@ -236,7 +151,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void tag_STOE(){// 单台设备
+    private void setTagSToE(){// 单台设备
         List<Mac> macs = this.macService.selectTagSToE(null);
         if(macs.size() > 0){
             macs.stream().forEach(e -> e.setTag("E"));
@@ -244,7 +159,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void tag_STORT(){// 单台设备
+    private void setTagSToRT(){// 单台设备
         List<Mac> macs = this.macService.selectTagSToRT(null);
         if(macs.size() > 0){
             macs.stream().forEach(e -> e.setTag("RT"));
@@ -253,13 +168,10 @@ public class GatherMacUtils {
     }
 
     // 将arp表中mac对应的ip地址、mac厂商写入mac表(不包含DE)
-    public void copyArpMacAndIpToMac(){
+    private void copyArpMacAndIpToMac(){
         try {
             List<Mac> macs = this.macService.copyArpMacAndIpToMac(null);
             if(macs != null && macs.size() > 0){
-//                for (Mac mac : macs) {
-//                    this.macService.update(mac);
-//                }
                 this.macService.batchUpdate(macs);
             }
         } catch (Exception e) {
@@ -268,7 +180,7 @@ public class GatherMacUtils {
     }
 
     // 为x的条目如果在全网(除本机)匹配到任何1条为L的标记，则此条目标记为E(Equipment)
-    public void tag_XToE(){
+    private void setTagXToE(){
         try {
             List<Mac> macs = this.macService.selectXToEByMap(null);
             if(macs != null && macs.size() > 0){
@@ -280,7 +192,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void tag_UToE(){
+    private void setTagUToE(){
         try {
             List<Mac> macs = this.macService.selectUToEByMap(null);
             if(macs != null && macs.size() > 0){
@@ -292,7 +204,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void selectUToRT(){
+    private void setTagUToRT(){
         try {
             List<Mac> macs = this.macService.selectUToRTByMap(null);
             if(macs != null && macs.size() > 0){
@@ -307,7 +219,7 @@ public class GatherMacUtils {
     }
 
     // 标记为UT且有ip地址的，标记为DT
-    public void RTToDT(){
+    private void RTToDT(){
         try {
             List<Mac> macs = this.macService.selectRTToDTByMap(null);
             if(macs != null && macs.size() > 0){
@@ -319,7 +231,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void RTToDT2(){
+    private void setTagRTToDT(){
         try {
             List<Mac> macs = this.macService.selectRTToDT2ByMap(null);
             if(macs != null && macs.size() > 0){
@@ -331,13 +243,10 @@ public class GatherMacUtils {
         }
     }
 
-    public void copyArpIpToMacByDT(){
+    private void copyArpIpToMacByDT(){
         try {
             List<Mac> macs = this.macService.copyArpIpToMacByDT(null);
             if(macs != null && macs.size() > 0){
-//                for (Mac mac : macs) {
-//                    this.macService.update(mac);
-//                }
                 this.macService.batchUpdate(macs);
             }
         } catch (Exception e) {
@@ -345,7 +254,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void dtTode(){
+    private void setTagDTToVDE(){
         try {
             List<Mac> macs = this.macService.selectDTToDEByMap(null);
             if(macs != null && macs.size() > 0){
@@ -356,7 +265,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void rtTode(){
+    private void setTagRTToVDE(){
         try {
             List<Mac> macs = this.macService.selectRTToDEByMap(null);
             if(macs != null && macs.size() > 0){
@@ -367,7 +276,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void rtTodt(){
+    private void setTagRTToDTByDE(){
         try {
             List<Mac> macs = this.macService.selectRTToDTByDE();
             if(macs != null && macs.size() > 0){
@@ -378,22 +287,7 @@ public class GatherMacUtils {
         }
     }
 
-//    // 同一个端口下有mac为vmware的条目，且只有一个不为vmware的条目，则这个不为vmware的条目是DT
-    private void vm(){
-        try {
-            this.terminalService.updateVMHostDeviceType();
-
-            this.terminalService.updateVMDeviceType();
-
-            this.terminalService.updateVMDeviceIp();
-
-            this.networkElementService.updateObjDisplay();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void rtTovdt(Date date){
+    private void setTagRTToVDT(Date date){
         try {
             List<Mac> macs = this.macService.selectRTToVDT();
             int i = 0;
@@ -432,11 +326,9 @@ public class GatherMacUtils {
                         obj.setDeviceUuid(mac.getDeviceUuid());
                         obj.setDeviceName(mac.getDeviceName());
                         obj.setHostname(mac.getHostname());
-
                         // 对端设备信息
                         obj.setRemotePort("V0");
                         obj.setRemoteDevice(nswitchName);
-
                         this.macService.save(obj);
 
 //                        // 增加虚拟网元
@@ -526,7 +418,36 @@ public class GatherMacUtils {
         return flag;
     }
 
-    public void removeApTerminal(){
+
+
+    /**
+     * mac对端设备
+     * @param e
+     * @param lldps
+     * @param hostname
+     * @param date
+     */
+    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date){
+        // 写入对端信息
+        if(lldps != null && lldps.size() > 0){
+            for(Map<String, String> obj : lldps){
+                Mac mac = new Mac();
+                mac.setAddTime(date);
+                mac.setDeviceIp(e.getIp());
+                mac.setDeviceName(e.getDeviceName());
+                mac.setDeviceUuid(e.getUuid());
+//                mac.setPort(e.getPort());
+                mac.setMac("00:00:00:00:00:00");
+                mac.setHostname(hostname);
+                mac.setTag("DE");
+                mac.setRemotePort(obj.get("remoteport"));
+                mac.setRemoteDevice(obj.get("hostname"));
+                this.macService.save(mac);
+            }
+        }
+    }
+
+    private void removeApTerminal(){
         Map params = new HashMap();
         params.put("type", 3);
         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);

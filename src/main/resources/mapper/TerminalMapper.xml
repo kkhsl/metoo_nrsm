@@ -272,6 +272,7 @@
                      mac.deviceUuid as deviceUuid2,
                      mac.deviceName2,
                      mac.deviceIp2,
+					 mac.macVendor as macVendor,
                      mac.devicePort2
         FROM
             (
@@ -1299,6 +1300,9 @@
             <if test="devicePort2 != null and devicePort2 != ''">
                 devicePort2 = #{devicePort2},
             </if>
+            <if test="macVendor != null and macVendor != ''">
+                macVendor = #{macVendor},
+            </if>
         </set>
         WHERE id = #{id}
     </update>
@@ -1574,6 +1578,9 @@
                 </if>
                 <if test="item.hostname != ''">
                     hostname = #{item.hostname},
+                </if>
+                <if test="item.macVendor != ''">
+                    macVendor = #{item.macVendor},
                 </if>
             </set>
             WHERE id = #{item.id}

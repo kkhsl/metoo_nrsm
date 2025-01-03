@@ -39,7 +39,7 @@
 
     <select id="selectTagByDE" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            *
+            d1.*
         FROM
             metoo_mac d1
         WHERE
@@ -50,9 +50,11 @@
             FROM
                 metoo_terminal d2
             WHERE
-                d2.deviceTypeId = 34
-            AND d2.deviceUuid = d1.deviceUuid
+                 d2.deviceUuid2 = d1.deviceUuid
+            AND d2.deviceTypeId = 34
+            AND d1.remoteDevice = d2.deviceName
         )
+
     </select>
 
     <select id="selectTagToX" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">

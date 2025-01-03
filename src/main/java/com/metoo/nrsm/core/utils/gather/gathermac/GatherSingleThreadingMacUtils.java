@@ -2,12 +2,10 @@ package com.metoo.nrsm.core.utils.gather.gathermac;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.service.IMacService;
 import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.service.ITerminalCountService;
 import com.metoo.nrsm.core.service.ITerminalService;
-import com.metoo.nrsm.core.service.impl.MacServiceImpl;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
@@ -15,13 +13,12 @@ import com.metoo.nrsm.entity.Mac;
 import com.metoo.nrsm.entity.NetworkElement;
 import com.metoo.nrsm.entity.TerminalCount;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author HKK
@@ -42,82 +39,21 @@ public class GatherSingleThreadingMacUtils {
     private ITerminalCountService terminalCountService;
     @Autowired
     private INetworkElementService networkElementService;
+    @Autowired
+    private PythonExecUtils pythonExecUtils;
+    private static final String MAC_PREFIX = "00:00:5e"; // 常量定义，避免硬编码
 
     // 单线程采集
     public void gatherMac(List<NetworkElement> networkElements, Date date) {
-        if (networkElements.size() > 0) {
 
-            // mac 复制数据、写入标签、ip地址信息等
-            this.gatherMacUtils.copyGatherData(date);
+        if (!networkElements.isEmpty()) {
 
-            try {
-                this.terminalService.syncTerminal(date);
+            gatherMacUtils.copyGatherData(date);
 
-                // nswitch分析-vm
-                this.terminalService.updateVMHostDeviceType();
+            // 更新终端
+            updateTerminal(date);
 
-                this.terminalService.updateVMDeviceType();
-
-                this.terminalService.updateVMDeviceIp();
-
-                this.networkElementService.updateObjDisplay();
-//
-//                this.terminalService.v4Tov6Terminal(date);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // 标记deviceType是否为设备。（v4ip为空，根据mac地址判断）
-            this.terminalService.updateObjDeviceTypeByMac();
-
-
-          // 统计终端属于哪个单位
-            try {
-                this.terminalService.writeTerminalUnit();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                this.terminalService.writeTerminalUnitV6();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // 根据vendor判断终端类型
-            this.terminalService.writeTerminalType();
-
-            this.terminalService.writeTerminalDeviceTypeToVendor();
-
-            // 统计终端是否属于双栈终端
-            this.terminalService.dualStackTerminal();
-
-            // 统计终端ip数量
-            try {
-                Map terminal = this.terminalService.terminalCount();
-                if (terminal != null) {
-                    TerminalCount count = new TerminalCount();
-                    count.setAddTime(date);
-                    count.setV4ip_count(Integer.parseInt(String.valueOf(terminal.get("v4ip_count"))));
-                    count.setV6ip_count(Integer.parseInt(String.valueOf(terminal.get("v6ip_count"))));
-                    count.setV4ip_v6ip_count(Integer.parseInt(String.valueOf(terminal.get("v4ip_v6ip_count"))));
-                    terminalCountService.save(count);
-                } else {
-                    TerminalCount count = new TerminalCount();
-                    count.setAddTime(date);
-                    count.setV4ip_count(0);
-                    count.setV6ip_count(0);
-                    count.setV4ip_v6ip_count(0);
-                    terminalCountService.save(count);
-                }
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-
-            // 同步终端到终端历史表
-            this.terminalService.syncTerminalToTerminalHistory();
-
-            this.macService.truncateTableGather();
+            macService.truncateTableGather();
 
             for (NetworkElement networkElement : networkElements) {
 
@@ -126,179 +62,308 @@ public class GatherSingleThreadingMacUtils {
                     continue;
                 }
 
-                String gethostnamePath = Global.PYPATH + "gethostname.py";
+                String hostName = getHostName(networkElement);
 
-                PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
+                if (StringUtils.isNotEmpty(hostName)) {
 
-                String[] gethostnameParams = {networkElement.getIp(), networkElement.getVersion(),
-                        networkElement.getCommunity()};
+                    processNetworkElementData(networkElement, hostName, date);
+                }
+            }
+        }
+    }
 
-                String hostname = pythonExecUtils.exec2(gethostnamePath, gethostnameParams);
+    // 处理网络元素数据
+    private void processNetworkElementData(NetworkElement networkElement, String hostName, Date date) {
+        log.info("getlldp.py ===== {}", networkElement.getIp());
+        getLldpData(networkElement, hostName, date);
 
-                if (StringUtils.isNotEmpty(hostname)) {
+        log.info("getmac.py ====={}", networkElement.getIp());
+        getMacData(networkElement, hostName, date);
 
-                    log.info("getlldp.py ===== {}", networkElement.getIp());
+        log.info("getportmac.py ====={}", networkElement.getIp());
+        getPortMacData(networkElement, hostName, date);
+    }
 
-                    String getlldpPath = Global.PYPATH + "getlldp.py";
-                    String[] getlldpParams = {networkElement.getIp(), networkElement.getVersion(),
-                            networkElement.getCommunity()};
 
-                    String getlldp = pythonExecUtils.exec2(getlldpPath, getlldpParams);
-                    if (StringUtil.isNotEmpty(getlldp)) {
-                        List<Map> lldps = JSONObject.parseArray(getlldp, Map.class);
-                        this.setRemoteDevice(networkElement, lldps, hostname, date);
-                    }
+    private String getHostName(NetworkElement networkElement){
 
-                    log.info("getmac.py ====={}", networkElement.getIp());
+        String path = Global.PYPATH + "gethostname.py";
 
-                    String getMacPath = Global.PYPATH + "getmac.py";
-                    String[] getMacParams = {networkElement.getIp(), networkElement.getVersion(),
-                            networkElement.getCommunity()};
-                    String getmac = pythonExecUtils.exec2(getMacPath, getMacParams);
-                    if (StringUtil.isNotEmpty(getmac)) {
-                        try {
-                            List<Mac> macList = JSONObject.parseArray(getmac, Mac.class);
-                            if (macList.size() > 0) {
-                                List<Mac> list = new ArrayList();
-                                MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");
-                                macList.forEach(mac -> {
-                                    if ("3".equals(mac.getType())) {
-                                        mac.setAddTime(date);
-                                        mac.setDeviceIp(networkElement.getIp());
-                                        mac.setDeviceName(networkElement.getDeviceName());
-                                        mac.setDeviceUuid(networkElement.getUuid());
-                                        mac.setHostname(hostname);
-                                        if(StringUtils.isNotEmpty(mac.getMac())){
-                                            mac.setMac1(MyStringUtils.getSubstringBeforNthDelimiter(mac.getMac(), ":", 3));
-                                        }
-                                        String patten = "^" + "00:00:5e";
-                                        boolean flag = this.parseLineBeginWith(mac.getMac(), patten);
-                                        if (flag) {
-                                            mac.setTag("LV");
-                                        }
-                                        list.add(mac);
-                                    }
-                                });
-                                if (list.size() > 0) {
-                                    macService.batchSaveGather(list);
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+        String[] params = {networkElement.getIp(), networkElement.getVersion(),
+                networkElement.getCommunity()};
+
+        String hostName = pythonExecUtils.exec2(path, params);
+
+        return hostName;
+    }
+
+    public void getLldpData(NetworkElement networkElement, String hostName, Date date){
+
+        String path = Global.PYPATH + "getlldp.py";
+
+        String[] getlldpParams = {networkElement.getIp(), networkElement.getVersion(),
+                networkElement.getCommunity()};
+
+        String getlldp = pythonExecUtils.exec2(path, getlldpParams);
+
+        if (StringUtil.isNotEmpty(getlldp)) {
+            List<Map> lldps = JSONObject.parseArray(getlldp, Map.class);
+
+            this.setRemoteDevice(networkElement, lldps, hostName, date);
+        }
+    }
+
+
+    public void getMacData(NetworkElement networkElement, String hostName, Date date){
+
+        String path = Global.PYPATH + "getmac.py";
+
+        String[] getMacParams = {networkElement.getIp(), networkElement.getVersion(),
+                networkElement.getCommunity()};
+
+        String result = pythonExecUtils.exec2(path, getMacParams);
+
+        if (StringUtil.isNotEmpty(result))
+        {
+            processMacData(networkElement, hostName, date, result);
+        }
+    }
+
+    // 处理获取到的MAC数据
+    private void processMacData(NetworkElement networkElement, String hostName, Date date, String result) {
+        try {
+            List<Mac> macList = JSONObject.parseArray(result, Mac.class);
+            if (!macList.isEmpty()) {
+                List<Mac> validMacList = new ArrayList<>();
+                for (Mac mac : macList) {
+                    if ("3".equals(mac.getType())) {
+                        setMacDataFields(mac, networkElement, hostName, date);
+                        if (isMacWithSpecificPrefix(mac.getMac())) {
+                            mac.setTag("LV");
                         }
-                    }
-
-                    log.info("getportmac.py ====={}", networkElement.getIp());
-
-                    String path4 = Global.PYPATH + "getportmac.py";
-                    String[] params4 = {networkElement.getIp(), networkElement.getVersion(),
-                            networkElement.getCommunity()};
-                    String getportmac = pythonExecUtils.exec2(path4, params4);
-                    if (StringUtil.isNotEmpty(getportmac)) {
-                        try {
-                            List<Mac> array = JSONObject.parseArray(getportmac, Mac.class);
-                            if (array.size() > 0) {
-                                List<Mac> list = new ArrayList();
-                                MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");
-                                array.forEach(e -> {
-                                    if ("1".equals(e.getStatus())) {// up状态
-                                        e.setAddTime(date);
-                                        e.setDeviceIp(networkElement.getIp());
-                                        e.setDeviceName(networkElement.getDeviceName());
-                                        e.setDeviceUuid(networkElement.getUuid());
-                                        e.setTag("L");
-                                        e.setHostname(hostname);
-                                        if(StringUtils.isNotEmpty(e.getMac())){
-                                            e.setMac1(MyStringUtils.getSubstringBeforNthDelimiter(e.getMac(), ":", 3));
-                                        }
-                                        String patten = "^" + "00:00:5e";
-                                        boolean flag = this.parseLineBeginWith(e.getMac(), patten);
-                                        if (flag) {
-                                            e.setTag("LV");
-                                        }
-                                        list.add(e);
-                                    }
-                                });
-
-                                /**
-                                 * 优化方案：
-                                 *      如果单台数据量过大，可以使用线程安全list，当list集合数据超过指定数据，在进行批量插入
-                                 *      三台线程同时采集（定义线程安全方法Guarded）
-                                 *
-                                 */
-
-                                if (list.size() > 0) {
-                                    macService.batchSaveGather(list);
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        validMacList.add(mac);
                     }
                 }
+                if (!validMacList.isEmpty()) {
+                    macService.batchSaveGather(validMacList);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error processing MAC data for IP: {}", networkElement.getIp(), e);
+        }
+    }
+
+    // 判断 MAC 是否以指定前缀开始
+    private boolean isMacWithSpecificPrefix(String mac) {
+        return mac != null && mac.startsWith(MAC_PREFIX);
+    }
+
+    // 设置 MAC 数据字段
+    private void setMacDataFields(Mac mac, NetworkElement networkElement, String hostName, Date date) {
+        mac.setAddTime(date);
+        mac.setDeviceIp(networkElement.getIp());
+        mac.setDeviceName(networkElement.getDeviceName());
+        mac.setDeviceUuid(networkElement.getUuid());
+        mac.setHostname(hostName);
+        if (StringUtils.isNotEmpty(mac.getMac())) {
+            mac.setMac1(MyStringUtils.getSubstringBeforNthDelimiter(mac.getMac(), ":", 3));
+        }
+    }
+
+    public void getPortMacData(NetworkElement networkElement, String hostName, Date date){
+
+        String path = Global.PYPATH + "getportmac.py";
+
+        String[] params = {networkElement.getIp(), networkElement.getVersion(),
+                networkElement.getCommunity()};
+
+        String result = pythonExecUtils.exec2(path, params);
+
+        if (StringUtil.isNotEmpty(result)) {
+            processPortMacData(networkElement, hostName, date, result);
+        }
+    }
+
+    // 处理获取到的端口MAC数据
+    private void processPortMacData(NetworkElement networkElement, String hostName, Date date, String result) {
+        try {
+            List<Mac> macList = JSONObject.parseArray(result, Mac.class);
+            if (!macList.isEmpty()) {
+                List<Mac> validMacList = new ArrayList<>();
+                for (Mac mac : macList) {
+                    if ("1".equals(mac.getStatus())) { // up 状态
+                        setMacDataFields(mac, networkElement, hostName, date);
+                        mac.setTag("L");
+                        if (isMacWithSpecificPrefix(mac.getMac())) {
+                            mac.setTag("LV");
+                        }
+                        validMacList.add(mac);
+                    }
+                }
+                if (!validMacList.isEmpty()) {
+                    macService.batchSaveGather(validMacList);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error processing port MAC data for IP: {}", networkElement.getIp(), e);
+        }
+    }
+
+
+    /**
+     * 更新终端表
+     * @param date
+     */
+    public void updateTerminal(Date date) {
+        // 更新终端信息
+        updateTerminalInfo(date);
+
+        // 标记 deviceType 是否为设备（根据 mac 地址判断）
+        markDeviceTypeByMac();
+
+        // 统计终端所属单位
+        writeTerminalUnitData();
+
+        // 统计终端数量
+        writeTerminalCountData(date);
+
+        // 同步终端到历史表
+        syncTerminalToHistory();
+    }
+
+
+    // 更新终端信息
+    private void updateTerminalInfo(Date date) {
+        try {
+            terminalService.syncTerminal(date);
+            terminalService.updateVMHostDeviceType();
+            terminalService.updateVMDeviceType();
+            terminalService.updateVMDeviceIp();
+            networkElementService.updateObjDisplay();
+        } catch (Exception e) {
+            log.error("Error while updating terminal information", e);
+        }
+    }
+
+    // 标记 deviceType 是否为设备
+    private void markDeviceTypeByMac() {
+        try {
+            terminalService.updateObjDeviceTypeByMac();
+        } catch (Exception e) {
+            log.error("Error while updating device type by mac", e);
+        }
+    }
+
+    // 统计终端单位数据
+    private void writeTerminalUnitData() {
+        try {
+            terminalService.writeTerminalUnit();
+            terminalService.writeTerminalUnitV6();
+        } catch (Exception e) {
+            log.error("Error while writing terminal unit data", e);
+        }
+    }
+
+    // 统计终端数量并保存
+    private void writeTerminalCountData(Date date) {
+        try {
+            Map terminalData = terminalService.terminalCount();
+            TerminalCount count = new TerminalCount();
+            count.setAddTime(date);
+
+            if (terminalData != null) {
+                count.setV4ip_count(Integer.parseInt(String.valueOf(terminalData.get("v4ip_count"))));
+                count.setV6ip_count(Integer.parseInt(String.valueOf(terminalData.get("v6ip_count"))));
+                count.setV4ip_v6ip_count(Integer.parseInt(String.valueOf(terminalData.get("v4ip_v6ip_count"))));
+            } else {
+                count.setV4ip_count(0);
+                count.setV6ip_count(0);
+                count.setV4ip_v6ip_count(0);
+            }
+            terminalCountService.save(count);
+        } catch (Exception e) {
+            log.error("Error while writing terminal count data", e);
+        }
+    }
+
+    // 同步终端到终端历史表
+    private void syncTerminalToHistory() {
+        try {
+            terminalService.syncTerminalToTerminalHistory();
+        } catch (Exception e) {
+            log.error("Error while syncing terminal to terminal history", e);
+        }
+    }
+
+
+    private void setRemoteDevice(NetworkElement networkElement, List<Map> lldps, String hostname, Date date){
+
+        // 判断 llpd 数据是否有效
+        if (CollectionUtils.isNotEmpty(lldps)) {
+            List<Mac> macList = new ArrayList<>();
+
+            for (Map<String, String> lldp : lldps) {
+                Mac mac = createMac(networkElement, lldp, hostname, date);
+                macList.add(mac);
+            }
+
+            if (!macList.isEmpty()) {
+                macService.batchSaveGather(macList);  // 批量保存
             }
         }
     }
 
     /**
-     * 判断Mac是否以某个规则开始
-     * @param lineText
-     * @param head
-     * @return
+     * 创建 Mac 对象
+     *
+     * @param e        网络元素
+     * @param lldp     对端设备信息
+     * @param hostname 主机名
+     * @param date     当前时间
+     * @return         Mac 对象
      */
-    public boolean parseLineBeginWith(String lineText, String head){
+    private Mac createMac(NetworkElement e, Map<String, String> lldp, String hostname, Date date) {
+        Mac mac = new Mac();
 
-        if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
-            String patten = "^" + head;
+        // 设置基本属性
+        mac.setAddTime(date);
+        mac.setDeviceIp(e.getIp());
+        mac.setDeviceName(e.getDeviceName());
+        mac.setDeviceUuid(e.getUuid());
+        mac.setMac("00:00:00:00:00:00"); // 如果固定可以考虑移除或根据实际需求填充
+        mac.setHostname(hostname);
+        mac.setTag("DE");  // 远程设备的标记
 
-            Pattern compiledPattern = Pattern.compile(patten);
+        // 设置远程设备信息
+        mac.setRemotePort(lldp.get("remoteport"));
+        mac.setRemoteDevice(lldp.get("hostname"));
 
-            Matcher matcher = compiledPattern.matcher(lineText);
-
-            while(matcher.find()) {
-                return true;
-            }
+        // 如果 MAC 地址有效，进行截取前三段
+        if (StringUtils.isNotEmpty(mac.getMac())) {
+            mac.setMac1(MyStringUtils.getSubstringBeforNthDelimiter(mac.getMac(), ":", 3));
         }
-        return false;
+
+        // 设置设备 UUID
+        setMacDeviceUuid(e, mac);
+
+        return mac;
     }
 
-    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date){
-        // 写入对端信息
-        if(lldps != null && lldps.size() > 0){
+    /**
+     * 设置 Mac 对应的设备 UUID
+     *
+     * @param e   网络元素
+     * @param mac Mac 对象
+     */
+    private void setMacDeviceUuid(NetworkElement e, Mac mac) {
+        Map<String, String> params = new HashMap<>();
+        params.put("deviceIp", e.getIp());
 
-            MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");
-            List<Mac> list = new ArrayList();
-            Map params = new HashMap();
-            for(Map<String, String> obj : lldps){
-                Mac mac = new Mac();
-                if(StringUtils.isNotEmpty(e.getDeviceName())){
-                    params.clear();
-                    params.put("deviceIp", e.getIp());
-                    List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-                    if(!networkElements.isEmpty()){
-                        mac.setDeviceUuid(networkElements.get(0).getUuid());
-                    }
-                }
+        // 查找网络元素
+        List<NetworkElement> networkElements = networkElementService.selectObjByMap(params);
 
-                mac.setAddTime(date);
-                mac.setDeviceIp(e.getIp());
-                mac.setDeviceName(e.getDeviceName());
-                mac.setDeviceUuid(e.getUuid());
-//                mac.setPort(e.getPort());
-                mac.setMac("00:00:00:00:00:00");
-                mac.setHostname(hostname);
-                mac.setTag("DE");
-                mac.setRemotePort(obj.get("remoteport"));
-                mac.setRemoteDevice(obj.get("hostname"));
-                if(StringUtils.isNotEmpty(mac.getMac())){
-                    mac.setMac1(MyStringUtils.getSubstringBeforNthDelimiter(mac.getMac(), ":", 3));
-                }
-//                macService.save(mac);
-                list.add(mac);
-            }
-            if(list.size() > 0){
-                macService.batchSaveGather(list);
-            }
+        if (CollectionUtils.isNotEmpty(networkElements)) {
+            mac.setDeviceUuid(networkElements.get(0).getUuid());
         }
     }
 

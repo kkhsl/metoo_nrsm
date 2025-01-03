@@ -22,12 +22,6 @@ public class TerminalTypeManagerController {
     @Autowired
     private IDeviceTypeService deviceTypeService;
 
-//    @GetMapping
-//    public Object all(){
-//        List<TerminalType> list = this.terminalTypeService.selectObjAll();
-//        return ResponseUtil.ok(list);
-//    }
-
     @GetMapping
     public Object terminal(){
         Map params = new HashMap();

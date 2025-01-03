@@ -21,29 +21,6 @@ import java.util.*;
 @RequestMapping("/admin/test")
 @RestController
 public class TestController {
-    @Autowired
-    private Ipv4DetailService ipV4DetailService;
-    @Autowired
-    private Ipv4Service ipv4Service;
-    @Autowired
-    private TestUtils testUtils;
-    @Autowired
-    private SnmpStatusUtils snmpStatusUtils;
-    @Autowired
-    private IUnitService unitService;
-    @Autowired
-    private ApiExecUtils apiExecUtils;
-    @Autowired
-    private ITerminalService terminalService;
-    @Autowired
-    private IGatherService gatherService;
-    @Autowired
-    private IDhcpService dhcpService;
-    @Autowired
-    private IDhcp6Service dhcp6Service;
-    @Autowired
-    private PythonExecUtils pythonExecUtils;
-
 
 
     // 周末和休息时间（17:周末和休息时间（17:30-8:30）按上述范围的1/10取值30-8:30）按上述范围的1/10取值

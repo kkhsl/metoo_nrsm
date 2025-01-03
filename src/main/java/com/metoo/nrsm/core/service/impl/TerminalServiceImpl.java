@@ -12,7 +12,6 @@ import com.metoo.nrsm.core.mapper.TerminalMacIpv6Mapper;
 import com.metoo.nrsm.core.mapper.TerminalMacVendorMapper;
 import com.metoo.nrsm.core.mapper.TerminalMapper;
 import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.utils.ip.Ipv6.IPv6SubnetCheck;
 import com.metoo.nrsm.core.utils.ip.ipv4.IpSubnetMap;
 import com.metoo.nrsm.core.utils.ip.ipv4.Ipv6SubnetMap;
 import com.metoo.nrsm.entity.*;
@@ -715,7 +714,9 @@ public class TerminalServiceImpl implements ITerminalService {
                 if (StringUtils.isEmpty(e.getV4ip()) && StringUtils.isEmpty(e.getV6ip())) {
                     e.setDeviceTypeId(type2.getId());
                 } else {
-                    e.setDeviceTypeId(type1.getId());
+                    if(e.getDeviceTypeId() == null){
+                        e.setDeviceTypeId(type1.getId());
+                    }
                 }
             }
         }

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -39,8 +38,6 @@ public class GatherTaskScheduledUtil {
     @Autowired
     private IProbeService probeService;
     @Autowired
-    private IPingService pingService;
-    @Autowired
     private ISubnetService subnetService;
     @Autowired
     private IFluxDailyRateService fluxDailyRateService;
@@ -51,8 +48,9 @@ public class GatherTaskScheduledUtil {
     @Autowired
     private ApiExecUtils apiExecUtils;
 
-
-    @Scheduled(cron = "0 */5 * * * ?")
+    // @Scheduled 默认使用单线程来执行定时任务。如果某次任务执行时间过长（例如阻塞操作），后续的任务会被延迟执行，甚至可能导致任务积压，最终无法执行
+//    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(fixedDelay = 300000)
     public void api() {
         if(traffic) {
             Long time = System.currentTimeMillis();
@@ -60,13 +58,14 @@ public class GatherTaskScheduledUtil {
             try {
                 apiExecUtils.exec2();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during API", e);
             }
             log.info("unit traffic End=================================" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+//    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void dhcp() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -74,13 +73,14 @@ public class GatherTaskScheduledUtil {
             try {
                 dhcpService.gather(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during DHCP", e);
             }
             log.info("DHCP End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    //    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void dhcp6() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -89,13 +89,14 @@ public class GatherTaskScheduledUtil {
                 dhcp6Service.gather(DateTools.gatherDate());
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during DHCP6", e);
             }
             log.info("DHCP6 End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    //    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void arp() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -104,15 +105,15 @@ public class GatherTaskScheduledUtil {
 //                arpService.gatherArp(date);
                 gatherService.gatherArp(DateTools.gatherDate());
             } catch (Exception e) {
-
-                e.printStackTrace();
+                log.error("Error occurred during ARP", e);
             }
             log.info("arp End......" + (System.currentTimeMillis()-time));
         }
     }
 
 //    @org.springframework.scheduling.annotation.Scheduled(cron = "*/10 * * * * ?")
-    @Scheduled(cron = "0 */3 * * * ?")
+//    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void mac() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -121,15 +122,16 @@ public class GatherTaskScheduledUtil {
                 this.gatherService.gatherMac(DateTools.gatherDate());
 //                gatherService.gatherMacThread(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during MAC", e);
             }
             log.info("mac End......" + (System.currentTimeMillis()-time));
         }
     }
 
 //    @Transactional // 可以结合该注解确调度任务在事务中运行，并在异常时正确回滚事务
-    @Scheduled(cron = "0 */3 * * * ?")
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
+//    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void ipv4() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -138,14 +140,15 @@ public class GatherTaskScheduledUtil {
 //                gatherService.gatherIpv4(DateTools.gatherDate());
                 gatherService.gatherIpv4Thread(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during IPV4", e);
             }
             log.info("Ipv4 End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
+//    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void ipv4Detail() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -154,13 +157,14 @@ public class GatherTaskScheduledUtil {
                 gatherService.gatherIpv4Detail(DateTools.gatherDate());
 //                gatherService.gatherIpv4Thread(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during IPV4Detail", e);
             }
             log.info("Ipv4 End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    //    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void ipv6() {
         if(flag){
             Long time=System.currentTimeMillis();
@@ -169,13 +173,14 @@ public class GatherTaskScheduledUtil {
                 gatherService.gatherIpv6(DateTools.gatherDate());
 //                gatherService.gatherIpv6Thread(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during IPV6", e);
             }
             log.info("Ipv6 End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    //    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void port() {
         if(flag){
             Long time = System.currentTimeMillis();
@@ -183,13 +188,14 @@ public class GatherTaskScheduledUtil {
             try {
                 gatherService.gatherPort(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during PORT", e);
             }
             log.info("Port End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    //    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void portIpv6() {
         if(flag){
             Long time = System.currentTimeMillis();
@@ -197,7 +203,7 @@ public class GatherTaskScheduledUtil {
             try {
                 gatherService.gatherPortIpv6(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during PortIpv6", e);
             }
             log.info("PortIpv6 End......" + (System.currentTimeMillis()-time));
         }
@@ -205,7 +211,8 @@ public class GatherTaskScheduledUtil {
 
     ////////////////////////////////////////////
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    //    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void isIpv6() {
         if(flag){
             Long time = System.currentTimeMillis();
@@ -213,7 +220,7 @@ public class GatherTaskScheduledUtil {
             try {
                 gatherService.gatherIsIpv6(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during isIpv6", e);
             }
             log.info("IsIpv6 End......" + (System.currentTimeMillis()-time));
         }
@@ -227,7 +234,7 @@ public class GatherTaskScheduledUtil {
             try {
                 gatherService.gatherFlux(DateTools.gatherDate());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during Flux", e);
             }
             log.info("flux End......" + (System.currentTimeMillis()-time));
         }
@@ -257,7 +264,7 @@ public class GatherTaskScheduledUtil {
             try {
                 this.subnetService.pingSubnet();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during Subnet", e);
             }
             log.info("ping subnet End......" + (System.currentTimeMillis()-time));
         }
@@ -271,25 +278,25 @@ public class GatherTaskScheduledUtil {
             try {
                 this.gatherService.gatherSnmpStatus();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred during SNMP", e);
             }
             log.info("snmp status End......" + (System.currentTimeMillis()-time));
         }
     }
 
-//    @Scheduled(cron = "0 */3 * * * ?")
-//    public void probe() {
-//        if(flag){
-//            Long time = System.currentTimeMillis();
-//            log.info("Probe start......");
-//            try {
-//                probeService.scanByTerminal();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            log.info("Probe end......" + (System.currentTimeMillis()-time));
-//        }
-//    }
+    @Scheduled(cron = "0 */3 * * * ?")
+    public void probe() {
+        if(flag){
+            Long time = System.currentTimeMillis();
+            log.info("Probe start......");
+            try {
+                probeService.scanByTerminal();
+            } catch (Exception e) {
+                log.error("Error occurred during Probe", e);
+            }
+            log.info("Probe end......" + (System.currentTimeMillis()-time));
+        }
+    }
 
 
     @Scheduled(cron = "59 59 23 * * ?")

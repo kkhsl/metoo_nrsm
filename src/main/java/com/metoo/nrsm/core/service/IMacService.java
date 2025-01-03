@@ -86,9 +86,9 @@ public interface IMacService {
 
     boolean deleteTable();
 
-    boolean  copyGatherDataToMac(Date date);
+    boolean copyGatherDataToMac(Date date);
 
-    boolean  copyGather(Date date);
+    boolean copyGather(Date date);
 
     // 加锁
     void lock();

@@ -48,7 +48,6 @@ public class TerminalManagerController {
         if(StringUtils.isNotEmpty(ip)){
             Map params = new HashMap();
             params.put("deviceIp", ip);
-//            params.put("deviceIp", ip);
             List<Terminal> terminals = this.terminalService.selectObjByMap(params);
             if(!terminals.isEmpty()){
                 return ResponseUtil.ok(terminals);

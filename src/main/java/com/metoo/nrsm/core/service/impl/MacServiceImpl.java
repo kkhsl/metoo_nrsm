@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  */
 
 @Service
-//@Transactional
+@Transactional
 public class MacServiceImpl implements IMacService {
 
     @Autowired
@@ -387,27 +387,15 @@ public class MacServiceImpl implements IMacService {
     @Override
     public boolean copyGatherDataToMac(Date date) {
         try {
-            // 通过动态代理对象来调用方法，避免事务失效；直接调用方法事务会失效（未验证）
-//            ((MacServiceImpl)AopContext.currentProxy()).deleteTable();
-
-            int i = this.macMapper.deleteTable();
-//            int i = this.macMapper.truncateTable();
-            int ii = this.macMapper.copyGatherDataToMac(date);
+            this.macMapper.deleteTable();
+            this.macMapper.copyGatherDataToMac(date);
 
             return true;
 
         } catch (Exception e) {
             e.printStackTrace();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return false;
         }
-//            int i = this.macMapper.deleteTable();
-//
-//            int iii = 1 / 0;
-//
-//            int ii = this.macMapper.copyGatherDataToMac();
-//
-//            return true;
     }
 
     @Override

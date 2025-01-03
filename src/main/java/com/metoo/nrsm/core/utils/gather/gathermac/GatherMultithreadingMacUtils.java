@@ -40,7 +40,6 @@ public class GatherMultithreadingMacUtils {
     @Autowired
     private ITerminalCountService terminalCountService;
 
-    // 线程池采集
 
     /**
      * 并发采集，当采集时长超过定时任务时长时，导致第二次采集开始后，第一次未结束线程数据写入到第二次采集任务中
