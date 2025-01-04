@@ -31,5 +31,6 @@ public class NetworkElementDto extends PageDto<NetworkElement> {
     private String description;
     private Long userId;
     private String userName;
+    private boolean display;
 
 }

@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -48,21 +49,44 @@ public class GatherTaskScheduledUtil {
     @Autowired
     private ApiExecUtils apiExecUtils;
 
-    // @Scheduled 默认使用单线程来执行定时任务。如果某次任务执行时间过长（例如阻塞操作），后续的任务会被延迟执行，甚至可能导致任务积压，最终无法执行
-//    @Scheduled(cron = "0 */5 * * * ?")
-    @Scheduled(fixedDelay = 300000)
+    private final ReentrantLock lock = new ReentrantLock();
+
+//    @Scheduled(fixedDelay = 300000)
+    @Scheduled(cron = "0 */5 * * * ?")
     public void api() {
         if(traffic) {
-            Long time = System.currentTimeMillis();
-            log.info("unit traffic Start=================================");
-            try {
-                apiExecUtils.exec2();
-            } catch (Exception e) {
-                log.error("Error occurred during API", e);
+            if (lock.tryLock()) {
+                try {
+                    Long time = System.currentTimeMillis();
+                    log.info("Unit traffic Start=================================");
+                    try {
+                        apiExecUtils.exec2();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    log.info("Unit traffic End=================================" + (System.currentTimeMillis()-time));
+                } finally {
+                    lock.unlock();
+                }
             }
-            log.info("unit traffic End=================================" + (System.currentTimeMillis()-time));
         }
     }
+
+    // @Scheduled 默认使用单线程来执行定时任务。如果某次任务执行时间过长（例如阻塞操作），后续的任务会被延迟执行，甚至可能导致任务积压，最终无法执行
+//    @Scheduled(cron = "0 */5 * * * ?")
+//    @Scheduled(fixedDelay = 300000)
+//    public void api() {
+//        if(traffic) {
+//            Long time = System.currentTimeMillis();
+//            log.info("unit traffic Start=================================");
+//            try {
+//                apiExecUtils.exec2();
+//            } catch (Exception e) {
+//                log.error("Error occurred during API", e);
+//            }
+//            log.info("unit traffic End=================================" + (System.currentTimeMillis()-time));
+//        }
+//    }
 
 //    @Scheduled(cron = "0 */3 * * * ?")
     @Scheduled(fixedDelay = 180000)

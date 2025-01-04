@@ -95,12 +95,6 @@
             <if test="deviceIp2 != null and deviceIp2 != ''">
                 AND deviceIp2 = #{deviceIp2}
             </if>
-            <if test="deviceUuid2 != null and deviceUuid2 != ''">
-                OR deviceUuid2 = #{deviceUuid2}
-            </if>
-            <if test="deviceUuidAndDeviceTypeId != null and deviceUuidAndDeviceTypeId != ''">
-                or (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34)
-            </if>
             <if test="mac != null and mac != ''">
                 AND mac = #{mac}
             </if>
@@ -164,6 +158,12 @@
             </if>
             <if test="online != null">
                 AND online = #{online}
+            </if>
+            <if test="deviceUuid2 != null and deviceUuid2 != ''">
+                OR deviceUuid2 = #{deviceUuid2}
+            </if>
+            <if test="deviceUuidAndDeviceTypeId != null and deviceUuidAndDeviceTypeId != ''">
+                or (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34)
             </if>
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC

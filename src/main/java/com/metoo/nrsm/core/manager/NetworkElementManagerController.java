@@ -87,12 +87,7 @@ public class NetworkElementManagerController {
             parmas.put("orderType", "DESC");
             List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
             map.put("deviceType", deviceTypeList);
-//            try {
-//                countDownLatch.await();
-//                return ResponseUtil.ok(new PageInfo<NetworkElement>(page, map));
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+
             return ResponseUtil.ok(new PageInfo<NetworkElement>(page, map));
         }
         return  ResponseUtil.ok();
@@ -102,25 +97,6 @@ public class NetworkElementManagerController {
     public Object all(){
         List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
         return ResponseUtil.ok(networkElements);
-    }
-
-    @Test
-    public void condition(){
-        //调用工厂方法创建Optional实例
-        Optional<String> name = Optional.of("Dolores");
-        //创建一个空实例
-        Optional empty = Optional.ofNullable(null);
-        //创建一个不允许值为空的空实例
-//        Optional noEmpty = Optional.of(null);
-
-        //如果值不为null，orElse方法返回Optional实例的值。
-        //如果为null，返回传入的消息。
-        //输出：Dolores
-        System.out.println(name.orElse("There is some value!"));
-        //输出：There is no value present!
-        System.out.println(empty.orElse(null));
-        //抛NullPointerException
-//        System.out.println(noEmpty.orElse("There is no value present!"));
     }
 
     @Test

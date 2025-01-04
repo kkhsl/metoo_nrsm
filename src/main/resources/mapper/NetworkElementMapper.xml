@@ -42,7 +42,6 @@
         </collection>
     </resultMap>
 
-
     <sql id="Base_Column_List">
         id, addTime, deleteStatus, ip, v6ip, device_name, group_id, group_name,
          device_type_id, device_type_name, vendor_id, vendor_name, description, user_id, user_name,
@@ -61,7 +60,6 @@
         FROM metoo_ne
         WHERE uuid = #{uuid, jdbcType=BIGINT}
     </select>
-
 
     <select id="selectConditionQuery" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
@@ -101,6 +99,9 @@
             <if test="deviceTypeId != null and deviceTypeId != ''">
                 AND device_type_id = #{deviceTypeId}
             </if>
+            <if test="display != null">
+                AND display = #{display}
+            </if>
         </where>
         <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
@@ -109,7 +110,6 @@
             ${orderType}
         </if>
     </select>
-
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT *
@@ -289,7 +289,10 @@
                 version,
             </if>
             <if test="type != null">
-                type,
+                `type`,
+            </if>
+            <if test="display != null">
+                display,
             </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
@@ -376,6 +379,9 @@
             </if>
             <if test="type != null">
                 #{type},
+            </if>
+            <if test="display != null">
+                #{display},
             </if>
         </trim>
     </insert>

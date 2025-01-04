@@ -339,7 +339,7 @@ public class GatherMacUtils {
                         if(networkElements.size() <= 0){
                             NetworkElement ne = new NetworkElement();
                             ne.setAddTime(new Date());
-                            ne.setDeleteStatus(1);
+                            ne.setDisplay(true);
                             ne.setDeviceName(nswitchName);
                             DeviceType deviceType = this.deviceTypeService.selectObjByType(29);
                             ne.setDeviceTypeId(deviceType.getId());

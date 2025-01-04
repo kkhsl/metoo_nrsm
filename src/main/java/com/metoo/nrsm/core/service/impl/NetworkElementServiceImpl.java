@@ -39,9 +39,10 @@ public class NetworkElementServiceImpl implements INetworkElementService {
         if(instance == null){
             instance = new NetworkElementDto();
         }
-        if(instance.getDeleteStatus() == null){
-            instance.setDeleteStatus(0);
-        }
+//        if(instance.getDeleteStatus() == null){
+//            instance.setDeleteStatus(0);
+//        }
+        instance.setDisplay(false);
         Page<NetworkElement> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
         this.networkElementMapper.selectConditionQuery(instance);
         return page;

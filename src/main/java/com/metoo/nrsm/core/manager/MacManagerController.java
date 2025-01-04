@@ -27,37 +27,13 @@ import java.util.*;
 @RestController
 public class MacManagerController {
 
-    public static void main(String[] args) {
-        List<String> list = new ArrayList<>();
-        list.add("Apple");
-        list.add("Banana");
-        list.add("Orange");
-
-        list.removeAll(Collections.emptyList()); // 清空整个列表
-
-        System.out.println(list); // 输出[]
-
-        list.add("Apple");
-        list.add("Banana");
-        list.add("Orange");
-        list.clear();
-        list.removeAll(list); // 清空整个列表
-    }
-
-
     @Autowired
     private IMacService macService;
     @Autowired
     private INetworkElementService networkElementService;
     @Autowired
     private IDeviceTypeService deviceTypeService;
-    @Autowired
-    private IDhcpService dhcpService;
-    @Autowired
-    private IDhcp6Service dhcp6Service;
 
-    // 拓扑信息
-    // mac - DE 直连
     @RequestMapping("de")
     public Result mac_de(){
         List<Mac> deMacList = this.macService.selectTagByDE();
@@ -66,15 +42,13 @@ public class MacManagerController {
             Map<String, Mac> map = new HashMap<>();
             for (Mac mac : deMacList) {
 
-                String key1 = mac.getHostname() + mac.getRemoteDevice();
+                String remoteDevice = mac.getHostname() + mac.getRemoteDevice();
+                String hostName = mac.getRemoteDevice() + mac.getHostname();
 
-                String key2 = mac.getRemoteDevice() + mac.getHostname();
-
-                if(map.get(key1) == null && map.get(key2) == null){
-                    map.put(key1, mac);
+                if(map.get(remoteDevice) == null && map.get(hostName) == null){
+                    map.put(remoteDevice, mac);
                 }
             }
-//            macList.removeAll(Collections.emptyList());
             deMacList.clear();
             for (Map.Entry<String, Mac> stringMacEntry : map.entrySet()) {
                 deMacList.add(stringMacEntry.getValue());
@@ -92,7 +66,6 @@ public class MacManagerController {
                         NetworkElement networkElement = networkElements.get(0);
                         // 设置设备Uuid
                         DE.setDeviceUuid(networkElement.getUuid());
-                        DE.setDeviceDisplay(networkElement.isDisplay());
                         if(networkElement.getDeviceTypeId() != null){
                             DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
                             DE.setDeviceTypeUuid(deviceType.getUuid());
@@ -178,33 +151,6 @@ public class MacManagerController {
         }
         return ResponseUtil.ok(deMacList);
     }
-
-//    @RequestMapping("dt")
-//    public Result macDT(){
-//        Map params = new HashMap();
-//        params.put("tag", "DT");
-//        List<Mac> macs = this.macService.selectDTAndDynamicByMap(params);
-////        if(macs.size() > 0){
-////            Map params = new HashMap();
-////            for (Mac mac : macs) {
-////                mac.setMark("0");
-////                params.clear();
-////                params.put("lease_array", mac.getV4ipAll());
-////                List<Dhcp> dhcps = this.dhcpService.selectObjByMap(params);
-////                if(dhcps.size() > 0){
-////                    mac.setMark("1");
-////                }
-////                params.clear();
-////                params.put("iaaddr_array", mac.getV6ipAll());
-////                List<Dhcp6> dhcp6s = this.dhcp6Service.selectObjByMap(params);
-////                if(dhcp6s.size() > 0){
-////                    mac.setMark("1");
-////                }
-////            }
-////        }
-//        return  ResponseUtil.ok(macs);
-//    }
-
 
     @RequestMapping("dt")
     public Result macDT(@RequestBody MacDTO dto){
