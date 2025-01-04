@@ -20,8 +20,10 @@ public class Global {
 
     // 数据库备份
     public static final String DBPATH = "/opt/nrsm/nrsm/resource/db";
+    public static final String LICENSEPATH = "/opt/nrsm/nrsm/resource/table";
     public static final String DBNAME = "nrsm";
     public static final String DBPATHLOCAL = "C:\\Users\\Administrator\\Desktop\\backup\\db";
+    public static final String LICENSEPATHLOCAL = "C:\\Users\\Administrator\\Desktop\\backup\\table";
 
 
 //    public static final String WEBTERMINALPATH = "C:\\Users\\Administrator\\Desktop\\backup\\dblocal";
