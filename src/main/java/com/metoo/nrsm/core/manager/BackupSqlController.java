@@ -382,10 +382,10 @@ public class BackupSqlController {
 
     @GetMapping("/get/size")
     public String size() {
-        return this.getSize("/opt/nmap/resource/db/test");
+        return this.getAvailableSpace("/opt/nmap/resource/db/");
     }
 
-    public String getSize(String path) {
+    /*public String getSize(String path) {
         try {
             Process p = Runtime.getRuntime().exec("du -sh " + path);
 
@@ -417,7 +417,37 @@ public class BackupSqlController {
             e.printStackTrace();
         }
         return "";
+    }*/
+    public String getAvailableSpace(String path) {
+        try {
+            // 使用 df 命令获取可用空间
+            Process p = Runtime.getRuntime().exec("df -h --output=avail " + path);
+
+            // 等待进程完成
+            if (p.waitFor() == 0) {
+                StringBuilder builder = new StringBuilder();
+
+                // 使用 try-with-resources 自动管理资源
+                try (InputStream is = p.getInputStream();
+                     BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                    String line;
+                    // 跳过第一行（标题行）
+                    reader.readLine();
+                    // 读取可用空间
+                    if ((line = reader.readLine()) != null) {
+                        return line.trim(); // 返回可用空间
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // 恢复中断状态
+            e.printStackTrace();
+        }
+        return "";
     }
+
 
     public String getDbSize(String name) {
         String dbPath = getDbPath();
