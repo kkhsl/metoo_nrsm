@@ -648,7 +648,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("xsl101410")
+                .append(" xsl101410")
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -670,7 +670,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("xsl101410")
+                .append(" xsl101410")
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -694,7 +694,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append(" root")
                 .append(" --password=")
-                .append(" metoo89745000!")
+                .append(" metoo89745000")
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -716,7 +716,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append(" root")
                 .append(" --password=")
-                .append(" metoo89745000!")
+                .append(" metoo89745000")
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
