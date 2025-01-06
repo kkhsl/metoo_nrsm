@@ -149,9 +149,9 @@ public class LicenseManagerController {
 
         String decrypt = this.aesEncryptUtils.decrypt(code);
         License parsed = JSONObject.parseObject(decrypt, License.class);
-        int licenseUe = parsed.getLicenseHost();
+        int licenseUe = parsed.getLicenseDevice();
         int num = networkElementMapper.selectObjAll(null).size();
-        if (licenseUe>num){
+        if (licenseUe<num){
             return ResponseUtil.error("授权网元数不够");
         }
         if (isValid) {
@@ -166,17 +166,20 @@ public class LicenseManagerController {
     }
 
     @PutMapping("sq")
-    public Object sq(@RequestBody LicenseDto licenseDto) throws Exception {
-        LicenseDto dto = new LicenseDto();
+    public Object sq(@RequestBody License licenseDto) throws Exception {
+        License dto = new License();
         dto.setStartTime(licenseDto.getStartTime());
         dto.setEndTime(licenseDto.getEndTime());
         dto.setSystemSN(licenseDto.getSystemSN());
         dto.setType(licenseDto.getType());
+        dto.setLicenseAC(true);
         dto.setLicenseVersion(licenseDto.getLicenseVersion());
         dto.setLicenseFireWall(licenseDto.getLicenseFireWall());
         dto.setLicenseRouter(licenseDto.getLicenseRouter());
         dto.setLicenseHost(licenseDto.getLicenseHost());
-        dto.setLicenseUe(licenseDto.getLicenseUe()).getLicenseUe();
+        dto.setLicenseUe(licenseDto.getLicenseUe());
+        dto.setLicenseDevice(licenseDto.getLicenseDevice());
+        dto.setCustomerInfo(licenseDto.getCustomerInfo());
         String content = JSONObject.toJSONString(dto);
         System.out.println("加密前：" + content);
 
