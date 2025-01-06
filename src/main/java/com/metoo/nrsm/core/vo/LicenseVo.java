@@ -18,6 +18,9 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 public class LicenseVo {
 
+    @ApiModelProperty("授权时间")
+    private Long insertTime;
+
     @ApiModelProperty("开始时间")
     private Long startTime;
     @ApiModelProperty("结束时间")

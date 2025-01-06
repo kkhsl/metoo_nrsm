@@ -30,6 +30,9 @@ public class License extends IdEntity {
     @ApiModelProperty("开始时间")
     private Long startTime;
 
+    @ApiModelProperty("授权时间")
+    private Long insertTime;
+
     @ApiModelProperty("结束时间")
     private Long endTime;
 

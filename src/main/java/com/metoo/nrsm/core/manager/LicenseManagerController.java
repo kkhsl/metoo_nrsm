@@ -180,6 +180,7 @@ public class LicenseManagerController {
         dto.setLicenseUe(licenseDto.getLicenseUe());
         dto.setLicenseDevice(licenseDto.getLicenseDevice());
         dto.setCustomerInfo(licenseDto.getCustomerInfo());
+        dto.setInsertTime(licenseDto.getInsertTime());
         String content = JSONObject.toJSONString(dto);
         System.out.println("加密前：" + content);
 
