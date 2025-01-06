@@ -179,6 +179,36 @@ public class BackupSqlController {
     }
 
 
+
+
+    // 解析大小字符串并转换为字节
+    private long parseSize(String size) {
+        String[] parts = size.trim().split(" ");
+        if (parts.length == 2) {
+            long value = Long.parseLong(parts[0]);
+            String unit = parts[1].toUpperCase();
+            return convertToBytes(value, unit);
+        }
+        return 0; // 如果格式不正确，返回0
+    }
+
+    // 将文件大小单位转换为字节
+    public static long convertToBytes(long fileSize, String unit) {
+        switch (unit.toUpperCase()) {
+            case "KB":
+                return fileSize * 1024; // 将 KB 转换为字节
+            case "MB":
+                return fileSize * 1024 * 1024; // 将 MB 转换为字节
+            case "GB":
+                return fileSize * 1024 * 1024 * 1024; // 将 GB 转换为字节
+            case "BYTES":
+            default: // 默认情况下返回原始字节数
+                return fileSize;
+        }
+    }
+
+
+
     public static void main(String[] args) {
         try {
             // 创建命令数组
@@ -462,6 +492,7 @@ public class BackupSqlController {
         }
     }
 
+
     @DeleteMapping("/{id}")
     public Object delete(@PathVariable Long id) {
         BackupSql backupSql = this.backupSqlService.selectObjById(id);
@@ -625,8 +656,6 @@ public class BackupSqlController {
                 .append(".sql")
                 .append(" --default-character-set=utf8 ")
                 .append("nsrm");
-        // 追加表名
-//        stringBuilder.append(" rsms_terminal rsms_device ");
         return stringBuilder.toString();
     }
 
@@ -711,29 +740,6 @@ public class BackupSqlController {
         }
         return dbPath;
     }
-
-//    public String getDbPath(String name){
-//        // 命令行
-//        String dbPath = "";
-//
-//        if (Global.env.equals("prod")) {
-//            dbPath = Global.DBPATH + File.separator + name;
-//        }else if("dev".equals(Global.env)){
-//            dbPath = Global.DBPATHLOCAL + File.separator + name;
-//        }
-//
-//        File dbFile = new File(dbPath);
-//
-//        if (!dbFile.exists()) {
-//            dbFile.mkdirs();
-//        }
-//
-//        if (!dbPath.endsWith(File.separator)) {
-//            dbPath = dbPath + File.separator;
-//        }
-//        return dbPath;
-//    }
-
 
     // 获取文件大小
     /**
