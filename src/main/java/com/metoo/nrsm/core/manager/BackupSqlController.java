@@ -385,7 +385,7 @@ public class BackupSqlController {
         return this.getAvailableSpace("/opt/nmap/resource/db/");
     }
 
-    /*public String getSize(String path) {
+    public String getSize(String path) {
         try {
             Process p = Runtime.getRuntime().exec("du -sh " + path);
 
@@ -417,7 +417,8 @@ public class BackupSqlController {
             e.printStackTrace();
         }
         return "";
-    }*/
+    }
+
     public String getAvailableSpace(String path) {
         try {
             // 使用 df 命令获取可用空间
