@@ -632,7 +632,7 @@ public class BackupSqlController {
         if ("dev".equals(Global.env)) {
             dump = dumpWindows1(dbPath, name);
         }else{
-            dump = dumpLinux(dbPath, name);
+            dump = dumpLinux1(dbPath, name);
         }
         return dump;
     }
@@ -702,6 +702,30 @@ public class BackupSqlController {
                 .append(".sql")
                 .append(" --default-character-set=utf8 ")
                 .append(" nrsm");
+        return stringBuilder.toString();
+    }
+
+    public String dumpLinux1(String savePath, String fileName){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder
+                .append("mysqldump")
+                .append(" --opt")
+                .append(" -h")
+                .append(" 127.0.0.1");
+        stringBuilder
+                .append(" --user=")
+                .append(" root")
+                .append(" --password=")
+                .append(" metoo89745000!")
+                .append(" --lock-all-tables=true");
+        stringBuilder
+                .append(" --result-file=")
+                .append(savePath + fileName)
+                .append(".sql")
+                .append(" --default-character-set=utf8 ")
+                .append(" nrsm");
+        // 追加表名
+        stringBuilder.append(" metoo_license");
         return stringBuilder.toString();
     }
 
