@@ -423,10 +423,10 @@ public class BackupSqlController {
         String dbPath = getDbPath();
         String size = "";
         String fileName = name + ".sql";
-        if (Global.env.equals("prod")) {
-            size = getSizeLinux(dbPath+File.separator + fileName);
-        }else if("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             size = getSizeWindows(dbPath+File.separator + fileName);
+        }else{
+            size = getSizeLinux(dbPath+File.separator + fileName);
         }
         return size;
     }
