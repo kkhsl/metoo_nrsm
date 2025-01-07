@@ -195,5 +195,8 @@ public class Terminal extends IdEntity {
     private String combined_vendor_gen_family;
 
 
+    private List<Terminal> terminalList = new ArrayList<>();
+
+
 
 }

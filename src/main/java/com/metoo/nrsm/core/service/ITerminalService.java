@@ -26,6 +26,8 @@ public interface ITerminalService {
 
     List<Terminal> selectVMHost();
 
+    List<Terminal> selectNSwitchToTopology(Map params);
+
     boolean updateVMHostDeviceType();
 
     boolean updateVMDeviceType();

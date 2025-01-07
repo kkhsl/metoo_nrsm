@@ -34,7 +34,9 @@ public interface TerminalMapper {
 
     List<Terminal> selectObjByVM();
 
-    int save(Terminal instance);
+    List<Terminal> selectNSwitchToTopology(Map params);
+
+  int save(Terminal instance);
 
     int update(Terminal instance);
 

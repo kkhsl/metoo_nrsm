@@ -99,6 +99,11 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
+    public List<Terminal> selectNSwitchToTopology(Map params) {
+        return this.terminalMapper.selectNSwitchToTopology(params);
+    }
+
+    @Override
     public boolean updateVMHostDeviceType() {
         try {
             this.terminalMapper.updateVMHostDeviceType();

@@ -39,22 +39,62 @@
 
     <select id="selectTagByDE" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            d1.*
-        FROM
-            metoo_mac d1
-        WHERE
-            tag = 'DE'
-        AND NOT EXISTS (
-            SELECT
-                1
-            FROM
-                metoo_terminal d2
-            WHERE
-                 d2.deviceUuid2 = d1.deviceUuid
-            AND d2.deviceTypeId = 34
-            AND d1.remoteDevice = d2.deviceName
-        )
+				d1.*
+		FROM
+				metoo_mac d1
+		WHERE
+				tag = 'DE'
+		AND remoteDevice NOT LIKE 'NSwitch%'
+		AND NOT EXISTS (
+				SELECT
+						1
+				FROM
+						metoo_terminal d2
+				WHERE
+						 d2.deviceUuid2 = d1.deviceUuid
+				AND d2.deviceTypeId = 34
+				AND d1.remoteDevice = d2.deviceName
+		)
+    </select>
 
+    <select id="selectTagDEWithoutNswitch" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+				d1.*
+		FROM
+				metoo_mac d1
+		WHERE
+				tag = 'DE'
+		AND remoteDevice NOT LIKE 'NSwitch%'
+		AND NOT EXISTS (
+				SELECT
+						1
+				FROM
+						metoo_terminal d2
+				WHERE
+						 d2.deviceUuid2 = d1.deviceUuid
+				AND d2.deviceTypeId = 34
+				AND d1.remoteDevice = d2.deviceName
+		)
+    </select>
+
+    <select id="selectTagDEWithNswitch" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+				d1.*
+		FROM
+				metoo_mac d1
+		WHERE
+				tag = 'DE'
+		AND remoteDevice LIKE 'NSwitch%'
+		AND NOT EXISTS (
+				SELECT
+						1
+				FROM
+						metoo_terminal d2
+				WHERE
+						 d2.deviceUuid2 = d1.deviceUuid
+				AND d2.deviceTypeId = 34
+				AND d1.remoteDevice = d2.deviceName
+		)
     </select>
 
     <select id="selectTagToX" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
@@ -1520,7 +1560,6 @@
             WHERE id = #{item.id}
         </foreach>
     </update>
-
 
     <update id="updateMacTagToRTByIds" parameterType="java.util.Set">
         UPDATE metoo_mac set tag = 'RT'

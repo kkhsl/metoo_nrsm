@@ -46,6 +46,8 @@ public class TerminalManagerControllerApi {
     private ITerminalUnitService terminalUnitService;
     @Autowired
     private ITerminalMacIpv6Service terminalMacIpv6Service;
+    @Autowired
+    private IMacService macService;
 
     @ApiOperation("设备 Mac (DT))")
     @GetMapping(value = {"/dt"})
@@ -59,12 +61,28 @@ public class TerminalManagerControllerApi {
             Map params = new HashMap();
             if(map.get("time") == null || StringUtil.isEmpty(String.valueOf(map.get("time")))){
                 for (String uuid : list) {
+
+                    List<Terminal> terminals = new ArrayList<>();
+
                     params.clear();
                     params.put("deviceUuid", uuid);
                     params.put("deviceUuidAndDeviceTypeId", uuid);
                     params.put("online", true);
-                    List<Terminal> terminals = terminalService.selectObjByMap(params);
-                    macUtils.terminalJoint(terminals);
+                    List<Terminal> terminalList = terminalService.selectObjByMap(params);
+
+                    if(terminalList != null && !terminalList.isEmpty()){
+                        terminals.addAll(terminalList);
+                    }
+
+                    params.clear();
+                    params.put("deviceUuid", uuid);
+                    List<Terminal> nswitchList = terminalService.selectNSwitchToTopology(params);
+                    if(nswitchList != null && !nswitchList.isEmpty()){
+                        terminals.addAll(nswitchList);
+
+                    }
+
+//                    macUtils.terminalJoint(terminals);
                     for (Terminal terminal : terminals) {
                         DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
                         if(deviceType != null){
@@ -88,6 +106,8 @@ public class TerminalManagerControllerApi {
                     }
                     result.put(uuid, terminals);
                 }
+//                List<Mac> nswitchList = this.macService.selectTagDEWithNswitch();
+//                result.put("nswitchList", nswitchList);
             }else{
                 // mac历史数据；nrsm暂时没有记录
                 for (String uuid : list) {
@@ -97,7 +117,7 @@ public class TerminalManagerControllerApi {
                     params.put("online", true);
                     params.put("time", map.get("time"));
                     List<Terminal> terminals = terminalService.selectObjHistoryByMap(params);
-                    macUtils.terminalJoint(terminals);
+//                    macUtils.terminalJoint(terminals);
                     for (Terminal terminal : terminals) {
                         DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
                         if(deviceType != null){

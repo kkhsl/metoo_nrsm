@@ -101,6 +101,6 @@ public class NetworkElement extends IdEntity {
 
 
     @ApiModelProperty("nswitch: 0：显示 1：隐藏")
-    private boolean display;
+    private boolean display = false;
 
 }

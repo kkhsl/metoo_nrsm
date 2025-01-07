@@ -22,6 +22,10 @@ public interface MacMapper {
 
     List<Mac> selectTagByDE();
 
+    List<Mac> selectTagDEWithoutNswitch();
+
+    List<Mac> selectTagDEWithNswitch();
+
     List<Mac> selectTagToX(Map params);
 
     List<Mac> selectTagToU(Map params);

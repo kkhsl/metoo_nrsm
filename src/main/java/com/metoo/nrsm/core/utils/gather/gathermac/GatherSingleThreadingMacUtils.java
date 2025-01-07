@@ -232,7 +232,11 @@ public class GatherSingleThreadingMacUtils {
     }
 
 
-    // 更新终端信息
+    /**
+     * 更新终端信息
+     * （deviceType|deviceName|tag|网元display）
+     * @param date
+     */
     private void updateTerminalInfo(Date date) {
         try {
             terminalService.syncTerminal(date);

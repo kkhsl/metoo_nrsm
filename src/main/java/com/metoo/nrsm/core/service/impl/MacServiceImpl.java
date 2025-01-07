@@ -10,6 +10,7 @@ import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Arp;
+import com.metoo.nrsm.entity.DeviceType;
 import com.metoo.nrsm.entity.Mac;
 import com.metoo.nrsm.entity.NetworkElement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +40,150 @@ public class MacServiceImpl implements IMacService {
     private INetworkElementService networkElementService;
     @Autowired
     private PythonExecUtils pythonExecUtils;
+    @Autowired
+    private IDeviceTypeService deviceTypeService;
 
     @Override
     public List<Mac> selectObjByMap(Map params) {
         return this.macMapper.selectObjByMap(params);
     }
 
+    /**
+     * 查询tag为DE条目
+     * # 修改为，不为NSwitch的DE条目
+     * @return
+     */
     @Override
     public List<Mac> selectTagByDE() {
         return this.macMapper.selectTagByDE();
+    }
+
+    @Override
+    public List<Mac> selectTagDEWithoutNswitch() {
+        List<Mac> list = this.macMapper.selectTagDEWithoutNswitch();
+        list = filterMirrorData(list);
+        if(list.size() > 0){
+            list = macDataSupplement(list);
+        }
+        return list;
+    }
+
+    @Override
+    public List<Mac> selectTagDEWithNswitch() {
+        List<Mac> list = this.macMapper.selectTagDEWithNswitch();
+        list = filterMirrorData(list);
+        if(list.size() > 0){
+            list = macDataSupplement(list);
+        }
+        return list;
+    }
+
+    private List<Mac> macDataSupplement(List<Mac> list){
+        Map params = new HashMap();
+        for (Mac de : list) {
+            params.clear();
+            if(StringUtil.isNotEmpty(de.getDeviceIp())){
+                params.put("ip", de.getDeviceIp());
+                List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
+                if(networkElements.size() > 0){
+                    NetworkElement networkElement = networkElements.get(0);
+                    if(networkElement.getDeviceTypeId() != null){
+                        DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
+                        de.setDeviceTypeUuid(deviceType.getUuid());
+                        de.setDeviceType(deviceType.getName());
+                    }
+                    if(StringUtil.isNotEmpty(de.getRemoteDevice())){
+                        params.clear();
+                        params.put("hostname", de.getRemoteDevice());
+                        List<Mac> remoteDeviceList = this.macMapper.selectObjByMap(params);
+                        if(remoteDeviceList.size() > 0){
+                            Mac remoteDevice = remoteDeviceList.get(0);
+                            de.setRemoteDeviceIp(remoteDevice.getDeviceIp());
+                            de.setRemoteDeviceName(remoteDevice.getDeviceName());
+                            params.clear();
+                            params.put("hostname", de.getRemoteDevice());
+                            params.put("remoteDevice", de.getHostname());
+                            List<Mac> portMac = this.macMapper.selectObjByMap(params);
+                            if(portMac.size() > 0){
+                                de.setPort(portMac.get(0).getRemotePort());
+                            }
+                            if(StringUtil.isNotEmpty(remoteDevice.getDeviceIp())){
+                                params.clear();
+                                params.put("ip", remoteDevice.getDeviceIp());
+                                List<NetworkElement> remote_networkElements = this.networkElementService.selectObjByMap(params);
+                                if(remote_networkElements.size() > 0) {
+                                    NetworkElement remote_networkElement = remote_networkElements.get(0);
+                                    de.setRemoteDeviceUuid(remote_networkElement.getUuid());
+                                    if (remote_networkElement.getDeviceTypeId() != null) {
+                                        DeviceType deviceType = this.deviceTypeService.selectObjById(remote_networkElement.getDeviceTypeId());
+                                        de.setRemoteDevicTypeeUuid(deviceType.getUuid());
+                                        de.setRemoteDeviceType(deviceType.getName());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(StringUtil.isNotEmpty(de.getRemoteDevice())){
+                params.clear();
+                params.put("deviceName", de.getDeviceName());
+                params.put("display", 1);
+                List<NetworkElement> NSwitch_nes2 = this.networkElementService.selectObjByMap(params);
+                if(NSwitch_nes2.size() > 0){
+                    NetworkElement NSwitch_ne = NSwitch_nes2.get(0);
+                    de.setDeviceUuid(NSwitch_ne.getUuid());
+                    if (NSwitch_ne.getDeviceTypeId() != null) {
+                        DeviceType deviceType = this.deviceTypeService.selectObjById(NSwitch_ne.getDeviceTypeId());
+                        de.setDeviceTypeUuid(deviceType.getUuid());
+                        de.setDeviceType(deviceType.getName());
+                    }
+                }
+            }
+            if(StringUtil.isNotEmpty(de.getRemoteDevice())){
+                params.clear();
+                params.put("deviceName", de.getRemoteDevice());
+                params.put("displayList", Arrays.asList(0, 1));
+                List<NetworkElement> NSwitch_nes = this.networkElementService.selectObjByMap(params);
+                if(NSwitch_nes.size() > 0){
+                    NetworkElement NSwitch_ne = NSwitch_nes.get(0);
+                    de.setRemoteDeviceUuid(NSwitch_ne.getUuid());
+                    de.setRemoteDeviceIp(NSwitch_ne.getIp());
+                    de.setRemoteDeviceName(NSwitch_ne.getDeviceName());
+                    if (NSwitch_ne.getDeviceTypeId() != null) {
+                        DeviceType deviceType = this.deviceTypeService.selectObjById(NSwitch_ne.getDeviceTypeId());
+                        de.setRemoteDevicTypeeUuid(deviceType.getUuid());
+                        de.setRemoteDeviceType(deviceType.getName());
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * TODO: 2025/1/6 过滤镜像数据 SQL
+     *
+     * 过滤镜像数据
+     * @param list
+     * @return
+     */
+    private List<Mac> filterMirrorData(List<Mac> list){
+        if (list != null && !list.isEmpty()) {
+            // 使用 Set 来存储已处理的唯一键
+            Set<String> uniqueDevices = new HashSet<>();
+            List<Mac> filteredList = new ArrayList<>();
+            for (Mac mac : list) {
+                String remoteDevice = mac.getHostname() + mac.getRemoteDevice();
+                String hostName = mac.getRemoteDevice() + mac.getHostname();
+                if (!uniqueDevices.contains(remoteDevice) && !uniqueDevices.contains(hostName)) {
+                    uniqueDevices.add(remoteDevice); // 将 remoteDevice 添加到集合
+                    filteredList.add(mac); // 加入结果列表
+                }
+            }
+            return filteredList; // 返回新的过滤后的列表
+        }
+        return list;
     }
 
     @Override
