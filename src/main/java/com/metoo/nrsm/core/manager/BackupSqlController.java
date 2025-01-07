@@ -142,7 +142,7 @@ public class BackupSqlController {
             Process process2 = Runtime.getRuntime().exec(dump);
 
             // 等待进程完成，设定超时
-            if (!process2.waitFor(10, TimeUnit.SECONDS)) {
+            if (!process2.waitFor(20, TimeUnit.SECONDS)) {
                 process2.destroy(); // 超时则终止进程
                 return ResponseUtil.error("备份超时");
             }
@@ -382,7 +382,7 @@ public class BackupSqlController {
 
     @GetMapping("/get/size")
     public String size() {
-        return this.getAvailableSpace("/opt/nmap/resource/db/");
+        return this.getAvailableSpace("/opt/nrsm/nrsm/resource/db/");
     }
 
     public String getSize(String path) {
@@ -723,7 +723,7 @@ public class BackupSqlController {
                 .append(" 127.0.0.1");
         stringBuilder
                 .append(" --user=")
-                .append(" root")
+                .append("root")
                 .append(" --password=")
                 .append("metoo89745000")
                 .append(" --lock-all-tables=true");
@@ -745,7 +745,7 @@ public class BackupSqlController {
                 .append(" 127.0.0.1");
         stringBuilder
                 .append(" --user=")
-                .append(" root")
+                .append("root")
                 .append(" --password=")
                 .append("metoo89745000")
                 .append(" --lock-all-tables=true");
