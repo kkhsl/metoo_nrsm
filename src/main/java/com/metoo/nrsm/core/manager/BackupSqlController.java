@@ -121,7 +121,7 @@ public class BackupSqlController {
             Process process1 = Runtime.getRuntime().exec(dump1);
 
             // 等待进程完成，设定超时
-            if (!process1.waitFor(10, TimeUnit.SECONDS)) {
+            if (!process1.waitFor(60, TimeUnit.SECONDS)) {
                 process1.destroy(); // 超时则终止进程
                 return ResponseUtil.error("备份超时");
             }
@@ -142,7 +142,7 @@ public class BackupSqlController {
             Process process2 = Runtime.getRuntime().exec(dump);
 
             // 等待进程完成，设定超时
-            if (!process2.waitFor(20, TimeUnit.SECONDS)) {
+            if (!process2.waitFor(60, TimeUnit.SECONDS)) {
                 process2.destroy(); // 超时则终止进程
                 return ResponseUtil.error("备份超时");
             }
@@ -538,7 +538,7 @@ public class BackupSqlController {
     }
 
     private Object deleteBackupFile(String backupName) {
-        String savePath = Global.DBPATH + "/" + backupName;
+        String savePath = Global.DBPATH + "/" + backupName+".sql";
         File saveFile = new File(savePath);
         if (saveFile.exists()) {
             try {
