@@ -36,6 +36,8 @@ public interface TerminalMapper {
 
     List<Terminal> selectNSwitchToTopology(Map params);
 
+    List<Terminal> selectHistoryNSwitchToTopology(Map params);
+
   int save(Terminal instance);
 
     int update(Terminal instance);

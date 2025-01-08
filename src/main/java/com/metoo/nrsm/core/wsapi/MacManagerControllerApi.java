@@ -48,6 +48,7 @@ public class MacManagerControllerApi {
                 result.put("nswitchList", list);
             }else{
                 // mac-nswitch历史数据
+
             }
             rep.setNoticeType("501");
             rep.setNoticeStatus(1);

@@ -97,6 +97,35 @@
 		)
     </select>
 
+    <select id="selectHistoryTagDEWithNswitch" resultType="com.metoo.nrsm.entity.Mac">
+        SELECT
+         d1.*
+        FROM
+         metoo_mac d1
+        WHERE
+         tag = 'DE'
+        AND remoteDevice LIKE 'NSwitch%'
+        AND NOT EXISTS (
+          SELECT
+            1
+          FROM
+            metoo_terminal_history d2
+          WHERE
+            d2.deviceUuid2 = d1.deviceUuid
+          AND d2.deviceTypeId = 34
+          AND d1.remoteDevice = d2.deviceName
+          AND d2.addTime = (
+              SELECT
+                addTime
+              FROM
+                metoo_terminal_history
+              WHERE
+                addTime &lt;= #{time}
+              ORDER BY addTime DESC limit 1
+            )
+        )
+    </select>
+
     <select id="selectTagToX" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         select * from metoo_mac mac1
         left join

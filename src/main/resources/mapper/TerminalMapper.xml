@@ -131,6 +131,9 @@
             <if test="deviceType != null">
                 AND deviceType = #{deviceType}
             </if>
+            <if test="notDeviceTypeId != null">
+                AND deviceTypeId != #{notDeviceTypeId}
+            </if>
             <if test="notTag != null and notTag != ''">
                 AND tag != #{notTag}
             </if>
@@ -847,6 +850,7 @@
         <id column="os" property="os"></id>
         <id column="combined_port_protocol" property="combined_port_protocol"></id>
         <id column="combined_vendor_gen_family" property="combined_vendor_gen_family"></id>
+        <id column="online" property="online"></id>
         <collection property="terminalList" ofType="com.metoo.nrsm.entity.Terminal">
             <id column="d2_id" property="id"></id>
             <id column="d2_deviceName" property="deviceName"></id>
@@ -864,6 +868,7 @@
             <id column="d2_os" property="os"></id>
             <id column="d2_combined_port_protocol" property="combined_port_protocol"></id>
             <id column="d2_combined_vendor_gen_family" property="combined_vendor_gen_family"></id>
+            <id column="d2_online" property="online"></id>
         </collection>
     </resultMap>
 
@@ -880,12 +885,15 @@
               d1.remotePort,
               d1.location,
               d1.duty,
-              d1.deviceType,
+              3 AS deviceType,
               d1.os,
               d1.combined_port_protocol,
               d1.combined_vendor_gen_family,
+              d1.online,
+
               d2.id d2_id,
               d2.deviceName d2_deviceName,
+--               17 as d2_deviceTypeId,
               d2.deviceTypeId d2_deviceTypeId,
               d2.v4ip d2_v4ip,
               d2.v6ip d2_v6ip,
@@ -899,7 +907,8 @@
               d2.deviceType d2_deviceType,
               d2.os d2_os,
               d2.combined_port_protocol d2_combined_port_protocol,
-              d2.combined_vendor_gen_family d2_combined_vendor_gen_family
+              d2.combined_vendor_gen_family d2_combined_vendor_gen_family,
+              d2.online d2_online
             FROM (
                 SELECT
                   *
@@ -909,12 +918,73 @@
                     deviceUuid2 = #{deviceUuid}
                 AND deviceName LIKE 'NSwitch%'
                 AND deviceTypeId NOT IN (34, 9)
-                AND ONLINE = 1
                 GROUP BY
                     deviceUuid
                 )d1
             JOIN metoo_terminal d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
             WHERE d2.deviceName LIKE 'NSwitch%'
+    </select>
+
+    <select id="selectHistoryNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
+          SELECT
+              d1.id,
+              d1.deviceName,
+              d1.deviceTypeId,
+              d1.v4ip, d1.v6ip,
+              d1.mac,
+              d1.vlan,
+              d1.macVendor,
+              d1.remoteDevice,
+              d1.remotePort,
+              d1.location,
+              d1.duty,
+              3 AS deviceType,
+              d1.os,
+              d1.combined_port_protocol,
+              d1.combined_vendor_gen_family,
+              d1.online,
+
+              d2.id d2_id,
+              d2.deviceName d2_deviceName,
+--               17 as d2_deviceTypeId,
+              d2.deviceTypeId d2_deviceTypeId,
+              d2.v4ip d2_v4ip,
+              d2.v6ip d2_v6ip,
+              d2.mac d2_mac,
+              d2.vlan d2_vlan,
+              d2.macVendor d2_macVendor,
+              d2.remoteDevice d2_remoteDevice,
+              d2.remotePort d2_remotePort,
+              d2.location d2_location,
+              d2.duty d2_duty,
+              d2.deviceType d2_deviceType,
+              d2.os d2_os,
+              d2.combined_port_protocol d2_combined_port_protocol,
+              d2.combined_vendor_gen_family d2_combined_vendor_gen_family,
+              d2.online d2_online
+            FROM (
+                SELECT
+                  *
+                FROM
+                    metoo_terminal_history
+                WHERE
+                    deviceUuid2 = #{deviceUuid}
+                AND deviceName LIKE 'NSwitch%'
+                AND deviceTypeId NOT IN (34, 9)
+                GROUP BY
+                    deviceUuid
+                )d1
+            JOIN metoo_terminal_history d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
+            WHERE d2.deviceName LIKE 'NSwitch%'
+            AND d2.addTime = (
+            SELECT
+            addTime
+            FROM
+            metoo_terminal_history
+            WHERE
+            addTime &lt;= #{time}
+            ORDER BY addTime DESC limit 1
+            )
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Terminal" keyProperty="id" keyColumn="id" useGeneratedKeys="true">

@@ -11,6 +11,7 @@ import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.entity.Mac;
 import com.metoo.nrsm.entity.NetworkElement;
+import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.TerminalCount;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -242,10 +243,30 @@ public class GatherSingleThreadingMacUtils {
             terminalService.syncTerminal(date);
             terminalService.updateVMHostDeviceType();
             terminalService.updateVMDeviceType();
+
+            updateTerminalToNSwitch();
+
             terminalService.updateVMDeviceIp();
             networkElementService.updateObjDisplay();
         } catch (Exception e) {
             log.error("Error while updating terminal information", e);
+        }
+    }
+
+    /**
+     * deviceType 为1的终端设置为傻瓜交换机
+     */
+    private void updateTerminalToNSwitch(){
+        Map params = new HashMap();
+        params.put("deviceType", 1);
+        params.put("notDeviceTypeId", 36);
+        params.put("online", true);
+        List<Terminal> terminalList = this.terminalService.selectObjByMap(params);
+        if(terminalList != null && !terminalList.isEmpty()){
+            for (Terminal terminal : terminalList) {
+                terminal.setDeviceTypeId(36L);
+                this.terminalService.update(terminal);
+            }
         }
     }
 
