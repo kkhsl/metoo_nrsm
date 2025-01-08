@@ -20,9 +20,13 @@ public class Global {
 
     // 数据库备份
     public static final String DBPATH = "/opt/nrsm/nrsm/resource/db";
+    public static final String DBSCRIPTPATH = "/opt/nrsm/nrsm/resource/script/backup_db1.sh";
+    public static final String DBSCRIPTPATH2 = "/opt/nrsm/nrsm/resource/script/backup_db2.sh";
     public static final String LICENSEPATH = "/opt/nrsm/nrsm/resource/table";
     public static final String DBNAME = "nrsm";
     public static final String DBPATHLOCAL = "C:\\Users\\Administrator\\Desktop\\backup\\db";
+    public static final String DBSCRIPTPATHLOCAL = "C:\\Users\\Administrator\\Desktop\\backup\\script\\backup_db1.bat";
+    public static final String DBSCRIPTPATHLOCAL2 = "C:\\Users\\Administrator\\Desktop\\backup\\script\\backup_db2.bat";
     public static final String LICENSEPATHLOCAL = "C:\\Users\\Administrator\\Desktop\\backup\\table";
 
 
