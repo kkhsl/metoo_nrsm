@@ -13,6 +13,7 @@ import com.metoo.nrsm.entity.BackupSql;
 import io.swagger.annotations.ApiOperation;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +33,9 @@ public class BackupSqlController {
 
     @Autowired
     private IBackupSqlService backupSqlService;
+
+    @Value("${spring.datasource.password}")
+    private String DB_PASSWORD;
 
     // 系统剩余空间
 
@@ -634,7 +638,12 @@ public class BackupSqlController {
     }
 
     private Object deleteBackupFile(String backupName) {
-        String savePath = Global.DBPATH + "/" + backupName+".sql";
+        String savePath=null;
+        if ("dev".equals(Global.env)) {
+            savePath = Global.DBPATHLOCAL + "/" + backupName+".sql";
+        }else{
+            savePath = Global.DBPATH + "/" + backupName+".sql";
+        }
         File saveFile = new File(savePath);
         if (saveFile.exists()) {
             try {
@@ -716,7 +725,7 @@ public class BackupSqlController {
         StringBuilder command = new StringBuilder();
         command.append("C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe").append(" ");
         command.append("--user=").append("root").append(" ");
-        command.append("--password=").append("xsl101410").append(" ");
+        command.append("--password=").append(DB_PASSWORD).append(" ");
         command.append("nsrm").append(" ");
         command.append("-e \"source ").append(dbPath + dbName + ".sql").append("\"");
         return command.toString();
@@ -735,7 +744,7 @@ public class BackupSqlController {
         StringBuilder command = new StringBuilder();
         command.append("mysql").append(" ");
         command.append("--user=").append("root").append(" ");
-        command.append("--password=").append("metoo89745000").append(" ");
+        command.append("--password=").append(DB_PASSWORD).append(" ");
         command.append("nrsm").append(" ");
         command.append("-e \"source ").append(dbPath + dbName + ".sql").append("\"");
 
@@ -775,7 +784,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("xsl101410")
+                .append(DB_PASSWORD)
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -797,7 +806,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("xsl101410")
+                .append(DB_PASSWORD)
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -821,7 +830,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("metoo89745000")
+                .append(DB_PASSWORD)
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -843,7 +852,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("metoo89745000")
+                .append(DB_PASSWORD)
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
