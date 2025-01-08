@@ -13,12 +13,14 @@ import com.metoo.nrsm.entity.BackupSql;
 import io.swagger.annotations.ApiOperation;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,9 @@ public class BackupSqlController {
 
     @Autowired
     private IBackupSqlService backupSqlService;
+
+    @Value("${spring.datasource.password}")
+    private String DB_PASSWORD;
 
     // 系统剩余空间
 
@@ -121,7 +126,7 @@ public class BackupSqlController {
             Process process1 = Runtime.getRuntime().exec(dump1);
 
             // 等待进程完成，设定超时
-            if (!process1.waitFor(10, TimeUnit.SECONDS)) {
+            if (!process1.waitFor(20, TimeUnit.SECONDS)) {
                 process1.destroy(); // 超时则终止进程
                 return ResponseUtil.error("备份超时");
             }
@@ -142,7 +147,7 @@ public class BackupSqlController {
             Process process2 = Runtime.getRuntime().exec(dump);
 
             // 等待进程完成，设定超时
-            if (!process2.waitFor(20, TimeUnit.SECONDS)) {
+            if (!process2.waitFor(60*3, TimeUnit.SECONDS)) {
                 process2.destroy(); // 超时则终止进程
                 return ResponseUtil.error("备份超时");
             }
@@ -160,6 +165,101 @@ public class BackupSqlController {
             }
 
             // 创建记录
+            BackupSql backupSql = this.backupSqlService.selectObjByName(name);
+            if (backupSql == null) {
+                backupSql = new BackupSql();
+            }
+            backupSql.setName(name);
+            backupSql.setSize(this.getDbSize(name));
+            this.backupSqlService.save(backupSql);
+
+            return ResponseUtil.ok("备份成功");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseUtil.error("IO异常: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // 恢复中断状态
+            return ResponseUtil.error("操作被中断");
+        }
+    }
+
+
+    @GetMapping("/backup")
+    public Object backupDB1(String name) {
+        name = name + "-" + DateTools.currentTimeMillis();
+
+        // 根据环境选择脚本文件
+        String scriptPath1;
+        String scriptPath2;
+        String backupDir = null;
+        String backupDir2=null;
+        if ("dev".equals(Global.env)) {
+            backupDir=Global.LICENSEPATHLOCAL;
+            backupDir2=Global.DBPATHLOCAL;
+            scriptPath1 = Global.DBSCRIPTPATHLOCAL; // Windows 脚本路径
+            scriptPath2 = Global.DBSCRIPTPATHLOCAL2; // Windows 脚本路径
+        } else {
+            backupDir=Global.LICENSEPATH;
+            backupDir2=Global.DBPATH;
+            scriptPath1 = Global.DBSCRIPTPATH; // Linux 脚本路径
+            scriptPath2 = Global.DBSCRIPTPATH2; // Linux 脚本路径
+        }
+
+        // 执行第一个备份脚本
+        // 创建 ProcessBuilder
+        ProcessBuilder processBuilder1 = new ProcessBuilder(scriptPath1, name, backupDir);
+        processBuilder1.redirectErrorStream(true); // 合并错误流和输出流
+
+        try {
+            Process process1 = processBuilder1.start();
+
+            // 等待进程完成，设定超时
+            if (!process1.waitFor(30, TimeUnit.SECONDS)) {
+                process1.destroy(); // 超时则终止进程
+                return ResponseUtil.error("备份超时");
+            }
+
+            // 读取输出结果
+            StringBuilder output1 = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process1.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output1.append(line).append("\n");
+                }
+            }
+
+            // 检查返回值
+            if (process1.exitValue() != 0) {
+                return ResponseUtil.error("备份失败: " + output1.toString());
+            }
+
+            // 执行第二个备份脚本
+            ProcessBuilder processBuilder2 = new ProcessBuilder(scriptPath2, name, backupDir2);
+            processBuilder2.redirectErrorStream(true); // 合并错误流和输出流
+
+            Process process2 = processBuilder2.start();
+
+            // 等待进程完成，设定超时
+            if (!process2.waitFor(60 * 3, TimeUnit.SECONDS)) {
+                process2.destroy(); // 超时则终止进程
+                return ResponseUtil.error("备份超时");
+            }
+
+            // 读取输出结果
+            StringBuilder output2 = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process2.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output2.append(line).append("\n");
+                }
+            }
+
+            // 检查返回值
+            if (process2.exitValue() != 0) {
+                return ResponseUtil.error("备份失败: " + output2.toString());
+            }
+
+            // 创建记录（如果需要）
             BackupSql backupSql = this.backupSqlService.selectObjByName(name);
             if (backupSql == null) {
                 backupSql = new BackupSql();
@@ -538,7 +638,12 @@ public class BackupSqlController {
     }
 
     private Object deleteBackupFile(String backupName) {
-        String savePath = Global.DBPATH + "/" + backupName;
+        String savePath=null;
+        if ("dev".equals(Global.env)) {
+            savePath = Global.DBPATHLOCAL + "/" + backupName+".sql";
+        }else{
+            savePath = Global.DBPATH + "/" + backupName+".sql";
+        }
         File saveFile = new File(savePath);
         if (saveFile.exists()) {
             try {
@@ -620,7 +725,7 @@ public class BackupSqlController {
         StringBuilder command = new StringBuilder();
         command.append("C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe").append(" ");
         command.append("--user=").append("root").append(" ");
-        command.append("--password=").append("xsl101410").append(" ");
+        command.append("--password=").append(DB_PASSWORD).append(" ");
         command.append("nsrm").append(" ");
         command.append("-e \"source ").append(dbPath + dbName + ".sql").append("\"");
         return command.toString();
@@ -639,7 +744,7 @@ public class BackupSqlController {
         StringBuilder command = new StringBuilder();
         command.append("mysql").append(" ");
         command.append("--user=").append("root").append(" ");
-        command.append("--password=").append("metoo89745000").append(" ");
+        command.append("--password=").append(DB_PASSWORD).append(" ");
         command.append("nrsm").append(" ");
         command.append("-e \"source ").append(dbPath + dbName + ".sql").append("\"");
 
@@ -679,7 +784,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("xsl101410")
+                .append(DB_PASSWORD)
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -701,7 +806,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("xsl101410")
+                .append(DB_PASSWORD)
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -725,7 +830,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("metoo89745000")
+                .append(DB_PASSWORD)
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
@@ -747,7 +852,7 @@ public class BackupSqlController {
                 .append(" --user=")
                 .append("root")
                 .append(" --password=")
-                .append("metoo89745000")
+                .append(DB_PASSWORD)
                 .append(" --lock-all-tables=true");
         stringBuilder
                 .append(" --result-file=")
