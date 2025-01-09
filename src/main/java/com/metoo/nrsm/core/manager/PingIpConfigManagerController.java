@@ -48,7 +48,7 @@ public class PingIpConfigManagerController {
     }
 
     @PutMapping
-    public Result update(@RequestBody PingIpConfig instance) {
+    public Result update(@RequestBody PingIpConfig instance)  {
         //PingIpConfig oldPingIpConfig = this.pingIpConfigService.selectOneObj();
         boolean flag = this.pingIpConfigService.update(instance);
         if (flag) {

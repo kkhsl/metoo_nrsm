@@ -17,7 +17,9 @@ public interface IUnboundService {
 
     boolean save(Unbound instance);
     boolean open(UnboundDTO instance);
-    boolean restart() throws Exception;
+    boolean start() throws Exception;
+    boolean stop() throws Exception;
+    boolean status() throws Exception;
 
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     boolean saveDNS(Unbound instance);
