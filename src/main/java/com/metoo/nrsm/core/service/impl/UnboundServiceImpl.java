@@ -458,6 +458,36 @@ public class UnboundServiceImpl implements IUnboundService {
         // 重启 Unbound 服务
         Session session = conn.openSession();
         session.execCommand("systemctl restart unbound");
+        Thread.sleep(2500);
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        session = conn.openSession();
+        session.execCommand("systemctl status unbound");
+        String statusOutput = consumeInputStream(session.getStdout());
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        boolean isRunning = checkUnboundStatus(conn);
+        // 关闭连接
+        conn.close();
+        if (isRunning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean stop1() throws Exception {
+        // 创建连接
+        Connection conn = new Connection(host, port);
+        // 启动连接
+        conn.connect();
+        // 验证用户密码
+        conn.authenticateWithPassword(username, password);
+        // 重启 Unbound 服务
+        Session session = conn.openSession();
+        session.execCommand("systemctl stop unbound");
         Thread.sleep(1000);
         session.close(); // 关闭会话
 
@@ -477,6 +507,157 @@ public class UnboundServiceImpl implements IUnboundService {
             return false;
         }
     }
+
+    public boolean status1() throws Exception {
+        // 创建连接
+        Connection conn = new Connection(host, port);
+        // 启动连接
+        conn.connect();
+        // 验证用户密码
+        conn.authenticateWithPassword(username, password);
+        // 重启 Unbound 服务
+        Session session = conn.openSession();
+        // 检查 Unbound 服务状态
+        session = conn.openSession();
+        session.execCommand("systemctl status unbound");
+        String statusOutput = consumeInputStream(session.getStdout());
+        System.out.println("Unbound 状态:\n" + statusOutput);
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        boolean isRunning = checkUnboundStatus(conn);
+        // 关闭连接
+        conn.close();
+        if (isRunning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public boolean status2() throws Exception {
+        // 检查 Unbound 服务状态
+        ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "status", "unbound");
+        statusBuilder.redirectErrorStream(true); // 合并错误流和输出流
+        Process statusProcess = statusBuilder.start();
+
+        // 读取输出
+        String statusOutput = consumeInputStream2(statusProcess.getInputStream());
+        statusProcess.waitFor(); // 等待状态检查完成
+
+        // 打印状态信息
+        System.out.println("Unbound 状态:\n" + statusOutput);
+
+        // 检查服务是否正在运行
+        boolean isRunning = checkUnboundStatus(statusOutput);
+
+        return isRunning;
+    }
+    public boolean stop2() throws Exception {
+        // 停止 Unbound 服务
+        ProcessBuilder stopBuilder = new ProcessBuilder("systemctl", "stop", "unbound");
+        stopBuilder.redirectErrorStream(true); // 合并错误流和输出流
+        Process stopProcess = stopBuilder.start();
+        stopProcess.waitFor(); // 等待停止命令完成
+
+        // 检查 Unbound 服务状态
+        ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "status", "unbound");
+        statusBuilder.redirectErrorStream(true); // 合并错误流和输出流
+        Process statusProcess = statusBuilder.start();
+
+        String statusOutput = consumeInputStream2(statusProcess.getInputStream());
+        statusProcess.waitFor(); // 等待状态检查完成
+
+        // 检查服务是否正在运行
+        boolean isRunning = checkUnboundStatus(statusOutput);
+
+        return isRunning;
+    }
+
+
+    public boolean restart2() throws Exception {
+        // 重启 Unbound 服务
+        ProcessBuilder restartBuilder = new ProcessBuilder("systemctl", "restart", "unbound");
+        restartBuilder.redirectErrorStream(true); // 合并错误流和输出流
+        Process restartProcess = restartBuilder.start();
+        restartProcess.waitFor(); // 等待重启完成
+
+        // 检查 Unbound 服务状态
+        ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "status", "unbound");
+        statusBuilder.redirectErrorStream(true); // 合并错误流和输出流
+        Process statusProcess = statusBuilder.start();
+
+        String statusOutput = consumeInputStream2(statusProcess.getInputStream());
+        statusProcess.waitFor(); // 等待状态检查完成
+
+        // 检查服务是否正在运行
+        boolean isRunning = checkUnboundStatus(statusOutput);
+
+        return isRunning;
+    }
+
+    private String consumeInputStream2(InputStream inputStream) throws Exception {
+        StringBuilder output = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+        }
+        return output.toString();
+    }
+
+    private boolean checkUnboundStatus(String statusOutput) {
+        return statusOutput.contains("active (running)");
+    }
+
+    public boolean start(){
+        if ("dev".equals(Global.env)) {
+            try {
+                return restart();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            try {
+                return restart2();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public boolean stop(){
+        if ("dev".equals(Global.env)) {
+            try {
+                return stop1();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            try {
+                return stop2();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public boolean status(){
+        if ("dev".equals(Global.env)) {
+            try {
+                return status1();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            try {
+                return status2();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
 
     private String consumeInputStream(InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));

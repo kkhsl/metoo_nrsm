@@ -121,7 +121,7 @@ public class UnboundManagerController {
 
     @GetMapping("/status")
     public Boolean status() throws Exception {
-        // 创建连接
+        /*// 创建连接
         Connection conn = new Connection(host, port);
         // 启动连接
         conn.connect();
@@ -144,13 +144,14 @@ public class UnboundManagerController {
             return true;
         } else {
             return false;
-        }
+        }*/
+        return unboundService.status();
     }
 
 
     @GetMapping("/restart")
     public Boolean restart() throws Exception {
-        // 创建连接
+        /*// 创建连接
         Connection conn = new Connection(host, port);
         // 启动连接
         conn.connect();
@@ -165,8 +166,6 @@ public class UnboundManagerController {
         // 检查 Unbound 服务状态
         session = conn.openSession();
 
-//        session.execCommand("systemctl status unbound");
-//        String statusOutput = consumeInputStream(session.getStdout());
 
         session.close(); // 关闭会话
 
@@ -178,12 +177,13 @@ public class UnboundManagerController {
             return true;
         } else {
             return false;
-        }
+        }*/
+        return unboundService.start();
     }
 
     @GetMapping("/stop")
     public Boolean stop() throws Exception {
-        // 创建连接
+        /*// 创建连接
         Connection conn = new Connection(host, port);
         // 启动连接
         conn.connect();
@@ -209,11 +209,12 @@ public class UnboundManagerController {
             return true;
         } else {
             return false;
-        }
+        }*/
+        return unboundService.stop();
     }
 
 
-    private String consumeInputStream(InputStream inputStream) throws IOException {
+   /* private String consumeInputStream(InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         StringBuilder sb = new StringBuilder();
         String line;
@@ -232,7 +233,7 @@ public class UnboundManagerController {
         // 判断服务状态
         return statusOutput.contains("Active: active (running)");
     }
-
+*/
 
 
 
