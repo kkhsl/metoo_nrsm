@@ -111,6 +111,7 @@ public class TerminalManagerControllerApi {
         // 查询NSwitch数据
         params.clear();
         params.put("deviceUuid", uuid);
+        params.put("online", true);
         List<Terminal> nswitchList = isHistoricalData ?
                 terminalService.selectHistoryNSwitchToTopology(params) :
                 terminalService.selectNSwitchToTopology(params);

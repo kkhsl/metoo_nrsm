@@ -1,18 +1,13 @@
 package com.metoo.nrsm.core.utils.gather.gathermac;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.core.service.IMacService;
-import com.metoo.nrsm.core.service.INetworkElementService;
-import com.metoo.nrsm.core.service.ITerminalCountService;
-import com.metoo.nrsm.core.service.ITerminalService;
+import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
-import com.metoo.nrsm.entity.Mac;
-import com.metoo.nrsm.entity.NetworkElement;
-import com.metoo.nrsm.entity.Terminal;
-import com.metoo.nrsm.entity.TerminalCount;
+import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +35,8 @@ public class GatherSingleThreadingMacUtils {
     private ITerminalCountService terminalCountService;
     @Autowired
     private INetworkElementService networkElementService;
+    @Autowired
+    private IDeviceTypeService deviceTypeService;
     @Autowired
     private PythonExecUtils pythonExecUtils;
     private static final String MAC_PREFIX = "00:00:5e"; // 常量定义，避免硬编码
@@ -241,10 +238,12 @@ public class GatherSingleThreadingMacUtils {
     private void updateTerminalInfo(Date date) {
         try {
             terminalService.syncTerminal(date);
+
+            updateTerminalDeviceTypeToNSwitch();
+
             terminalService.updateVMHostDeviceType();
             terminalService.updateVMDeviceType();
 
-            updateTerminalToNSwitch();
 
             terminalService.updateVMDeviceIp();
             networkElementService.updateObjDisplay();
@@ -256,7 +255,78 @@ public class GatherSingleThreadingMacUtils {
     /**
      * deviceType 为1的终端设置为傻瓜交换机
      */
-    private void updateTerminalToNSwitch(){
+    private void updateTerminalDeviceTypeToNSwitch(){
+        Map params = new HashMap();
+        params.put("deviceType", 1);
+        params.put("notDeviceTypeId", 36);
+        params.put("online", true);
+        List<Terminal> terminalList = this.terminalService.selectObjByMap(params);
+        if(terminalList != null && !terminalList.isEmpty()){
+            for (Terminal terminal : terminalList) {
+                terminal.setDeviceTypeId(36L);
+                this.terminalService.update(terminal);
+            }
+        }
+
+        params.clear();
+        params.put("online", true);
+        params.put("notDeviceTypeId", 36);
+        List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+        if(terminals != null && !terminals.isEmpty()){
+
+            DeviceType deviceType1 = this.deviceTypeService.selectObjByType(14);
+            DeviceType deviceType2 = this.deviceTypeService.selectObjByType(27);
+
+            for (Terminal terminal : terminals) {
+//                [{"application_protocol":"ssh","port_num":"22"}]
+                if(StringUtils.isNotEmpty(terminal.getCombined_port_protocol())){
+                    JSONArray jsonArray = JSONArray.parseArray(terminal.getCombined_port_protocol());
+                    // 用于存储所有的端口号
+                    Set<String> portNumbers = new HashSet<>();
+
+                    // 遍历 JSON 数组，提取所有 port_num
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        String portNum = jsonArray.getJSONObject(i).getString("port_num");
+                        if (StringUtils.isNotEmpty(portNum)) {
+                            portNumbers.add(portNum.trim());  // 将 port_num 添加到集合中
+                        }
+                    }
+
+                    // 判断是否有 23 端口
+                    if (portNumbers.contains("23")) {
+                        // 如果包含 23 端口，认为是网络设备，更新设备类型 ID
+                        terminal.setDeviceTypeId(37L);  // NEW_NETWORK_DEVICE_TYPE_ID 是新增的网络设备 typeid
+                    } else if (portNumbers.size() > 4) {
+                        // 如果包含 23 端口，认为是网络设备，更新设备类型 ID
+                        terminal.setDeviceTypeId(16L);  // NEW_NETWORK_DEVICE_TYPE_ID 是新增的网络设备 typeid
+                    } else  if (portNumbers.contains("22")) {
+                        // 如果包含 23 端口，认为是网络设备，更新设备类型 ID
+                        terminal.setDeviceTypeId(16L);  // NEW_NETWORK_DEVICE_TYPE_ID 是新增的网络设备 typeid
+                    } else if (portNumbers.contains("515")) {
+                        // 如果包含 23 端口，认为是网络设备，更新设备类型 ID
+                        terminal.setDeviceTypeId(19L);  // NEW_NETWORK_DEVICE_TYPE_ID 是新增的网络设备 typeid
+                    } else {
+                    // 恢复为普通终端
+                    if (terminal.getType() == null || terminal.getType() == 0) {
+                        if (StringUtils.isEmpty(terminal.getV4ip()) && StringUtils.isEmpty(terminal.getV6ip())) {
+                            terminal.setDeviceTypeId(deviceType2.getId());
+                        } else {
+                            if(terminal.getDeviceTypeId() == null){
+                                terminal.setDeviceTypeId(deviceType1.getId());
+                            }
+                        }
+                    }
+                }
+                    this.terminalService.update(terminal);
+                }
+
+            }
+        }
+
+
+    }
+
+    private void updateTerminalDeviceTypeTo(){
         Map params = new HashMap();
         params.put("deviceType", 1);
         params.put("notDeviceTypeId", 36);
