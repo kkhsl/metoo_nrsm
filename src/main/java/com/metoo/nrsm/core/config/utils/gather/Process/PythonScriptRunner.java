@@ -108,52 +108,6 @@ public class PythonScriptRunner {
         System.out.println("Python script output:\n" + result);
     }
 
-//    public String exec(String scriptPath, String... args) {
-//        log.info("==============arg " + args);
-//        try {
-//            // 构建命令行参数，包括 Python 解释器和脚本路径
-//            ProcessBuilder pb = new ProcessBuilder();
-//            pb.redirectErrorStream(true);
-//
-//            // 设置工作目录
-//            pb.directory(new File(scriptPath));
-//
-//            // 将参数添加到命令行参数中
-//            pb.command().addAll(Arrays.asList(args));
-//
-//            // 启动进程并等待其完成
-//            log.info("==============arg 7");
-//            Process process = pb.start();
-//
-//            log.info("==============arg 8");
-//            // 等待进程终止，并获取退出值
-//            int exitCode = process.waitFor();
-//            System.out.println("==================Exited with code: " + exitCode);
-//
-//            log.info("==============arg 1");
-//            // 读取进程输出
-//            BufferedReader reader = new BufferedReader(
-//                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
-//
-//            log.info("==============arg 2");
-////            String output = reader.lines().toString();
-//            String output = reader.lines().collect(Collectors.joining("\n"));
-//
-//            log.info("==============arg 3");
-//            // 关闭输入流
-//            reader.close();
-//
-//            log.info("==============arg 4");
-//            // 返回执行结果
-//            log.info("==========================result:"+ output);
-//            log.info("==============arg 5");
-//            return output;
-//
-//        } catch (IOException | InterruptedException e) {
-//            e.printStackTrace();
-//            return ""; // 或者抛出异常，根据需求处理
-//        }
-//    }
 
     @Test
     public void execTest(){
@@ -233,24 +187,6 @@ public class PythonScriptRunner {
                 e.printStackTrace();
             }
 
-
-//            log.info("==============arg 8");
-//            // 等待进程终止，并获取退出值
-//            int exitCode = process.waitFor();
-//            System.out.println("==================Exited with code: " + exitCode);
-//
-//            log.info("==============arg 1");
-//            // 读取进程输出
-//            BufferedReader reader = new BufferedReader(
-//                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
-//
-//            log.info("==============arg 2");
-////            String output = reader.lines().toString();
-//            String output = reader.lines().collect(Collectors.joining("\n"));
-//
-//            log.info("==============arg 3");
-//            // 关闭输入流
-//            reader.close();
 
             // 返回执行结果
             String cleanedOutput = output.toString().replaceAll("[\n\r]", "");

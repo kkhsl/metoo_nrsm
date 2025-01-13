@@ -24,41 +24,6 @@ public class CommUtils {
             SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// 24小时制
 
     public static void main(String[] args) {
-       /* LinkedList<Integer> number = new LinkedList<>();
-        number.add(1);
-        number.add(5);
-        number.add(6);
-        number.add(8);
-        number.add(7);
-
-        Collections.sort(number);
-        SystemTest.out.println(number);
-        Collections.reverse(number);
-        SystemTest.out.println(number);*/
-
-
-   /*     File file1 = new File("C:\\Users\\46075\\Desktop\\20210323040120436\\20210406BuYD1A");
-        if(!file1 .exists()) {
-            file1.mkdirs();//创建目录
-            SystemTest.out.println("测试文件夹不存在");
-        }
-*/
-
-     /*   boolean flag = delFileTs("C:\\Users\\46075\\Desktop\\20210323040120436\\20210406BuYD1A");
-        SystemTest.out.println(flag);*/
-        /**
-         * new Comparator<String>(){
-         *             public int compare(String o1,String o2){
-         *                 return o1.compareTo(o2);
-         *             }
-         *         }
-         */
-     /*   number.sort(new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return 0;
-            }
-        });*/
     }
 
 

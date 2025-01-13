@@ -100,17 +100,9 @@ public class MacManagerController {
                                         }
                                     }
                                 }
-//                            else{
-//                                DE.setRemoteDeviceUuid(UUID.randomUUID().toString());
-//                            }
+
                             }
-//                        if (DE.getRemoteDevice().contains("NSwitch")) {
-//                            DeviceType deviceType = this.deviceTypeService.selectObjByType(29);
-//                            if(deviceType != null){
-//                                DE.setRemoteDevicTypeeUuid(deviceType.getUuid());
-//                                DE.setRemoteDeviceType(deviceType.getName());
-//                            }
-//                        }
+
 
                         }
                     }

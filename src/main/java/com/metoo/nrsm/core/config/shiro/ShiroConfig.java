@@ -30,18 +30,8 @@ import java.util.Map;
 
 
 /**
- * <p>
- * Title: ShiroConfig.java
- * </p>
- *
- * <p>
  * Description: 整合Shiro框架相关的配置类; Web环境中，自动为SecurityUtil注入Securitymanagers
  * swagger-ui.html
- * </p>
- *
- * <p>
- * authen: hkk
- * </p>
  */
 @Configuration
 public class ShiroConfig {
@@ -60,10 +50,7 @@ public class ShiroConfig {
         // 1,给过滤器设置安全管理器
         shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
 
-        /**
-         * 添加自定义拦截器，重写user认证方式，处理session超时问题
-         *  添加 jwt 专用过滤器，拦截除 /login 和 /logout 外的请求
-         */
+
         HashMap<String, Filter> myFilters = new HashMap<>(16);
         myFilters.put("rmb", new MyAccessControlFilter());
         myFilters.put("licenseFilter", createLicenseFilter(licenseService));
@@ -72,9 +59,6 @@ public class ShiroConfig {
         // 2,配置系统受限资源
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
 
-
-//        filterChainDefinitionMap.put("/admin/dhcp/**", "anon");
-//        filterChainDefinitionMap.put("/admin/address/pool/**", "anon");
 
 
 
@@ -111,7 +95,6 @@ public class ShiroConfig {
 
         filterChainDefinitionMap.put("/**", "rmb");
 
-//        filterChainDefinitionMap.put("/notice/**", "authc");
 
         filterChainDefinitionMap.put("/index.jsp", "authc");// authc 请求这个资源需要认证和授权;参数可以为视图可以为路径（/index.jsp、/**、/path/*）
 
@@ -163,12 +146,6 @@ public class ShiroConfig {
         // 1-1, 给安全管理器设置Realm
         defaultWebSecurityManager.setRealm(getRealm());
         // 1-2，给安全管理器设置Realms
-//        List<Realm> realms = new ArrayList<Realm>();
-//        realms.add(jwtRealm());
-//        realms.add(getRealm());
-//        defaultWebSecurityManager.setRealms(realms);
-        // 2，给安全管理器设置SessionManager
-        //  getDefaultWebSessionManager (isAuthenticated:false)
         defaultWebSecurityManager.setSessionManager(getDefaultSessionManager());
         // 3，给安全管理器设置RememberMeManager
 //        defaultWebSecurityManager.setRememberMeManager(rememberMeManager());
@@ -193,30 +170,9 @@ public class ShiroConfig {
         hashedCredentialsMatcher.setHashIterations(1024);
         myRealm.setCredentialsMatcher(hashedCredentialsMatcher);
 
-        // 开启缓存管理
-//        myRealm.setCachingEnabled(true);// 开启全局缓存
-        // 方式一：EhCache
-//        myRealm.setCacheManager(new EhCacheManager());// EhCache
-////        方式二：Redis
-//        myRealm.setCacheManager(new RedisCacheManager());// RedisCacheManager
-//        myRealm.setAuthenticationCachingEnabled(true);// 认证缓存
-//        myRealm.setAuthenticationCacheName("authenticationCache");
-//        myRealm.setAuthorizationCachingEnabled(true);// 授权缓存
-//        myRealm.setAuthorizationCacheName("authorizationCache");
         return myRealm;
     }
 
-    /**
-     * 配置 jwt ModularRealmAuthenticator
-     */
-//    @Bean
-//    public ModularRealmAuthenticator authenticator() {
-//        ModularRealmAuthenticator authenticator = new MultiRealmAuthenticator();
-//        // 设置多 Realm的认证策略，默认 AtLeastOneSuccessfulStrategy
-//        AuthenticationStrategy strategy = new FirstSuccessfulStrategy();
-//        authenticator.setAuthenticationStrategy(strategy);
-//        return authenticator;
-//    }
 
     // 配置org.apache.shiro.web.session.mgt.DefaultWebSessionManager(shiro session的管理)
     @Bean("sessionManager")
@@ -244,16 +200,6 @@ public class ShiroConfig {
         return cookie;
     }
 
-//    @Bean("sessionManager")
-//    public DefaultSessionManager getDefaultSessionManager() {
-//        DefaultSessionManager defaultSessionManager = new DefaultSessionManager();
-//        // defaultSessionManager.setGlobalSessionTimeout(1000 * 60 * 60 * 24*7);// 会话过期时间，单位：毫秒(在无操作时开始计时)
-//        defaultSessionManager.setGlobalSessionTimeout(-1000L);// -1000L,永不过期
-//        defaultSessionManager.setSessionValidationSchedulerEnabled(true);
-////        defaultSessionManager.setSessionIdCookieEnabled(true);
-//        return defaultSessionManager;
-//    }
-
     /**
      * 禁用session, 不保存用户登录状态。保证每次请求都重新认证
      */
@@ -264,23 +210,6 @@ public class ShiroConfig {
         return sessionStorageEvaluator;
     }
 
-
-    /**
-     * 　　id：就是session id；
-     *
-     * 　　startTimestamp：session的创建时间；
-     *
-     * 　　stopTimestamp：session的失效时间；
-     *
-     * 　　lastAccessTime：session的最近一次访问时间，初始值是startTimestamp
-     *
-     * 　　timeout：session的有效时长，默认30分钟
-     *
-     * 　　expired：session是否到期
-     *
-     * 　　attributes：session的属性容器
-     * @return
-     */
     // 创建一个简单的Cookie对象；创建cookie模板
     @Bean
     public SimpleCookie rememberMeCookie(){

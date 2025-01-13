@@ -21,28 +21,12 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.io.FileNotFoundException;
 
 /**
- * <p>
- *     Title: GlobalExceptionHandler.java
- * </p>
- *
- * <p>
- *     Description: 全局异常处理类, 增强的 Controller
- *     全局异常处理
- *     全局数据绑定
-*      全局数据预处理
- * </p>
- *
- * <author>
- *     Hkk
- * </author>
+ Description: 全局异常处理类, 增强的 Controller
  */
 @Slf4j
 @ControllerAdvice
 @Order(2)
 public class GlobalExceptionHandler {
-
-//    private log log = logFactory.getlog(GlobalExceptionHandler.class);
-
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
     public Object badArgumentHandler(IllegalArgumentException e){
@@ -80,11 +64,6 @@ public class GlobalExceptionHandler {
         return ResponseUtil.serious();
     }
 
-//    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-//    public Object HttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e){
-//        log.error(e.getMessage(), e);
-//        return ResponseUtil.httpRequestMethodNotSupportedException();
-//    }
 
     @ExceptionHandler(FileNotFoundException.class)
     public Object fileNotFoundException(FileNotFoundException e){
@@ -132,12 +111,6 @@ public class GlobalExceptionHandler {
         return ResponseUtil.badArgument();
     }
 
-//    @ExceptionHandler(value = NumberFormatException.class)
-//    @ResponseBody
-//    public Object NumberFormatException(NumberFormatException e){
-//        return ResponseUtil.badArgument("数据类型错误");
-//    }
-//
 
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseBody
@@ -146,51 +119,10 @@ public class GlobalExceptionHandler {
         return ResponseUtil.notFound();
     }
 
-//    @ExceptionHandler(value = MissingServletRequestParameterException.class)
-//    @ResponseBody
-//    public Object MissingServletRequestParameterException(MissingServletRequestParameterException e){
-//        System.out.println(e.getMessage());
-//        return ResponseUtil.missingParameter();
-//    }
-//
-//    @ExceptionHandler(value = InvalidFormatException.class)
-//    @ResponseBody
-//    public Object InvalidFormatException(InvalidFormatException e){
-//        System.out.println(e.getMessage());
-//        return ResponseUtil.missingParameter();
-//    }
 
     @ExceptionHandler(value = ClientAbortException.class)
     public void ClientAbortException(ClientAbortException e){
-//        System.out.println(e.getMessage());
-//        return ResponseUtil.missingparameter();
     }
 
-
-
-//    @ExceptionHandler(value = DataIntegrityViolationException.class)
-//    @ResponseBody
-//    public Object DataIntegrityViolationException(DataIntegrityViolationException e){
-//        System.out.println(e.getMessage());
-//        return ResponseUtil.badArgument("检查日期格式");
-//    }
-
-
-
-
-
-
-
-    // 捕捉shiro的异常
-//    @ExceptionHandler(ShiroException.class)
-//    public Object handleShiroException(ShiroException e) {
-//        return ResponseUtil.badArgument(401, e.getMessage());
-//    }
-//
-//    // 捕捉其他所有异常
-//    @ExceptionHandler(Exception.class)
-//    public Object globalException(HttpServletRequest request, Throwable ex) {
-//        return ResponseUtil.badArgument(401, ex.getMessage());
-//    }
 
 }

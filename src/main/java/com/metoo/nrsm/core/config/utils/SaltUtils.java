@@ -3,13 +3,9 @@ package com.metoo.nrsm.core.config.utils;
 import java.util.Random;
 
 /**
- * <p>
- *     Title: ShiroUtil.java
- * </p>
- *
- * <p>
- *     Description: 生成随机盐
- * </p>
+
+ Description: 生成随机盐
+
  */
 
 public class SaltUtils {

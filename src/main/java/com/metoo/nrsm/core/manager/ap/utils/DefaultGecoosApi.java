@@ -36,10 +36,6 @@ public class DefaultGecoosApi implements GecoosApi {
     private static String token;
     private String BASE_URL;
 
-//    static {
-//        // 初始化 HttpClient
-//        httpClient = HttpClients.custom().setDefaultCookieStore(new BasicCookieStore()).build();
-//    }
 
     public static String getToken() {
         return token;
@@ -49,27 +45,6 @@ public class DefaultGecoosApi implements GecoosApi {
         this.BASE_URL = BASE_URL;
     }
 
-//    public DefaultGecoosApi(String url) {
-//        try {
-//            this.uri = new URI(url.trim());
-//        } catch (URISyntaxException var3) {
-//            throw new RuntimeException("url invalid", var3);
-//        }
-//    }
-//
-//    public DefaultGecoosApi(URI uri) {
-//        this.uri = uri;
-//    }
-//
-//    public DefaultGecoosApi(String url, CloseableHttpClient httpClient) {
-//        this(url);
-//        this.httpClient = httpClient;
-//    }
-
-//    public DefaultGecoosApi(URI uri, CloseableHttpClient httpClient) {
-//        this(uri);
-//        this.httpClient = httpClient;
-//    }
 
     @Override
     public void init() {

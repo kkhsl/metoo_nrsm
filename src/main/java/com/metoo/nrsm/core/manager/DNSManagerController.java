@@ -104,11 +104,5 @@ public class DNSManagerController {
         }
     }
 
-//    @RequestMapping("modifydns")
-//    public Result modifydns(String[] params){
-//        String result = this.dnsService.modifydns(params);
-//        return ResponseUtil.ok(result);
-//    }
-
 
 }

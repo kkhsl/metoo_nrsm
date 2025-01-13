@@ -9,23 +9,6 @@ import java.util.concurrent.*;
 
 /**
  * 构建线程池
- * 参数列表（7）
-         int corePoolSize,// 核心线程数
-         int maximumPoolSize,// 最大线程数
-         long keepAliveTime,// 最大空闲时间
-         TimeUnit unit,// 时间单位
-         BlockingQueue<Runnable> workQueue,// 阻塞队列
-         ThreadFactory threadFactory// 线程工厂
-         RejectedExecutionHandler handler// 拒绝策略
-
- 多个线程池和使用单个线程池有以下主要区别:
-
-
- * CPU 密集型：核心线程数=CPU核心数（CPU核心数+1）
- * 1/O 密集型:核心线程数=2*CPU核心数( CPU核心数/ (1-阻塞系数) )
- * 混合型:核心线程数=(线程等待时间/线程CPU时间+1) *CPU核心数
- *
-
  */
 
 @Component
@@ -33,12 +16,6 @@ public class GatherDataThreadPool {
 
     private final ExecutorService fixedThreadPool;
 
-    // 线程池大小通过构造函数动态传入
-//    @Autowired
-//    public GatherDataThreadPool() {
-//        int poolSize = Integer.max(Runtime.getRuntime().availableProcessors() * 3, 15);
-//        this.fixedThreadPool = Executors.newFixedThreadPool(poolSize);
-//    }
 
     @Autowired
     public GatherDataThreadPool() {

@@ -4,10 +4,6 @@ import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
 
 import java.util.concurrent.CountDownLatch;
 
-/**
- *
- // 某个线程开始执行前等待其他线程执行完(阻塞)
- */
 public class CountDownLatchDemo {
 
     public static void main(String[] args) {
@@ -35,7 +31,6 @@ public class CountDownLatchDemo {
         }
         try {
 
-//                latch.countDown();
 
             System.out.println(latch.getCount());
 
@@ -45,8 +40,6 @@ public class CountDownLatchDemo {
 
             System.out.println("run end......");
 
-            //等待5秒
-//                TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -38,16 +38,6 @@ public class MyFutureTask {
         Thread t1 = new Thread(futrueTask,"t1");
         t1.start();
 
-
-//        Thread t2 = new Thread(futrueTask, "t2");
-//        t2.start();
-
-
-//        Thread t3 = new Thread(futrueTask);
-//        t3.run();
-
-
-
         log.info(String.valueOf(futrueTask.get()));// 主线程阻塞
 
         log.info("123");

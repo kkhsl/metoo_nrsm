@@ -6,11 +6,6 @@ import java.util.concurrent.*;
 
 /**
  * 测试容器中使用future.get()是否会让主线程阻塞
- *
- * 会让主线程阻塞等待，但不是并行执行
- *
- *
- *
  */
 @Slf4j
 public class FutureDemo2 {

@@ -40,23 +40,6 @@ public class GatherMultithreadingMacUtils {
     @Autowired
     private ITerminalCountService terminalCountService;
 
-
-    /**
-     * 并发采集，当采集时长超过定时任务时长时，导致第二次采集开始后，第一次未结束线程数据写入到第二次采集任务中
-     *
-     * 解决方法：
-     *  方法一：
-     *      使用redis互斥锁，当第二次任务开始时，查询锁是否被占用，被占用则跳过此次采集
-     *  方法二：
-     *      使用数据库表锁（尝试使用这种方式）
- *      方法三：
-     *      使用线程锁
- *      方法四：
-     *       Scheduled：java定时任务会等待第一次任务执行完毕，才开始第二次采集
-     *       使用“CountDownLatch”同步功率类，解决并发采集，导致的多次采集问题
-     *
-     * @param date
-     */
     public void gatherMacThread(List<NetworkElement> networkElements, Date date) {
 
         log.info("Mac start =========");
@@ -143,68 +126,8 @@ public class GatherMultithreadingMacUtils {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-//            lock.unlock(); // 释放锁
+
         }
     }
-//    public void gatherMacThread(Date date) {
-//        List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
-//        if(networkElements.size() > 0){
-//
-//
-//            // mac 复制数据写入标签和ip地址信息等
-//            this.gatherMacUtils.copyGatherData(date);
-//
-//            // 增加写锁（查询是否锁表，锁表跳过本次采集，避免等待（死锁））
-//            // 增加写锁后，不能操作其他表，所以把锁放到当前位置
-////            this.macService.lock();
-//
-//            this.macService.truncateTableGather();
-//
-//            CountDownLatch latch = new CountDownLatch(networkElements.size() * 4);
-//
-//            for (NetworkElement networkElement : networkElements) {
-//
-//
-////                String path = Global.PYPATH + "gethostname.py";
-////                String[] params = {networkElement.getIp(), networkElement.getVersion(),
-////                        networkElement.getCommunity()};
-////                String hostname = PythonExecUtils.exec(path, params);
-//
-////                Thread getlldp = new Thread(new GatherMacGetlldpRunnable(networkElement, date, hostname));
-////                getlldp.start();
-////
-////                Thread getmac = new Thread(new GatherMacGetMacRunnable(networkElement, date, hostname));
-////                getmac.start();
-////
-////                Thread getportmac = new Thread(new GatherMacGetPortMacRunnable(networkElement, date, hostname));
-////                getportmac.start();
-//
-//
-////                String path = Global.PYPATH + "gethostname.py";
-////                String[] params = {networkElement.getIp(), networkElement.getVersion(),
-////                        networkElement.getCommunity()};
-////                String hostname = PythonExecUtils.exec(path, params);
-////                ThreadPool.getInstance().addThread(new GatherMacGetlldpRunnable(networkElement, date, hostname));
-////
-////                ThreadPool.getInstance().addThread(new GatherMacGetMacRunnable(networkElement, date, hostname));
-////
-////                ThreadPool.getInstance().addThread(new GatherMacGetPortMacRunnable(networkElement, date, hostname));
-//
-//
-//                ThreadPool.getInstance().addThread(new GatherMacHostNameRunnable(networkElement, date, latch));
-//            }
-//
-//            try {
-//                log.info("latch count: "+ latch.getCount());
-//
-//                latch.await();// 等待结果线程池线程执行结束
-//
-//                log.info("run end......" + latch.getCount());
-//
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 
 }

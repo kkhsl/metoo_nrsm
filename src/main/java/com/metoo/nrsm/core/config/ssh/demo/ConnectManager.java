@@ -19,11 +19,6 @@ public class ConnectManager {
     private String sid = null;
 
     public static void main(String[] args) {
-//        connectOnly();// 单次连接操作
-
-//        connectOnly("root", "metoo89745000", "192.168.5.101");// 单次连接操作
-        // show ip route
-        // show run
         connectOnly("metoo@domain", "Metoo@89745000", "192.168.5.191", "show run");// 单次连接操作
     }
 
@@ -50,18 +45,6 @@ public class ConnectManager {
             while ((len = is.read())!=-1){
                 System.out.print((char)len);  //abc
             }
-//
-//            // 一次读一个字节
-//            int a = is.read();
-//            System.out.println(a);
-//            // 一次读多个字节
-//            byte[] bytes = new byte[1000000000];
-//            System.out.println(is.read(bytes));
-//            System.out.println("a");
-//            //3.释放资源
-//            is.close();
-//            System.out.println("b");
-// do read
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,18 +73,6 @@ public class ConnectManager {
             while ((len = is.read())!=-1){
                 System.out.print((char)len);  //abc
             }
-//
-//            // 一次读一个字节
-//            int a = is.read();
-//            System.out.println(a);
-//            // 一次读多个字节
-//            byte[] bytes = new byte[1024];
-//            System.out.println(is.read(bytes));
-//            System.out.println("a");
-//            //3.释放资源
-//            is.close();
-//            System.out.println("b");
-// do read
             session.close();
         } catch (IOException e) {
             e.printStackTrace();

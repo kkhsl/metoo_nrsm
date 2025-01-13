@@ -237,23 +237,6 @@ public class UnboundManagerController {
 
 
 
-    /*@DeleteMapping("/deleteAll")
-    private Result delete(@RequestParam String id){
-        boolean flag = this.unboundService.delete(Long.parseLong(id));
-        if(flag){
-            return ResponseUtil.ok();
-        }
-        return ResponseUtil.error();
-    }
-
-    @PostMapping("/savaAll")
-    private Result unbound(@RequestBody UnboundDTO instance){
-        boolean flag = this.unboundService.update(instance);
-        if(flag){
-            return ResponseUtil.ok();
-        }
-        return ResponseUtil.error();
-    }*/
 
 
 }

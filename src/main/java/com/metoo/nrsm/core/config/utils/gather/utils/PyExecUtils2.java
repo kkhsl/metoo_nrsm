@@ -76,15 +76,5 @@ public class PyExecUtils2 {
 
 
 
-    // 仅使用登录ssh方式，执行命令；优化登录方式，避免每次连接带来的性能和时间消耗，注意并发问题
-//    public String exec(PyCommandBuilder3 pyCommand) {
-//        String result = this.sshUtils.executeCommand(pyCommand.toParamsString());
-//        return result;
-//    }
-
-//    public String process(PyCommandBuilder3 pyCommand) {
-//        String result = this.pythonScriptRunner.runPythonScript(pyCommand.toStringArray());
-//        return result;
-//    }
 
 }

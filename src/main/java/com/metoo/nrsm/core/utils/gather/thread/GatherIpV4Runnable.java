@@ -34,16 +34,6 @@ public class GatherIpV4Runnable implements Runnable{
 
     private CountDownLatch latch;
 
-//    private final PythonExecUtils pythonExecUtils;
-//    private final Ipv4ServiceImpl ipv4Service;
-
-    // 构造函数注入依赖
-//    @Autowired
-//    public GatherIpV4Runnable(PythonExecUtils pythonExecUtils, Ipv4ServiceImpl ipv4Service) {
-//        this.pythonExecUtils = pythonExecUtils;
-//        this.ipv4Service = ipv4Service;
-//    }
-
 
     public GatherIpV4Runnable(NetworkElement networkElement, Date date, CountDownLatch latch) {
         this.networkElement = networkElement;

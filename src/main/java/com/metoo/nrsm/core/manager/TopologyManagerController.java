@@ -265,28 +265,6 @@ public class TopologyManagerController {
         return ResponseUtil.ok();
     }
 
-//    @ApiOperation("拓扑信息")
-//    @GetMapping("/info")
-//    public Object topologyInfo(
-//            @RequestParam(value = "id") Long id,
-//            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-//            @RequestParam(value = "time", required = false) Date time){
-//        if(id == null){
-//            return  ResponseUtil.badArgument();
-//        }
-//        User user = ShiroUserHolder.currentUser();
-//        Topology topology = this.topologyService.selectObjById(id);
-//        if(topology != null){
-//            if(topology.getContent() != null && !topology.getContent().equals("")){
-//                JSONObject content = JSONObject.parseObject(topology.getContent().toString());
-//                topology.setContent(content);
-//            }
-//            return ResponseUtil.ok(topology);
-//        }
-//        return ResponseUtil.ok();
-//    }
-
-
     @ApiOperation("拓扑信息")
     @GetMapping("/info")
     public Object topologyInfo(

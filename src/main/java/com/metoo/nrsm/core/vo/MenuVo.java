@@ -15,22 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MenuVo {
-  /*  @ApiModelProperty("角色组ID")
-    private Long roleGroupId;
 
-    @ApiModelProperty("角色组名称")
-    private String roleGroupName;
-
-    @ApiModelProperty("ICON")
-    private String roleGroupIcon;
-
-    @ApiModelProperty("角色组路由：前端")
-    private String roleGroupUrl;
-
-    @ApiModelProperty("角色信息")
-    private List<RoleReq> role;
-*/
-    // ===
 
     @ApiModelProperty("资源Id")
     private String id;
