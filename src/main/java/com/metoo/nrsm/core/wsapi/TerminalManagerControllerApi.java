@@ -119,6 +119,7 @@ public class TerminalManagerControllerApi {
         if (nswitchList != null && !nswitchList.isEmpty()) {
             for (Terminal obj : nswitchList) {
                 for (Terminal terminal : obj.getTerminalList()) {
+                    terminal.setDeviceUuid(obj.getDeviceUuid2());
                     completeTerminal(terminal);
                 }
             }

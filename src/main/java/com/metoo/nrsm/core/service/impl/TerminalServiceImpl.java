@@ -295,7 +295,7 @@ public class TerminalServiceImpl implements ITerminalService {
         }
 
         // 批量更新
-        if (!inner.isEmpty()) {
+        if (inner != null && !inner.isEmpty()) {
 //            for (Terminal terminal : inner) {
 //                this.terminalMapper.update(terminal);
 //            }

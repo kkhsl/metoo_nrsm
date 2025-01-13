@@ -186,18 +186,21 @@ public class FluxFreemakeManagerController {
         // 终端饼图
         List terminalStatistics = new ArrayList();
         Map<String, Integer> terminalCount = this.terminalService.terminalCount();
-        Map terminalIpv4Map = new HashMap();
-        terminalIpv4Map.put("name", "Ipv4终端");
-        terminalIpv4Map.put("count", terminalCount.get("v4ip_count"));
-        Map terminalIpv6Map = new HashMap();
-        terminalIpv6Map.put("name", "Ipv6终端");
-        terminalIpv6Map.put("count", terminalCount.get("v6ip_count"));
-        Map terminalIpv4AndIpv6Map = new HashMap();
-        terminalIpv4AndIpv6Map.put("name", "Ipv4/Ipv6终端");
-        terminalIpv4AndIpv6Map.put("count", terminalCount.get("v4ip_v6ip_count"));
-        terminalStatistics.add(terminalIpv4Map);
-        terminalStatistics.add(terminalIpv6Map);
-        terminalStatistics.add(terminalIpv4AndIpv6Map);
+        if(terminalCount != null){
+            Map terminalIpv4Map = new HashMap();
+            terminalIpv4Map.put("name", "Ipv4终端");
+            terminalIpv4Map.put("count", terminalCount.get("v4ip_count"));
+            Map terminalIpv6Map = new HashMap();
+            terminalIpv6Map.put("name", "Ipv6终端");
+            terminalIpv6Map.put("count", terminalCount.get("v6ip_count"));
+            Map terminalIpv4AndIpv6Map = new HashMap();
+            terminalIpv4AndIpv6Map.put("name", "Ipv4/Ipv6终端");
+            terminalIpv4AndIpv6Map.put("count", terminalCount.get("v4ip_v6ip_count"));
+            terminalStatistics.add(terminalIpv4Map);
+            terminalStatistics.add(terminalIpv6Map);
+            terminalStatistics.add(terminalIpv4AndIpv6Map);
+
+
         model.addAttribute("terminalStatistics", JSONObject.toJSONString(terminalStatistics));
 
         // 流量统计
@@ -231,6 +234,7 @@ public class FluxFreemakeManagerController {
             if (grade.compareTo(gradeWeight.getReach()) > -1) {
                 model.addAttribute("grade", 100);
             }
+        }
         }
     }
 

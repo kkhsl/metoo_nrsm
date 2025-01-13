@@ -1,10 +1,8 @@
 package com.metoo.nrsm.core.manager;
 
 import com.alibaba.fastjson.JSONArray;
-import com.metoo.nrsm.core.service.IDeviceTypeService;
-import com.metoo.nrsm.core.service.IGatherService;
-import com.metoo.nrsm.core.service.INetworkElementService;
-import com.metoo.nrsm.core.service.ITerminalService;
+import com.metoo.nrsm.core.service.*;
+import com.metoo.nrsm.core.service.impl.ProbeServiceImpl;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.entity.DeviceType;
@@ -39,6 +37,8 @@ public class GatherManagerController {
     private IGatherService gatherService;
     @Autowired
     private IDeviceTypeService deviceTypeService;
+    @Autowired
+    private ProbeServiceImpl probeServiceImpl;
 
     @GetMapping("mac")
     private void mac(Date date) {
@@ -71,6 +71,11 @@ public class GatherManagerController {
         } catch (Exception e) {
             log.error("Error while updating terminal information", e);
         }
+    }
+
+    @GetMapping("writeTerminalByProbe")
+    public void writeTerminalByProbe(){
+        probeServiceImpl.writeTerminal();
     }
 
     private void updateTerminalDeviceTypeToNSwitch(){

@@ -250,7 +250,8 @@
 					 mac.mac,
 					 mac.port,
 					 mac.deviceIp,
-                     IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
+--          IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
+                     mac.deviceName,
 					 mac.tag,
 					 mac.hostname,
 					 mac.remoteDevice,
@@ -425,7 +426,8 @@
          mac.mac,
          mac.port,
          mac.deviceIp,
-         IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
+--          IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
+         mac.deviceName,
          mac.tag,
          mac.hostname,
          mac.remoteDevice,
@@ -835,7 +837,10 @@
 
     <resultMap id="NSwitch_Result_Map" type="com.metoo.nrsm.entity.Terminal">
         <id column="id" property="id"></id>
+        <id column="deviceIp" property="deviceIp"></id>
         <id column="deviceName" property="deviceName"></id>
+        <id column="deviceUuid" property="deviceUuid"></id>
+        <id column="deviceUuid2" property="deviceUuid2"></id>
         <id column="deviceTypeId" property="deviceTypeId"></id>
         <id column="v4ip" property="v4ip"></id>
         <id column="v6ip" property="v6ip"></id>
@@ -853,7 +858,10 @@
         <id column="online" property="online"></id>
         <collection property="terminalList" ofType="com.metoo.nrsm.entity.Terminal">
             <id column="d2_id" property="id"></id>
+            <id column="d2_deviceIp" property="deviceIp"></id>
             <id column="d2_deviceName" property="deviceName"></id>
+            <id column="d2_deviceUuid" property="deviceUuid"></id>
+            <id column="d2_deviceUuid2" property="deviceUuid2"></id>
             <id column="d2_deviceTypeId" property="deviceTypeId"></id>
             <id column="d2_v4ip" property="v4ip"></id>
             <id column="d2_v6ip" property="v6ip"></id>
@@ -875,7 +883,10 @@
     <select id="selectNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
           SELECT
               d1.id,
+              d1.deviceIp,
               d1.deviceName,
+              d1.deviceUuid,
+              d1.deviceUuid2,
               d1.deviceTypeId,
               d1.v4ip, d1.v6ip,
               d1.mac,
@@ -886,13 +897,15 @@
               d1.location,
               d1.duty,
               3 AS deviceType,
-              d1.os,
               d1.combined_port_protocol,
               d1.combined_vendor_gen_family,
               d1.online,
 
               d2.id d2_id,
+              d2.deviceIp d2_deviceIp,
               d2.deviceName d2_deviceName,
+              d2.deviceUuid d2_deviceUuid,
+              d2.deviceUuid2 d2_deviceUuid2,
 --               17 as d2_deviceTypeId,
               d2.deviceTypeId d2_deviceTypeId,
               d2.v4ip d2_v4ip,
@@ -917,18 +930,20 @@
                 WHERE
                     deviceUuid2 = #{deviceUuid}
                 AND deviceName LIKE 'NSwitch%'
-                AND deviceTypeId NOT IN (34, 9)
+                AND deviceTypeId NOT IN (34, 9) AND online = 1
                 GROUP BY
                     deviceUuid
                 )d1
             JOIN metoo_terminal d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
-            WHERE d2.deviceName LIKE 'NSwitch%'
+            WHERE d2.deviceName LIKE 'NSwitch%' AND d2.online = 1
     </select>
 
     <select id="selectHistoryNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
           SELECT
               d1.id,
+              d1.deviceIp,
               d1.deviceName,
+              d1.deviceUuid,
               d1.deviceTypeId,
               d1.v4ip, d1.v6ip,
               d1.mac,
@@ -945,7 +960,9 @@
               d1.online,
 
               d2.id d2_id,
+              d2.deviceIp d2_deviceIp,
               d2.deviceName d2_deviceName,
+              d2.deviceUuid d2_deviceUuid,
 --               17 as d2_deviceTypeId,
               d2.deviceTypeId d2_deviceTypeId,
               d2.v4ip d2_v4ip,

@@ -242,11 +242,14 @@ public class GatherSingleThreadingMacUtils {
             updateTerminalDeviceTypeToNSwitch();
 
             terminalService.updateVMHostDeviceType();
+
             terminalService.updateVMDeviceType();
 
 
             terminalService.updateVMDeviceIp();
+
             networkElementService.updateObjDisplay();
+
         } catch (Exception e) {
             log.error("Error while updating terminal information", e);
         }
