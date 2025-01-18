@@ -3,13 +3,19 @@ package com.metoo.nrsm.core.manager;
 import com.metoo.nrsm.core.manager.utils.TestUtils;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
+import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
+import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
@@ -21,6 +27,59 @@ import java.util.*;
 @RequestMapping("/admin/test")
 @RestController
 public class TestController {
+
+    @Autowired
+    private ApiService apiService;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @GetMapping("api")
+    public void testApi(){
+        // 假设你有一个请求对象
+        User requestObject = new User();
+        requestObject.setEmail("value1");
+
+        // 调用 API
+        String apiUrl = "http://127.0.0.1:8960/nrsm/admin/test/api2";
+        String response = callApi(apiUrl, requestObject);
+
+        // 处理响应
+        System.out.println("API Response: " + response);
+
+    }
+
+    @PostMapping("api2")
+    public void testApi2() throws InterruptedException {
+        Thread.sleep(300000);
+        log.info("api 2");
+    }
+
+    public String callApi(String apiUrl, Object requestBody) {
+        try {
+            // 设置请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer your-token"); // 如果需要设置token
+
+            // 将请求体封装到 HttpEntity 中
+            HttpEntity<Object> entity = new HttpEntity<>(requestBody, headers);
+
+            // 调用 API，发送 POST 请求
+            ResponseEntity<String> response = restTemplate.exchange(
+                    apiUrl,                    // API URL
+                    HttpMethod.POST,           // 请求方法
+                    entity,                    // 请求体和头部
+                    String.class               // 返回类型
+            );
+
+            // 返回响应体
+            return response.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 错误处理
+            return "Error: " + e.getMessage();
+        }
+    }
 
 
     // 周末和休息时间（17:周末和休息时间（17:30-8:30）按上述范围的1/10取值30-8:30）按上述范围的1/10取值

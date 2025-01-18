@@ -186,7 +186,7 @@ public class FluxFreemakeManagerController {
         // 终端饼图
         List terminalStatistics = new ArrayList();
         Map<String, Integer> terminalCount = this.terminalService.terminalCount();
-        if(terminalCount != null){
+        if (terminalCount != null) {
             Map terminalIpv4Map = new HashMap();
             terminalIpv4Map.put("name", "Ipv4终端");
             terminalIpv4Map.put("count", terminalCount.get("v4ip_count"));
@@ -201,40 +201,42 @@ public class FluxFreemakeManagerController {
             terminalStatistics.add(terminalIpv4AndIpv6Map);
 
 
-        model.addAttribute("terminalStatistics", JSONObject.toJSONString(terminalStatistics));
+            model.addAttribute("terminalStatistics", JSONObject.toJSONString(terminalStatistics));
 
-        // 流量统计
-        params.clear();
-        params.put("startOfDay", DateTools.getStartOfDay());
-        params.put("endOfDay", DateTools.getEndOfDay());
-        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
-        model.addAttribute("flowStatisticsList",
-                JSONObject.toJSONStringWithDateFormat(flowStatisticsList, "yyyy-MM-dd HH:mm:ss"));
+            // 流量统计
+            params.clear();
+            params.put("startOfDay", DateTools.getStartOfDay());
+            params.put("endOfDay", DateTools.getEndOfDay());
+            List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
+            model.addAttribute("flowStatisticsList",
+                    JSONObject.toJSONStringWithDateFormat(flowStatisticsList, "yyyy-MM-dd HH:mm:ss"));
 
-        // 评分
-        GradeWeight gradeWeight = this.gradWeightService.selectObjOne();
+            // 评分
+            GradeWeight gradeWeight = this.gradWeightService.selectObjOne();
 
-        // 设备比例
-        BigDecimal neRatio = this.neRatio(ipv4_count.size(), v4ip_v6ip_count.size());
-        neRatio = neRatio.multiply(gradeWeight.getNe());
-        // 终端比例
-        BigDecimal terminalRatio = this.terminalRatio(terminalCount);
-        terminalRatio = terminalRatio.multiply(gradeWeight.getTerminal());
-        // 流量比例
-        BigDecimal fluxRatioRatio = fluxRatio(flowStatisticsList);
-        fluxRatioRatio = fluxRatioRatio.multiply(gradeWeight.getFlux());
+            // 设备比例
+            BigDecimal neRatio = this.neRatio(ipv4_count.size(), v4ip_v6ip_count.size());
+            if (gradeWeight != null) {
+                neRatio = neRatio.multiply(gradeWeight.getNe());
+                // 终端比例
+                BigDecimal terminalRatio = this.terminalRatio(terminalCount);
+                terminalRatio = terminalRatio.multiply(gradeWeight.getTerminal());
+                // 流量比例
+                BigDecimal fluxRatioRatio = fluxRatio(flowStatisticsList);
+                fluxRatioRatio = fluxRatioRatio.multiply(gradeWeight.getFlux());
 
-        BigDecimal grade = neRatio.add(terminalRatio).add(fluxRatioRatio).divide(new BigDecimal(3), 2, BigDecimal.ROUND_HALF_UP);
+                BigDecimal grade = neRatio.add(terminalRatio).add(fluxRatioRatio).divide(new BigDecimal(3), 2, BigDecimal.ROUND_HALF_UP);
 
 //        grade = grade.setScale(0, BigDecimal.ROUND_HALF_UP);
 
-        model.addAttribute("grade", grade.multiply(new BigDecimal("100")));
+                model.addAttribute("grade", grade.multiply(new BigDecimal("100")));
 
-        if (gradeWeight.getReach() != null && gradeWeight.getReach().compareTo(new BigDecimal(0)) >= 1) {
-            if (grade.compareTo(gradeWeight.getReach()) > -1) {
-                model.addAttribute("grade", 100);
+                if (gradeWeight.getReach() != null && gradeWeight.getReach().compareTo(new BigDecimal(0)) >= 1) {
+                    if (grade.compareTo(gradeWeight.getReach()) > -1) {
+                        model.addAttribute("grade", 100);
+                    }
+                }
             }
-        }
         }
     }
 

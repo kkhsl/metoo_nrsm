@@ -84,6 +84,16 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
+    public List<Terminal> selectPartitionTerminal(Map params) {
+        return this.terminalMapper.selectPartitionTerminal(params);
+    }
+
+    @Override
+    public List<Terminal> selectPartitionTerminalHistory(Map params) {
+        return this.terminalMapper.selectPartitionTerminalHistory(params);
+    }
+
+    @Override
     public List<Terminal> selectDeviceIpByNSwitch() {
         return this.terminalMapper.selectDeviceIpByNSwitch();
     }
@@ -269,6 +279,7 @@ public class TerminalServiceImpl implements ITerminalService {
             List<Terminal> left = this.terminalMapper.selectObjLeftdifference();
             if (left.size() > 0) {
                 left.stream().forEach(e -> {
+                    e.setAddTime(date);
                     e.setOnline(true);
                     e.setType(0);
                     e.setUuid(UUID.randomUUID().toString());
@@ -664,6 +675,7 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     public void setDevice(Terminal e, Date date, DeviceType type1, DeviceType type2) {
+        e.setTime(date);
         Map params = new HashMap();
         if (StringUtils.isNotEmpty(e.getDeviceIp())) {
             params.clear();
@@ -672,7 +684,6 @@ public class TerminalServiceImpl implements ITerminalService {
             if (nes.size() > 0) {
                 NetworkElement ne = nes.get(0);
                 e.setDeviceUuid(ne.getUuid());
-                e.setAddTime(date);
             }
         } else {
             // nswtich
@@ -684,7 +695,6 @@ public class TerminalServiceImpl implements ITerminalService {
                 NetworkElement ne = NSwitch_nes.get(0);
                 e.setDeviceUuid(ne.getUuid());
                 e.setDeviceIp(ne.getIp());
-                e.setAddTime(date);
 
             } else {
                 // 写入ap设备信息
@@ -702,7 +712,6 @@ public class TerminalServiceImpl implements ITerminalService {
                 e.setDeviceUuid(ne.getUuid());
                 e.setDeviceIp(ne.getIp());
                 e.setDeviceName(ne.getDeviceName());
-                e.setAddTime(date);
             }
         }
 
@@ -713,7 +722,6 @@ public class TerminalServiceImpl implements ITerminalService {
             if (nes2.size() > 0) {
                 NetworkElement ne = nes2.get(0);
                 e.setRemoteDeviceUuid(ne.getUuid());
-                e.setAddTime(date);
             }
         }
         // 判断设备在线/离线、设备uuid/port、根据端口up/down
@@ -723,10 +731,10 @@ public class TerminalServiceImpl implements ITerminalService {
             if (e.getType() == null || e.getType() == 0) {
                 if (StringUtils.isEmpty(e.getV4ip()) && StringUtils.isEmpty(e.getV6ip())) {
                     e.setDeviceTypeId(type2.getId());
+                } else if (StringUtils.isNotEmpty(e.getV4ip()) || StringUtils.isNotEmpty(e.getV6ip())) {
+                    e.setDeviceTypeId(type1.getId());
                 } else {
-                    if(e.getDeviceTypeId() == null){
-                        e.setDeviceTypeId(type1.getId());
-                    }
+                    e.setDeviceTypeId(type1.getId());
                 }
             }
         }

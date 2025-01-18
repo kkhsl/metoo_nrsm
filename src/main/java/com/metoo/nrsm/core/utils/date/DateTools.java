@@ -369,6 +369,12 @@ public class DateTools {
     }
 
     // 避免精度丢失，这里设置毫秒为0
+
+    @Test
+    public void testGatherDate(){
+        System.out.println(gatherDate());
+    }
+
     public static Date gatherDate(){
         Calendar cal = Calendar.getInstance();
         cal.clear(Calendar.SECOND);

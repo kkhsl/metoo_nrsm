@@ -53,17 +53,6 @@ public class GatherTaskScheduledUtil {
 
     private final ReentrantLock lock = new ReentrantLock();
 
-
-    @Scheduled(fixedDelay = 6000)
-    public void test() throws InterruptedException {
-
-        Thread.sleep(120000);
-
-        log.info("Test fixedDelay =================================");
-
-    }
-
-
 //    @Scheduled(fixedDelay = 300000)
 //    @Scheduled(cron = "0 */5 * * * ?")
     public void api() {

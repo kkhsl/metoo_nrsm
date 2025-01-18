@@ -20,6 +20,10 @@ public interface ITerminalService {
 
     List<Terminal> selectObjHistoryByMap(Map params);
 
+    List<Terminal> selectPartitionTerminal(Map params);
+
+    List<Terminal> selectPartitionTerminalHistory(Map params);
+
     List<Terminal> selectDeviceIpByNSwitch();
 
     List<Terminal> selectObjByNeIp();

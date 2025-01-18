@@ -20,6 +20,10 @@ public interface TerminalMapper {
 
     List<Terminal> selectObjHistoryByMap(Map params);
 
+    List<Terminal> selectPartitionTerminalHistory(Map params);
+
+    List<Terminal> selectPartitionTerminal(Map params);
+
     List<Terminal> selectObjIntersection();
 
     List<Terminal> selectObjLeftdifference();
@@ -38,7 +42,7 @@ public interface TerminalMapper {
 
     List<Terminal> selectHistoryNSwitchToTopology(Map params);
 
-  int save(Terminal instance);
+    int save(Terminal instance);
 
     int update(Terminal instance);
 

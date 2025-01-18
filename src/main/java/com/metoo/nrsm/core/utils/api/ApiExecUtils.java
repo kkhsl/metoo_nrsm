@@ -38,6 +38,8 @@ public class ApiExecUtils {
 
     public void exec2(){
 
+        Date date = new Date();
+
         try {
             GatherFactory factory = new GatherFactory();
             Gather gather = factory.getGather(Global.TRAFFIC);
@@ -47,7 +49,7 @@ public class ApiExecUtils {
             return;
         }
 
-        Date date = new Date();
+
         String time = DateUtils.getDateTimeWithZeroSeconds(date);
         long currentTime = DateUtils.convertDateStringToTimestamp(time, "yyyy-MM-dd HH:mm:ss");
         String currentTimestamp = String.valueOf(currentTime);

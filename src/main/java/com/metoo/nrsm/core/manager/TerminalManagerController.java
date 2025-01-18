@@ -49,7 +49,20 @@ public class TerminalManagerController {
             Map params = new HashMap();
             params.put("deviceIp", ip);
             List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+            // 写入终端的设备名
             if(!terminals.isEmpty()){
+                for (Terminal terminal : terminals) {
+                    params.clear();
+                    params.put("deviceUuid", terminal.getDeviceUuid());
+                    params.put("deviceTypeId", 34);
+                    List<Terminal> vmHosts = this.terminalService.selectObjByMap(params);
+                    if(!vmHosts.isEmpty()){
+                        DeviceType deviceType = this.deviceTypeService.selectObjById(34L);
+                        if(deviceType != null){
+                            terminal.setDeviceName(deviceType.getName());
+                        }
+                    }
+                }
                 return ResponseUtil.ok(terminals);
             }
         }
