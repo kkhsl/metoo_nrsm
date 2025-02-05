@@ -47,8 +47,6 @@ public class TerminalManagerControllerApi {
     private ITerminalUnitService terminalUnitService;
     @Autowired
     private ITerminalMacIpv6Service terminalMacIpv6Service;
-    @Autowired
-    private IMacService macService;
 
     @ApiOperation("设备 Mac (DT))")
     @GetMapping(value = {"/dt"})

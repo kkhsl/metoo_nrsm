@@ -44,7 +44,7 @@ import java.util.Map;
  * </p>
  */
 @Configuration
-public class ShiroConfig {
+public class ShiroConfig2 {
 
 
     private LicenseFilter createLicenseFilter(ILicenseService licenseService) {
@@ -99,17 +99,32 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/probeNmap/uploadScanResult", "anon");
         filterChainDefinitionMap.put("/nrsm/admin/test/**", "anon");
 
-        filterChainDefinitionMap.put("/buyer/**", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
+        filterChainDefinitionMap.put("/buyer/captcha", "anon");
+        filterChainDefinitionMap.put("/buyer/login", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
+        filterChainDefinitionMap.put("/buyer/logout", "anon");
+        filterChainDefinitionMap.put("/buyer/register", "anon");
         filterChainDefinitionMap.put("/admin/auth/401", "anon");
         filterChainDefinitionMap.put("/admin/auth/403", "anon");
         filterChainDefinitionMap.put("/admin/auth/404", "anon");
+        filterChainDefinitionMap.put("/admin/test/**", "anon");
+        filterChainDefinitionMap.put("/rtmp/**", "anon");
 
-//        filterChainDefinitionMap.put("/rtmp/**", "anon");
 
+//        filterChainDefinitionMap.put("/notice/**", "authc");
         filterChainDefinitionMap.put("/index.jsp", "authc");// authc 请求这个资源需要认证和授权;参数可以为视图可以为路径（/index.jsp、/**、/path/*）
+
+
+        //filterChainDefinitionMap.put("/buyer/**", "authc");
+        filterChainDefinitionMap.put("/license/**", "authc");
         filterChainDefinitionMap.put("/index/**", "authc");
         filterChainDefinitionMap.put("/nspm/**", "authc");
+        filterChainDefinitionMap.put("/admin/**", "authc");
+//        filterChainDefinitionMap.put("/admin/**", "licenseFilter");
+//        filterChainDefinitionMap.put("/nrsm/**", "licenseFilter");
         filterChainDefinitionMap.put("/monitor/**", "authc");
+
+//        filterChainDefinitionMap.put("/**", "rmb");
+
         filterChainDefinitionMap.put("/admin/**", "rmb, licenseFilter");
 
 
