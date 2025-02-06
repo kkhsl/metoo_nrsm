@@ -11,11 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-04-01 11:30
- */
+
 @Service
 @Transactional
 public class FluxConfigServiceImpl implements IFluxConfigService {

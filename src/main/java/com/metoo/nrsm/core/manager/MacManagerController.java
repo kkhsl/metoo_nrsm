@@ -17,11 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-02-22 11:52
- */
 
 @RequestMapping("/admin/mac")
 @RestController

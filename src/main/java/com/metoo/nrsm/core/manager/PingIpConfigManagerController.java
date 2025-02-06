@@ -18,11 +18,6 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.*;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-04-18 16:41
- */
 @RequestMapping("/admin/ping/ip/config")
 @RestController
 public class PingIpConfigManagerController {

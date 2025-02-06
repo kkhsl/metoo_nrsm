@@ -16,14 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * @description Vlan管理
- *
- * @author HKK
- *
- * @create 2023/02/22
- *
- */
+
 @RequestMapping("/admin/vlan")
 @RestController
 public class VlanManagerController {

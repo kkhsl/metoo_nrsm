@@ -121,119 +121,20 @@ public class UnboundManagerController {
 
     @GetMapping("/status")
     public Boolean status() throws Exception {
-        /*// 创建连接
-        Connection conn = new Connection(host, port);
-        // 启动连接
-        conn.connect();
-        // 验证用户密码
-        conn.authenticateWithPassword(username, password);
-        // 重启 Unbound 服务
-        Session session = conn.openSession();
-        // 检查 Unbound 服务状态
-        session = conn.openSession();
-        session.execCommand("systemctl status unbound");
-        String statusOutput = consumeInputStream(session.getStdout());
-        System.out.println("Unbound 状态:\n" + statusOutput);
-        session.close(); // 关闭会话
-
-        // 检查 Unbound 服务状态
-        boolean isRunning = checkUnboundStatus(conn);
-        // 关闭连接
-        conn.close();
-        if (isRunning) {
-            return true;
-        } else {
-            return false;
-        }*/
         return unboundService.status();
     }
 
 
     @GetMapping("/restart")
     public Boolean restart() throws Exception {
-        /*// 创建连接
-        Connection conn = new Connection(host, port);
-        // 启动连接
-        conn.connect();
-        // 验证用户密码
-        conn.authenticateWithPassword(username, password);
-        // 重启 Unbound 服务
-        Session session = conn.openSession();
-        session.execCommand("systemctl restart unbound");
-        Thread.sleep(1000);
-        session.close(); // 关闭会话
-
-        // 检查 Unbound 服务状态
-        session = conn.openSession();
-
-
-        session.close(); // 关闭会话
-
-        // 检查 Unbound 服务状态
-        boolean isRunning = checkUnboundStatus(conn);
-        // 关闭连接
-        conn.close();
-        if (isRunning) {
-            return true;
-        } else {
-            return false;
-        }*/
         return unboundService.start();
     }
 
     @GetMapping("/stop")
     public Boolean stop() throws Exception {
-        /*// 创建连接
-        Connection conn = new Connection(host, port);
-        // 启动连接
-        conn.connect();
-        // 验证用户密码
-        conn.authenticateWithPassword(username, password);
-        // 重启 Unbound 服务
-        Session session = conn.openSession();
-        session.execCommand("systemctl stop unbound");
-        Thread.sleep(1000);
-        session.close(); // 关闭会话
-
-        // 检查 Unbound 服务状态
-        session = conn.openSession();
-        session.execCommand("systemctl status unbound");
-        String statusOutput = consumeInputStream(session.getStdout());
-        session.close(); // 关闭会话
-
-        // 检查 Unbound 服务状态
-        boolean isRunning = checkUnboundStatus(conn);
-        // 关闭连接
-        conn.close();
-        if (isRunning) {
-            return true;
-        } else {
-            return false;
-        }*/
         return unboundService.stop();
     }
 
-
-   /* private String consumeInputStream(InputStream inputStream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        return sb.toString();
-    }
-
-
-    private boolean checkUnboundStatus(Connection conn) throws Exception {
-        Session session = conn.openSession();
-        session.execCommand("systemctl status unbound");
-        String statusOutput = consumeInputStream(session.getStdout());
-        session.close(); // 关闭会话
-        // 判断服务状态
-        return statusOutput.contains("Active: active (running)");
-    }
-*/
 
 
 

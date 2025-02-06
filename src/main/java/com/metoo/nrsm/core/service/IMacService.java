@@ -9,11 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-02-02 10:19
- */
 public interface IMacService {
 
     List<Mac> selectObjByMap(Map params);

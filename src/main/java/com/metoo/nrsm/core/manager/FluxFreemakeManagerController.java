@@ -22,11 +22,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-04-29 17:15
- */
+
 @RequestMapping("admin/analysis")
 @Controller
 public class FluxFreemakeManagerController {
