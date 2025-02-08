@@ -105,7 +105,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    //    @Scheduled(cron = "0 */3 * * * ?")
+
     @Scheduled(fixedDelay = 180000)
     public void dhcp6() {
         if(flag){
