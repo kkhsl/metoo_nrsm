@@ -63,5 +63,8 @@ public class LicenseVo {
     @ApiModelProperty("以导入模拟网关")
     private int useUe;
 
+    @ApiModelProperty("Probe授权：是否开启扫描")
+    private boolean licenseProbe;
+
 
 }

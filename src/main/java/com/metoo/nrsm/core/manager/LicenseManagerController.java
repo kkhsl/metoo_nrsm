@@ -151,9 +151,9 @@ public class LicenseManagerController {
         License parsed = JSONObject.parseObject(decrypt, License.class);
         int licenseUe = parsed.getLicenseDevice();
         int num = networkElementMapper.selectObjAll(null).size();
-        if (licenseUe<num){
-            return ResponseUtil.error("授权网元数不够");
-        }
+//        if (licenseUe<num){
+//            return ResponseUtil.error("授权网元数不够");
+//        }
         if (isValid) {
             List<License> existingLicenses = this.licenseService.query();
             if (!existingLicenses.isEmpty()) {

@@ -1,11 +1,17 @@
 package com.metoo.nrsm.core.utils.gather;
 
+import com.alibaba.fastjson.JSONObject;
+import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
+import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
+import com.metoo.nrsm.core.vo.LicenseVo;
 import com.metoo.nrsm.entity.FlowStatistics;
 import com.metoo.nrsm.entity.FluxDailyRate;
 import com.metoo.nrsm.entity.GradeWeight;
+import com.metoo.nrsm.entity.License;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +56,10 @@ public class GatherTaskScheduledUtil {
     private IFlowStatisticsService flowStatisticsService;
     @Autowired
     private ApiExecUtils apiExecUtils;
+    @Autowired
+    private ILicenseService licenseService;
+    @Autowired
+    private AesEncryptUtils aesEncryptUtils;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -316,7 +326,10 @@ public class GatherTaskScheduledUtil {
             Long time = System.currentTimeMillis();
             log.info("Probe start......");
             try {
-                probeService.scanByTerminal();
+                // 解析授权码，是否开启扫描
+                if(getLicenseProbe()){
+                    probeService.scanByTerminal();
+                }
             } catch (Exception e) {
                 log.error("Error occurred during Probe", e);
             }
@@ -324,6 +337,18 @@ public class GatherTaskScheduledUtil {
         }
     }
 
+    public boolean getLicenseProbe(){
+        License obj = this.licenseService.query().get(0);
+        String uuid = SystemInfoUtils.getSerialNumber();
+
+        if (!uuid.equals(obj.getSystemSN())) {
+           return false;
+        }
+        String licenseInfo = this.aesEncryptUtils.decrypt(obj.getLicense());
+        LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+        return licenseVo.isLicenseProbe();
+
+    }
 
     @Scheduled(cron = "59 59 23 * * ?")
     public void fluxDailyRate() {
