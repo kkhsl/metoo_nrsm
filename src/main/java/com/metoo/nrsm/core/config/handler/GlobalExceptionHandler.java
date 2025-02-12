@@ -3,6 +3,9 @@ package com.metoo.nrsm.core.config.handler;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.metoo.nrsm.core.config.aop.idempotent.MyIllegalArgumentException;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.utils.exception.CustomRuntimeException;
+import com.metoo.nrsm.core.utils.string.StringUtils;
+import com.metoo.nrsm.core.vo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.shiro.session.ExpiredSessionException;
@@ -18,7 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
+
+
 
 /**
  * <p>
@@ -160,11 +166,11 @@ public class GlobalExceptionHandler {
 //        return ResponseUtil.missingParameter();
 //    }
 
-    @ExceptionHandler(value = ClientAbortException.class)
-    public void ClientAbortException(ClientAbortException e){
+//    @ExceptionHandler(value = ClientAbortException.class)
+//    public void ClientAbortException(ClientAbortException e){
 //        System.out.println(e.getMessage());
 //        return ResponseUtil.missingparameter();
-    }
+//    }
 
 
 
@@ -174,11 +180,6 @@ public class GlobalExceptionHandler {
 //        System.out.println(e.getMessage());
 //        return ResponseUtil.badArgument("检查日期格式");
 //    }
-
-
-
-
-
 
 
     // 捕捉shiro的异常
@@ -193,4 +194,15 @@ public class GlobalExceptionHandler {
 //        return ResponseUtil.badArgument(401, ex.getMessage());
 //    }
 
+
+    /**
+     * 业务异常
+     */
+    @ExceptionHandler(CustomRuntimeException.class)
+    @ResponseBody
+    public Result handleServiceException(CustomRuntimeException e, HttpServletRequest request) {
+        log.error(e.getMessage(), e);
+        Integer code = e.getCode();
+        return ResponseUtil.badArgument(code, e.getMessage());
+    }
 }

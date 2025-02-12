@@ -1,7 +1,10 @@
 package com.metoo.nrsm.core.manager;
 
+import com.metoo.nrsm.core.domain.R;
 import com.metoo.nrsm.core.utils.api.ApiService;
+import com.metoo.nrsm.core.utils.exception.CustomRuntimeException;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
+import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -36,6 +39,11 @@ public class TestController {
     private ApiService apiService;
     @Autowired
     private RestTemplate restTemplate;
+
+    @GetMapping("exception")
+    public R<?> exception(){
+        throw new CustomRuntimeException(400, "测试自定义运行异常类");
+    }
 
 
 
