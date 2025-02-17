@@ -88,7 +88,7 @@
     <select id="selectObjAndTerminalByMap" parameterType="java.util.Map" resultMap="Unit_And_Terminals">
         SELECT
             unit.id unit_id,
-            unit. NAME unit_name,
+            unit.name unit_name,
             terminal.*
         FROM
             metoo_terminal_unit unit
