@@ -2,6 +2,73 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.TerminalUnitMapper">
+    <insert id="insertTerminalUnit" parameterType="com.metoo.nrsm.entity.TerminalUnit">
+        INSERT INTO metoo_terminal_unit (addTime, name)
+        VALUES (#{addTime}, #{name})
+    </insert>
+
+    <insert id="insertTerminalUnitV4" parameterType="com.metoo.nrsm.entity.TerminalUnitSubnet">
+        INSERT INTO metoo_terminal_unit_subnet_v4 (addTime, ip, terminalUnitId, mask)
+        VALUES (#{addTime}, #{ip}, #{terminalUnitId}, #{mask})
+    </insert>
+
+    <update id="updateTerminalUnitV4" parameterType="com.metoo.nrsm.entity.TerminalUnitSubnet">
+        UPDATE metoo_terminal_unit_subnet_v4
+        SET addTime = #{addTime},
+            ip = #{ip},
+            terminalUnitId = #{terminalUnitId},
+            mask = #{mask}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTerminalUnitV4" parameterType="long">
+        DELETE FROM metoo_terminal_unit_subnet_v4
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteTerminalUnitV4ByTerminalUnitId" parameterType="long">
+        DELETE FROM metoo_terminal_unit_subnet_v4
+        WHERE terminalUnitId = #{id}
+    </delete>
+
+    <delete id="deleteTerminalUnitV6ByTerminalUnitId" parameterType="long">
+        DELETE FROM metoo_terminal_unit_subnet_v6
+        WHERE terminalUnitId = #{id}
+    </delete>
+
+
+
+    <insert id="insertTerminalUnitV6" parameterType="com.metoo.nrsm.entity.TerminalUnitSubnetV6">
+        INSERT INTO metoo_terminal_unit_subnet_v6 (addTime, ip, terminalUnitId, mask)
+        VALUES (#{addTime}, #{ip}, #{terminalUnitId}, #{mask})
+    </insert>
+
+    <update id="updateTerminalUnitV6" parameterType="com.metoo.nrsm.entity.TerminalUnitSubnetV6">
+        UPDATE metoo_terminal_unit_subnet_v6
+        SET addTime = #{addTime},
+            ip = #{ip},
+            terminalUnitId = #{terminalUnitId},
+            mask = #{mask}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTerminalUnitV6" parameterType="long">
+        DELETE FROM metoo_terminal_unit_subnet_v6
+        WHERE id = #{id}
+    </delete>
+
+
+    <update id="updateTerminalUnit" parameterType="com.metoo.nrsm.entity.TerminalUnit">
+        UPDATE metoo_terminal_unit
+        SET addTime = #{addTime},
+            name = #{name}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTerminalUnit" parameterType="long">
+        DELETE FROM metoo_terminal_unit
+        WHERE id = #{id}
+    </delete>
 
     <select id="selectObjById" parameterType="Long" resultType="com.metoo.nrsm.entity.TerminalUnit">
         SELECT * FROM metoo_terminal_unit where id = #{id}
@@ -131,6 +198,21 @@
             </if>
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+    <select id="selectV4ObjById" resultType="com.metoo.nrsm.entity.TerminalUnitSubnet">
+        SELECT * FROM metoo_terminal_unit_subnet_v4 where id = #{id}
+    </select>
+    <select id="selectV6ObjById" resultType="com.metoo.nrsm.entity.TerminalUnitSubnetV6">
+        SELECT * FROM metoo_terminal_unit_subnet_v6 where id = #{id}
+    </select>
+
+
+    <select id="selectV4ObjByTerminalUnitId" resultType="com.metoo.nrsm.entity.TerminalUnitSubnet">
+        SELECT * FROM metoo_terminal_unit_subnet_v4 where terminalUnitId = #{id}
+    </select>
+    <select id="selectV6ObjByTerminalUnitId" resultType="com.metoo.nrsm.entity.TerminalUnitSubnetV6">
+        SELECT * FROM metoo_terminal_unit_subnet_v6 where terminalUnitId = #{id}
     </select>
 
 </mapper>
