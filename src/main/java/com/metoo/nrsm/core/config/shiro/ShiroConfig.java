@@ -61,6 +61,7 @@ public class ShiroConfig {
 
 
 
+        filterChainDefinitionMap.put("/admin/analysis/**", "anon");
 
         filterChainDefinitionMap.put("/notice/**", "anon");
         filterChainDefinitionMap.put("/ws/**", "anon");

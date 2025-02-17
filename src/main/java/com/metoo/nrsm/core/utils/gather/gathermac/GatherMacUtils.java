@@ -291,7 +291,7 @@ public class GatherMacUtils {
         try {
             List<Mac> macs = this.macService.selectRTToVDT();
             int i = 0;
-            if(macs != null && macs.size() > 0){
+            if(macs != null && !macs.isEmpty()){
                 Set ports = new HashSet();
                 for (Mac mac : macs) {
                     String nswitchName = "";
@@ -334,7 +334,7 @@ public class GatherMacUtils {
 //                        // 增加虚拟网元
                         Map params = new HashMap();
                         params.put("deviceName", nswitchName);
-                        params.put("deleteStatus", 1);
+                        params.put("display", 1);
                         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
                         if(networkElements.size() <= 0){
                             NetworkElement ne = new NetworkElement();

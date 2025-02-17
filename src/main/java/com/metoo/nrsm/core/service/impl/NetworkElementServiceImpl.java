@@ -39,9 +39,6 @@ public class NetworkElementServiceImpl implements INetworkElementService {
         if(instance == null){
             instance = new NetworkElementDto();
         }
-//        if(instance.getDeleteStatus() == null){
-//            instance.setDeleteStatus(0);
-//        }
         instance.setDisplay(false);
         Page<NetworkElement> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
         this.networkElementMapper.selectConditionQuery(instance);
@@ -50,11 +47,16 @@ public class NetworkElementServiceImpl implements INetworkElementService {
 
     @Override
     public List<NetworkElement> selectObjByMap(Map params) {
-        if(params.get("deleteStatus") == null){
-            params.put("deleteStatus", 0);
+        if (params == null) {
+            params = new HashMap<>();
         }
-        if(params.get("deleteStatusList") != null){
-            params.remove("deleteStatus");
+        if (params.get("display") == null) {
+            params.put("display", Boolean.FALSE);
+        }
+        if(params.get("displayList") != null){
+            if (params.get("display") != null) {
+                params.remove("display");
+            }
         }
         return this.networkElementMapper.selectObjByMap(params);
     }

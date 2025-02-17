@@ -127,6 +127,12 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="displayList != null">
+                AND display in
+                <foreach collection="displayList" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
             <if test="ip != null and ip != ''">
                 AND ip = #{ip}
             </if>
@@ -159,6 +165,9 @@
             </if>
             <if test="neId != null">
                 AND id != #{neId}
+            </if>
+            <if test="display != null">
+                AND display = #{display}
             </if>
             <if test="NotEqualdeviceNameSet != null and NotEqualdeviceNameSet.size() > 0">
                 AND device_name not in

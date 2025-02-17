@@ -13,6 +13,7 @@ import com.metoo.nrsm.core.wsapi.utils.RedisResponseUtils;
 import com.metoo.nrsm.entity.*;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,93 +47,114 @@ public class TerminalManagerControllerApi {
     private ITerminalUnitService terminalUnitService;
     @Autowired
     private ITerminalMacIpv6Service terminalMacIpv6Service;
+    @Autowired
+    private IMacService macService;
 
     @ApiOperation("设备 Mac (DT))")
     @GetMapping(value = {"/dt"})
     public NoticeWebsocketResp getObjMac(@RequestParam(value = "requestParams", required = false) String requestParams) {
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
-        if(!String.valueOf(requestParams).equals("")){
-            Map map = JSONObject.parseObject(String.valueOf(requestParams), Map.class);
-            String sessionId = (String)  map.get("sessionId");
-            List<String> list = JSONObject.parseObject(String.valueOf(map.get("params")), List.class);
-            Map result = new HashMap();
-            Map params = new HashMap();
-            if(map.get("time") == null || StringUtil.isEmpty(String.valueOf(map.get("time")))){
-                for (String uuid : list) {
-                    params.clear();
-                    params.put("deviceUuid", uuid);
-                    params.put("deviceUuidAndDeviceTypeId", uuid);
-                    params.put("online", true);
-                    List<Terminal> terminals = terminalService.selectObjByMap(params);
-                    macUtils.terminalJoint(terminals);
-                    for (Terminal terminal : terminals) {
-                        DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
-                        if(deviceType != null){
-                            terminal.setDeviceTypeName(deviceType.getName());
-                            terminal.setDeviceTypeUuid(deviceType.getUuid());
-                        }
-                        if(terminal.getVendorId() != null && !terminal.getVendorId().equals("")){
-                            Vendor vendor = this.vendorService.selectObjById(terminal.getVendorId());
-                            if(vendor != null){
-                                terminal.setVendorName(vendor.getName());
-                            }
-                        }
-                        if(StringUtil.isNotEmpty(terminal.getMac())){
-                            TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                            if(terminalMacIpv6 != null){
-                                terminal.setIsIpv6(1);
-                            }else{
-                                terminal.setIsIpv6(0);
-                            }
-                        }
-                    }
-                    result.put(uuid, terminals);
-                }
-            }else{
-                // mac历史数据；nrsm暂时没有记录
-                for (String uuid : list) {
-                    params.clear();
-                    params.put("deviceUuid", uuid);
-                    params.put("deviceUuidAndDeviceTypeId", uuid);
-                    params.put("online", true);
-                    params.put("time", map.get("time"));
-                    List<Terminal> terminals = terminalService.selectObjHistoryByMap(params);
-                    macUtils.terminalJoint(terminals);
-                    for (Terminal terminal : terminals) {
-                        DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
-                        if(deviceType != null){
-                            terminal.setDeviceTypeName(deviceType.getName());
-                            terminal.setDeviceTypeUuid(deviceType.getUuid());
-                        }
-                        if(terminal.getVendorId() != null && !terminal.getVendorId().equals("")){
-                            Vendor vendor = this.vendorService.selectObjById(terminal.getVendorId());
-                            if(vendor != null){
-                                terminal.setVendorName(vendor.getName());
-                            }
-                        }
-                        if(StringUtil.isNotEmpty(terminal.getMac())){
-                            TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                            if(terminalMacIpv6 != null){
-                                terminal.setIsIpv6(1);
-                            }else{
-                                terminal.setIsIpv6(0);
-                            }
-                        }
-                    }
-                    result.put(uuid, terminals);
-                }
+
+        // 判断requestParams是否为空
+        if (StringUtils.isNotEmpty(requestParams)) {
+            Map<String, Object> map = JSONObject.parseObject(requestParams, Map.class);
+            String sessionId = (String) map.get("sessionId");
+            List<String> uuidList = JSONObject.parseObject(String.valueOf(map.get("params")), List.class);
+            Map<String, List<Terminal>> result = new HashMap<>();
+
+            String time = (String) map.get("time");
+            boolean isHistoricalData = StringUtils.isNotEmpty(time);
+
+            // 遍历UUID列表，处理每一个UUID
+            for (String uuid : uuidList) {
+                List<Terminal> terminalList = fetchTerminalData(uuid, time, isHistoricalData);
+                result.put(uuid, terminalList);
             }
+
             rep.setNoticeType("101");
             rep.setNoticeStatus(1);
             rep.setNoticeInfo(result);
+
+            // 同步到Redis
             this.redisResponseUtils.syncStrRedis(sessionId, JSONObject.toJSONString(result, SerializerFeature.WriteMapNullValue), 101);
             return rep;
         }
+
         rep.setNoticeType("101");
         rep.setNoticeStatus(0);
         return rep;
     }
 
+    // 提取的辅助方法，获取终端数据
+    private List<Terminal> fetchTerminalData(String uuid, String time, boolean isHistoricalData) {
+        Map<String, Object> params = new HashMap<>();
+        List<Terminal> terminalList = new ArrayList<>();
+
+        // 根据是否为历史数据来查询
+        params.put("deviceUuid", uuid);
+        params.put("deviceUuidAndDeviceTypeId", uuid);
+        params.put("online", true);
+
+        List<Terminal> terminals;
+        if (isHistoricalData) {
+            params.put("time", time);
+            terminals = terminalService.selectObjHistoryByMap(params);
+        } else {
+            terminals = terminalService.selectObjByMap(params);
+        }
+
+        // 如果有终端数据，加入到列表中
+        if (terminals != null && !terminals.isEmpty()) {
+            terminalList.addAll(terminals);
+        }
+
+        // 查询NSwitch数据
+        params.clear();
+        params.put("deviceUuid", uuid);
+        params.put("online", true);
+        List<Terminal> nswitchList = isHistoricalData ?
+                terminalService.selectHistoryNSwitchToTopology(params) :
+                terminalService.selectNSwitchToTopology(params);
+
+        if (nswitchList != null && !nswitchList.isEmpty()) {
+            for (Terminal obj : nswitchList) {
+                for (Terminal terminal : obj.getTerminalList()) {
+                    terminal.setDeviceUuid(obj.getDeviceUuid2());
+                    completeTerminal(terminal);
+                }
+            }
+            terminalList.addAll(nswitchList);
+        }
+
+        // 对所有终端进行补充操作
+        for (Terminal terminal : terminalList) {
+            completeTerminal(terminal);
+        }
+
+        return terminalList;
+    }
+
+    public void completeTerminal(Terminal terminal){
+        DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
+        if(deviceType != null){
+            terminal.setDeviceTypeName(deviceType.getName());
+            terminal.setDeviceTypeUuid(deviceType.getUuid());
+        }
+        if(terminal.getVendorId() != null && !terminal.getVendorId().equals("")){
+            Vendor vendor = this.vendorService.selectObjById(terminal.getVendorId());
+            if(vendor != null){
+                terminal.setVendorName(vendor.getName());
+            }
+        }
+        if(StringUtil.isNotEmpty(terminal.getMac())){
+            TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
+            if(terminalMacIpv6 != null){
+                terminal.setIsIpv6(1);
+            }else{
+                terminal.setIsIpv6(0);
+            }
+        }
+    }
     /*
     {"noticeType":"102","userId":"1","time":"","params":{"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa":["6e:2e:10:93:cb:18"],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa2":["00:50:79:66:68:56","00:50:79:66:68:57"],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa3":[],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa4":[]}}
      */

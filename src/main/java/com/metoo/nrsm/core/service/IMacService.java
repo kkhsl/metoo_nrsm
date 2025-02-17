@@ -15,6 +15,18 @@ public interface IMacService {
 
     List<Mac> selectTagByDE();
 
+    /**
+     * DE过滤虚拟服务器
+     * @return
+     */
+    List<Mac> selectTagDEWithoutNswitch();
+
+    /**
+     * DE 虚拟服务器
+     * @return
+     */
+    List<Mac> selectTagDEWithNswitch();
+
     List<Mac> selectTagToX(Map params);
 
     List<Mac> selectTagToU(Map params);

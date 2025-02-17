@@ -33,7 +33,8 @@ public class Terminal extends IdEntity {
 
     @ApiModelProperty("类型 0: 网元列表里的ip在terminal里面的devicetype设置为0 " +
             " 1：设备" +
-            " 2：vmware ")
+            " 2：vmware " +
+            " 3：nswitch ")
     private Integer deviceType;
 
     private String macVendor;
@@ -193,6 +194,9 @@ public class Terminal extends IdEntity {
     private String combined_port_protocol;
     @ApiModelProperty("vendor + gen + family")
     private String combined_vendor_gen_family;
+
+
+    private List<Terminal> terminalList = new ArrayList<>();
 
 
 

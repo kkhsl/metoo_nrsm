@@ -11,7 +11,12 @@ public class WsApiDemo {
      * 1: mac
      *    01：dt (101)
      *
-     *     2: ne
+     * 2: ne
      *     201：available
+     *
+     * 3: flow
+     *
+     * 4: ac
+     * 5: mac
      */
 }

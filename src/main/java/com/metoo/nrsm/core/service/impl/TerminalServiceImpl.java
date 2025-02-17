@@ -99,6 +99,16 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
+    public List<Terminal> selectNSwitchToTopology(Map params) {
+        return this.terminalMapper.selectNSwitchToTopology(params);
+    }
+
+    @Override
+    public List<Terminal> selectHistoryNSwitchToTopology(Map params) {
+        return this.terminalMapper.selectHistoryNSwitchToTopology(params);
+    }
+
+    @Override
     public boolean updateVMHostDeviceType() {
         try {
             this.terminalMapper.updateVMHostDeviceType();
@@ -285,7 +295,7 @@ public class TerminalServiceImpl implements ITerminalService {
         }
 
         // 批量更新
-        if (!inner.isEmpty()) {
+        if (inner != null && !inner.isEmpty()) {
 //            for (Terminal terminal : inner) {
 //                this.terminalMapper.update(terminal);
 //            }

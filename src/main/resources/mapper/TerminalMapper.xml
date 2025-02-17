@@ -131,6 +131,9 @@
             <if test="deviceType != null">
                 AND deviceType = #{deviceType}
             </if>
+            <if test="notDeviceTypeId != null">
+                AND deviceTypeId != #{notDeviceTypeId}
+            </if>
             <if test="notTag != null and notTag != ''">
                 AND tag != #{notTag}
             </if>
@@ -163,7 +166,7 @@
                 OR deviceUuid2 = #{deviceUuid2}
             </if>
             <if test="deviceUuidAndDeviceTypeId != null and deviceUuidAndDeviceTypeId != ''">
-                or (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34)
+                OR (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34)
             </if>
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
@@ -247,7 +250,8 @@
 					 mac.mac,
 					 mac.port,
 					 mac.deviceIp,
-                     IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
+--          IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
+                     mac.deviceName,
 					 mac.tag,
 					 mac.hostname,
 					 mac.remoteDevice,
@@ -422,7 +426,8 @@
          mac.mac,
          mac.port,
          mac.deviceIp,
-         IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
+--          IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
+         mac.deviceName,
          mac.tag,
          mac.hostname,
          mac.remoteDevice,
@@ -828,6 +833,175 @@
         where  macVendor IS NOT NULL AND v4ip IS NOT NULL
         GROUP BY deviceName, macVendorCategory
         HAVING (macVendorCategory = 'Other' AND COUNT(*) = 1)
+    </select>
+
+    <resultMap id="NSwitch_Result_Map" type="com.metoo.nrsm.entity.Terminal">
+        <id column="id" property="id"></id>
+        <id column="deviceIp" property="deviceIp"></id>
+        <id column="deviceName" property="deviceName"></id>
+        <id column="deviceUuid" property="deviceUuid"></id>
+        <id column="deviceUuid2" property="deviceUuid2"></id>
+        <id column="deviceTypeId" property="deviceTypeId"></id>
+        <id column="v4ip" property="v4ip"></id>
+        <id column="v6ip" property="v6ip"></id>
+        <id column="mac" property="mac"></id>
+        <id column="vlan" property="vlan"></id>
+        <id column="macVendor" property="macVendor"></id>
+        <id column="remoteDevice" property="remoteDevice"></id>
+        <id column="remotePort" property="remotePort"></id>
+        <id column="location" property="location"></id>
+        <id column="duty" property="duty"></id>
+        <id column="deviceType" property="deviceType"></id>
+        <id column="os" property="os"></id>
+        <id column="combined_port_protocol" property="combined_port_protocol"></id>
+        <id column="combined_vendor_gen_family" property="combined_vendor_gen_family"></id>
+        <id column="online" property="online"></id>
+        <collection property="terminalList" ofType="com.metoo.nrsm.entity.Terminal">
+            <id column="d2_id" property="id"></id>
+            <id column="d2_deviceIp" property="deviceIp"></id>
+            <id column="d2_deviceName" property="deviceName"></id>
+            <id column="d2_deviceUuid" property="deviceUuid"></id>
+            <id column="d2_deviceUuid2" property="deviceUuid2"></id>
+            <id column="d2_deviceTypeId" property="deviceTypeId"></id>
+            <id column="d2_v4ip" property="v4ip"></id>
+            <id column="d2_v6ip" property="v6ip"></id>
+            <id column="d2_mac" property="mac"></id>
+            <id column="d2_vlan" property="vlan"></id>
+            <id column="d2_macVendor" property="macVendor"></id>
+            <id column="d2_remoteDevice" property="remoteDevice"></id>
+            <id column="d2_remotePort" property="remotePort"></id>
+            <id column="d2_location" property="location"></id>
+            <id column="d2_duty" property="duty"></id>
+            <id column="d2_deviceType" property="deviceType"></id>
+            <id column="d2_os" property="os"></id>
+            <id column="d2_combined_port_protocol" property="combined_port_protocol"></id>
+            <id column="d2_combined_vendor_gen_family" property="combined_vendor_gen_family"></id>
+            <id column="d2_online" property="online"></id>
+        </collection>
+    </resultMap>
+
+    <select id="selectNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
+          SELECT
+              d1.id,
+              d1.deviceIp,
+              d1.deviceName,
+              d1.deviceUuid,
+              d1.deviceUuid2,
+              d1.deviceTypeId,
+              d1.v4ip, d1.v6ip,
+              d1.mac,
+              d1.vlan,
+              d1.macVendor,
+              d1.remoteDevice,
+              d1.remotePort,
+              d1.location,
+              d1.duty,
+              3 AS deviceType,
+              d1.combined_port_protocol,
+              d1.combined_vendor_gen_family,
+              d1.online,
+
+              d2.id d2_id,
+              d2.deviceIp d2_deviceIp,
+              d2.deviceName d2_deviceName,
+              d2.deviceUuid d2_deviceUuid,
+              d2.deviceUuid2 d2_deviceUuid2,
+--               17 as d2_deviceTypeId,
+              d2.deviceTypeId d2_deviceTypeId,
+              d2.v4ip d2_v4ip,
+              d2.v6ip d2_v6ip,
+              d2.mac d2_mac,
+              d2.vlan d2_vlan,
+              d2.macVendor d2_macVendor,
+              d2.remoteDevice d2_remoteDevice,
+              d2.remotePort d2_remotePort,
+              d2.location d2_location,
+              d2.duty d2_duty,
+              d2.deviceType d2_deviceType,
+              d2.os d2_os,
+              d2.combined_port_protocol d2_combined_port_protocol,
+              d2.combined_vendor_gen_family d2_combined_vendor_gen_family,
+              d2.online d2_online
+            FROM (
+                SELECT
+                  *
+                FROM
+                    metoo_terminal
+                WHERE
+                    deviceUuid2 = #{deviceUuid}
+                AND deviceName LIKE 'NSwitch%'
+                AND deviceTypeId NOT IN (34, 9) AND online = 1
+                GROUP BY
+                    deviceUuid
+                )d1
+            JOIN metoo_terminal d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
+            WHERE d2.deviceName LIKE 'NSwitch%' AND d2.online = 1
+    </select>
+
+    <select id="selectHistoryNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
+          SELECT
+              d1.id,
+              d1.deviceIp,
+              d1.deviceName,
+              d1.deviceUuid,
+              d1.deviceTypeId,
+              d1.v4ip, d1.v6ip,
+              d1.mac,
+              d1.vlan,
+              d1.macVendor,
+              d1.remoteDevice,
+              d1.remotePort,
+              d1.location,
+              d1.duty,
+              3 AS deviceType,
+              d1.os,
+              d1.combined_port_protocol,
+              d1.combined_vendor_gen_family,
+              d1.online,
+
+              d2.id d2_id,
+              d2.deviceIp d2_deviceIp,
+              d2.deviceName d2_deviceName,
+              d2.deviceUuid d2_deviceUuid,
+--               17 as d2_deviceTypeId,
+              d2.deviceTypeId d2_deviceTypeId,
+              d2.v4ip d2_v4ip,
+              d2.v6ip d2_v6ip,
+              d2.mac d2_mac,
+              d2.vlan d2_vlan,
+              d2.macVendor d2_macVendor,
+              d2.remoteDevice d2_remoteDevice,
+              d2.remotePort d2_remotePort,
+              d2.location d2_location,
+              d2.duty d2_duty,
+              d2.deviceType d2_deviceType,
+              d2.os d2_os,
+              d2.combined_port_protocol d2_combined_port_protocol,
+              d2.combined_vendor_gen_family d2_combined_vendor_gen_family,
+              d2.online d2_online
+            FROM (
+                SELECT
+                  *
+                FROM
+                    metoo_terminal_history
+                WHERE
+                    deviceUuid2 = #{deviceUuid}
+                AND deviceName LIKE 'NSwitch%'
+                AND deviceTypeId NOT IN (34, 9)
+                GROUP BY
+                    deviceUuid
+                )d1
+            JOIN metoo_terminal_history d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
+            WHERE d2.deviceName LIKE 'NSwitch%'
+            AND d2.addTime = (
+            SELECT
+            addTime
+            FROM
+            metoo_terminal_history
+            WHERE
+            addTime &lt;= #{time}
+            ORDER BY addTime DESC limit 1
+            )
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Terminal" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
@@ -1374,18 +1548,35 @@
 
         -- 创建临时表
         CREATE TEMPORARY TABLE tmp_table AS
-        SELECT deviceName, port, v4ip
-        FROM metoo_terminal t1
-        WHERE t1.macVendor NOT LIKE 'VMware%'
-          AND EXISTS (
-              SELECT 1
-              FROM metoo_terminal t2
-              WHERE t1.deviceName = t2.deviceName
-                AND t1.port = t2.port
-              GROUP BY t2.deviceName, t2.port
-              HAVING COUNT(CASE WHEN t2.macVendor LIKE 'VMware%' THEN 1 END) >= 1
-                 AND COUNT(CASE WHEN t2.macVendor NOT LIKE 'VMware%' OR t2.macVendor IS NULL THEN 1 END) = 1
-        );
+--         SELECT deviceName, port, v4ip
+--         FROM metoo_terminal t1
+--         WHERE t1.macVendor NOT LIKE 'VMware%'
+--           AND EXISTS (
+--               SELECT 1
+--               FROM metoo_terminal t2
+--               WHERE t1.deviceName = t2.deviceName
+--                 AND t1.port = t2.port
+--               GROUP BY t2.deviceName, t2.port
+--               HAVING COUNT(CASE WHEN t2.macVendor LIKE 'VMware%' THEN 1 END) >= 1
+--                  AND COUNT(CASE WHEN t2.macVendor NOT LIKE 'VMware%' OR t2.macVendor IS NULL THEN 1 END) = 1
+--         );
+
+        SELECT * FROM(
+                SELECT *
+                FROM metoo_terminal t1
+                WHERE
+                  EXISTS (
+                      SELECT 1
+                      FROM metoo_terminal t2
+                      WHERE t1.deviceName = t2.deviceName
+                        AND t1.port = t2.port
+                      GROUP BY t2.deviceName, t2.port
+                      HAVING COUNT(CASE WHEN t2.macVendor LIKE 'VMware%' THEN 1 END) >= 1
+                         AND COUNT(CASE WHEN t2.macVendor NOT LIKE 'VMware%' OR t2.macVendor IS NULL THEN 1 END) = 1
+                )ORDER BY deviceName DESC
+            )t3
+         WHERE t3.macVendor NOT LIKE 'VMware%' OR t3.macVendor IS NULL;
+
 
         -- 执行更新操作
         UPDATE metoo_terminal d1
@@ -1393,8 +1584,8 @@
             AND d1.port = d2.port
         SET
             d1.deviceIp = d2.v4ip,
-            d1.deviceName = NULL,
-            d1.hostname = NULL,
+--             d1.deviceName = NULL,
+--             d1.hostname = NULL,
             d1.tag = 'VDT'
         WHERE d1.macVendor LIKE 'VMware%';
 

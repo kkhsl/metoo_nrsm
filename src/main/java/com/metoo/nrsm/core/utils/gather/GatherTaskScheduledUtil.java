@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -51,8 +53,19 @@ public class GatherTaskScheduledUtil {
 
     private final ReentrantLock lock = new ReentrantLock();
 
+
+    @Scheduled(fixedDelay = 6000)
+    public void test() throws InterruptedException {
+
+        Thread.sleep(120000);
+
+        log.info("Test fixedDelay =================================");
+
+    }
+
+
 //    @Scheduled(fixedDelay = 300000)
-    @Scheduled(cron = "0 */5 * * * ?")
+//    @Scheduled(cron = "0 */5 * * * ?")
     public void api() {
         if(traffic) {
             if (lock.tryLock()) {
@@ -62,7 +75,7 @@ public class GatherTaskScheduledUtil {
                     try {
                         apiExecUtils.exec2();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        log.error("Error unit traffic =================================" + e.getMessage());
                     }
                     log.info("Unit traffic End=================================" + (System.currentTimeMillis()-time));
                 } finally {
@@ -235,7 +248,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void flux() {
         if(flag) {
             Long time = System.currentTimeMillis();
@@ -264,21 +277,21 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 180000)
     public void snmpStatus() {
         if(flag){
             Long time = System.currentTimeMillis();
-            log.info("snmp status Start......");
+            log.info("Snmp status start......");
             try {
                 this.gatherService.gatherSnmpStatus();
             } catch (Exception e) {
                 log.error("Error occurred during SNMP", e);
             }
-            log.info("snmp status End......" + (System.currentTimeMillis()-time));
+            log.info("Snmp status end......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 1800000)
     public void probe() {
         if(flag){
             Long time = System.currentTimeMillis();

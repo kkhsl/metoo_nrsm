@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -51,6 +52,16 @@ public class NetworkElementManagerController {
     private IPortService portService;
     @Autowired
     private PythonExecUtils pythonExecUtils;
+
+    @ApiOperation("网元列表")
+    @RequestMapping("/test")
+    public Object test() {
+        Map params = new HashMap();
+        params.put("displayList", Arrays.asList(0, 1));
+        List<NetworkElement> nes = this.networkElementService.selectObjByMap(params
+        );
+        return nes;
+    }
 
     @ApiOperation("网元列表")
     @RequestMapping("/list")
