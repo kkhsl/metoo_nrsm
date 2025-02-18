@@ -17,11 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-02-22 11:52
- */
 
 @RequestMapping("/admin/mac")
 @RestController
@@ -29,124 +24,120 @@ public class MacManagerController {
 
     @Autowired
     private IMacService macService;
+    @Autowired
+    private INetworkElementService networkElementService;
+    @Autowired
+    private IDeviceTypeService deviceTypeService;
 
     @RequestMapping("de")
     public Result mac_de(){
-        List<Mac> list = this.macService.selectTagDEWithoutNswitch();
-        return ResponseUtil.ok(list);
-    }
+        List<Mac> deMacList = this.macService.selectTagByDE();
 
-//    public Result mac_de(){
-//        List<Mac> macList = this.macService.selectTagByDE();
-//        if(macList.size() > 0){
-//            Map<String, Mac> map = new HashMap<>();
-//            for (Mac mac : macList) {
-//                String remoteDevice = mac.getHostname() + mac.getRemoteDevice();
-//                String hostName = mac.getRemoteDevice() + mac.getHostname();
-//                if(map.get(remoteDevice) == null && map.get(hostName) == null){
-//                    map.put(remoteDevice, mac);
-//                }
-//            }
-//            macList.clear();
-//            for (Map.Entry<String, Mac> stringMacEntry : map.entrySet()) {
-//                macList.add(stringMacEntry.getValue());
-//            }
-//        }
-//
-//        Map params = new HashMap();
-//        if(macList.size() > 0){
-//            for (Mac de : macList) {
-//                params.clear();
-//                if(StringUtil.isNotEmpty(de.getDeviceIp())){
-//                    params.put("ip", de.getDeviceIp());
-//                    List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-//                    if(networkElements.size() > 0){
-//                        NetworkElement networkElement = networkElements.get(0);
-//                        if(networkElement.getDeviceTypeId() != null){
-//                            DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
-//                            de.setDeviceTypeUuid(deviceType.getUuid());
-//                            de.setDeviceType(deviceType.getName());
-//                        }
-//                        if(StringUtil.isNotEmpty(de.getRemoteDevice())){
-//                            params.clear();
-//                            params.put("hostname", de.getRemoteDevice());
-//                            List<Mac> remoteDeviceList = this.macService.selectObjByMap(params);
-//                            if(remoteDeviceList.size() > 0){
-//                                Mac remoteDevice = remoteDeviceList.get(0);
-//                                de.setRemoteDeviceIp(remoteDevice.getDeviceIp());
-//                                de.setRemoteDeviceName(remoteDevice.getDeviceName());
-//                                params.clear();
-//                                params.put("hostname", de.getRemoteDevice());
-//                                params.put("remoteDevice", de.getHostname());
-//                                List<Mac> portMac = this.macService.selectObjByMap(params);
-//                                if(portMac.size() > 0){
-//                                    de.setPort(portMac.get(0).getRemotePort());
-//                                }
-//                                if(StringUtil.isNotEmpty(remoteDevice.getDeviceIp())){
-//                                    params.clear();
-//                                    params.put("ip", remoteDevice.getDeviceIp());
-//                                    List<NetworkElement> remote_networkElements = this.networkElementService.selectObjByMap(params);
-//                                    if(remote_networkElements.size() > 0) {
-//                                        NetworkElement remote_networkElement = remote_networkElements.get(0);
-//                                        de.setRemoteDeviceUuid(remote_networkElement.getUuid());
-//                                        if (remote_networkElement.getDeviceTypeId() != null) {
-//                                            DeviceType deviceType = this.deviceTypeService.selectObjById(remote_networkElement.getDeviceTypeId());
-//                                            de.setRemoteDevicTypeeUuid(deviceType.getUuid());
-//                                            de.setRemoteDeviceType(deviceType.getName());
-//                                        }
-//                                    }
-//                                }
-////                            else{
-////                                de.setRemoteDeviceUuid(UUID.randomUUID().toString());
-////                            }
-//                            }
-////                        if (de.getRemoteDevice().contains("NSwitch")) {
-////                            DeviceType deviceType = this.deviceTypeService.selectObjByType(29);
-////                            if(deviceType != null){
-////                                de.setRemoteDevicTypeeUuid(deviceType.getUuid());
-////                                de.setRemoteDeviceType(deviceType.getName());
-////                            }
-////                        }
-//
-//                        }
-//                    }
-//                }
-//                if(StringUtil.isNotEmpty(de.getRemoteDevice())){
-//                    params.clear();
-//                    params.put("deviceName", de.getDeviceName());
-//                    params.put("deleteStatus", 1);
-//                    List<NetworkElement> NSwitch_nes2 = this.networkElementService.selectObjByMap(params);
-//                    if(NSwitch_nes2.size() > 0){
-//                        NetworkElement NSwitch_ne = NSwitch_nes2.get(0);
-//                        de.setDeviceUuid(NSwitch_ne.getUuid());
-//                        if (NSwitch_ne.getDeviceTypeId() != null) {
-//                            DeviceType deviceType = this.deviceTypeService.selectObjById(NSwitch_ne.getDeviceTypeId());
-//                            de.setDeviceTypeUuid(deviceType.getUuid());
-//                            de.setDeviceType(deviceType.getName());
-//                        }
-//                    }
-//                }
-//                if(StringUtil.isNotEmpty(de.getRemoteDevice())){
-//                    params.clear();
-//                    params.put("deviceName", de.getRemoteDevice());
-//                    params.put("deleteStatusList", Arrays.asList(0, 1));
-//                    List<NetworkElement> NSwitch_nes = this.networkElementService.selectObjByMap(params);
-//                    if(NSwitch_nes.size() > 0){
-//                        NetworkElement NSwitch_ne = NSwitch_nes.get(0);
-//                        de.setRemoteDeviceUuid(NSwitch_ne.getUuid());
-//                        de.setRemoteDeviceIp(NSwitch_ne.getIp());
-//                        de.setRemoteDeviceName(NSwitch_ne.getDeviceName());
-//                        if (NSwitch_ne.getDeviceTypeId() != null) {
-//                            DeviceType deviceType = this.deviceTypeService.selectObjById(NSwitch_ne.getDeviceTypeId());
-//                            de.setRemoteDevicTypeeUuid(deviceType.getUuid());
-//                            de.setRemoteDeviceType(deviceType.getName());
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return ResponseUtil.ok(macList);
-//    }
+        if(deMacList.size() > 0){
+            Map<String, Mac> map = new HashMap<>();
+            for (Mac mac : deMacList) {
+
+                String remoteDevice = mac.getHostname() + mac.getRemoteDevice();
+                String hostName = mac.getRemoteDevice() + mac.getHostname();
+
+                if(map.get(remoteDevice) == null && map.get(hostName) == null){
+                    map.put(remoteDevice, mac);
+                }
+            }
+            deMacList.clear();
+            for (Map.Entry<String, Mac> stringMacEntry : map.entrySet()) {
+                deMacList.add(stringMacEntry.getValue());
+            }
+        }
+
+        Map params = new HashMap();
+        if(deMacList.size() > 0){
+            for (Mac DE : deMacList) {
+                params.clear();
+                if(StringUtil.isNotEmpty(DE.getDeviceIp())){
+                    params.put("ip", DE.getDeviceIp());
+                    List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
+                    if(networkElements.size() > 0){
+                        NetworkElement networkElement = networkElements.get(0);
+                        // 设置设备Uuid
+                        DE.setDeviceUuid(networkElement.getUuid());
+                        if(networkElement.getDeviceTypeId() != null){
+                            DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
+                            DE.setDeviceTypeUuid(deviceType.getUuid());
+                            DE.setDeviceType(deviceType.getName());
+                        }
+                        if(StringUtil.isNotEmpty(DE.getRemoteDevice())){
+                            params.clear();
+                            params.put("hostname", DE.getRemoteDevice());
+                            List<Mac> remoteDeviceList = this.macService.selectObjByMap(params);
+                            if(remoteDeviceList.size() > 0){
+                                Mac remoteDevice = remoteDeviceList.get(0);
+                                DE.setRemoteDeviceIp(remoteDevice.getDeviceIp());
+                                DE.setRemoteDeviceName(remoteDevice.getDeviceName());
+                                params.clear();
+                                params.put("hostname", DE.getRemoteDevice());
+                                params.put("remoteDevice", DE.getHostname());
+                                List<Mac> portMac = this.macService.selectObjByMap(params);
+                                if(portMac.size() > 0){
+                                    DE.setPort(portMac.get(0).getRemotePort());
+                                }
+                                if(StringUtil.isNotEmpty(remoteDevice.getDeviceIp())){
+                                    params.clear();
+                                    params.put("ip", remoteDevice.getDeviceIp());
+                                    List<NetworkElement> remote_networkElements = this.networkElementService.selectObjByMap(params);
+                                    if(remote_networkElements.size() > 0) {
+                                        NetworkElement remote_networkElement = remote_networkElements.get(0);
+                                        DE.setRemoteDeviceUuid(remote_networkElement.getUuid());
+                                        if (remote_networkElement.getDeviceTypeId() != null) {
+                                            DeviceType deviceType = this.deviceTypeService.selectObjById(remote_networkElement.getDeviceTypeId());
+                                            DE.setRemoteDevicTypeeUuid(deviceType.getUuid());
+                                            DE.setRemoteDeviceType(deviceType.getName());
+                                        }
+                                    }
+                                }
+
+                            }
+
+
+                        }
+                    }
+                }
+                if(StringUtil.isNotEmpty(DE.getRemoteDevice())){
+                    params.clear();
+                    params.put("deviceName", DE.getDeviceName());
+                    params.put("deleteStatus", 1);
+                    List<NetworkElement> NSwitch_nes2 = this.networkElementService.selectObjByMap(params);
+                    if(NSwitch_nes2.size() > 0){
+                        NetworkElement NSwitch_ne = NSwitch_nes2.get(0);
+                        DE.setDeviceUuid(NSwitch_ne.getUuid());
+                        if (NSwitch_ne.getDeviceTypeId() != null) {
+                            DeviceType deviceType = this.deviceTypeService.selectObjById(NSwitch_ne.getDeviceTypeId());
+                            DE.setDeviceTypeUuid(deviceType.getUuid());
+                            DE.setDeviceType(deviceType.getName());
+                        }
+                    }
+                }
+                if(StringUtil.isNotEmpty(DE.getRemoteDevice())){
+                    params.clear();
+                    params.put("deviceName", DE.getRemoteDevice());
+                    params.put("deleteStatusList", Arrays.asList(0, 1));
+                    List<NetworkElement> NSwitch_nes = this.networkElementService.selectObjByMap(params);
+                    if(NSwitch_nes.size() > 0){
+                        NetworkElement NSwitch_ne = NSwitch_nes.get(0);
+                        DE.setRemoteDeviceUuid(NSwitch_ne.getUuid());
+                        DE.setRemoteDeviceIp(NSwitch_ne.getIp());
+                        DE.setRemoteDeviceName(NSwitch_ne.getDeviceName());
+                        if (NSwitch_ne.getDeviceTypeId() != null) {
+                            DeviceType deviceType = this.deviceTypeService.selectObjById(NSwitch_ne.getDeviceTypeId());
+                            DE.setRemoteDevicTypeeUuid(deviceType.getUuid());
+                            DE.setRemoteDeviceType(deviceType.getName());
+                        }
+                    }
+                }
+            }
+        }
+        return ResponseUtil.ok(deMacList);
+    }
 
     @RequestMapping("dt")
     public Result macDT(@RequestBody MacDTO dto){

@@ -182,6 +182,11 @@ public class GlobalExceptionHandler {
 //    }
 
 
+
+
+
+
+
     // 捕捉shiro的异常
 //    @ExceptionHandler(ShiroException.class)
 //    public Object handleShiroException(ShiroException e) {

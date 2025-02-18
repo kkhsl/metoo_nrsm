@@ -69,27 +69,6 @@ public class IPv6SubnetCheck {
         }
     }
 
-//
-//    public static boolean isInSubnet(String ipAddress, String subnet) {
-//        try {
-//            SubnetUtils subnetUtils = new SubnetUtils(subnet);
-//            subnetUtils.setInclusiveHostCount(true);
-//            return subnetUtils.getInfo().isInRange(ipAddress);
-//        } catch (IllegalArgumentException e) {
-//            System.out.println("Invalid subnet format: " + e.getMessage());
-//            return false;
-//        }
-//    }
-//
-//    public static void main(String[] args) {
-//        String ipAddress = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
-//        String subnet = "2001:0db8:85a3:0000::/64";
-//
-//        if (isInSubnet(ipAddress, subnet)) {
-//            System.out.println(ipAddress + " is in the subnet " + subnet);
-//        } else {
-//            System.out.println(ipAddress + " is NOT in the subnet " + subnet);
-//        }
-//    }
+
 
 }

@@ -39,17 +39,6 @@ public class DateTools {
     // Duration.between 时间差计算工具类
 
     public static void main(String[] args) {
-//        System.out.println(1670317656L * 1000L);
-//        System.out.println(1670317656 * 1000L);
-//        System.out.println((1 * 60000));
-//        System.out.println(longToStr((1670317656 * 1000L) + (1 * 60000L), "yyyy-MM-dd HH:mm"));
-//
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime time = now.withSecond(0).withNano(0);
-//        System.out.println(time);
-//
-//        String a = getCurrentDate(new Date(), "yyyyMMddHHmm");
-//        System.out.println(a);
 
         // 获取当前时间
         String currentTime = getCurrentDate(new Date(), "yyyy-MM-dd HH:mm:ss");

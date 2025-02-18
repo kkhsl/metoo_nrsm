@@ -56,18 +56,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static void main(String[] args) {
 
         Date date = new Date();
-//        System.out.println(getDateTimeWithZeroSeconds(date));
-//
-//        Unit unit = new Unit();
-//        UnitVO unitVO = new UnitVO(unit.getUnitName(), unit.getDepartment(), unit.getArea(),
-//                unit.getCity(), DateUtils.getDateTimeWithZeroSeconds(date), System.currentTimeMillis(),
-//                unit.getVfourFlow(), unit.getVsixFlow(), unit.getBroadband_Account());
-//        System.out.println(unitVO);
-//
-//        System.out.println(getCurrentTimeMillis(date));
-//
-//        System.out.println(convertDateStringToTimestamp(getDateTimeWithZeroSeconds(date), "yyyy-MM-dd HH:mm:ss"));
-
         String time = DateUtils.getDateTimeWithZeroSeconds(date);
         long currentTime =
                 DateUtils.convertDateStringToTimestamp(time, "yyyy-MM-dd HH:mm:ss");
@@ -113,65 +101,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     // 定义一个方法来获取格式化日期时间，秒钟部分全部为0
     public static String getDateTimeWithZeroSeconds(Date date) {
-//        // 获取当前日期和时间
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        // 将秒和纳秒设置为0
-//        LocalDateTime dateTimeWithZeroSeconds = now.withSecond(0).withNano(0);
-//
-//        // 定义日期时间格式
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//
-//        // 格式化日期时间
-//        return dateTimeWithZeroSeconds.format(formatter);
-
-//        // 获取当前日期和时间
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        // 将当前时间的秒钟部分设置为0
-//        LocalDateTime dateTimeWithZeroSeconds = LocalDateTime.of(
-//                now.getYear(),
-//                now.getMonth(),
-//                now.getDayOfMonth(),
-//                now.getHour(),
-//                now.getMinute(),
-//                0 // 秒钟设置为0
-//        );
-//
-//        // 定义日期时间格式
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//
-//        // 格式化日期时间
-//        return dateTimeWithZeroSeconds.format(formatter);
-
-//        // 获取当前时间
-//        Instant now = Instant.now();
-//
-//        // 转换为 ZonedDateTime，设定为默认时区
-//        ZonedDateTime zonedDateTime = now.atZone(ZoneId.systemDefault());
-//
-//        // 将秒和纳秒部分设置为0
-//        ZonedDateTime dateTimeWithZeroSeconds = zonedDateTime.withSecond(0).withNano(0);
-//
-//        // 定义日期时间格式
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//
-//        // 格式化日期时间
-//        return dateTimeWithZeroSeconds.format(formatter);
-
-//        // 获取当前日期和时间
-//        Calendar calendar = Calendar.getInstance();
-//
-//        // 设置秒和毫秒为0
-//        calendar.set(Calendar.SECOND, 0);
-//        calendar.set(Calendar.MILLISECOND, 0);
-//
-//        // 定义日期时间格式
-//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-//
-//        // 格式化日期时间
-//        return formatter.format(calendar.getTime());
-        // 获取当前日期和时间
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
@@ -182,9 +111,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        // 拼接为 yyyy-MM-dd HH:mm:00 格式
-//        String formattedDateTime = String.format("%04d-%02d-%02d %02d:%02d:00",
-//                year, month, day, hour, minute);
         String formattedDateTime = String.format("%04d-%02d-%02d %02d:%02d",
                 year, month, day, hour, minute);
 

@@ -15,12 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-01-29 16:07
- */
 @RestController
 @RequestMapping("/admin/dns")
 public class DNSManagerController {
@@ -103,12 +97,6 @@ public class DNSManagerController {
             return ResponseUtil.error("保存失败");
         }
     }
-
-//    @RequestMapping("modifydns")
-//    public Result modifydns(String[] params){
-//        String result = this.dnsService.modifydns(params);
-//        return ResponseUtil.ok(result);
-//    }
 
 
 }

@@ -10,25 +10,6 @@ import java.util.Scanner;
 public class SystemInfoUtils {
 
     public static String getSerialNumber() {
-//        String cpuId = null;
-//        // 获取当前操作系统名称
-//        String os = System.getProperty("os.name");
-//        os = os.toUpperCase();
-//        if ("LINUX".equals(os)) {
-//            try {
-//                cpuId = getLinuxDmidecodeInfo("dmidecode -t system | grep 'Serial Number'", "Serial Number", ":");
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            try {
-//                cpuId = getWindowsBiosUUID();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return cpuId.toUpperCase().replace(" ", "");
-
 
         String cpuId = null;
         // 获取当前操作系统名称

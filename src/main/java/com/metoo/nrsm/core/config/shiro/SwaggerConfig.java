@@ -16,18 +16,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.ArrayList;
 
 /**
- * <p>
- *     Title: SwaggerConfig.java
- * </p>
- *
- * <p>
- *     Description: Swagger控制器; Swagger首页：
- * </p>
- *
- * <p>
- *     author: pers hkk
- * </p>
- *
+
+ Description: Swagger控制器; Swagger首页：
+
  */
 @Configuration
 @EnableSwagger2
@@ -55,12 +46,6 @@ public class SwaggerConfig {
                 .apiInfo(apiInfo())
                 .enable(flag)
                 .select()
-                // RequestHandlerSelectors：配置扫描方式
-                //basePackage：扫描指定包
-                //any：扫描全部
-                //non：都不扫描
-                //withClassAnnotation：扫描类上的注解
-                //withMethodAnnotation：扫描方法上的注解
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.ant("/admin/**"))
                 .build();
@@ -79,19 +64,4 @@ public class SwaggerConfig {
                 , new ArrayList());
     }
 
-    /**
-     * 防止@EnableMvc把默认的静态资源路径覆盖了，手动设置的方式
-     *
-     * @param registry
-     */
-  /*  @Override
-    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 解决静态资源无法访问
-        registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
-        // 解决swagger无法访问
-        registry.addResourceHandler("/swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
-        // 解决swagger的js文件无法访问
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-
-    }*/
 }

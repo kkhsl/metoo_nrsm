@@ -6,27 +6,7 @@ import java.util.regex.Pattern;
 
 public class Ipv6Utils {
 
-//    public static void main(String[] args) {
-//
-//        String ip = "192.168.1.1";
-//        System.out.println(ip = "[" + ip.concat("]"));
-//        try {
-//            String[] addresses = {
-//                    "240e:670:3e02:6"
-//            };
-//
-//            for (String address : addresses) {
-//                if (isValidIPv6(address)) {
-//                    InetAddress inetAddress = InetAddress.getByName(address);
-//                    System.out.println("Standardized address: " + inetAddress.getHostAddress());
-//                } else {
-//                    System.out.println("Invalid IPv6 address: " + address);
-//                }
-//            }
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();
-//        }
-//    }
+
 
 
 

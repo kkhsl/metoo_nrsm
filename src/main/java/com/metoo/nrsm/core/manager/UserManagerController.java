@@ -66,18 +66,6 @@ public class UserManagerController {
         }
         return ResponseUtil.ok();
     }
-   /* public Object add(){
-        // 查询角色组列表/角色列表
-        Map params = new HashMap();
-        params.put("currentPage", 1);
-        params.put("pageSize", 15);
-       *//* List<RoleGroup> roleGroupList = this.roleGroupService.roleUnitGroup(params);
-       map.put("roleGroup", roleGroupList);*//*
-        Map map  = new HashMap();
-        map.put("currentPage", 1);
-        map.put("pageSize", 15);
-        return ResponseUtil.ok(map);
-    }*/
 
     //    @RequiresPermissions(value = {"LK:USER", "LK:USER:MANAGER"})
     @ApiOperation("用户更新")
@@ -101,28 +89,7 @@ public class UserManagerController {
         }
         return ResponseUtil.badArgument();
     }
-    /*public Object update(@RequestBody UserDto dto){
-        User user = this.userService.findObjById(dto.getId());
-        if(user != null){
-            Map map = new HashMap();
 
-            // 根据用户ID查询角色
-          *//*  List<Role> roleList = this.roleService.findRoleByUserId(user.getId());
-            map.put("roleList",roleList);*//*
-            Map params = new HashMap();
-            params.put("currentPage", 1);
-            params.put("pageSize", 15);
-            List<RoleGroup> roleGroupList = this.roleGroupService.roleUnitGroup(params);
-            map.put("roleGroup", roleGroupList);
-            UserVo obj = this.userService.findUserUpdate(user.getId());
-            map.put("obj", obj);
-            return ResponseUtil.ok(map);
-        }
-        return ResponseUtil.badArgument();
-    }*/
-
-    //    @RequiresPermissions("ADMIN:USER:SAVE")
-//    @RequiresPermissions(value = {"LK:USER", "LK:USER:MANAGER"}, logical = Logical.OR)
     @ApiOperation("用户保存")
     @PostMapping("/save")
     public Object save(@RequestBody UserDto dto) {

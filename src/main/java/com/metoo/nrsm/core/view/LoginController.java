@@ -148,17 +148,7 @@ public class LoginController {
 
     @GetMapping("/captcha")
     public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        System.out.println("Arp开始采集: " + System.currentTimeMillis());
-//        // 采集时间
-//        Calendar cal = Calendar.getInstance();
-//        cal.clear(Calendar.SECOND);
-//        cal.clear(Calendar.MILLISECOND);
-//        Date date = cal.getTime();
-//        // 此处开启两个线程
-//        // 存在先后顺序，先录取arp，在根据arp解析数据
-//        this.gatherService.gatherMacItem(date);
-//        this.gatherService.gatherArpItem(date);
-//        this.gatherService.gatherRouteItem(date);
+
 
         //设置响应头信息，通知浏览器不要缓存
         response.setHeader("Expires", "-1");

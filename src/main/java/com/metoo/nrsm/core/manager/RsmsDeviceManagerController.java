@@ -168,36 +168,12 @@ public class RsmsDeviceManagerController {
 //            params.put("userId", user.getId());
             List<Project> projectList = this.projectService.selectObjByMap(params);
             map.put("project", projectList);
-//            params.clear();
-//            params.put("orderBy", "sequence");
-//            params.put("orderType", "desc");
-//            List<Department> departments= this.departmentService.selectObjByMap(params);
-//            map.put("department", departments);
+
             return ResponseUtil.ok(map);
         }
         return ResponseUtil.badArgument();
     }
 
-//    @ApiOperation("设备详情")
-//    @RequestMapping("/detail")
-//    public Object detail(String id){
-//        RsmsDevice rsmsDevice = this.rsmsDeviceService.getObjAndProjectById(Long.parseLong(id));
-//        if(rsmsDevice != null){
-//            Map map = new HashMap();
-//            map.put("device", rsmsDevice);
-//
-//            // 机房
-//            PlantRoom plantRoom = this.plantRoomService.getObjById(rsmsDevice.getPlantRoomId());
-//            rsmsDevice.setPlantRoom(plantRoom);
-//
-//            // 机柜
-//            Rack rack = this.rackService.getObjById(rsmsDevice.getRackId());
-//            rsmsDevice.setRack(rack);
-//
-//            return ResponseUtil.ok(rsmsDevice);
-//        }
-//        return ResponseUtil.badArgument("设备不存在");
-//    }
 
     @GetMapping("/detail")
     public Object detail(@RequestParam(value = "uuid") String uuid){
@@ -220,16 +196,7 @@ public class RsmsDeviceManagerController {
         return ResponseUtil.badArgument("Ip为空");
     }
 
-//    @RequestMapping("/detail")
-//    public Object detail(String id){
-//        RsmsDevice rsmsDevice = this.rsmsDeviceService.getObjById(Long.parseLong(id));
-//        if(rsmsDevice != null){
-//            Map map = new HashMap();
-//            map.put("device", rsmsDevice);
-//            return ResponseUtil.ok(map);
-//        }
-//        return ResponseUtil.badArgument("设备不存在");
-//    }
+
 
     @GetMapping("/verify")
     public Object verifyIp(@RequestParam(value = "id", required = false) Long id,
@@ -643,30 +610,11 @@ public class RsmsDeviceManagerController {
     @ApiOperation("设备导出")
     @GetMapping(value = "/export")
     public Object export(HttpServletResponse response, RsmsDevice device){
-//        if(device.getAll() == null || !device.getAll().equals(1)){
-//            if(device.getIds() == null || device.getIds().size() <= 0){
-//                return ResponseUtil.badArgument("请选择要导出的设备");
-//            }
-//            if(MyStringUtils.isBlank(device.getExcelName())){
-//                return ResponseUtil.badArgument("请选择要导出的文件名");
-//            }
-//        }
 
-
-//        if(MyStringUtils.isBlank(device.getExcelName())){
-//            return ResponseUtil.badArgument("请选择要文件导出位置");
-//        }
         if(StringUtils.isBlank(device.getExcelName())){
             device.setExcelName("设备台账"+ DateTools.getCurrentDate(new Date()));//  +".xls"
         }
         Map params = new HashMap();
-//        List<RsmsDevice> devices = new ArrayList<>();
-////        if(device.getAll()g != null && device.getAll().equals(1)){
-////            devices = this.rsmsDeviceService.selectObjByMap(params);
-////        }else{
-////            params.put("ids", device.getIds());
-////            devices = this.rsmsDeviceService.selectObjByMap(params);
-////        }
         params.put("ids", device.getIds());
         List<RsmsDevice> devices = this.rsmsDeviceService.selectObjByMap(params);
         if(devices.size() > 0){
@@ -710,20 +658,6 @@ public class RsmsDeviceManagerController {
     @ApiOperation("下载设备批量上传模板")
     @GetMapping("/downTemp")
     public Object downTemplate(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
-//        InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(\"/templates/excel/\" + this.batchImportNodeFileName);\n" +
-//                "        InputStream in = this.getClass().getResourceAsStream(\"/templates/excel" + this.batchImportNodeFileName);
-//        File file = new File("src/main/resources/templates/excel/" + this.batchImportNodeFileName);
-//        boolean flag = DownLoadFileUtil.downloadZip(file, response);
-//        String realPatah = request.getServletContext().getRealPath("");
-//        System.out.println(realPatah);
-//        String realPath = "src/main/resources/templates/excel/" + this.batchImportNodeFileName;
-//        File file = new File(realPath);
-//        boolean flag = DownLoadFileUtil.downloadZip(file, response);
-//        String name = java.net.URLEncoder.encode(properties.getBatchImportDeviceFileName(), "UTF-8");
-
-        // 该方法在linux系统，文件内容为空
-//        InputStream in = FileUtil.class.getClassLoader().getResourceAsStream("static/excel/" + this.batchImportDeviceFileName);
-//        boolean flag = DownLoadFileUtil.downloadZip(in,  this.batchImportDeviceFileName, response);
 
         boolean flag = DownLoadFileUtil.downloadTemplate(this.batchImportFilePath, this.batchImportDeviceFileName, response);
         LOG.info("模板下载成功");

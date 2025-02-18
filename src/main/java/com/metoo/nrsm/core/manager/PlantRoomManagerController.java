@@ -57,58 +57,11 @@ public class PlantRoomManagerController {
         return ResponseUtil.ok(list);
     }
 
-//    @PostMapping("/cart")
-//    public Object cart(@RequestBody PlantRoomDTO dto){
-//       List<PlantRoom> plantRoomList = this.plantRoomService.selectObjByCard();
-//       if(plantRoomList.size() > 0){
-//           plantRoomList.forEach((item) -> {
-//               PlantRoom plantRoom = this.plantRoomService.getObjById(item.getId());
-//               Map params = new HashMap();
-//               params.put("plantRoomId", plantRoom.getId());
-//               List<Rack> rackList = this.rackService.selectObjByMap(params);
-//               if(rackList.size() > 0){
-//                    rackList.forEach((rackItem) -> {
-//                        Rack rack = this.rackService.getObjById(rackItem.getId());
-//
-//                    });
-//               }
-//           });
-//
-//       }
-//       return ResponseUtil.ok(plantRoomList);
-//    }
 
     @ApiOperation("机柜卡片")
     @GetMapping("/cart")
     public Object cart(){
         List<PlantRoom> plantRoomList = this.plantRoomService.selectObjByCard();
-//        List list = new ArrayList();
-//        if(plantRoomList.size() > 0){
-//           plantRoomList.forEach((item) -> {
-//               PlantRoom plantRoom = this.plantRoomService.getObjById(item.getId());
-//               Map params = new HashMap();
-//               params.put("plantRoomId", plantRoom.getId());
-//               List<Rack> rackList = this.rackService.selectObjByMap(params);
-//               if(rackList.size() > 0){
-//                   List<Rack> racks = plantRoom.getRackList();
-//                    rackList.forEach((rackItem) -> {
-//                        Rack rack = this.rackService.getObjById(rackItem.getId());
-//                        params.clear();
-//                        params.put("rackId", rack.getId());
-//                        List<RsmsDevice> deviceList = this.rsmsDeviceService.selectObjByMap(params);
-//                        rack.setNumber(deviceList.size());
-//                        int size = 0;
-//                        for(RsmsDevice device : deviceList){
-//                            if(device.getStart() > 0 && device.getSize() > 0){
-//                                size += device.getSize();
-//                            }
-//                        }
-//                        rack.setSurplusSize(rack.getSize() - size);
-//                        racks.add(rack);
-//                    });
-//               }
-//               list.add(plantRoom);
-//           });
             return ResponseUtil.ok(plantRoomList);
     }
 

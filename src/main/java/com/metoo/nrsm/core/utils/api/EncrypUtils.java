@@ -24,19 +24,10 @@ import java.nio.charset.StandardCharsets;
  * 2，创建一个SM4加密/解密的实例。
  * 3，设置密钥和初始化向量（IV）。
  * 4，使用实例进行数据加密和解密操作
- *
- * 使用Bouncy Castle库来实现SM4加密算法。
- * 使用了128位的密钥和初始化向量（IV）。
- * 使用CBC模式进行加密，并且采用了填充方式（PaddedBufferedBlockCipher）来处理数据块大小不足的情况
  */
 
 @Slf4j
 public class EncrypUtils {
-
-//    // 128位密钥
-////    private static byte[] keyHex = Hex.decode("8521479630bacefc9517463820aaffef");
-////    // 128位初始化向量
-////    private static byte[] ivHex = Hex.decode("badefc96374185207abcdef357984610");
 
     private static String keyHex = "3451276098bacefc7723456789aaffef";
     private static String ivHex = "badefc33214568704abcdef564980721";
@@ -103,12 +94,6 @@ public class EncrypUtils {
 
         byte[] ivBytes = Hex.decode(ivHex);
 
-
-//        // 创建SM4算法实例
-//        SM4Engine engine = new SM4Engine();
-//
-//        // CBC模式
-//        PaddedBufferedBlockCipher cipher=new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
 
         BlockCipher engine = new SM4Engine();
         // CBC模式
@@ -199,45 +184,5 @@ public class EncrypUtils {
         return decryptedText;
     }
 
-//    public static void main(String[] args) throws Exception {
-//        // 原始数据
-//        String plaintext = "Hello, SM4 Encryption!";
-//        System.out.println("原始数据: " + plaintext);
-//
-//        // 128位密钥
-//        byte[] keyBytes = Hex.decode("8521479630bacefc9517463820aaffef");
-//        // 128位初始化向量
-//        byte[] ivBytes = Hex.decode("badefc96374185207abcdef357984610");
-//
-//        // 创建SM4算法实例
-//        BlockCipher engine = new SM4Engine();
-//        // CBC模式
-//        BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
-//
-//        // 初始化加密
-//        cipher.init(true, new ParametersWithIV(new KeyParameter(keyBytes), ivBytes));
-//
-//        // 加密数据
-//        byte[] input = plaintext.getBytes(StandardCharsets.UTF_8);
-//        byte[] output = new byte[cipher.getOutputSize(input.length)];
-//        int bytesProcessed = cipher.processBytes(input, 0, input.length, output, 0);
-//        cipher.doFinal(output, bytesProcessed);
-//
-//        // 加密结果
-//        String encryptedText = Hex.toHexString(output);
-//        System.out.println("加密结果: " + encryptedText);
-//
-//        // 初始化解密
-//        cipher.init(false, new ParametersWithIV(new KeyParameter(keyBytes), ivBytes));
-//
-//        // 解密数据
-//        byte[] decryptedBytes = new byte[cipher.getOutputSize(output.length)];
-//        int decryptedLength = cipher.processBytes(output, 0, output.length, decryptedBytes, 0);
-//        cipher.doFinal(decryptedBytes, decryptedLength);
-//
-//        // 解密结果
-//        String decryptedText = new String(decryptedBytes, StandardCharsets.UTF_8).trim();
-//        System.out.println("解密结果: " + decryptedText);
-//    }
 
 }

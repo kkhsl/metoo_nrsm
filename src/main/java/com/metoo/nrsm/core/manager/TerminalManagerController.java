@@ -309,16 +309,6 @@ public class TerminalManagerController {
             }
         }
 
-//        if(instance.getClient_hostname() != null && !instance.getClient_hostname().isEmpty()){
-//            params.clear();
-//            params.put("client_hostname", instance.getName());
-//            params.put("terminalId", instance.getId());
-//            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-//            if(terminals.size() > 0){
-//                Terminal terminal = terminals.get(0);
-//                return ResponseUtil.badArgument("主机名与(" + terminal.getName() + ")设备重复");
-//            }
-//        }
 
         // 验证日期
         if(instance.getWarranty_time() != null && instance.getPurchase_time() != null){
@@ -374,40 +364,6 @@ public class TerminalManagerController {
         return ResponseUtil.ok(terminal);
     }
 
-//
-//    // 终端修改上联设备
-//    @PutMapping("/update")
-//    public Object update(@RequestParam String uuid, String id){
-//        NetworkElement networkElement  = this.networkElementService.selectAccessoryByUuid(uuid);
-//        if(networkElement != null){
-//            Terminal terminal = this.terminalService.selectObjById(Long.parseLong(id));
-//            if(terminal != null){
-//                terminal.setDeviceName(networkElement.getDeviceName());
-//                terminal.setInterfaceName(networkElement.getInterfaceName());
-//                terminal.setUuid(networkElement.getUuid());
-//                int i = this.terminalService.update(terminal);
-//                if(i >= 1){
-//                    return ResponseUtil.ok();
-//                }
-//                return ResponseUtil.error();
-//            }
-//        }
-//        return ResponseUtil.badArgument();
-//    }
-//
-//    @ApiOperation("批量修改终端为资产终端")
-//    @PutMapping("/batch/update")
-//    public Object editTerminal(@RequestParam Long[] ids){
-//        if(ids.length > 0){
-//            int i = this.terminalService.editTerminalType(ids);
-//            if(i >= 1){
-//                return ResponseUtil.ok();
-//            }
-//        }
-//        return ResponseUtil.badArgument("请选择终端");
-//    }
-//
-////    @DeleteMapping(value = {"/{id}","/{ids}"})
     @DeleteMapping
     public Object delete(Long id, String ids){
         if(Strings.isNotBlank(ids) && ids.split(",").length > 0){
@@ -439,38 +395,6 @@ public class TerminalManagerController {
         return ResponseUtil.error();
     }
 
-//
-////    @PutMapping
-////    public Object update(@RequestBody Terminal instance){
-////        if(instance.getDeviceTypeId() != null && !instance.getDeviceTypeId().equals("")){
-////            DeviceType deviceType = this.deviceTypeService.selectObjById(instance.getDeviceTypeId());
-////            if(deviceType == null){
-////                return ResponseUtil.badArgument();
-////            }
-////        }
-////        int i = this.terminalService.update(instance);
-////        if(i >= 1){
-////            return ResponseUtil.ok();
-////        }else{
-////            return ResponseUtil.error("保存失败");
-////        }
-////    }
-//
-//    @Value("${batchImportTerminalFileName}")
-//    private String batchImportDeviceFileName;
-//    @Value("${batchImportFilePath}")
-//    private String batchImportFilePath;
-//
-//    @ApiOperation("下载模板")
-//    @GetMapping("/downTemp")
-//    public Object downTemplate(HttpServletResponse response) {
-//        boolean flag = DownLoadFileUtil.downloadTemplate(this.batchImportFilePath, this.batchImportDeviceFileName, response);
-//        if(flag){
-//            return ResponseUtil.ok();
-//        }else{
-//            return ResponseUtil.error();
-//        }
-//    }
 
 
 }

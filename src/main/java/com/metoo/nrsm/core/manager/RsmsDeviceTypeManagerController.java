@@ -85,24 +85,6 @@ public class RsmsDeviceTypeManagerController {
             }
         }
         return this.deviceTypeService.saveAndUpload(instance, onlineFile, offlineFile);
-//        String uuid = this.deviceTypeService.saveAndUpload(instance, onlineFile, offlineFile);
-//        if(uuid != null){
-//            try {
-//                uploadFileUtil.uploadFile(onlineFile, uuid, Global.WEBTERMINALPATH);
-//                try {
-//                    uploadFileUtil.uploadFile(offlineFile, uuid+0, Global.WEBTERMINALPATH);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//                    return ResponseUtil.badArgument("离线图片上传失败");
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//                return ResponseUtil.badArgument("在线图片上传失败");
-//            }
-//        }
-//        return ResponseUtil.ok("");
     }
 
     @ApiOperation("添加")

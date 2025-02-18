@@ -84,21 +84,6 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    // @Scheduled 默认使用单线程来执行定时任务。如果某次任务执行时间过长（例如阻塞操作），后续的任务会被延迟执行，甚至可能导致任务积压，最终无法执行
-//    @Scheduled(cron = "0 */5 * * * ?")
-//    @Scheduled(fixedDelay = 300000)
-//    public void api() {
-//        if(traffic) {
-//            Long time = System.currentTimeMillis();
-//            log.info("unit traffic Start=================================");
-//            try {
-//                apiExecUtils.exec2();
-//            } catch (Exception e) {
-//                log.error("Error occurred during API", e);
-//            }
-//            log.info("unit traffic End=================================" + (System.currentTimeMillis()-time));
-//        }
-//    }
 
 //    @Scheduled(cron = "0 */3 * * * ?")
     @Scheduled(fixedDelay = 180000)
@@ -276,21 +261,6 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    ////////////////
-
-//    @Scheduled(cron = "0 */2 * * * ?")
-//    public void ping() {
-//        if(flag){
-//            Long time = System.currentTimeMillis();
-//            log.info("ping Start......");
-//            try {
-//                pingService.exec();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            log.info("ping End......" + (System.currentTimeMillis()-time));
-//        }
-//    }
 
     @Scheduled(cron = "0 */30 * * * ?")
     public void pingSubnet() {

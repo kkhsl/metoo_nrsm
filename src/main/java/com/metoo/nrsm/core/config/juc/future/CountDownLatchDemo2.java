@@ -34,8 +34,6 @@ public class CountDownLatchDemo2 {
         }
         try {
 
-//                latch.countDown();
-
             System.out.println(latch.getCount());
 
             latch.await();// 等待结果线程池线程执行结束
