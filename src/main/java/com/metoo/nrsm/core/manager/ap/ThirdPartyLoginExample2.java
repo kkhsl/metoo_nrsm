@@ -35,7 +35,7 @@ public class ThirdPartyLoginExample2 {
                 .build()) {
 
             // 发送登录请求
-            HttpPost loginRequest = new HttpPost("http://192.168.5.205:60650/api/sysauth");
+            HttpPost loginRequest = new HttpPost("http://192.168.5.205:60650/api_back/sysauth");
 
             // 设置请求参数
             List<NameValuePair> params = new ArrayList<>();

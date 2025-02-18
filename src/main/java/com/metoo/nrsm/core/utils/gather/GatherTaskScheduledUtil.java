@@ -1,10 +1,10 @@
 package com.metoo.nrsm.core.utils.gather;
 
 import com.alibaba.fastjson.JSONObject;
-import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
+import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
 import com.metoo.nrsm.core.vo.LicenseVo;
@@ -19,8 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -60,29 +58,68 @@ public class GatherTaskScheduledUtil {
     private ILicenseService licenseService;
     @Autowired
     private AesEncryptUtils aesEncryptUtils;
+    @Autowired
+    private ApiService apiService;
 
     private final ReentrantLock lock = new ReentrantLock();
 
-//    @Scheduled(fixedDelay = 300000)
 //    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     public void api() {
+        Map generalLog = new LinkedHashMap();
+        generalLog.put("第一步：", "开始采集");
         if(traffic) {
             if (lock.tryLock()) {
+                generalLog.put("第二步：", "获取锁");
                 try {
                     Long time = System.currentTimeMillis();
-                    log.info("Unit traffic Start=================================");
+                    log.info("Unit traffic start=================================");
                     try {
-                        apiExecUtils.exec2();
+
+                        generalLog.put("第三步：", "流量推送开始");
+                        apiExecUtils.exec();
+                        generalLog.put("第四步：", "流量推送结束");
                     } catch (Exception e) {
                         log.error("Error unit traffic =================================" + e.getMessage());
                     }
-                    log.info("Unit traffic End=================================" + (System.currentTimeMillis()-time));
+                    generalLog.put("第五步：", "采集结束");
+                    log.info("Unit traffic end=================================" + (System.currentTimeMillis()-time));
                 } finally {
                     lock.unlock();
+                    generalLog.put("第六步：", "释放锁");
+                    try {
+                        // 推送远程日志
+                        String data = JSONObject.toJSONString(generalLog);
+                        apiService.general(data);
+                    } catch (Exception e) {
+                        log.info("Unit traffic error =================================" + e.getMessage());
+                        generalLog.put("第七步：", e.getMessage());
+                    }
                 }
             }
         }
     }
+
+//    @Scheduled(fixedDelay = 300000)
+//    @Scheduled(cron = "0 */1 * * * ?")
+//    public void api() {
+//        if(traffic) {
+//            if (lock.tryLock()) {
+//                try {
+//                    Long time = System.currentTimeMillis();
+//                    log.info("Unit traffic Start=================================");
+//                    try {
+//                        apiExecUtils.exec();
+//                    } catch (Exception e) {
+//                        log.error("Error unit traffic =================================" + e.getMessage());
+//                    }
+//                    log.info("Unit traffic End=================================" + (System.currentTimeMillis()-time));
+//                } finally {
+//                    lock.unlock();
+//                }
+//            }
+//        }
+//    }
 
 
 //    @Scheduled(cron = "0 */3 * * * ?")

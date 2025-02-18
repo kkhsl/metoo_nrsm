@@ -4,7 +4,6 @@ import com.metoo.nrsm.core.domain.R;
 import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.exception.CustomRuntimeException;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
-import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -184,7 +183,7 @@ public class TestController {
     @PostMapping("api2")
     public void testApi2() throws InterruptedException {
         Thread.sleep(300000);
-        log.info("api 2");
+        log.info("api_back 2");
     }
 
     public String callApi(String apiUrl, Object requestBody) {

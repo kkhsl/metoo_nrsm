@@ -46,9 +46,6 @@ public class LicenseVo {
     @ApiModelProperty("AC授权")
     private boolean licenseAC;
 
-    @ApiModelProperty("probe采集")
-    private boolean licenseProbe;
-
     @ApiModelProperty("已使用")
     private int useDay;
     @ApiModelProperty("未使用")

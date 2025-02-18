@@ -78,9 +78,6 @@ public class License extends IdEntity {
     @ApiModelProperty("AC授权")
     private boolean licenseAC;
 
-    @ApiModelProperty("probe采集")
-    private boolean licenseProbe;
-
     @ApiModelProperty("客户信息")
     private String customerInfo;
 
