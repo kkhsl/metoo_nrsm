@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ThirdPartyLoginExample5 {
 
     public static void main(String[] args) throws Exception {
-        GecoosApi gecoosApi = new DefaultGecoosApi("http://192.168.5.205:60650/api/");
+        GecoosApi gecoosApi = new DefaultGecoosApi("http://192.168.5.205:60650/api_back/");
         gecoosApi.login("admin");
 
         RequestParams requestParams = RequestBuilder.newBuilder().uri("apsearch")

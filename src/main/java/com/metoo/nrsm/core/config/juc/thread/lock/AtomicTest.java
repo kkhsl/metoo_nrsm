@@ -26,9 +26,7 @@ public class AtomicTest {
 
     static class MyInt{
         AtomicInteger num =  new AtomicInteger();
-//        int num = 0;
         public int getNum(){
-//            return num ++;
             return num.getAndIncrement();
         }
     }

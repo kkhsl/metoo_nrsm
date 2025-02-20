@@ -2,8 +2,13 @@ package com.metoo.nrsm.core.vo;
 
 
 import java.io.Serializable;
+import java.util.HashMap;
 
-public class Result implements Serializable {
+/**
+ * Result 类继承自 HashMap<String, Object>，这意味着 Result 类本质上是一个 Map。
+ * 当 Spring MVC 遇到这种对象时，它会自动将其转换为 JSON 格式响应，而不需要显式加上 @ResponseBody 注解
+ */
+public class Result /*extends HashMap<String, Object>*/ implements Serializable {
 
 
     private static final long serialVersionUID = 4267799476339238113L;

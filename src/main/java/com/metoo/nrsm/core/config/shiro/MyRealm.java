@@ -66,28 +66,11 @@ public class MyRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         String username = (String) authenticationToken.getPrincipal();
-//        String password = new String((char[]) authenticationToken.getCredentials());
-//        System.out.println("userName：" + username + " password：" + password);
         IUserService userService = (IUserService) ApplicationContextUtils.getBean("userServiceImpl");
 
         User user = userService.findByUserName(username);
         if(!ObjectUtils.isEmpty(user)){
             if(username.equals(user.getUsername())){
-              /* Collection sessions = sess
-                    if(username.equals(loginUsername)){  //这里的username也就是当前登录的username
-                        session.setTimeout(0);  //这里就把session清除，ionDAO.getActiveSessions();
-                for(Session scession: sessions){
-                    String loginUsername = String.valueOf(session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY));//获得session中已经登录用户的名字
-
-                    }
-                }*/
-                /**
-                 * 将获取到的用户信息封装成AuthticationInfo对象返回，此处封装成SimpleAuthticationInfo对象
-                 * 参数一：认证的实体信息，可以是从数据库中查询得到的实体类或用户名
-                 * 参数二：查询获得的登陆密码(md5 + salt)
-                 * 参数三：盐值(随即盐)
-                 * 参数四：当前Realm对象的名称，直接调用父类的getName()方法即可
-                 */
                 String userName = user.getUsername();
                 return new SimpleAuthenticationInfo(userName, user.getPassword(),  new MyByteSource(user.getSalt()), this.getName());
             }

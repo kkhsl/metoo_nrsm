@@ -5,7 +5,7 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.TerminalMapper">
 
     <select id="selectObjById" resultType="com.metoo.nrsm.entity.Terminal">
-                select * from metoo_terminal where id = #{id}
+        select * from metoo_terminal where id = #{id}
     </select>
 
     <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalDTO" resultType="com.metoo.nrsm.entity.Terminal">
@@ -89,6 +89,9 @@
             <if test="deviceIp != null and deviceIp != ''">
                 AND deviceIp = #{deviceIp}
             </if>
+            <if test="deviceName != null and deviceName != ''">
+                AND deviceName = #{deviceName}
+            </if>
             <if test="deviceUuid != null and deviceUuid != ''">
                 AND deviceUuid = #{deviceUuid}
             </if>
@@ -131,6 +134,9 @@
             <if test="deviceType != null">
                 AND deviceType = #{deviceType}
             </if>
+            <if test="deviceTypeId != null">
+                AND deviceTypeId = #{deviceTypeId}
+            </if>
             <if test="notDeviceTypeId != null">
                 AND deviceTypeId != #{notDeviceTypeId}
             </if>
@@ -166,7 +172,7 @@
                 OR deviceUuid2 = #{deviceUuid2}
             </if>
             <if test="deviceUuidAndDeviceTypeId != null and deviceUuidAndDeviceTypeId != ''">
-                OR (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34)
+                OR (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34 AND online = 1)
             </if>
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
@@ -227,18 +233,64 @@
                 AND online = #{online}
             </if>
             <if test="time != null">
-                AND addTime = (
+                AND `time` = (
                 SELECT
-                addTime
+                `time`
                 FROM
                 metoo_terminal_history
                 WHERE
-                addTime &lt;= #{time}
-                ORDER BY addTime DESC limit 1
+                time &lt;= #{time}
+                ORDER BY `time` DESC limit 1
                 )
             </if>
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+    <select id="selectPartitionTerminal" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+        SELECT *
+        FROM metoo_terminal
+        WHERE deviceUuid = #{deviceUuid} AND online = 1
+
+        UNION
+
+        SELECT *
+        FROM metoo_terminal
+        WHERE deviceUuid2 = #{deviceUuid}
+        AND deviceTypeId = 34
+        AND online = 1
+    </select>
+
+    <select id="selectPartitionTerminalHistory" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+        SELECT *
+        FROM metoo_terminal_history
+        WHERE deviceUuid = #{deviceUuid} AND online = 1
+        and `time` = (
+        SELECT
+        time
+        FROM
+        metoo_terminal_history
+        WHERE
+        `time` &lt;= #{time}
+        ORDER BY `time` DESC limit 1
+        )
+
+        UNION
+
+        -- 查询 2: 使用 deviceUuid2, deviceTypeId 和 ONLINE 条件
+        SELECT *
+        FROM metoo_terminal_history
+        WHERE deviceUuid2 = #{deviceUuid}
+        AND deviceTypeId = 34
+        AND online = 1 and `time` = (
+        SELECT
+        `time`
+        FROM
+        metoo_terminal_history
+        WHERE
+        time  &lt;= #{time}
+        ORDER BY `time` DESC limit 1
+        )
     </select>
 
 
@@ -874,8 +926,6 @@
             <id column="d2_duty" property="duty"></id>
             <id column="d2_deviceType" property="deviceType"></id>
             <id column="d2_os" property="os"></id>
-            <id column="d2_combined_port_protocol" property="combined_port_protocol"></id>
-            <id column="d2_combined_vendor_gen_family" property="combined_vendor_gen_family"></id>
             <id column="d2_online" property="online"></id>
         </collection>
     </resultMap>
@@ -883,7 +933,7 @@
     <select id="selectNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
           SELECT
               d1.id,
-              d1.deviceIp,
+              null as deviceIp,
               d1.deviceName,
               d1.deviceUuid,
               d1.deviceUuid2,
@@ -897,12 +947,10 @@
               d1.location,
               d1.duty,
               3 AS deviceType,
-              d1.combined_port_protocol,
-              d1.combined_vendor_gen_family,
               d1.online,
 
               d2.id d2_id,
-              d2.deviceIp d2_deviceIp,
+              null as d2_deviceIp,
               d2.deviceName d2_deviceName,
               d2.deviceUuid d2_deviceUuid,
               d2.deviceUuid2 d2_deviceUuid2,
@@ -919,8 +967,6 @@
               d2.duty d2_duty,
               d2.deviceType d2_deviceType,
               d2.os d2_os,
-              d2.combined_port_protocol d2_combined_port_protocol,
-              d2.combined_vendor_gen_family d2_combined_vendor_gen_family,
               d2.online d2_online
             FROM (
                 SELECT
@@ -939,69 +985,79 @@
     </select>
 
     <select id="selectHistoryNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
-          SELECT
-              d1.id,
-              d1.deviceIp,
-              d1.deviceName,
-              d1.deviceUuid,
-              d1.deviceTypeId,
-              d1.v4ip, d1.v6ip,
-              d1.mac,
-              d1.vlan,
-              d1.macVendor,
-              d1.remoteDevice,
-              d1.remotePort,
-              d1.location,
-              d1.duty,
-              3 AS deviceType,
-              d1.os,
-              d1.combined_port_protocol,
-              d1.combined_vendor_gen_family,
-              d1.online,
+        SELECT
+        d1.id,
+        null as deviceIp,
+        d1.deviceName,
+        d1.deviceUuid,
+        d1.deviceUuid2,
+        d1.deviceTypeId,
+        d1.v4ip, d1.v6ip,
+        d1.mac,
+        d1.vlan,
+        d1.macVendor,
+        d1.remoteDevice,
+        d1.remotePort,
+        d1.location,
+        d1.duty,
+        3 AS deviceType,
+        d1.online,
+        d1.time,
 
-              d2.id d2_id,
-              d2.deviceIp d2_deviceIp,
-              d2.deviceName d2_deviceName,
-              d2.deviceUuid d2_deviceUuid,
---               17 as d2_deviceTypeId,
-              d2.deviceTypeId d2_deviceTypeId,
-              d2.v4ip d2_v4ip,
-              d2.v6ip d2_v6ip,
-              d2.mac d2_mac,
-              d2.vlan d2_vlan,
-              d2.macVendor d2_macVendor,
-              d2.remoteDevice d2_remoteDevice,
-              d2.remotePort d2_remotePort,
-              d2.location d2_location,
-              d2.duty d2_duty,
-              d2.deviceType d2_deviceType,
-              d2.os d2_os,
-              d2.combined_port_protocol d2_combined_port_protocol,
-              d2.combined_vendor_gen_family d2_combined_vendor_gen_family,
-              d2.online d2_online
-            FROM (
-                SELECT
-                  *
-                FROM
-                    metoo_terminal_history
-                WHERE
-                    deviceUuid2 = #{deviceUuid}
-                AND deviceName LIKE 'NSwitch%'
-                AND deviceTypeId NOT IN (34, 9)
-                GROUP BY
-                    deviceUuid
-                )d1
-            JOIN metoo_terminal_history d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
-            WHERE d2.deviceName LIKE 'NSwitch%'
-            AND d2.addTime = (
-            SELECT
-            addTime
-            FROM
-            metoo_terminal_history
-            WHERE
-            addTime &lt;= #{time}
-            ORDER BY addTime DESC limit 1
-            )
+        d2.id d2_id,
+        null as d2_deviceIp,
+        d2.deviceName d2_deviceName,
+        d2.deviceUuid d2_deviceUuid,
+        d2.deviceUuid2 d2_deviceUuid2,
+        --               17 as d2_deviceTypeId,
+        d2.deviceTypeId d2_deviceTypeId,
+        d2.v4ip d2_v4ip,
+        d2.v6ip d2_v6ip,
+        d2.mac d2_mac,
+        d2.vlan d2_vlan,
+        d2.macVendor d2_macVendor,
+        d2.remoteDevice d2_remoteDevice,
+        d2.remotePort d2_remotePort,
+        d2.location d2_location,
+        d2.duty d2_duty,
+        d2.deviceType d2_deviceType,
+        d2.os d2_os,
+        d2.online d2_online,
+        d2.time d2_time
+        FROM (
+        SELECT
+        *
+        FROM
+        metoo_terminal_history
+        WHERE
+        deviceUuid2 = #{deviceUuid}
+        AND deviceName LIKE 'NSwitch%'
+        AND deviceTypeId NOT IN (34, 9)
+        AND `time` = (
+        SELECT
+        `time`
+        FROM
+        metoo_terminal_history
+        WHERE
+        `time` &lt;= #{time}
+        ORDER BY `time` DESC limit 1
+        )
+        GROUP BY
+        deviceUuid
+        )d1
+        JOIN metoo_terminal_history d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
+
+        WHERE d2.deviceName LIKE 'NSwitch%'
+
+        AND d2.time = (
+        SELECT
+        `time`
+        FROM
+        metoo_terminal_history
+        WHERE
+        `time` &lt;= #{time}
+        ORDER BY `time` DESC limit 1
+        )
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Terminal" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
@@ -1291,9 +1347,6 @@
     <update id="update" parameterType="com.metoo.nrsm.entity.Terminal">
         UPDATE metoo_terminal
         <set>
-            <if test="addTime != null">
-                addTime = #{addTime},
-            </if>
             <if test="updateTime != null">
                 updateTime = #{updateTime},
             </if>
@@ -1633,7 +1686,8 @@
         deviceUuid2,
         deviceName2,
         deviceIp2,
-        devicePort2
+        devicePort2,
+        `time`
         )
         VALUES
         <foreach collection ="list" item="item" separator ="," >
@@ -1674,7 +1728,8 @@
             #{item.deviceUuid2},
             #{item.deviceName2},
             #{item.deviceIp2},
-            #{item.devicePort2}
+            #{item.devicePort2},
+            #{item.time}
             )
         </foreach>
     </insert>
@@ -1683,9 +1738,6 @@
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             UPDATE metoo_terminal
             <set>
-                <if test="item.addTime != null">
-                    addTime = #{item.addTime},
-                </if>
                 <if test="item.updateTime != null">
                     updateTime = #{item.updateTime},
                 </if>
@@ -1772,6 +1824,9 @@
                 </if>
                 <if test="item.macVendor != ''">
                     macVendor = #{item.macVendor},
+                </if>
+                <if test="item.time != null">
+                    `time` = #{item.time},
                 </if>
             </set>
             WHERE id = #{item.id}

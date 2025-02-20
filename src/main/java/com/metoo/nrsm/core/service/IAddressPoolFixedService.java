@@ -10,11 +10,6 @@ import com.metoo.nrsm.entity.AddressPoolFixed;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-04-10 9:46
- */
 public interface IAddressPoolFixedService {
 
     AddressPoolFixed selectObjById(Long id);

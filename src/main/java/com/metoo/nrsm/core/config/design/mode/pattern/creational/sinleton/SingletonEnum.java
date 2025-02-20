@@ -1,4 +1,4 @@
-package com.metoo.nrsm.core.config.design.mode.pattern.creational.signleton;
+package com.metoo.nrsm.core.config.design.mode.pattern.creational.sinleton;
 
 /**
  * @author HKK

@@ -61,7 +61,7 @@ public class EncrypUtils {
     }
 
 
-    public static String encrypt(String plainText) throws Exception {
+    public static String encrypt(String plainText) {
 
         byte[] keyBytes = Hex.decode(keyHex);
 
@@ -90,7 +90,11 @@ public class EncrypUtils {
 
         int outputLength = cipher.processBytes(input, 0, input.length, output, 0);
 
-        cipher.doFinal(output, outputLength);
+        try {
+            cipher.doFinal(output, outputLength);
+        } catch (InvalidCipherTextException e) {
+            e.printStackTrace();
+        }
 
         // 加密结果
         return Hex.toHexString(output).toUpperCase();

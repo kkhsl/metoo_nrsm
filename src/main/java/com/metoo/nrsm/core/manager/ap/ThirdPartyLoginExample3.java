@@ -32,7 +32,7 @@ public class ThirdPartyLoginExample3 {
                 .build();
 
         // 第三方登录接口 URL
-        String loginUrl = "http://192.168.5.205:60650/api/sysauth";
+        String loginUrl = "http://192.168.5.205:60650/api_back/sysauth";
 
         // 准备登录表单数据
         List<NameValuePair> loginParams = new ArrayList<>();
@@ -60,25 +60,9 @@ public class ThirdPartyLoginExample3 {
             System.out.println(responseBody);
 
             // Ac控制器
-//            List<NameValuePair> acParams = new ArrayList<>();
-//            acParams.add(new BasicNameValuePair("numperpage", "10"));
-//            acParams.add(new BasicNameValuePair("pagenum", "1"));
-//
-//            HttpPost acRequest = new HttpPost(loginUrl);
-//            acRequest.setEntity(new UrlEncodedFormEntity(acParams));
-//            // 执行登录请求
-//            HttpResponse acResponse = httpClient.execute(loginRequest);
-//            // 检查登录是否成功
-//            if (acResponse.getStatusLine().getStatusCode() == 200) {
-//                // 获取响应实体
-//                HttpEntity otherApiEntity = acResponse.getEntity();
-//                // 将响应实体转换为字符串输出
-//                String otherApiResponseContent = EntityUtils.toString(otherApiEntity);
-//                System.out.println(otherApiResponseContent);
-//            }
 
             // 创建 GET 请求
-            HttpGet otherApiRequest = new HttpGet("http://192.168.5.205:60650/api/apsearch?numperpage=10&pagenum=1&reverse=&sortkey=&searchkey=&withstatus=&withversion=&withmodel=&template=&withcustom=&withreg=");
+            HttpGet otherApiRequest = new HttpGet("http://192.168.5.205:60650/api_back/apsearch?numperpage=10&pagenum=1&reverse=&sortkey=&searchkey=&withstatus=&withversion=&withmodel=&template=&withcustom=&withreg=");
             // 执行其他接口请求
             HttpResponse otherApiResponse = httpClient.execute(otherApiRequest);
 

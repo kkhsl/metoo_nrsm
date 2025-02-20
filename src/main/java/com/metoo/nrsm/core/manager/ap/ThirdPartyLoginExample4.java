@@ -37,7 +37,7 @@ public class ThirdPartyLoginExample4 {
                 .build();
 
         // 其他接口的 URL
-        String getrandom = "http://192.168.5.205:60650/api/getrandom";
+        String getrandom = "http://192.168.5.205:60650/api_back/getrandom";
 
         // 创建 GET 请求
         HttpGet getrandomApiRequest = new HttpGet(getrandom);
@@ -59,7 +59,7 @@ public class ThirdPartyLoginExample4 {
 
 
         // 第三方登录接口 URL
-        String loginUrl = "http://192.168.5.205:60650/api/sysauth";
+        String loginUrl = "http://192.168.5.205:60650/api_back/sysauth";
 
         // 构造登录请求
         HttpPost loginRequest = new HttpPost(loginUrl);
@@ -90,7 +90,7 @@ public class ThirdPartyLoginExample4 {
 
 
             // 其他接口的 URL
-            String apsearch = "http://192.168.5.205:60650/api/apsearch?numperpage=10&pagenum=1&reverse=&sortkey=&searchkey=&withstatus=&withversion=&withmodel=&template=&withcustom=&withreg=";
+            String apsearch = "http://192.168.5.205:60650/api_back/apsearch?numperpage=10&pagenum=1&reverse=&sortkey=&searchkey=&withstatus=&withversion=&withmodel=&template=&withcustom=&withreg=";
 
             // 创建 GET 请求
             HttpGet apsearchApiRequest = new HttpGet(apsearch);

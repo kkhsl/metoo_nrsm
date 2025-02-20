@@ -22,8 +22,6 @@ public class MyRedisManager<k,v> {
 
 
     public v get(k k) throws CacheException {
-        // 第一种
-        //return (v) getRedisTemplate().opsForValue().get(k.toString());
 
         // 第二种
         return (v) getRedisTemplate().opsForHash().get(this.cacheName, k.toString());
@@ -32,8 +30,6 @@ public class MyRedisManager<k,v> {
     public v put(k k, v v) throws CacheException {
         System.out.println("put key : " + k);
         System.out.println("put v " + v);
-        // 第一种
-        //getRedisTemplate().opsForValue().set(k.toString(), v);
         // 第二种
         getRedisTemplate().opsForHash().put(this.cacheName, k.toString(), v);
         return null;
@@ -44,10 +40,6 @@ public class MyRedisManager<k,v> {
         return (v) getRedisTemplate().opsForHash().delete(this.cacheName, k.toString());
     }
 
-//    public v rename(k k) throws CacheException {
-//
-//        return (v) getRedisTemplate().opsForHash().
-//    }
 
 
     public void clear() throws CacheException {
@@ -83,7 +75,6 @@ public class MyRedisManager<k,v> {
             Map.Entry<Object, Object> entry = cursor.next();
             result.put(entry.getKey(), entry.getValue());
         }
-//        return result;
     }
 
 

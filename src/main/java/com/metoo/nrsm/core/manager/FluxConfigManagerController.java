@@ -18,11 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.*;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-04-01 11:36
- */
+
 @RestController
 @RequestMapping("/admin/flux/config")
 public class FluxConfigManagerController {

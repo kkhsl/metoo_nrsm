@@ -42,15 +42,6 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
     private INetworkElementService networkElementService;
     @Autowired
     private ICredentialService credentialService;
-//    @Autowired
-//    DeviceSshDataService sshDataService;
-//    @Autowired
-//    DiscoverDeviceService deviceService;
-//    @Autowired
-//    NodeMapper nodeMapper;
-//    @Autowired
-//    CredentialMapper credentialMapper;
-
     public DiscoverWebSSHServiceImpl() {
     }
 
@@ -100,108 +91,6 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
         }
     }
 
-//    private void connectToSSH(SSHConnectInfo sshConnectInfo, WebSSHData webSSHData, WebSocketSession webSocketSession) throws JSchException, IOException {
-//        Session session = null;
-//        PropertiesDemo config = new PropertiesDemo();
-//        config.put("StrictHostKeyChecking", "no");
-//        String deviceUuid = webSSHData.getDeviceUuid();
-//        if (!MyStringUtils.isEmpty(deviceUuid)) {
-//            Integer type = webSSHData.getType();
-//            if (null == type) {
-//                type = 1;
-//            }
-//
-//            if (1 == type) {
-//                DiscoverDevice device = this.deviceService.getDiscoverDeviceByUuid(deviceUuid);
-//                if (device == null) {
-//                    return;
-//                }
-//
-//                DeviceCredential credential = this.sshDataService.getSshData(device.getCredentialUuid());
-//                if (credential == null) {
-//                    return;
-//                }
-//
-//                session = sshConnectInfo.getjSch().getSession(credential.getLoginName(), device.getIpAddress(), 22);
-//                if (!MyStringUtils.isEmpty(credential.getLoginPassword())) {
-//                    session.setPassword(Encodes.decodeBase64Key(credential.getLoginPassword()));
-//                }
-//            } else if (2 == type) {
-//                Node node = this.nodeMapper.getTheNodeByUuid(deviceUuid);
-//                if (ObjectUtils.isEmpty(node)) {
-//                    return;
-//                }
-//
-//                String credentialUuid = node.getCredentialUuid();
-//                String ipv4 = node.getIp();
-//                if (node.getIp().contains("(")) {
-//                    String ipAddress = node.getIp().substring(0, node.getIp().lastIndexOf("("));
-//                    Node mainNode = this.nodeMapper.getNodeByIp(ipAddress);
-//                    if (!ObjectUtils.isEmpty(mainNode)) {
-//                        credentialUuid = mainNode.getCredentialUuid();
-//                        ipv4 = mainNode.getIp();
-//                    }
-//                }
-//
-//                if (org.apache.commons.lang3.MyStringUtils.isEmpty(credentialUuid)) {
-//                    return;
-//                }
-//
-//                CredentialEntity credentialEntity = this.credentialMapper.queryCredentialByUuid(credentialUuid);
-//                if (!TotemsIp4Utils.isIp4(ipv4)) {
-//                    String trueIpv4 = TotemsIp4Utils.getMatcherIP4(ipv4);
-//                    ipv4 = trueIpv4;
-//                }
-//
-//                session = sshConnectInfo.getjSch().getSession(credentialEntity.getLoginName(), ipv4, 22);
-//                log.info("credentialEntity:{}", JSONObject.toJSONString(credentialEntity));
-//                BASE64Decoder decoder = new BASE64Decoder();
-//                String pwd = new String(decoder.decodeBuffer(credentialEntity.getLoginPassword()), "UTF-8");
-//                log.info("设备：{},原密码：{}", node.getIp(), credentialEntity.getLoginPassword());
-//                if (pwd.length() > 10) {
-//                    pwd = pwd.substring(3);
-//                    pwd = pwd.substring(0, pwd.length() - 7);
-//                }
-//
-//                if (!TotemsIp4Utils.isIp4(ipv4)) {
-//                    String masterIP4 = TotemsIp4Utils.getMatcherIP4(ipv4);
-//                    if (org.apache.commons.lang3.MyStringUtils.isNotBlank(masterIP4)) {
-//                        node.setIp(masterIP4);
-//                    }
-//                }
-//
-//                log.info("连接shell->host:{},port:{},username:{},pwd:{}", new Object[]{node.getIp(), node.getPortNumber(), credentialEntity.getLoginName(), credentialEntity.getLoginPassword()});
-//                session.setPassword(pwd);
-//            }
-//
-//            session.setConfig(config);
-//            session.setDaemonThread(true);
-//            session.connect(30000);
-//            Channel channel = session.openChannel("shell");
-//            channel.connect(3000);
-//            sshConnectInfo.setChannel(channel);
-//            this.transToSSH(channel, "\r");
-//            InputStream inputStream = channel.getInputStream();
-//
-//            try {
-//                byte[] buffer = new byte[1024];
-//                boolean var24 = false;
-//
-//                int i;
-//                while ((i = inputStream.read(buffer)) != -1) {
-//                    this.sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
-//                }
-//            } finally {
-//                session.disconnect();
-//                channel.disconnect();
-//                if (inputStream != null) {
-//                    inputStream.close();
-//                }
-//
-//            }
-//
-//        }
-//    }
 
     public void connectToSSH(SSHConnectInfo sshConnectInfo, WebSSHData webSSHData, WebSocketSession webSocketSession) throws JSchException, IOException {
         String deviceUuid = webSSHData.getDeviceUuid();
@@ -217,12 +106,7 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
                 }
                 Session session1 = sshConnectInfo.getjSch().getSession(credential.getLoginName(), ne.getIp(), ne.getPort());
                 Session session = sshConnectInfo.getjSch().getSession(credential.getLoginName(), ne.getIp(), ne.getPort());
-                //        BASE64Decoder decoder = new BASE64Decoder();
-                //        String pwd = new String(decoder.decodeBuffer(password), "UTF-8");
-                //        if (pwd.length() > 10) {
-                //            pwd = pwd.substring(3);
-                //            pwd = pwd.substring(0, pwd.length() - 7);
-                //        }
+
                 if(!StringUtil.isEmpty(credential.getLoginPassword())){
                     session.setPassword(credential.getLoginPassword());
                 }
@@ -236,17 +120,6 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
                 Channel channel = session.openChannel("shell");// sftp
                 // 连接通道
                 channel.connect(3000);
-
-//                if (channel != null) {
-//                    OutputStream outputStream = channel.getOutputStream();
-//                    outputStream.write("sudo -S ".getBytes());
-//                    outputStream.flush();
-//                }
-
-                //sftp 通道
-                //        ChannelSftp channelSftp= (ChannelSftp) session.openChannel("sftp");
-                //连接通道
-                //        channelSftp.connect();
 
                 sshConnectInfo.setChannel(channel);
                 this.transToSSH(channel, "\r");
@@ -277,12 +150,6 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
 
         Session session = sshConnectInfo.getjSch().getSession(loginName, ipv4, 22);
 
-//        BASE64Decoder decoder = new BASE64Decoder();
-//        String pwd = new String(decoder.decodeBuffer(password), "UTF-8");
-//        if (pwd.length() > 10) {
-//            pwd = pwd.substring(3);
-//            pwd = pwd.substring(0, pwd.length() - 7);
-//        }
         session.setPassword(password);
 
         Properties config = new Properties();
@@ -294,11 +161,6 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
         Channel channel = session.openChannel("shell");
         // 连接通道
         channel.connect(3000);
-
-        //sftp 通道
-//        ChannelSftp channelSftp= (ChannelSftp) session.openChannel("sftp");
-        //连接通道
-//        channelSftp.connect();
 
         sshConnectInfo.setChannel(channel);
         this.transToSSH(channel, "\r");

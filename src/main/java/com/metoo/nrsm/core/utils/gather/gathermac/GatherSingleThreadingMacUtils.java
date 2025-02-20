@@ -239,12 +239,21 @@ public class GatherSingleThreadingMacUtils {
         try {
             terminalService.syncTerminal(date);
 
+            // 政务外网
+//          this.terminalService.v4Tov6Terminal(date);
+
+            // 政务外网
+            // 根据vendor判断终端类型
+            this.terminalService.writeTerminalType();
+            // 政务外网
+            // 统计终端是否属于双栈终端
+            this.terminalService.dualStackTerminal();
+
             updateTerminalDeviceTypeToNSwitch();
 
             terminalService.updateVMHostDeviceType();
 
             terminalService.updateVMDeviceType();
-
 
             terminalService.updateVMDeviceIp();
 
@@ -281,7 +290,6 @@ public class GatherSingleThreadingMacUtils {
             DeviceType deviceType2 = this.deviceTypeService.selectObjByType(27);
 
             for (Terminal terminal : terminals) {
-//                [{"application_protocol":"ssh","port_num":"22"}]
                 if(StringUtils.isNotEmpty(terminal.getCombined_port_protocol())){
                     JSONArray jsonArray = JSONArray.parseArray(terminal.getCombined_port_protocol());
                     // 用于存储所有的端口号

@@ -47,8 +47,6 @@ public class TerminalManagerControllerApi {
     private ITerminalUnitService terminalUnitService;
     @Autowired
     private ITerminalMacIpv6Service terminalMacIpv6Service;
-    @Autowired
-    private IMacService macService;
 
     @ApiOperation("设备 Mac (DT))")
     @GetMapping(value = {"/dt"})
@@ -92,15 +90,12 @@ public class TerminalManagerControllerApi {
 
         // 根据是否为历史数据来查询
         params.put("deviceUuid", uuid);
-        params.put("deviceUuidAndDeviceTypeId", uuid);
-        params.put("online", true);
-
         List<Terminal> terminals;
         if (isHistoricalData) {
             params.put("time", time);
-            terminals = terminalService.selectObjHistoryByMap(params);
+            terminals = terminalService.selectPartitionTerminalHistory(params);
         } else {
-            terminals = terminalService.selectObjByMap(params);
+            terminals = terminalService.selectPartitionTerminal(params);
         }
 
         // 如果有终端数据，加入到列表中
@@ -111,11 +106,13 @@ public class TerminalManagerControllerApi {
         // 查询NSwitch数据
         params.clear();
         params.put("deviceUuid", uuid);
-        params.put("online", true);
-        List<Terminal> nswitchList = isHistoricalData ?
-                terminalService.selectHistoryNSwitchToTopology(params) :
-                terminalService.selectNSwitchToTopology(params);
-
+        List<Terminal> nswitchList = new ArrayList<>();
+        if (isHistoricalData) {
+            params.put("time", time);
+            nswitchList = terminalService.selectHistoryNSwitchToTopology(params);
+        } else {
+            nswitchList = terminalService.selectNSwitchToTopology(params);
+        }
         if (nswitchList != null && !nswitchList.isEmpty()) {
             for (Terminal obj : nswitchList) {
                 for (Terminal terminal : obj.getTerminalList()) {

@@ -62,15 +62,6 @@ public class RackManagerController {
         return ResponseUtil.ok();
     }
 
-//    @ApiOperation("机柜列表")
-//    @PostMapping("/list")
-//    public Object list(@RequestBody RackDTO dto){
-//        Page<Rack> page = this.rackService.findBySelect(dto);
-//        if(page.size() > 0){
-//            return ResponseUtil.ok(new PageInfoMMMM<Rack>(page));
-//        }
-//        return ResponseUtil.ok();
-//    }
 
     @ApiOperation("机柜列表")
     @PostMapping("/list")
@@ -129,18 +120,7 @@ public class RackManagerController {
             }
         }
         PlantRoom obj = this.plantRoomService.getObjById(instance.getPlantRoomId());
-//        if(obj != null){
-//            instance.setPlantRoomId(obj.getId());
-//            instance.setPlantRoomName(obj.getName());
-//        }else{
-//            // 查询预置机房
-////            PlantRoom plantRoom = new PlantRoom();
-////            plantRoom.setDeleteStatus(1);
-////            List<PlantRoomVO> vo = this.plantRoomMapper.query(plantRoom);
-////            instance.setPlantRoomId(vo.get(0).getId());
-////            instance.setPlantRoomName(vo.get(0).getName());
-//            return ResponseUtil.badArgument("请选择机房");
-//        }
+
         if(obj == null){
             return ResponseUtil.badArgument("请选择机房");
         }

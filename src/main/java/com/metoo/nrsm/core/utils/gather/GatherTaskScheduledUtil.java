@@ -1,11 +1,17 @@
 package com.metoo.nrsm.core.utils.gather;
 
+import com.alibaba.fastjson.JSONObject;
+import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
+import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.date.DateTools;
+import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
+import com.metoo.nrsm.core.vo.LicenseVo;
 import com.metoo.nrsm.entity.FlowStatistics;
 import com.metoo.nrsm.entity.FluxDailyRate;
 import com.metoo.nrsm.entity.GradeWeight;
+import com.metoo.nrsm.entity.License;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -50,56 +54,73 @@ public class GatherTaskScheduledUtil {
     private IFlowStatisticsService flowStatisticsService;
     @Autowired
     private ApiExecUtils apiExecUtils;
+    @Autowired
+    private ILicenseService licenseService;
+    @Autowired
+    private AesEncryptUtils aesEncryptUtils;
+    @Autowired
+    private ApiService apiService;
 
     private final ReentrantLock lock = new ReentrantLock();
 
-
-    @Scheduled(fixedDelay = 6000)
-    public void test() throws InterruptedException {
-
-        Thread.sleep(120000);
-
-        log.info("Test fixedDelay =================================");
-
-    }
-
-
-//    @Scheduled(fixedDelay = 300000)
 //    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     public void api() {
+        Map generalLog = new LinkedHashMap();
+        generalLog.put("第一步：", "开始采集");
         if(traffic) {
             if (lock.tryLock()) {
+                generalLog.put("第二步：", "获取锁");
                 try {
                     Long time = System.currentTimeMillis();
-                    log.info("Unit traffic Start=================================");
+                    log.info("Unit traffic start=================================");
                     try {
-                        apiExecUtils.exec2();
+
+                        generalLog.put("第三步：", "流量推送开始");
+                        apiExecUtils.exec();
+                        generalLog.put("第四步：", "流量推送结束");
                     } catch (Exception e) {
                         log.error("Error unit traffic =================================" + e.getMessage());
                     }
-                    log.info("Unit traffic End=================================" + (System.currentTimeMillis()-time));
+                    generalLog.put("第五步：", "采集结束");
+                    log.info("Unit traffic end=================================" + (System.currentTimeMillis()-time));
                 } finally {
                     lock.unlock();
+                    generalLog.put("第六步：", "释放锁");
+                    try {
+                        // 推送远程日志
+                        String data = JSONObject.toJSONString(generalLog);
+                        apiService.general(data);
+                    } catch (Exception e) {
+                        log.info("Unit traffic error =================================" + e.getMessage());
+                        generalLog.put("第七步：", e.getMessage());
+                    }
                 }
             }
         }
     }
 
-    // @Scheduled 默认使用单线程来执行定时任务。如果某次任务执行时间过长（例如阻塞操作），后续的任务会被延迟执行，甚至可能导致任务积压，最终无法执行
-//    @Scheduled(cron = "0 */5 * * * ?")
 //    @Scheduled(fixedDelay = 300000)
+//    @Scheduled(cron = "0 */1 * * * ?")
 //    public void api() {
 //        if(traffic) {
-//            Long time = System.currentTimeMillis();
-//            log.info("unit traffic Start=================================");
-//            try {
-//                apiExecUtils.exec2();
-//            } catch (Exception e) {
-//                log.error("Error occurred during API", e);
+//            if (lock.tryLock()) {
+//                try {
+//                    Long time = System.currentTimeMillis();
+//                    log.info("Unit traffic Start=================================");
+//                    try {
+//                        apiExecUtils.exec();
+//                    } catch (Exception e) {
+//                        log.error("Error unit traffic =================================" + e.getMessage());
+//                    }
+//                    log.info("Unit traffic End=================================" + (System.currentTimeMillis()-time));
+//                } finally {
+//                    lock.unlock();
+//                }
 //            }
-//            log.info("unit traffic End=================================" + (System.currentTimeMillis()-time));
 //        }
 //    }
+
 
 //    @Scheduled(cron = "0 */3 * * * ?")
     @Scheduled(fixedDelay = 180000)
@@ -116,7 +137,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    //    @Scheduled(cron = "0 */3 * * * ?")
+
     @Scheduled(fixedDelay = 180000)
     public void dhcp6() {
         if(flag){
@@ -277,21 +298,6 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    ////////////////
-
-//    @Scheduled(cron = "0 */2 * * * ?")
-//    public void ping() {
-//        if(flag){
-//            Long time = System.currentTimeMillis();
-//            log.info("ping Start......");
-//            try {
-//                pingService.exec();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            log.info("ping End......" + (System.currentTimeMillis()-time));
-//        }
-//    }
 
     @Scheduled(cron = "0 */30 * * * ?")
     public void pingSubnet() {
@@ -327,7 +333,10 @@ public class GatherTaskScheduledUtil {
             Long time = System.currentTimeMillis();
             log.info("Probe start......");
             try {
-                probeService.scanByTerminal();
+                // 解析授权码，是否开启扫描
+                if(getLicenseProbe()){
+                    probeService.scanByTerminal();
+                }
             } catch (Exception e) {
                 log.error("Error occurred during Probe", e);
             }
@@ -335,6 +344,18 @@ public class GatherTaskScheduledUtil {
         }
     }
 
+    public boolean getLicenseProbe(){
+        License obj = this.licenseService.query().get(0);
+        String uuid = SystemInfoUtils.getSerialNumber();
+
+        if (!uuid.equals(obj.getSystemSN())) {
+           return false;
+        }
+        String licenseInfo = this.aesEncryptUtils.decrypt(obj.getLicense());
+        LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+        return licenseVo.isLicenseProbe();
+
+    }
 
     @Scheduled(cron = "59 59 23 * * ?")
     public void fluxDailyRate() {

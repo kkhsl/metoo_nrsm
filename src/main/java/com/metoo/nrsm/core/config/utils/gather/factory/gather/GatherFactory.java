@@ -2,6 +2,8 @@ package com.metoo.nrsm.core.config.utils.gather.factory.gather;
 
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.impl.GatherOsScanVersin;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.impl.TrafficFactoryImpl;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.impl.TrafficFactoryImplYingtan;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.impl.TrafficFactoryImplYuehu;
 import com.metoo.nrsm.core.utils.Global;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +21,13 @@ public class GatherFactory {
             return null;
         }
         if(shapeType.equalsIgnoreCase(Global.TRAFFIC)){
-//            return new TrafficByGatewayFactoryImpl();
-            return new TrafficFactoryImpl();
+            if(Global.env.equals("probe")){
+                return new TrafficFactoryImpl();
+            } if(Global.env.equals("yuehu")){// yuehu
+                return new TrafficFactoryImplYuehu();
+            } if(Global.env.equals("dev")){// yingtan
+                return new TrafficFactoryImplYingtan();
+            }
         } else if(shapeType.equalsIgnoreCase("fileToProbe")){
             return new GatherOsScanVersin();
 

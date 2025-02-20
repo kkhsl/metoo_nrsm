@@ -1,16 +1,28 @@
 package com.metoo.nrsm.core.manager;
 
-import com.metoo.nrsm.core.manager.utils.TestUtils;
-import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.utils.api.ApiExecUtils;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
-import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
+import com.metoo.nrsm.core.domain.R;
+import com.metoo.nrsm.core.utils.api.ApiService;
+import com.metoo.nrsm.core.utils.exception.CustomRuntimeException;
+import com.metoo.nrsm.core.utils.system.DiskInfo;
+import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OperatingSystem;
+import oshi.util.Util;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -21,6 +33,185 @@ import java.util.*;
 @RequestMapping("/admin/test")
 @RestController
 public class TestController {
+
+    @Autowired
+    private ApiService apiService;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @GetMapping("exception")
+    public R<?> exception(){
+        throw new CustomRuntimeException(400, "测试自定义运行异常类");
+    }
+
+
+
+    @GetMapping("metrics")
+    public String metrics() {
+//        return SystemUsageUtils.rate();
+
+
+        // 创建 SystemInfo 实例来获取系统信息
+        SystemInfo systemInfo = new SystemInfo();
+
+        // 获取硬件信息
+        CentralProcessor processor = systemInfo.getHardware().getProcessor();
+        GlobalMemory memory = systemInfo.getHardware().getMemory();
+
+        // 获取操作系统信息
+        OperatingSystem os = systemInfo.getOperatingSystem();
+        FileSystem fileSystem = os.getFileSystem();
+
+        // 获取 CPU 使用情况
+        long[] prevTicks = processor.getSystemCpuLoadTicks();
+        Util.sleep(1000);  // 等待 1 秒钟以便获取负载变化
+        long[] ticks = processor.getSystemCpuLoadTicks();
+        double cpuLoad = processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100;
+
+        // 获取内存信息
+        long totalMemory = memory.getTotal();  // 总内存
+        long availableMemory = memory.getAvailable();  // 可用内存
+        double memoryUsage = 100.0 * (1 - ((double) availableMemory / (double) totalMemory));
+
+        log.info("CPU 使用率: " + String.format("%.2f", cpuLoad) + "%");
+        log.info("总内存: " + totalMemory / (1024 * 1024 * 1024) + " GB");
+        log.info("可用内存: " + availableMemory / (1024 * 1024 * 1024) + " GB");
+        log.info("内存使用率: " + String.format("%.2f", memoryUsage) + "%");
+
+
+        return "";
+    }
+
+    @GetMapping("cpu")
+    public void cpu() {
+        // 创建 SystemInfo 对象，获取操作系统硬件信息
+        SystemInfo systemInfo = new SystemInfo();
+        // 获取 CPU 信息
+        CentralProcessor processor = systemInfo.getHardware().getProcessor();
+
+        // 获取所有核心的 CPU 使用率
+
+        long[][] prevTicks = processor.getProcessorCpuLoadTicks();
+
+        // Wait some time or run this in a loop to compare later
+        // After some time, you can call it again to get the current ticks
+        long[][] currentTicks = processor.getProcessorCpuLoadTicks();
+
+        double[] cpuLoad = processor.getProcessorCpuLoadBetweenTicks(prevTicks);
+
+        System.out.println("每个核心的 CPU 使用率:");
+        for (int i = 0; i < cpuLoad.length; i++) {
+
+            System.out.println("核心 " + i + ": " + cpuLoad[i] * 100 + "%");
+
+            log.info("核心 " + i + ": " + cpuLoad[i] * 100 + "%");
+        }
+
+
+//        CentralProcessor processorAll = systemInfo.getHardware().getProcessor();
+//
+//        // 获取系统整体 CPU 使用率
+//        double cpuUsage = processorAll.getSystemCpuLoad() * 100;
+//
+//        System.out.println("CPU 总使用率: " + cpuUsage + "%");
+
+//        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+//        double cpuLoad = osBean.getSystemCpuLoad() * 100;
+//        System.out.println("CPU Usage: " + cpuLoad + "%");
+
+        OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
+        // 获取系统的加载信息
+        double systemLoad = bean.getSystemLoadAverage();
+        double availableProcessors = bean.getAvailableProcessors();
+
+        // 计算CPU使用率
+        double cpuLoadAll = (systemLoad / availableProcessors) * 100;
+        log.info("核心总使用率 " + cpuLoadAll + "%");
+    }
+
+
+    @GetMapping("mem")
+    public void mem() {
+
+        // 创建 SystemInfo 实例来获取系统信息
+        SystemInfo systemInfo = new SystemInfo();
+
+        GlobalMemory memory = systemInfo.getHardware().getMemory();
+
+        // 获取内存信息
+        long totalMemory = memory.getTotal();  // 总内存
+        long availableMemory = memory.getAvailable();  // 可用内存
+        double memoryUsage = 100.0 * (1 - ((double) availableMemory / (double) totalMemory));
+        log.info("内存使用率: " + String.format("%.2f", memoryUsage) + "%");
+    }
+
+    @GetMapping("disk")
+    public void disk(){
+        DiskInfo.getDiskSpaceInformation();
+
+        DiskInfo.getRootDiskSpaceInformation();
+
+
+//        FileSystems.getDefault().getFileSystem().getRootDirectories().forEach(path -> {
+//            try {
+//                FileSystem fs = path.getFileSystem();
+//                System.out.println("Disk: " + path);
+//                System.out.println("Total Space: " + fs.getPath(path.toString()).toFile().getTotalSpace());
+//                System.out.println("Usable Space: " + fs.getPath(path.toString()).toFile().getUsableSpace());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
+    }
+
+
+    @GetMapping("api")
+    public void testApi(){
+        // 假设你有一个请求对象
+        User requestObject = new User();
+        requestObject.setEmail("value1");
+
+        // 调用 API
+        String apiUrl = "http://127.0.0.1:8960/nrsm/admin/test/api2";
+        String response = callApi(apiUrl, requestObject);
+
+        // 处理响应
+        System.out.println("API Response: " + response);
+
+    }
+
+    @PostMapping("api2")
+    public void testApi2() throws InterruptedException {
+        Thread.sleep(300000);
+        log.info("api_back 2");
+    }
+
+    public String callApi(String apiUrl, Object requestBody) {
+        try {
+            // 设置请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer your-token"); // 如果需要设置token
+
+            // 将请求体封装到 HttpEntity 中
+            HttpEntity<Object> entity = new HttpEntity<>(requestBody, headers);
+
+            // 调用 API，发送 POST 请求
+            ResponseEntity<String> response = restTemplate.exchange(
+                    apiUrl,                    // API URL
+                    HttpMethod.POST,           // 请求方法
+                    entity,                    // 请求体和头部
+                    String.class               // 返回类型
+            );
+
+            // 返回响应体
+            return response.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 错误处理
+            return "Error: " + e.getMessage();
+        }
+    }
 
 
     // 周末和休息时间（17:周末和休息时间（17:30-8:30）按上述范围的1/10取值30-8:30）按上述范围的1/10取值

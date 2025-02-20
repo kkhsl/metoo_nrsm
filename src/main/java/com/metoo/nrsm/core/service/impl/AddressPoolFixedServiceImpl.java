@@ -27,11 +27,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-04-10 9:50
- */
+
 @Service
 @Transactional
 public class AddressPoolFixedServiceImpl implements IAddressPoolFixedService {
@@ -80,11 +76,7 @@ public class AddressPoolFixedServiceImpl implements IAddressPoolFixedService {
                 SysConfig sysconfig = this.sysConfigService.select();
                 sysconfig.setV4_status(true);
                 this.sysConfigService.update(sysconfig);
-//                try {
-//                    this.write();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+
                 return i;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -92,12 +84,7 @@ public class AddressPoolFixedServiceImpl implements IAddressPoolFixedService {
             }
         }else{
             try {
-//                int i = this.addressPoolFixedMapper.update(instance);
-//                try {
-//                    this.write();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+
                 AddressPoolFixed obj = this.addressPoolFixedMapper.selectObjById(instance.getId());
                 boolean flag = Md5Crypt.getDiffrent(obj, instance);
                 if(!flag){
@@ -120,12 +107,6 @@ public class AddressPoolFixedServiceImpl implements IAddressPoolFixedService {
     @Override
     public int update(AddressPoolFixed instance) {
         try {
-//            int i = this.addressPoolFixedMapper.update(instance);
-//            try {
-//                this.write();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
             AddressPoolFixed obj = this.addressPoolFixedMapper.selectObjById(instance.getId());
             boolean flag = Md5Crypt.getDiffrent(obj, instance);
             if(!flag){

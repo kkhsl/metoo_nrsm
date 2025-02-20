@@ -16,19 +16,8 @@ public class ThreadTest {
         System.out.println("JVM启动main线程，main线程执行main方法：打印当前线程名称" + Thread.currentThread().getName());
         // 创建子线程
         MyThread myThread = new MyThread();
-        // 启动线程
-//        myThread.run();
-        // 启动线程
-//        myThread.start();
         MyThread myThread1 = new MyThread();
         myThread1.run();
-        /** 调用现成的start方法启动线程，启动线程的是指就是请求jvm运行相应的线程，
-         * 这个线程具体在什么时候运行由线程调度器（Scheduler）决定
-            注意：
-                start()方法调用结束并不意味着等于子线程开始运行
-                新线程的开启会执行run()方法
-                如果开启了多个线程，start()调用的顺序并不一定就是线程启动的顺序
-        */
         System.out.println("线程后的其他方法");
     }
 

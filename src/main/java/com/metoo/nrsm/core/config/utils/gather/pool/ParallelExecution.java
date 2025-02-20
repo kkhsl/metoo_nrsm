@@ -19,13 +19,6 @@ public class ParallelExecution {
         ExecutorService executorService = Executors.newFixedThreadPool(4); // 创建一个固定大小的线程池
         List<Callable<List<String>>> tasks = new ArrayList<>();
 
-        // 拆分任务
-//        int chunkSize = data.size() / 4; // 假设将数据平均分成4部分
-//        for (int i = 0; i < 4; i++) {
-//            final int startIndex = i * chunkSize;
-//            final int endIndex = (i + 1 == 4) ? data.size() : (i + 1) * chunkSize;
-//            tasks.add(() -> processSubList(data.subList(startIndex, endIndex)));
-//        }
 
         // 拆分任务
         int chunkSize = data.size() / 4; // 假设将数据平均分成4部分

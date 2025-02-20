@@ -21,11 +21,22 @@ import java.util.concurrent.*;
  多个线程池和使用单个线程池有以下主要区别:
 
 
+
  * CPU 密集型：核心线程数=CPU核心数（CPU核心数+1）
  * 1/O 密集型:核心线程数=2*CPU核心数( CPU核心数/ (1-阻塞系数) )
  * 混合型:核心线程数=(线程等待时间/线程CPU时间+1) *CPU核心数
  *
-
+ * ==
+ * 核心线程数：可以设置为与 CPU 核心数相同，或者根据任务的性质来调整。
+ * 如果 Python 脚本每次执行较慢（比如 3 秒），可以适当增加核心线程数，但应避免过多。
+ *
+ * 最大线程数：最大线程数应该根据系统的负载来设定，避免过多的线程导致系统资源被耗尽。
+ *
+ * 队列大小：用于存储等待执行的任务。如果队列满了，线程池会根据策略拒绝任务，或者新任务会被放入一个等待队列直到线程池有空闲线程。
+ *
+ * == 注意考虑线程执行的优先级，
+ *
+ *
  */
 
 @Component
@@ -44,12 +55,12 @@ public class GatherDataThreadPool {
     public GatherDataThreadPool() {
         int poolSize = Integer.max(Runtime.getRuntime().availableProcessors() * 3, 15);
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
-                poolSize, // 核心池大小
-                poolSize * 2, // 最大池大小
-                60, // 空闲线程的最大存活时间
+                poolSize, // 核心线程数为 CPU 核心数
+                poolSize * 2, // 最大线程数为 CPU 核心数的 2 倍
+                60, // 空闲线程存活时间为 60 秒
                 TimeUnit.SECONDS, // 存活时间单位
-                new LinkedBlockingQueue<>(), // 任务队列
-                new ThreadPoolExecutor.CallerRunsPolicy()); // 如果队列满了，当前线程执行任务
+                new LinkedBlockingQueue<>(), // 等待队列大小为 ? 设备数量
+                new ThreadPoolExecutor.CallerRunsPolicy());// 如果队列满了，当前任务会在主线程中执行
 
         this.fixedThreadPool = executor;
     }

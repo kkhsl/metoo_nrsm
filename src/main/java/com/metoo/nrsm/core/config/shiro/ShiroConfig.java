@@ -76,17 +76,15 @@ public class ShiroConfig {
 //        filterChainDefinitionMap.put("/admin/dhcp/**", "anon");
 //        filterChainDefinitionMap.put("/admin/address/pool/**", "anon");
 
-
-        filterChainDefinitionMap.put("/admin/analysis/**", "anon");
-
         filterChainDefinitionMap.put("/notice/**", "anon");
         filterChainDefinitionMap.put("/ws/**", "anon");
         filterChainDefinitionMap.put("/file/**", "anon");
         filterChainDefinitionMap.put("/webssh", "anon");
 
-        filterChainDefinitionMap.put("/user/login", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
 
-        // websocket
+        filterChainDefinitionMap.put("/admin/test/**", "anon");
+
+        filterChainDefinitionMap.put("/user/login", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
 
         filterChainDefinitionMap.put("/user/register", "anon");
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");
@@ -96,42 +94,24 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/idempotent", "anon");
 
         filterChainDefinitionMap.put("/probeNmap/uploadScanResult", "anon");
-        filterChainDefinitionMap.put("/admin/test/**", "anon");
+        filterChainDefinitionMap.put("/nrsm/admin/test/**", "anon");
 
-        filterChainDefinitionMap.put("/buyer/captcha", "anon");
-        filterChainDefinitionMap.put("/buyer/login", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
-        filterChainDefinitionMap.put("/buyer/logout", "anon");
-        filterChainDefinitionMap.put("/buyer/register", "anon");
+        filterChainDefinitionMap.put("/buyer/**", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
+
         filterChainDefinitionMap.put("/admin/auth/401", "anon");
         filterChainDefinitionMap.put("/admin/auth/403", "anon");
         filterChainDefinitionMap.put("/admin/auth/404", "anon");
-        filterChainDefinitionMap.put("/admin/test/**", "anon");
-        filterChainDefinitionMap.put("/rtmp/**", "anon");
 
-        filterChainDefinitionMap.put("/license/**", "anon");
-
-        filterChainDefinitionMap.put("/**", "rmb");
-
-//        filterChainDefinitionMap.put("/notice/**", "authc");
+//        filterChainDefinitionMap.put("/rtmp/**", "anon");
 
         filterChainDefinitionMap.put("/index.jsp", "authc");// authc 请求这个资源需要认证和授权;参数可以为视图可以为路径（/index.jsp、/**、/path/*）
-
-
-        //filterChainDefinitionMap.put("/buyer/**", "authc");
-        filterChainDefinitionMap.put("/license/**", "authc");
         filterChainDefinitionMap.put("/index/**", "authc");
-        filterChainDefinitionMap.put("/nspm/**", "authc");
-        filterChainDefinitionMap.put("/admin/**", "authc");
-//        filterChainDefinitionMap.put("/admin/**", "licenseFilter");
-//        filterChainDefinitionMap.put("/nrsm/**", "licenseFilter");
-        filterChainDefinitionMap.put("/monitor/**", "authc");
 
+        filterChainDefinitionMap.put("/monitor/**", "anon");
 
-
-//        filterChainDefinitionMap.put("/admin/**", "myAccessControlFilter, licenseFilter");
-
-
-
+        filterChainDefinitionMap.put("/admin/index/nav", "anon");
+        filterChainDefinitionMap.put("/admin/**", "rmb, licenseFilter");
+        filterChainDefinitionMap.put("/nspm/**", "rmb, licenseFilter");
 
         // 放行静态资源
         filterChainDefinitionMap.put("/static/**", "anon");

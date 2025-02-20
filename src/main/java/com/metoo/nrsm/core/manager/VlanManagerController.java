@@ -16,14 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * @description Vlan管理
- *
- * @author HKK
- *
- * @create 2023/02/22
- *
- */
+
 @RequestMapping("/admin/vlan")
 @RestController
 public class VlanManagerController {
@@ -169,36 +162,6 @@ public class VlanManagerController {
     @ApiOperation("创建/修改")
     @PostMapping
     public Object save(@RequestBody Vlan vlan){
-//        if(vlan.getName() == null || vlan.getName().equals("")){
-//            return ResponseUtil.badArgument("名称不能为空");
-//        }else{
-//            Map params = new HashMap();
-//            params.put("vlanId", vlan.getId());
-//            params.put("name", vlan.getName());
-//            // 当前分组内不重名
-//            User user = ShiroUserHolder.currentUser();
-//            Group group = this.groupService.selectObjById(user.getGroupId());
-//            if(group != null) {
-//                Set<Long> ids = this.groupTools.genericGroupId(group.getId());
-//                params.put("groupIds", ids);
-//            }
-//            List<Vlan> domains = this.vlanService.selectObjByMap(params);
-//            if(domains.size() > 0){
-//                return ResponseUtil.badArgument("名称重复");
-//            }
-//        }
-//        if(vlan.getDomainId() != null && !vlan.getDomainId().equals("")){
-//            Domain domain = this.domainService.selectObjById(vlan.getDomainId());
-//            if(domain == null){
-//                return ResponseUtil.badArgument("二层域不存在");
-//            }
-//        }
-//        if(vlan.getSubnetId() != null){
-//            Subnet subnet = this.subnetService.selectObjById(vlan.getSubnetId());
-//            if(subnet == null){
-//                return ResponseUtil.badArgument("网段不存在");
-//            }
-//        }
         if(ObjectUtils.allNotNull(vlan.getNumber())){
             return ResponseUtil.badArgument("Vlan号不允许编辑");
         }

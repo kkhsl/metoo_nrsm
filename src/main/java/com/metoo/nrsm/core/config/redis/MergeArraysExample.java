@@ -54,10 +54,6 @@ public class MergeArraysExample {
         }
     }
 
-
-//    private static final int THREAD_COUNT = 2; // 线程数
-//    private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
-
     @Test
     public void linux2(){
 
@@ -94,19 +90,6 @@ public class MergeArraysExample {
                 ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
                 cursor = scanResult.getCursor();
                 for (String key : scanResult.getResult()) {
-                    // string键值
-//                    String value = jedis.get(key);
-//                    namespaceData.put(key, value);
-
-                    // 合并结果(执行太久，使用线程优化)
-//                    if (jedis.type(key).equals("list")) {
-//                        List<String> listValues = jedis.lrange(key, 0, -1);
-////                        System.out.println(listValues);
-//                        listAll.addAll(listValues);
-//                    }
-
-//                    Future<List<String>> future = executor.submit(() -> jedis.lrange(key, 0, -1));
-//                    futures.add(future);
 
                     Future<List<String>> future = executor.submit(() -> {
                         List dataList = new ArrayList();
@@ -121,17 +104,6 @@ public class MergeArraysExample {
                 }
 
             } while (!cursor.equals("0"));
-
-//            System.out.println(listAll);
-            // 输出所有键值对
-
-            // 输出到桌面
-            // 指定输出文件的路径
-//            String filePath = "C:\\Users\\Administrator\\Desktop\\list\\output.txt";
-//
-//            // 将列表写入文件
-//            writeListToFile(listAll, filePath);
-
 
             // 关闭线程池
             executor.shutdown();
@@ -177,28 +149,12 @@ public class MergeArraysExample {
                             ipType = "Unknown";
                         }
 
-//                        aggregatedData.computeIfAbsent(domain, k -> new HashSet<>()).add(ip);
 
                         // 初始化嵌套Map
                         aggregatedData
                                 .computeIfAbsent(domain, k -> new HashMap<>())
                                 .computeIfAbsent(ipType, k -> new HashSet<>())
                                 .add(ip);
-                        // 初始化嵌套Map和Set
-//                        aggregatedData
-//                                .computeIfAbsent(domain, new Function<String, Map<String, Set<String>>>() {
-//                                    @Override
-//                                    public Map<String, Set<String>> apply(String k) {
-//                                        return new HashMap<>();
-//                                    }
-//                                })
-//                                .computeIfAbsent(ipType, new Function<String, Set<String>>() {
-//                                    @Override
-//                                    public Set<String> apply(String k) {
-//                                        return new HashSet<>();
-//                                    }
-//                                })
-//                                .add(ip);
                     }
                 }
             }

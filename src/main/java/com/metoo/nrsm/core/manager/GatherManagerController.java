@@ -53,9 +53,10 @@ public class GatherManagerController {
     }
 
     @GetMapping("updateTerminalInfo")
-    private void updateTerminalInfo(Date date) {
+    private void updateTerminalInfo() {
         try {
 
+            Date date = DateTools.gatherDate();
             gatherMacUtils.copyGatherData(date);
 
             terminalService.syncTerminal(date);
@@ -68,6 +69,7 @@ public class GatherManagerController {
 
             terminalService.updateVMDeviceIp();
             networkElementService.updateObjDisplay();
+
         } catch (Exception e) {
             log.error("Error while updating terminal information", e);
         }

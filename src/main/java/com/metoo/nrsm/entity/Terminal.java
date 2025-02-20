@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.DoubleSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.metoo.nrsm.core.domain.IdEntity;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Terminal extends IdEntity {
+
+    @ApiModelProperty("采集时间")
+    private Date time;
 
     private String name;
     private String mac;

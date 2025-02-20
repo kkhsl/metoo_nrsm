@@ -122,10 +122,6 @@ public class RedisScanDemo {
                 }
             } while (!cursor.equals("0"));
 
-//            System.out.println(listAll);
-            // 输出所有键值对
-
-            // 输出到桌面
             // 指定输出文件的路径
             String filePath = "C:\\Users\\Administrator\\Desktop\\list\\output.txt";
 
@@ -158,14 +154,6 @@ public class RedisScanDemo {
         String arrayStr = "[[[\"newsofire.n.shifen.com.\", \"14.215.183.141\"]], [[\"newsofire.n.shifen.com.\", \"240e:e9:6002:93:0:ff:b019:33c9\"]]]";
         List<Object> nestedList = Arrays.asList(arrayStr);
 
-        // 创建一个多层嵌套的数组
-//        List<Object> nestedList = new ArrayList<>();
-//        nestedList.add("Level 1 - Item 1");
-//        nestedList.add(Arrays.asList("Level 2 - Item 1", "Level 2 - Item 2"));
-//        nestedList.add(Arrays.asList(
-//                Arrays.asList("Level 3 - Item 1", Arrays.asList("Level 4 - Item 1")),
-//                "Level 3 - Item 2"
-//        ));
 
         traverseNestedList(nestedList,  0);
     }
@@ -233,15 +221,6 @@ public class RedisScanDemo {
                 }
             } while (!cursor.equals("0"));
 
-//            System.out.println(listAll);
-            // 输出所有键值对
-
-            // 输出到桌面
-            // 指定输出文件的路径
-//            String filePath = "C:\\Users\\Administrator\\Desktop\\list\\output.txt";
-//
-//            // 将列表写入文件
-//            writeListToFile(listAll, filePath);
             genericList(listAll);
             namespaceData.forEach((key, value) -> System.out.println(key + " : " + value));
         } catch (Exception e) {

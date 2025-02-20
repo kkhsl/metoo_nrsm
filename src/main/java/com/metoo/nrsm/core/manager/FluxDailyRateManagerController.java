@@ -24,11 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-05-21 11:02
- */
+
 @RestController
 @RequestMapping("/admin/flux/Rate")
 public class FluxDailyRateManagerController {

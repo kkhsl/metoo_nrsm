@@ -33,14 +33,6 @@ public class FlowStatisticsManagerControllerApi {
     @Autowired
     private RedisResponseUtils redisResponseUtils;
 
-//    @GetMapping
-//    public Result flow(){
-//        Map params = new HashMap();
-//        params.put("startOfDay", DateTools.getStartOfDay());
-//        params.put("endOfDay", DateTools.getEndOfDay());
-//        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
-//        return ResponseUtil.ok(flowStatisticsList);
-//    }
 
     @GetMapping
     public NoticeWebsocketResp flow(@RequestParam(value = "requestParams") String requestParams){

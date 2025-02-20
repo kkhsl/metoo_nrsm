@@ -25,29 +25,6 @@ import java.text.DecimalFormat;
 public class Sshtest {
 
     public static void main(String[] args) {
-//        String[] params = {"h3c", "switch", "192.168.100.1", "ssh", "22", "metoo", "metoo89745000",
-//                "aliveint"};
-//        System.out.println(exec("/opt/sqlite/script/main.py", params));;
-//
-//        String[] params2 = {"huawei", "192.168.100.1", "ssh", "22", "metoo", "metoo89745000",
-//                "100", "1"};
-//
-//        String result = exec("/opt/netmap/script/traffic.py", params2);
-//
-//        System.out.println(result);
-//
-//        String[] params3 = {"huawei", "192.168.100.1", "ssh", "22", "metoo", "metoo89745000",
-//                "20", "0"};
-//
-//        result = exec("/opt/netmap/script/traffic.py", params3);
-//
-//        System.out.println(result);
-//
-//        Integer ipv4Inbound = ipv4InboundResult(result, "1");
-//
-//        System.out.println(ipv4Inbound);
-
-
         String[] params4 = {"huawei", "192.168.100.1", "ssh", "22", "metoo", "metoo89745000",
                 "20", "1"};
 

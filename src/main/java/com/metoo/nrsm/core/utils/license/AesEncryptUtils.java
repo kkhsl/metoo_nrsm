@@ -4,9 +4,11 @@ import com.metoo.nrsm.core.utils.Global;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
+import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Component
 public class AesEncryptUtils {
@@ -54,24 +56,33 @@ public class AesEncryptUtils {
 //        return new String(decryptBytes);
 //    }
 
-    public static String decrypt(String encryptStr, String decryptKey) throws Exception {
-        KeyGenerator kgen = KeyGenerator.getInstance("AES");
-        kgen.init(128);
-        Cipher cipher = Cipher.getInstance(ALGORITHMSTR);
-        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(decryptKey.getBytes(), "AES"));
+    public static String decrypt(String encryptStr, String decryptKey)  {
+        try {
+            KeyGenerator kgen = KeyGenerator.getInstance("AES");
+            kgen.init(128);
+            Cipher cipher = null;
 
-        // 采用base64算法进行转码,避免出现中文乱码
-        byte[] encryptBytes = Base64.decodeBase64(encryptStr.getBytes("UTF-8"));
-        byte[] decryptBytes = cipher.doFinal(encryptBytes);
+            cipher = Cipher.getInstance(ALGORITHMSTR);
 
-        return new String(decryptBytes);
+            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(decryptKey.getBytes(), "AES"));
+
+            // 采用base64算法进行转码,避免出现中文乱码
+            byte[] encryptBytes = Base64.decodeBase64(encryptStr.getBytes("UTF-8"));
+            byte[] decryptBytes = cipher.doFinal(encryptBytes);
+
+            return new String(decryptBytes);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+                | BadPaddingException | IllegalBlockSizeException | UnsupportedEncodingException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
     public String encrypt(String content) throws Exception {
         return encrypt(content, Global.AES_KEY);
     }
-    public String decrypt(String encryptStr) throws Exception {
+    public String decrypt(String encryptStr)  {
         return decrypt(encryptStr, Global.AES_KEY);
     }
 
@@ -112,7 +123,9 @@ public class AesEncryptUtils {
 //        String encrypt = encrypt(content, Global.AES_KEY);
 //        System.out.println("加密后：" + encrypt);
 
-            String decrypt = decrypt("dAFV/EG6kjAR3kceaDdefIInB7zi7FIcLib1HhJ17/AKNecsDZ2LPuSGJRmm8kw1ZiBHGe3gzcg/qKK4E8PO94rZeQFoihzoShvKl3SiY4NAxzaSYa0vnWmOLu2SzartOO+4I8O6VAR+WyUoYa7PBgYSxkaCem8qfpy8Gqyn7iRm5iqHmyu5tIy+k6MqKYPQlgQoX70GNzuvLsW3W5D0cNa8utmgSG+i/CpNcTVXirl543iM8DYX1eMgKEMyA5SKbipYVOZ3geLccL/0EzQn9rV9zownmGgi9ye/+kXT4SvLfNWcWpbQplbaf9g6aHaH", Global.AES_KEY);
+            String decrypt = decrypt("" +
+                    "YtLMTsIwlqMy/88FyrjQsCgQjeulHg7a0XvQ64+9d1748J1Nq9jMhMabyGsS5jfdbh0w+72mCTnCn9xzDYlwIAwS3qnYUYJTgwzhPSJM96oQmY1jEZs7GgbA9W0kzWWO1fRLJvJbPiu72s/63TzJvL2/eKPZjvehJrT9fHXfe6dCqqJtFw4a9cMRxRJFmfdSKzH/Q1oexHy5BMQn9Xf1QBAppQb359fZua4cXxEADpaE2Fuv0RGdWclhBQboX9EZ/WATHuh0gBUG9hR880qCu0WLIXUt86phKkuTupxDkxxwzC8t3Qkiv7n7V6kCVh+o7hj/OIRjbTAy5+ll5KoevfPJAFoK3xKEaqD8Qjn2+wFuNQK1yvVrDa9AlfTv9oS1oaPDC+Qt5RXiKWtUw9u8Rm4+FUVj/chbk+HquNes/XR21DLlJmU3w9wQLWW1vtuTpy6PlNqqWKSnyOv30BVA0A=="
+                    , Global.AES_KEY);
         System.out.println("解密后：" + decrypt);
 
     }

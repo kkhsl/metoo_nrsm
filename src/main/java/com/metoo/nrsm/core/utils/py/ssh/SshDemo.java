@@ -11,27 +11,6 @@ import java.io.InputStreamReader;
 public class SshDemo {
 
     public static void main(String[] args) throws IOException {
-//        String[] str = {
-//                "/opt/flow_monitor/py/gettraffic.py"
-//                ,"--type"
-//                ,"h3c"
-//                ,"--vendor"
-//                ,"h3c"
-//                ,"--command"
-//                ,"get_ipv4_port"
-//                ,"--dhost"
-//                ,"202.103.100.254"
-//                ,"--version"
-//                ,"v2c"
-//                ,"--community"
-//                ,"transfar@123"
-//                ,"--ip"
-//                ,"172.16.253.253"
-//                ,"--oid"
-//                ,"'1.3.6.1.2.1.4.20.1.2'"};
-//        System.out.println(exec(str));;
-        // python3 gettraffic.py --type h3c --vendor h3c --command get_ipv4_port --dhost 202.103.100.254
-        // --version v2c --community transfar@123 --ip 172.16.253.253 --oid '1.3.6.1.2.1.4.20.1.2'
 
         String[] str = {
                 "--version"};

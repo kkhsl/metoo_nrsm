@@ -59,10 +59,6 @@ public class AddressPoolIpv6ManagerController {
     @PostMapping("/list")
     public Result list(@RequestBody AddressPoolIpv6DTO dto){
 
-//        IAddressPoolIpv6Service addressPoolIpv6Service = SpringUtils.getBean("addressPoolIpv6Service");
-//        Page<AddressPoolIpv6> page1 = addressPoolIpv6Service.selectObjConditionQuery(dto);
-//        System.out.println(page1.getResult());
-
         Page<AddressPoolIpv6> page = this.addressPoolIpv6Service.selectObjConditionQuery(dto);
         return ResponseUtil.ok(new PageInfo<AddressPool>(page));
     }

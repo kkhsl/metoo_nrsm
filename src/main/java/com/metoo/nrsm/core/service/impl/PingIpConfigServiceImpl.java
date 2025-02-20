@@ -10,11 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-04-18 16:34
- */
 @Slf4j
 @Service
 @Transactional

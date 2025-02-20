@@ -8,8 +8,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * @author HKK
  * @version 1.0
  * @date 2024-04-09 15:23
- *
- * 参考链接：https://blog.csdn.net/weixin_44102992/article/details/127952285
  */
 public class SpringUtils implements BeanFactoryPostProcessor {
 

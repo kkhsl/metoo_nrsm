@@ -5,11 +5,7 @@ import com.metoo.nrsm.entity.FluxConfig;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author HKK
- * @version 1.0
- * @date 2024-04-01 11:29
- */
+
 public interface IFluxConfigService {
 
     FluxConfig selectObjById(Long id);

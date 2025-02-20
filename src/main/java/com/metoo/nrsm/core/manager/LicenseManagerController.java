@@ -102,21 +102,20 @@ public class LicenseManagerController {
     }
    }
 
-//   ,produces = "application/json; charset=utf-8"
     @GetMapping(value = "/query")
     public Object query() {
         License obj = this.licenseService.query().get(0);
         String uuid = SystemInfoUtils.getSerialNumber();
 
-        if (!uuid.equals(obj.getSystemSN())) {
+        if (!uuid.equals(obj.getSystemSN()))
+        {
             return ResponseUtil.error(413, "未授权设备");
         }
-
         try {
             String licenseInfo = this.aesEncryptUtils.decrypt(obj.getLicense());
             LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
 
-            // 计算使用天数和剩余天数
+            // 计算使用天数和剩余天数计算授权天数
             calculateLicenseDays(license);
 
             System.out.println(JSONObject.toJSONString(license));
@@ -131,6 +130,7 @@ public class LicenseManagerController {
         long currentTime = DateTools.currentTimeMillis();
         license.setUseDay(DateTools.compare(currentTime, license.getStartTime()));
         license.setSurplusDay(DateTools.compare(license.getEndTime(), currentTime));
+        license.setLicenseDay(DateTools.compare(license.getEndTime(), license.getStartTime()));
     }
 
     /**
@@ -140,6 +140,7 @@ public class LicenseManagerController {
      */
     @PutMapping("update")
     public Object license(@RequestBody Map<String, Object> license) throws Exception {
+
         String uuid = SystemInfoUtils.getSerialNumber();
         String code = license.get("license").toString();
 
@@ -151,9 +152,9 @@ public class LicenseManagerController {
         License parsed = JSONObject.parseObject(decrypt, License.class);
         int licenseUe = parsed.getLicenseDevice();
         int num = networkElementMapper.selectObjAll(null).size();
-        if (licenseUe<num){
-            return ResponseUtil.error("授权网元数不够");
-        }
+//        if (licenseUe<num){
+//            return ResponseUtil.error("授权网元数不够");
+//        }
         if (isValid) {
             List<License> existingLicenses = this.licenseService.query();
             if (!existingLicenses.isEmpty()) {
@@ -173,6 +174,7 @@ public class LicenseManagerController {
         dto.setSystemSN(licenseDto.getSystemSN());
         dto.setType(licenseDto.getType());
         dto.setLicenseAC(true);
+        dto.setLicenseProbe(true);
         dto.setLicenseVersion(licenseDto.getLicenseVersion());
         dto.setLicenseFireWall(licenseDto.getLicenseFireWall());
         dto.setLicenseRouter(licenseDto.getLicenseRouter());

@@ -14,20 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestScheduled {
 
-//    @Scheduled(cron = "*/3 * * * * ?")
-//    private void a()  {
-//        log.info("任务1......");
-//    }
-//
-//    @Scheduled(cron = "*/3 * * * * ?")
-//    private void b()  {
-//        log.info("任务2......");
-//    }
-//
-//    @Scheduled(cron = "*/3 * * * * ?")
-//    private void c()  {
-//        log.info("任务3......");
-//    }
+
 
 
     public static String cron;
@@ -38,11 +25,6 @@ public class TestScheduled {
     }
 
 
-//    @Scheduled(cron = cron)
-//    private void c()  {
-//        Long time=System.currentTimeMillis();
-//        log.info("running......" + time);
-//    }
 
 
 }
