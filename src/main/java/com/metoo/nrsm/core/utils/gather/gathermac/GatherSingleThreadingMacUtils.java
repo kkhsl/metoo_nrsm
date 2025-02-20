@@ -239,12 +239,21 @@ public class GatherSingleThreadingMacUtils {
         try {
             terminalService.syncTerminal(date);
 
+            // 政务外网
+//          this.terminalService.v4Tov6Terminal(date);
+
+            // 政务外网
+            // 根据vendor判断终端类型
+            this.terminalService.writeTerminalType();
+            // 政务外网
+            // 统计终端是否属于双栈终端
+            this.terminalService.dualStackTerminal();
+
             updateTerminalDeviceTypeToNSwitch();
 
             terminalService.updateVMHostDeviceType();
 
             terminalService.updateVMDeviceType();
-
 
             terminalService.updateVMDeviceIp();
 
