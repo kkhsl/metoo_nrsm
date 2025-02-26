@@ -1,4 +1,4 @@
-package com.metoo.nrsm.core.network.snmp4j;
+package com.metoo.nrsm.core.network.snmp4j.constants;
 
 public enum SNMP_OID {
 

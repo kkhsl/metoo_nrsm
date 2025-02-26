@@ -60,7 +60,7 @@ public class GatherSingleThreadingMacUtils {
                     continue;
                 }
 
-                String hostName = getHostName(networkElement);
+                String hostName = getHostName(networkElement);// 多余，查询设备时已经查询了是否存在
 
                 if (StringUtils.isNotEmpty(hostName)) {
 

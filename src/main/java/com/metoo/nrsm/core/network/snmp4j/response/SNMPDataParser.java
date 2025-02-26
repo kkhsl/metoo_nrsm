@@ -1,11 +1,6 @@
-package com.metoo.nrsm.core.network.snmp4j;
+package com.metoo.nrsm.core.network.snmp4j.response;
 
-import com.metoo.nrsm.core.network.snmp4j.SNMP_OID;
-import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
-import org.snmp4j.event.ResponseEvent;
-import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.smi.*;
 
 /**
  * 考虑到需要处理的数据较少，先讲处理snmp返回数据的方法，放到这一个类中

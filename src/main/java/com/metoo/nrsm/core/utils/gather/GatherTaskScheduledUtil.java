@@ -313,9 +313,23 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(fixedDelay = 180000)
+//    @Scheduled(fixedDelay = 180000)
+//    public void snmpStatus() {
+//        if(flag){
+//            Long time = System.currentTimeMillis();
+//            log.info("Snmp status start......");
+//            try {
+//                this.gatherService.gatherSnmpStatus();
+//            } catch (Exception e) {
+//                log.error("Error occurred during SNMP", e);
+//            }
+//            log.info("Snmp status end......" + (System.currentTimeMillis()-time));
+//        }
+//    }
+
+    @Scheduled(cron = "0 */1 * * * ?")
     public void snmpStatus() {
-        if(flag){
+        if(true){
             Long time = System.currentTimeMillis();
             log.info("Snmp status start......");
             try {

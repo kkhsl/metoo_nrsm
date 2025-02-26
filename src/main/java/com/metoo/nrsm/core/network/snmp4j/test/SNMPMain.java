@@ -1,4 +1,7 @@
-package com.metoo.nrsm.core.network.snmp4j;
+package com.metoo.nrsm.core.network.snmp4j.test;
+
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 
 public class SNMPMain {
 

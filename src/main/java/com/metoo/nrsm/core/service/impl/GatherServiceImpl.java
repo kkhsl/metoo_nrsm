@@ -2,6 +2,8 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
@@ -16,14 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 
 /**
  * @author HKK
@@ -778,30 +777,40 @@ public class GatherServiceImpl implements IGatherService {
 
     @Override
     public void gatherSnmpStatus() {
-        // key
+
         List<String> keys = new ArrayList<>();
-        String keyPrefix = "";// SNMP:STATUS:
 
         List<NetworkElement> nes = this.networkElementService.selectObjAllByGather();
 
         if(nes.size() > 0){
-            for (NetworkElement ne : nes) {
-                String path = Global.PYPATH + "gethostname.py";
-                String[] args = {ne.getIp(), ne.getVersion(),
-                        ne.getCommunity()};
-                String hostname = pythonExecUtils.exec(path, args);
-                if(StringUtils.isNotEmpty(hostname)){
-                    String key = keyPrefix + ne.getUuid();
+            for (NetworkElement element : nes) {
+
+                String hostName = getHostName(element);
+                if(StringUtils.isNotEmpty(hostName)){
+                    String key = element.getUuid();
                     keys.add(key);
                 }
             }
-        }
-        if(keys != null && !keys.isEmpty()){
             // 更新redis
             this.snmpStatusUtils.editSnmpStatus(keys);
         }
     }
 
+    // 获取设备名
+    public String getHostName(NetworkElement element){
+
+        String hostName = "";
+
+//        String path = Global.PYPATH + "gethostname.py";
+//        String[] args = {element.getIp(), element.getVersion(),
+//                element.getCommunity()};
+//        hostName = pythonExecUtils.exec(path, args);
+
+        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
+        hostName = SNMPRequest.getDeviceName(snmpParams);  // 获取设备名
+
+        return hostName;
+    }
 
     // 获取上一分钟的时间
     public static Date getLastMinute(){

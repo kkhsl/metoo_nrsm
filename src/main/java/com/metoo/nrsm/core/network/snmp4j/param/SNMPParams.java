@@ -1,4 +1,4 @@
-package com.metoo.nrsm.core.network.snmp4j;
+package com.metoo.nrsm.core.network.snmp4j.param;
 
 public class SNMPParams {
 
