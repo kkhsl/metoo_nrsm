@@ -3,6 +3,8 @@ package com.metoo.nrsm.core.mapper;
 import com.metoo.nrsm.entity.TerminalUnit;
 import com.metoo.nrsm.entity.TerminalUnitSubnet;
 import com.metoo.nrsm.entity.TerminalUnitSubnetV6;
+import com.metoo.nrsm.entity.UnitSubnet;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,23 @@ public interface TerminalUnitMapper {
     List<TerminalUnitSubnetV6> selectV6ObjByTerminalUnitId(Long id);
 
     List<TerminalUnit> selectObjAll();
+
+    @Select("SELECT * FROM metoo_unit_subnet")
+    List<UnitSubnet> selectAll();
+
+    @Select("SELECT * FROM metoo_unit_subnet WHERE id = #{id}")
+    UnitSubnet findById(Long id);
+
+    @Insert("INSERT INTO metoo_unit_subnet(addTime, name, ipv4, ipv6) VALUES(#{addTime}, #{name}, #{ipv4}, #{ipv6})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    int insert(UnitSubnet subnet);
+
+    @Update("UPDATE metoo_unit_subnet SET addTime = #{addTime}, name = #{name}, ipv4 = #{ipv4}, ipv6 = #{ipv6} WHERE id = #{id}")
+    int update(UnitSubnet subnet);
+
+    @Delete("DELETE FROM metoo_unit_subnet WHERE id = #{id}")
+    int deleteById(Long id);
+
     int insertTerminalUnit(TerminalUnit terminalUnit);
     int insertTerminalUnitV4(TerminalUnitSubnet terminalUnitSubnet);
     int insertTerminalUnitV6(TerminalUnitSubnetV6 terminalUnitSubnetV6);

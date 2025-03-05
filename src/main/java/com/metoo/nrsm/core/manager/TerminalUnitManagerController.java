@@ -1,18 +1,19 @@
 package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
 import com.metoo.nrsm.core.service.ITerminalUnitService;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.TerminalUnit;
 import com.metoo.nrsm.entity.TerminalUnitSubnet;
 import com.metoo.nrsm.entity.TerminalUnitSubnetV6;
+import com.metoo.nrsm.entity.UnitSubnet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Resource;
+import javax.transaction.Transactional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,7 +23,71 @@ public class TerminalUnitManagerController {
     @Autowired
     private ITerminalUnitService terminalUnitService;
 
-    @GetMapping("/all")
+    @Resource
+    private TerminalUnitMapper terminalUnitMapper;
+
+
+
+    @GetMapping("/selectAll")
+    public Result selectAll() {
+        try {
+            List<UnitSubnet> unitSubnets = terminalUnitMapper.selectAll();
+            if (unitSubnets == null || unitSubnets.isEmpty()) {
+                return ResponseUtil.ok("No data found");
+            }
+            return ResponseUtil.ok(unitSubnets);
+        } catch (Exception e) {
+            return ResponseUtil.error("Failed to retrieve data: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/saveAll")
+    @Transactional
+    public Result saveAll(@RequestBody List<UnitSubnet> unitSubnets) {
+        if (unitSubnets == null || unitSubnets.isEmpty()) {
+            return ResponseUtil.error("Input data cannot be empty");
+        }
+
+        try {
+            for (UnitSubnet unitSubnet : unitSubnets) {
+                if (unitSubnet.getId() == null) {
+                    // ID 为空，执行插入操作
+                    terminalUnitMapper.insert(unitSubnet);
+                } else {
+                    // ID 存在，检查是否已存在
+                    UnitSubnet subnet = terminalUnitMapper.findById(unitSubnet.getId());
+                    if (subnet == null) {
+                        terminalUnitMapper.insert(unitSubnet);
+                    } else {
+                        terminalUnitMapper.update(unitSubnet);
+                    }
+                }
+            }
+            return ResponseUtil.ok("UnitSubnet added/updated successfully");
+        } catch (Exception e) {
+            return ResponseUtil.error("Failed to save data: " + e.getMessage());
+        }
+    }
+
+
+    @DeleteMapping("/deleteAll")
+    public Result deleteAll(@RequestParam(required = true) Long id) {
+        try {
+            UnitSubnet subnet = terminalUnitMapper.findById(id);
+            if (subnet == null) {
+                return ResponseUtil.error("UnitSubnet with ID " + id + " does not exist");
+            }
+            terminalUnitMapper.deleteById(id);
+            return ResponseUtil.ok("UnitSubnet deleted successfully");
+        } catch (Exception e) {
+            return ResponseUtil.error("Failed to delete: " + e.getMessage());
+        }
+    }
+
+
+
+
+    /*@GetMapping("/all")
     public Result all(){
         List<TerminalUnit> terminalUnitList = this.terminalUnitService.selectObjAll();
         List<Map<String, Object>> filteredList = terminalUnitList.stream()
@@ -38,7 +103,6 @@ public class TerminalUnitManagerController {
                 .collect(Collectors.toList());
         return ResponseUtil.ok(filteredList);
     }
-
 
     @PostMapping("/save")
     public Result save(@RequestBody List<TerminalUnit> terminalUnits) {
@@ -181,7 +245,7 @@ public class TerminalUnitManagerController {
             return ResponseUtil.ok("TerminalUnitV6 delete successfully");
         }
         return ResponseUtil.error("参数不能为空");
-    }
+    }*/
 
 
 
