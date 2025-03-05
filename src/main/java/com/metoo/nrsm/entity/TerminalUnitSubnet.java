@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TerminalUnitSubnet extends IdEntity {
-
-    @ApiModelProperty("单位名称")
     private String ip;
     private String mask;
     private Long terminalUnitId;
