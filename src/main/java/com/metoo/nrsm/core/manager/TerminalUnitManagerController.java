@@ -4,17 +4,13 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
 import com.metoo.nrsm.core.service.ITerminalUnitService;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.TerminalUnit;
-import com.metoo.nrsm.entity.TerminalUnitSubnet;
-import com.metoo.nrsm.entity.TerminalUnitSubnetV6;
 import com.metoo.nrsm.entity.UnitSubnet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.transaction.Transactional;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/terminal/unit")
