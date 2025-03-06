@@ -26,11 +26,11 @@ public interface TerminalUnitMapper {
     @Select("SELECT * FROM metoo_unit_subnet WHERE id = #{id}")
     UnitSubnet findById(Long id);
 
-    @Insert("INSERT INTO metoo_unit_subnet(addTime, name, ipv4, ipv6) VALUES(#{addTime}, #{name}, #{ipv4}, #{ipv6})")
+    @Insert("INSERT INTO metoo_unit_subnet(addTime, name, ipv4, ipv6,vlan) VALUES(#{addTime}, #{name}, #{ipv4}, #{ipv6}, #{vlan})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(UnitSubnet subnet);
 
-    @Update("UPDATE metoo_unit_subnet SET addTime = #{addTime}, name = #{name}, ipv4 = #{ipv4}, ipv6 = #{ipv6} WHERE id = #{id}")
+    @Update("UPDATE metoo_unit_subnet SET addTime = #{addTime}, name = #{name}, ipv4 = #{ipv4}, ipv6 = #{ipv6},vlan=#{vlan} WHERE id = #{id}")
     int update(UnitSubnet subnet);
 
     @Delete("DELETE FROM metoo_unit_subnet WHERE id = #{id}")
