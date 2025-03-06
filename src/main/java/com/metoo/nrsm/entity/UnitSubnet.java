@@ -16,4 +16,7 @@ public class UnitSubnet {
     private String name;
     private String ipv4;
     private String ipv6;
+    private int vlan;
+
+
 }
