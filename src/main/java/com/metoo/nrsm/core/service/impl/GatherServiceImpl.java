@@ -801,13 +801,13 @@ public class GatherServiceImpl implements IGatherService {
 
         String hostName = "";
 
-//        String path = Global.PYPATH + "gethostname.py";
-//        String[] args = {element.getIp(), element.getVersion(),
-//                element.getCommunity()};
-//        hostName = pythonExecUtils.exec(path, args);
+        String path = Global.PYPATH + "gethostname.py";
+        String[] args = {element.getIp(), element.getVersion(),
+                element.getCommunity()};
+        hostName = pythonExecUtils.exec(path, args);
 
-        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
-        hostName = SNMPRequest.getDeviceName(snmpParams);  // 获取设备名
+//        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
+//        hostName = SNMPRequest.getDeviceName(snmpParams);  // 获取设备名
 
         return hostName;
     }
