@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.service;
 import com.metoo.nrsm.entity.TerminalUnit;
 import com.metoo.nrsm.entity.TerminalUnitSubnet;
 import com.metoo.nrsm.entity.TerminalUnitSubnetV6;
+import com.metoo.nrsm.entity.UnitSubnet;
 
 import java.util.List;
 import java.util.Map;
