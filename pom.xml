@@ -40,24 +40,29 @@
             </exclusions>
         </dependency>
 
+        <!--  分页查询插件：暂时使用分页插件，后续改为自己封装分页查询  -->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.2.5</version>
+        </dependency>
 
         <!--引入shiro整合SpringBoot依赖-->
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-spring-boot-starter</artifactId>
             <version>1.5.3</version>
-        </dependency> <!-- Shiro缓存: EhCache-->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>1.5.3</version>
+        </dependency>
         <!--引入Shiro 默认缓存 EhCache-->
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-ehcache</artifactId>
             <version>1.5.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
-            <version>1.3.2</version>
         </dependency>
 
         <!--Mysql-->
@@ -78,14 +83,13 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.58</version>
+            <version>1.2.58</version><!--高性能 JSON -->
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20210307</version> <!-- 最新版本 -->
+            <version>20210307</version> <!-- 轻量级 JSON -->
         </dependency>
-
 
         <!--Swagger: 在线文档-->
         <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
@@ -112,48 +116,44 @@
 
         <!--WebSocket-->
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-embed-websocket</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.java-websocket</groupId>
             <artifactId>Java-WebSocket</artifactId>
             <version>1.3.0</version>
         </dependency>
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-            <version>1.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>javax.websocket</groupId>-->
+            <!--<artifactId>javax.websocket-api</artifactId>-->
+            <!--<version>1.1</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
-        <!--  分页查询插件：暂时使用分页插件，后续改为自己封装分页查询  -->
-        <dependency>
-            <groupId>com.github.pagehelper</groupId>
-            <artifactId>pagehelper-spring-boot-starter</artifactId>
-            <version>1.2.5</version>
-        </dependency>
-
-        <!-- 日志：Log4j2 + self4j --><!-- begin -->
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+        <!-- 日志：Log4j2 + self4j -->
+        <!-- begin -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>2.17.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>2.17.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.17.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -176,11 +176,6 @@
             <artifactId>spring-data-commons</artifactId>
             <version>2.4.5</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-            <version>2.4.5</version>
-        </dependency>
 
 
         <!--引入shiro整合SpringBoot依赖-->
@@ -188,20 +183,6 @@
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-spring-boot-starter</artifactId>
             <version>1.5.3</version>
-        </dependency>
-
-        <!-- Shiro缓存: EhCache-->
-        <!--引入Shiro 默认缓存 EhCache-->
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-ehcache</artifactId>
-            <version>1.5.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
-            <version>1.3.2</version>
         </dependency>
 
         <!--Shiro缓存：Redis or Lettuce-->
@@ -244,13 +225,7 @@
         <!--<artifactId>spring-boot-starter-jetty</artifactId>-->
         <!--</dependency>-->
 
-        <!-- aop切面 -->
-        <!--<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>-->
         <!-- SpringAOP-->
-        <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
@@ -348,12 +323,6 @@
             <!--<artifactId>spring-boot-starter-data-elasticsearch</artifactId>-->
         <!--</dependency>-->
 
-        <!--<dependency>-->
-            <!--<groupId>org.glassfish</groupId>-->
-            <!--<artifactId>jakarta.json</artifactId>-->
-            <!--<version>2.0.1</version> &lt;!&ndash; 请确保选择正确的版本 &ndash;&gt;-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
@@ -430,30 +399,7 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.metoo</groupId>
-            <artifactId>snmp</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
     </dependencies>
-
-    <!--私服配置-->
-    <!--https://blog.csdn.net/weixin_72637723/article/details/142602274-->
-    <!--<distributionManagement>-->
-        <!--<repository>-->
-            <!--<id>nexus-releases</id>-->
-            <!--<name>Nexus Release Repository</name>-->
-            <!--<url>http://43.153.82.44:8081/repository/IntelligentNetwork/</url>-->
-        <!--</repository>-->
-        <!--<snapshotRepository>-->
-            <!--<id>nexus-snapshots</id>-->
-            <!--<name>Nexus Snapshot Repository</name>-->
-            <!--<url>http://43.153.82.44:8081/repository/IntelligentNetwork/</url>-->
-        <!--</snapshotRepository>-->
-    <!--</distributionManagement>-->
-
 
     <build>
         <finalName>nrsm</finalName>
@@ -462,9 +408,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-
         </plugins>
-
     </build>
 
     <repositories>
