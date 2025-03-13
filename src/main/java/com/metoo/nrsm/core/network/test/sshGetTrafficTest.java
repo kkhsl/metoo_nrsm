@@ -15,7 +15,8 @@ public class sshGetTrafficTest {
         StringBuilder result = new StringBuilder();
         try {
             Session session = SnmpHelper.createSession();
-            String command = String.format("dis int vlanif %d", vlanId);
+//            String command = String.format("cat int vlanif %d", vlanId);
+            String command = String.format("cat int vlan vlan %d", vlanId);
 
             ChannelExec channel = (ChannelExec) session.openChannel("exec");
             channel.setCommand(command);

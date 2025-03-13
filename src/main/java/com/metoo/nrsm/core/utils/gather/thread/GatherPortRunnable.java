@@ -24,9 +24,7 @@ public class GatherPortRunnable implements Runnable{
 
 
     private NetworkElement networkElement;
-
     private Date date;
-
     private CountDownLatch latch;
 
     public GatherPortRunnable() {

@@ -1,8 +1,10 @@
 package com.metoo.nrsm.core.manager;
 
+import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
+import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.FlowStatistics;
 import com.metoo.nrsm.entity.FluxDailyRate;
 import com.metoo.nrsm.entity.GradeWeight;
@@ -13,10 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,8 +40,37 @@ public class GatherTaskScheduledUtilTest {
     private IGradWeightService gradWeightService;
     @Autowired
     private IFlowStatisticsService flowStatisticsService;
-    @Autowired
-    private ApiExecUtils apiExecUtils;
+
+    @GetMapping("start")
+    public Result gather(){
+        List list = new ArrayList();
+        String msg = "";
+        dhcpService.gather(DateTools.gatherDate());
+        dhcp6Service.gather(DateTools.gatherDate());
+
+        gatherService.gatherIpv4Thread(DateTools.gatherDate());
+        msg = "ipv4采集完成";
+        list.add(msg);
+        gatherService.gatherIpv4Detail(DateTools.gatherDate());
+
+        gatherService.gatherIpv6(DateTools.gatherDate());
+        gatherService.gatherPort(DateTools.gatherDate());
+        gatherService.gatherPortIpv6(DateTools.gatherDate());
+        msg = "ipv6采集完成";
+        list.add(msg);
+//        gatherService.gatherIsIpv6(DateTools.gatherDate());
+
+        gatherService.gatherArp(DateTools.gatherDate());
+        msg = "arp采集完成";
+        list.add(msg);
+        gatherService.gatherMac(DateTools.gatherDate());
+        msg = "mac采集完成";
+        list.add(msg);
+
+//        probeService.scanByTerminal();
+        return ResponseUtil.ok(list);
+
+    }
 
     // 第一步：检查设备snmp状态
     @GetMapping("snmp/status")

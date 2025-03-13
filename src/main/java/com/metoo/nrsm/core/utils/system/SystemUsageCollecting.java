@@ -19,7 +19,7 @@ public class SystemUsageCollecting {
     private IDiskService diskService;
 
 
-    @Scheduled(cron = "0 */1 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void dhcp6() {
         Long time=System.currentTimeMillis();
         log.info("System usage start ......");

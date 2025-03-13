@@ -61,7 +61,6 @@ public class GatherServiceImpl implements IGatherService {
     private Ipv4DetailService ipV4DetailService;
 
 
-//    private final GatherIpV4Runnable gatherIpV4Runnable;
     private final GatherDataThreadPool gatherDataThreadPool;
 
     @Autowired
@@ -259,7 +258,6 @@ public class GatherServiceImpl implements IGatherService {
             // 移除重复项-arp采集时，使用metoo_ipv4_duplicates表
             this.removeDuplicatesIpv4();
 
-            // 开始采集
             this.ipv4Service.truncateTableGather();
 
             CountDownLatch latch = new CountDownLatch(networkElements.size());
@@ -271,22 +269,12 @@ public class GatherServiceImpl implements IGatherService {
                     latch.countDown();
                     continue;
                 }
-
-                GatherIpV4Runnable gatherIpV4Runnable = new GatherIpV4Runnable(networkElement, date, latch);
-
-                // 提交任务到线程池
-                gatherDataThreadPool.addThread(gatherIpV4Runnable);
-
-//                submitTask(networkElement, date, latch);
-//                GatherDataThreadPool.getInstance().addThread(new GatherIpV4Runnable(networkElement, date, latch));
+                gatherDataThreadPool.addThread(new GatherIpV4Runnable(networkElement, date, latch));
             }
-
             try {
 
-                latch.await();// 等待结果线程池线程执行结束
-
+                latch.await();
                 log.info("ipv4 latch run end......" + latch.getCount());
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -545,21 +533,15 @@ public class GatherServiceImpl implements IGatherService {
             CountDownLatch latch = new CountDownLatch(networkElements.size());
 
             for (NetworkElement networkElement : networkElements) {
-
-
                 if(StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())){
                     latch.countDown();
                     continue;
                 }
-
-
                 GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6Runnable(networkElement, date, latch));
-
             }
 
             try {
-
-                latch.await();// 等待结果线程池线程执行结束
+                latch.await();
 
                 log.info("run end......" + latch.getCount());
 

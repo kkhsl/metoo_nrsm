@@ -48,11 +48,8 @@ public class TestIpdb {
 //            System.out.println(info.getCountryName());
 
 
-            Map m = db.findMap("113.246.54.0", "CN");
+            Map m = db.findMap("240e:380:2:1e1f:1000::b9", "CN");
             System.out.println(m);
-
-//            Map m2 = db.findMap("114.114.114.114", "CN");
-//            System.out.println(m2);
 
         } catch (Exception e) {
             e.printStackTrace();
