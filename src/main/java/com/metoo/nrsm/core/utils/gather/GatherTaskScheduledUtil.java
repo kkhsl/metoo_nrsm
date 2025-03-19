@@ -1,25 +1,34 @@
 package com.metoo.nrsm.core.utils.gather;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.Session;
+import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
+import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
+import com.metoo.nrsm.core.mapper.TrafficDataMapper;
+import com.metoo.nrsm.core.network.ssh.SnmpHelper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
 import com.metoo.nrsm.core.vo.LicenseVo;
-import com.metoo.nrsm.entity.FlowStatistics;
-import com.metoo.nrsm.entity.FluxDailyRate;
-import com.metoo.nrsm.entity.GradeWeight;
-import com.metoo.nrsm.entity.License;
+import com.metoo.nrsm.core.vo.Result;
+import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import javax.annotation.Resource;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -60,6 +69,12 @@ public class GatherTaskScheduledUtil {
     private AesEncryptUtils aesEncryptUtils;
     @Autowired
     private ApiService apiService;
+
+    @Resource
+    private TerminalUnitMapper terminalUnitMapper;
+
+    @Resource
+    private TrafficDataMapper trafficDataMapper;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -405,6 +420,156 @@ public class GatherTaskScheduledUtil {
             }
         }
         this.fluxDailyRateService.save(fluxDailyRate);
+    }
+
+    //@Scheduled(cron = "0 0/5 * * * ?")
+    public Result getTraffic() {
+        List<String> trafficResults = new ArrayList<>();
+
+        try {
+            List<UnitSubnet> unitSubnets = terminalUnitMapper.selectAll();
+            List<Integer> vlanList = unitSubnets.stream()
+                    .map(UnitSubnet::getVlan) // 提取 VLAN 字段
+                    .collect(Collectors.toList());
+
+            // 记录统一的时间戳
+            Date currentTime = new Date();
+
+            // 使用并行流处理每个 VLAN ID 获取流量数据
+            ConcurrentHashMap<Integer, TrafficData> trafficDataMap = vlanList.parallelStream()
+                    .map(vlanId -> {
+                        TrafficData trafficData = getTraffic(vlanId);
+                        return new AbstractMap.SimpleEntry<>(vlanId, trafficData);
+                    })
+                    .collect(Collectors.toConcurrentMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            (existing, replacement) -> existing,  // 合并冲突的值
+                            ConcurrentHashMap::new // 指定 ConcurrentHashMap 类型
+                    ));
+
+            // 构建结果字符串
+            trafficDataMap.forEach((vlanId, trafficData) -> {
+                String result = String.format("Traffic result for VLAN ID %d: IPv4 Input Rate: %s, IPv4 Output Rate: %s, IPv6 Input Rate: %s, IPv6 Output Rate: %s",
+                        vlanId, trafficData.getIpv4InputRate(), trafficData.getIpv4OutputRate(), trafficData.getIpv6InputRate(), trafficData.getIpv6OutputRate());
+                trafficResults.add(result);
+                // 保存流量数据时使用统一的时间戳
+                saveTrafficData(trafficData, currentTime);
+            });
+
+            return ResponseUtil.ok(trafficResults); // 返回所有流量数据结果
+        } catch (Exception e) {
+            return ResponseUtil.error("Failed to retrieve data: " + e.getMessage());
+        }
+    }
+
+    private void saveTrafficData(TrafficData trafficData, Date currentTime) {
+        trafficData.setAddTime(currentTime); // 使用统一的时间戳
+
+        try {
+            trafficDataMapper.insertTrafficData(trafficData);
+            System.out.println("Traffic data saved for VLAN ID " + trafficData.getVlanId());
+        } catch (Exception e) {
+            System.err.println("Error saving traffic data for VLAN ID " + trafficData.getVlanId() + ": " + e.getMessage());
+        }
+    }
+
+    public TrafficData getTraffic(int vlanId) {
+        StringBuilder result = new StringBuilder();
+        Session session = null;
+        ChannelExec channel = null;
+
+        try {
+            session = SnmpHelper.createSession(); // 创建会话
+            String command = String.format("cat vlan%d.txt", vlanId) ;
+
+            channel = (ChannelExec) session.openChannel("exec");
+            channel.setCommand(command);
+            channel.setInputStream(null);
+            channel.setErrStream(System.err);
+
+            // 获取命令输出
+            channel.connect();
+
+            InputStream in = channel.getInputStream();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line).append("\n");
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error executing command for VLAN ID " + vlanId + ": " + e.getMessage());
+            return createDefaultTrafficData(vlanId);
+        } finally {
+            // 确保正确关闭资源
+            if (channel != null) {
+                channel.disconnect();
+            }
+            if (session != null) {
+                session.disconnect();
+            }
+        }
+        // 解析并保存流量数据
+        return parseTrafficData(result.toString(), vlanId);
+    }
+
+    public TrafficData parseTrafficData(String output, int vlanId) {
+        String ipv4InputRate = "0";
+        String ipv4OutputRate = "0";
+        String ipv6InputRate = "0";
+        String ipv6OutputRate = "0";
+
+        String[] lines = output.split("\n");
+        boolean isIPv4Section = false;
+        boolean isIPv6Section = false;
+
+        for (String line : lines) {
+            if (line.contains("Ipv4:")) {
+                isIPv4Section = true;
+                isIPv6Section = false;
+            } else if (line.contains("Ipv6:")) {
+                isIPv6Section = true;
+                isIPv4Section = false;
+            }
+
+            // 提取输入速率
+            if (isIPv4Section && line.contains("Last 300 seconds input rate")) {
+                ipv4InputRate = extractRate(line);
+            } else if (isIPv6Section && line.contains("Last 300 seconds input rate")) {
+                ipv6InputRate = extractRate(line);
+            }
+
+            // 提取输出速率
+            if (isIPv4Section && line.contains("Last 300 seconds output rate")) {
+                ipv4OutputRate = extractRate(line);
+            } else if (isIPv6Section && line.contains("Last 300 seconds output rate")) {
+                ipv6OutputRate = extractRate(line);
+            }
+        }
+        // 返回流量数据对象
+        TrafficData trafficData = new TrafficData();
+        trafficData.setVlanId(vlanId);
+        trafficData.setIpv4InputRate(ipv4InputRate);
+        trafficData.setIpv4OutputRate(ipv4OutputRate);
+        trafficData.setIpv6InputRate(ipv6InputRate);
+        trafficData.setIpv6OutputRate(ipv6OutputRate);
+        return trafficData;
+    }
+
+    private String extractRate(String line) {
+        String[] parts = line.split(" ");
+        return parts[parts.length - 4]; // 获取速率
+    }
+    private TrafficData createDefaultTrafficData(int vlanId) {
+        TrafficData trafficData = new TrafficData();
+        trafficData.setVlanId(vlanId);
+        trafficData.setIpv4InputRate("0");
+        trafficData.setIpv4OutputRate("0");
+        trafficData.setIpv6InputRate("0");
+        trafficData.setIpv6OutputRate("0");
+        return trafficData;
     }
 
 }
