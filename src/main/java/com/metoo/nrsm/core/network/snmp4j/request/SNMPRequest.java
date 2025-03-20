@@ -167,8 +167,7 @@ public class SNMPRequest {
     public static String getDeviceArpV6Port(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 ArpV6Port 表遍历
         Map<String, String> arpV6PortMap = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP_V6_PORT);
-        System.out.println(arpV6PortMap);
-        return null;
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceArpPort(arpV6PortMap));
     }
 
     public static String getDevicePort(SNMPParams snmpParams) {
