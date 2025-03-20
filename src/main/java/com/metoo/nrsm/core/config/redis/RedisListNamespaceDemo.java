@@ -61,7 +61,7 @@ public class RedisListNamespaceDemo {
 
             do {
                 ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
-                cursor = scanResult.getCursor();
+                cursor = String.valueOf(scanResult.getCursor());
                 for (String key : scanResult.getResult()) {
                     if (jedis.type(key).equals("list")) {
                         List<String> listValues = jedis.lrange(key, 0, -1);

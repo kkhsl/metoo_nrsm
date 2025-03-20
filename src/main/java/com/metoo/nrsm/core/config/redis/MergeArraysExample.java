@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 /**
  * @author HKK
@@ -88,7 +87,7 @@ public class MergeArraysExample {
 
             do {
                 ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
-                cursor = scanResult.getCursor();
+                cursor = String.valueOf(scanResult.getCursor());
                 for (String key : scanResult.getResult()) {
 
                     Future<List<String>> future = executor.submit(() -> {
