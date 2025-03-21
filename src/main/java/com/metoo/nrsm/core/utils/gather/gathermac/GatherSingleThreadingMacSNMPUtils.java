@@ -7,10 +7,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
+import com.metoo.nrsm.core.utils.gather.thread.GatherMacSNMPRunnable;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.entity.*;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author HKK
@@ -29,7 +33,7 @@ import java.util.*;
  */
 @Slf4j
 @Component
-public class GatherSingleThreadingMacUtils {
+public class GatherSingleThreadingMacSNMPUtils {
 
     @Autowired
     private IMacService macService;
@@ -54,10 +58,12 @@ public class GatherSingleThreadingMacUtils {
 
         if (!networkElements.isEmpty()) {
 
+            CountDownLatch latch = new CountDownLatch(networkElements.size());
+
             gatherMacUtils.copyGatherData(date);
 
             // 更新终端
-//            updateTerminal(date);
+            updateTerminal(date);
 
             macService.truncateTableGather();
             int count = 0;
@@ -65,22 +71,38 @@ public class GatherSingleThreadingMacUtils {
 
                 if(StringUtils.isBlank(networkElement.getVersion())
                         || StringUtils.isBlank(networkElement.getCommunity())){
+                    latch.countDown();
                     logMessages.put("MAC：" + networkElement.getIp(), "设备信息异常");
                     continue;
                 }
 
                 // TODO 多余，查询设备时已经查询了是否存在
-                String hostName = getHostName(networkElement);
+//                GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, date, latch));
+                String hostName = getHostNameSNMP(networkElement);
 
                 if (StringUtils.isNotEmpty(hostName)) {
 
                     processNetworkElementData(networkElement, hostName, date);
+
                 }
+
                 count++;
+
                 logMessages.put("MAC：" + networkElement.getIp(), "采集完成");
 
             }
-            logMessages.put("MAC 采集总数", count);
+
+
+            try {
+
+                latch.await();
+
+                logMessages.put("MAC 采集总数", count);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
 
         }
         return logMessages;
@@ -92,10 +114,10 @@ public class GatherSingleThreadingMacUtils {
         getLldpDataSNMP(networkElement, hostName, date);
 
         log.info("getmac.py ====={}", networkElement.getIp());
-        getMacData(networkElement, hostName, date);
+        getMacDataSNMP(networkElement, hostName, date);
 
         log.info("getportmac.py ====={}", networkElement.getIp());
-        getPortMacData(networkElement, hostName, date);
+        getPortMacDataSNMP(networkElement, hostName, date);
     }
 
 
@@ -109,6 +131,14 @@ public class GatherSingleThreadingMacUtils {
         String hostName = pythonExecUtils.exec2(path, params);
 
         return hostName;
+    }
+
+    private String getHostNameSNMP(NetworkElement networkElement){
+        log.info("gethostname ===== {}", networkElement.getIp());
+        SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+        String hostName = SNMPRequest.getDeviceName(snmpParams);
+        return hostName;
+
     }
 
     public void getLldpData(NetworkElement networkElement, String hostName, Date date){
@@ -162,6 +192,22 @@ public class GatherSingleThreadingMacUtils {
         }
     }
 
+    public void getMacDataSNMP(NetworkElement networkElement, String hostName, Date date){
+        try {
+            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+            org.json.JSONArray result = SNMPRequest.getMac(snmpParams);
+            if (!result.isEmpty()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
+                processMacDataSNMP(networkElement, hostName, date, macList);
+            }
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
     // 处理获取到的MAC数据
     private void processMacData(NetworkElement networkElement, String hostName, Date date, String result) {
         try {
@@ -185,6 +231,29 @@ public class GatherSingleThreadingMacUtils {
             log.error("Error processing MAC data for IP: {}", networkElement.getIp(), e);
         }
     }
+
+    private void processMacDataSNMP(NetworkElement networkElement, String hostName, Date date, List<Mac> macList) {
+        try {
+            if (!macList.isEmpty()) {
+                List<Mac> validMacList = new ArrayList<>();
+                for (Mac mac : macList) {
+                    if ("3".equals(mac.getType())) {
+                        setMacDataFields(mac, networkElement, hostName, date);
+                        if (isMacWithSpecificPrefix(mac.getMac())) {
+                            mac.setTag("LV");
+                        }
+                        validMacList.add(mac);
+                    }
+                }
+                if (!validMacList.isEmpty()) {
+                    macService.batchSaveGather(validMacList);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error processing MAC data for IP: {}", networkElement.getIp(), e);
+        }
+    }
+
 
     // 判断 MAC 是否以指定前缀开始
     private boolean isMacWithSpecificPrefix(String mac) {
@@ -217,6 +286,25 @@ public class GatherSingleThreadingMacUtils {
         }
     }
 
+
+    public void getPortMacDataSNMP(NetworkElement networkElement, String hostName, Date date){
+
+        SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+        // 处理数据并返回结果
+        try {
+            org.json.JSONArray result = SNMPRequest.getPortMac(snmpParams);
+            if (!result.isEmpty()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
+                processPortMacDataSNMP(networkElement, hostName, date, macList);
+            }
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
     // 处理获取到的端口MAC数据
     private void processPortMacData(NetworkElement networkElement, String hostName, Date date, String result) {
         try {
@@ -241,6 +329,31 @@ public class GatherSingleThreadingMacUtils {
             log.error("Error processing port MAC data for IP: {}", networkElement.getIp(), e);
         }
     }
+
+    private void processPortMacDataSNMP(NetworkElement networkElement, String hostName, Date date, List<Mac> macList) {
+        try {
+            IMacService macService = (IMacService) ApplicationContextUtils.getBean("macServiceImpl");
+            if (!macList.isEmpty()) {
+                List<Mac> validMacList = new ArrayList<>();
+                for (Mac mac : macList) {
+                    if ("1".equals(mac.getStatus())) { // up 状态
+                        setMacDataFields(mac, networkElement, hostName, date);
+                        mac.setTag("L");
+                        if (isMacWithSpecificPrefix(mac.getMac())) {
+                            mac.setTag("LV");
+                        }
+                        validMacList.add(mac);
+                    }
+                }
+                if (!validMacList.isEmpty()) {
+                    macService.batchSaveGather(validMacList);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error processing port MAC data for IP: {}", networkElement.getIp(), e);
+        }
+    }
+
 
 
     /**

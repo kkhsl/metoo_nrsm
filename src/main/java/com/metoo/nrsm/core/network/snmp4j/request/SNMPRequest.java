@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * 设计线程安全方案
+ *
+ *
  */
 public class SNMPRequest {
 
@@ -52,7 +54,6 @@ public class SNMPRequest {
     public static PDU sendRequest(SNMPParams snmpParams, SNMP_OID snmpOid) {
         Snmp snmp = threadSnmp.get();
         if (snmp == null) {
-            System.err.println("SNMP 实例初始化失败");
             return null;
         }
 
@@ -66,16 +67,18 @@ public class SNMPRequest {
             ResponseEvent response = snmp.send(pdu, communityTarget);
             PDU responsePDU = response.getResponse();
 
-            if (responsePDU == null || responsePDU.getErrorStatus() != PDU.noError) {
-                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误"+responsePDU.getErrorStatusText());
+//            if (responsePDU == null || responsePDU.getErrorStatus() != PDU.noError) {
+//                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误"+responsePDU.getErrorStatusText());
+//            }
+            if (responsePDU != null) {
+                return responsePDU;
             }
-            return responsePDU;
 
         } catch (Exception e) {
-            System.err.println("请求异常: " + e.getClass().getSimpleName() + ": " + e.getMessage());
             e.printStackTrace();
             return null;
         }
+        return null;
     }
 
     private static Map<String, String> sendGETNEXTRequest(SNMPParams snmpParams, SNMP_OID snmpOid) {

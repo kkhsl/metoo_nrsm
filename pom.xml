@@ -40,6 +40,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!--  分页查询插件：暂时使用分页插件，后续改为自己封装分页查询  -->
         <dependency>
             <groupId>com.github.pagehelper</groupId>

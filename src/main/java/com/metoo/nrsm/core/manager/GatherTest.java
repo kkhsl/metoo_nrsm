@@ -1,21 +1,23 @@
 package com.metoo.nrsm.core.manager;
 
+import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.utils.api.ApiExecUtils;
+import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacUtils;
-import com.metoo.nrsm.core.utils.gather.snmp.utils.MacManager;
 import com.metoo.nrsm.core.utils.gather.thread.*;
+import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.core.vo.SystemUsageVO;
 import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
 import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +27,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RequestMapping("/admin/gather/test")
+@RequestMapping("/admin/gather/test/a")
 @RestController
-public class GatherTaskScheduledUtilTest {
+public class GatherTest {
 
     private boolean flag = true;
     @Autowired
@@ -67,87 +69,15 @@ public class GatherTaskScheduledUtilTest {
     @Autowired
     private GatherSingleThreadingMacUtils gatherSingleThreadingMacUtils;
     @Autowired
-    private MacManager macManager;
+    private PythonExecUtils pythonExecUtils;
 
 
     private final GatherDataThreadPool gatherDataThreadPool;
     @Autowired
-    public GatherTaskScheduledUtilTest( GatherDataThreadPool gatherDataThreadPool) {
+    public GatherTest(GatherDataThreadPool gatherDataThreadPool) {
         this.gatherDataThreadPool = gatherDataThreadPool;
     }
 
-    @GetMapping("lldp")
-    public void getMacLLDP() {
-
-        Date date = new Date();
-
-        List<NetworkElement> networkElements = this.getGatherDevice();
-        for (NetworkElement networkElement : networkElements) {
-
-            String hostName = SNMPRequest.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
-
-            macManager.getLldpDataSNMP(networkElement, date, hostName);
-        }
-
-    }
-
-    @GetMapping("getMac")
-    public void getMac() {
-
-        Date date = new Date();
-
-        List<NetworkElement> networkElements = this.getGatherDevice();
-        for (NetworkElement networkElement : networkElements) {
-
-            String hostName = SNMPRequest.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
-
-            macManager.getMacData(networkElement, date, hostName);
-        }
-
-    }
-
-    @GetMapping("mac2")
-    public void gatherMac2() {
-
-        Date date = new Date();
-
-        List<NetworkElement> networkElements = this.getGatherDevice();
-
-        CountDownLatch latch = new CountDownLatch(networkElements.size());
-
-//        gatherMacUtils.copyGatherData(date);
-
-        macService.truncateTableGather();
-
-        for (NetworkElement networkElement : networkElements) {
-
-            if(StringUtils.isBlank(networkElement.getVersion())
-                    || StringUtils.isBlank(networkElement.getCommunity())){
-                latch.countDown();
-                continue;
-            }
-
-            GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, date, latch));
-
-        }
-
-        try {
-
-            latch.await();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @GetMapping("mac3")
-    public void gatherMac3() {
-        Date date = new Date();
-
-        List<NetworkElement> networkElements = this.getGatherDevice();
-        gatherSingleThreadingMacUtils.gatherMac(networkElements, date);
-    }
 
     // 获取需要采集的设备
     public List<NetworkElement> getGatherDevice(){
@@ -169,34 +99,19 @@ public class GatherTaskScheduledUtilTest {
 
     @GetMapping("/snmp/ipv4")
     public void gatherIpv4Thread() {
-
         Date date = new Date();
-
         List<NetworkElement> networkElements = this.getGatherDevice();
-
-        if(networkElements.size() > 0) {
-
-            this.ipv4Service.truncateTableGather();
-
-            CountDownLatch latch = new CountDownLatch(networkElements.size());
-
-            for (NetworkElement networkElement : networkElements) {
-
-                if(StringUtils.isBlank(networkElement.getVersion())
-                        || StringUtils.isBlank(networkElement.getCommunity())){
-                    latch.countDown();
-                    continue;
-                }
-
-                gatherDataThreadPool.addThread(new GatherIPv4SNMPRunnable(networkElement, date, latch));
-            }
-
+        for (NetworkElement networkElement : networkElements) {
+            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
             try {
-                latch.await();
-            } catch (InterruptedException e) {
+                JSONArray result = SNMPRequest.getArp(snmpParams);
+                log.info("snmp result {}", result);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
             }
         }
+
     }
 
     @GetMapping("/snmp/ipv6")
@@ -318,160 +233,20 @@ public class GatherTaskScheduledUtilTest {
                 e.printStackTrace();
             }
         }
-
-
-    }
-
-
-    @PostMapping("start")
-    public Result gather(@RequestBody(required = false) List<String> ips){
-        Date start = new Date();
-        Map params = new HashMap();
-        params.put("ips", ips);
-        List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-        List list = new ArrayList();
-        String msg = "";
-
-        log.info("dhcp ===== ");
-        dhcpService.gather(DateTools.gatherDate());
-
-        log.info("dhcp6 ===== ");
-        dhcp6Service.gather(DateTools.gatherDate());
-
-        log.info("IPV4 ===== ");
-        Map ipv4LogMessages = gatherService.gatherIpv4Thread(DateTools.gatherDate(), networkElements);
-        list.add(ipv4LogMessages);
-
-        msg = "IPv4 ARP采集完成";
-        list.add(msg);
-        log.info("IPV4Detail ===== ");
-        gatherService.gatherIpv4Detail(DateTools.gatherDate());
-
-        log.info("IPV6 ===== ");
-        Map ipv6LogMessages = gatherService.gatherIpv6Thread(DateTools.gatherDate(), networkElements);
-        list.add(ipv6LogMessages);
-
-        log.info("PORT ===== ");
-        gatherService.gatherPort(DateTools.gatherDate(), networkElements);
-        log.info("PORT6 ===== ");
-        gatherService.gatherPortIpv6(DateTools.gatherDate(), networkElements);
-        msg = "IPv6 ARP采集完成";
-        list.add(msg);
-//        gatherService.gatherIsIpv6(DateTools.gatherDate());
-
-        log.info("ARP ===== ");
-        gatherService.gatherArp(DateTools.gatherDate());
-        msg = "arp分析完成";
-        list.add(msg);
-
-        log.info("MAC ===== ");
-        Map macLogMessages = gatherService.gatherMac(DateTools.gatherDate(), networkElements);
-        list.add(macLogMessages);
-
-        msg = "mac采集完成";
-        list.add(msg);
-
-//        probeService.scanByTerminal();
-
-        Date end = new Date();
-
-        params.clear();
-        params.put("startTime", start);
-        params.put("endTime", end);
-        List<SystemUsageVO> systemUsageList = this.systemUsageService.selectObjVOByMap(params);
-        list.addAll(systemUsageList);
-
-        return ResponseUtil.ok(list);
-
-    }
-
-    // 第一步：检查设备snmp状态
-    @GetMapping("snmp/status")
-    public void snmpStatus() {
-        if(flag){
-            Long time = System.currentTimeMillis();
-            log.info("snmp status Start......");
-            try {
-                this.gatherService.gatherSnmpStatus();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            log.info("snmp status End......" + (System.currentTimeMillis()-time));
-        }
-    }
-
-    @GetMapping("dhcp")
-    public void gatherDhcp() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("DHCP Start......");
-            try {
-                dhcpService.gather(DateTools.gatherDate());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            log.info("DHCP End......" + (System.currentTimeMillis()-time));
-        }
-    }
-
-    @GetMapping("dhcp6")
-    public void gatherDhcp6() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("DHCP6 Start......");
-            try {
-                dhcp6Service.gather(DateTools.gatherDate());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            log.info("DHCP6 End......" + (System.currentTimeMillis()-time));
-        }
-    }
-
-    @GetMapping("arp")
-    public void gatherArp() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("arp Start......");
-            try {
-//                arpService.gatherArp(date);
-                gatherService.gatherArp(DateTools.gatherDate());
-            } catch (Exception e) {
-
-                e.printStackTrace();
-            }
-            log.info("arp End......" + (System.currentTimeMillis()-time));
-        }
-    }
-
-    @GetMapping("mac")
-    public void gatherMac() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("mac Start......");
-            try {
-                gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
-//                gatherService.gatherMacThread(DateTools.gatherDate());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            log.info("mac End......" + (System.currentTimeMillis()-time));
-        }
     }
 
     @GetMapping("ipv4")
     public void gatherIpv4() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("Ipv4 Start......");
-            try {
-                gatherService.gatherIpv4(DateTools.gatherDate());
-//                gatherService.gatherIpv4Thread(DateTools.gatherDate());
-            } catch (Exception e) {
-                e.printStackTrace();
+        List<NetworkElement> networkElements = this.getGatherDevice();
+        if(networkElements.size() > 0) {
+            for (NetworkElement networkElement : networkElements) {
+                String path = Global.PYPATH + "getarp.py";
+
+                String[] params = {networkElement.getIp(), networkElement.getVersion(),
+                        networkElement.getCommunity()};
+                String result = pythonExecUtils.exec(path, params);
+                log.info("python result {}", result);
             }
-            log.info("Ipv4 End......" + (System.currentTimeMillis()-time));
         }
     }
 

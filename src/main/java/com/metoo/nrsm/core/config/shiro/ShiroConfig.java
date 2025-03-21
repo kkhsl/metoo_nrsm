@@ -81,6 +81,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/file/**", "anon");
         filterChainDefinitionMap.put("/webssh", "anon");
 
+        filterChainDefinitionMap.put("/admin/gather/**", "anon");
 
         filterChainDefinitionMap.put("/admin/test/**", "anon");
 
@@ -94,7 +95,6 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/idempotent", "anon");
 
         filterChainDefinitionMap.put("/probeNmap/uploadScanResult", "anon");
-        filterChainDefinitionMap.put("/nrsm/admin/test/**", "anon");
 
         filterChainDefinitionMap.put("/buyer/**", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
 

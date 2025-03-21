@@ -16,39 +16,45 @@ public class SnmpStatusUtils {
     private static MyRedisManager snmp = new MyRedisManager("snmp");
 
     // 优化redis数据获取，避免数据量过多，造成的性能问题
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     // 获取在线设备，然后redis在线设备改为离线
-    public void editSnmpStatus(List<String> keys){
+    public void editSnmpStatus(Set<String> newDevices) {
 
-        Set<String> hash_keys = snmp.keys();
+        Set<String> existingDevices = snmp.keys();
 
-        if(keys.size() <= 0){
-            for (String hash_key : hash_keys) {
+        // 如果没有新设备，全部设为 0
+        if (newDevices.isEmpty()) {
+            for (String hash_key : existingDevices) {
                 snmp.put(hash_key, 0);
             }
             return;
         }
 
-        // 离线设备，删除，避免冗余数据的增加
-        for (String hash_key : hash_keys) {
-            if(keys.contains(hash_key)){
-                if(snmp.get(hash_key).equals(0)){
-                    snmp.put(hash_key, 1);
-                }/*else if(snmp.get(hash_key).equals(1)){
-                    snmp.put(hash_key, 0);
-                }*/
+        // 离线设备处理：更新当前设备状态
+        for (String device : existingDevices) {
+            if (newDevices.contains(device)) {
+                if (snmp.get(device).equals(0)) {
+                    snmp.put(device, 1);
+                }
+            } else {
+                // 如果设备不在新设备列表中，设置为离线状态（0）
+                snmp.put(device, 0);
             }
         }
-        keys.removeAll(hash_keys);
-        if(keys.size() > 0){
-            for (String key : keys) {
+
+        // 对于新设备，若当前设备列表中没有，设为 1
+        newDevices.removeAll(existingDevices);
+        if (newDevices.size() > 0) {
+            for (String key : newDevices) {
                 snmp.put(key, 1);
             }
         }
     }
 
     // 频繁取，每分钟取，存
-    public Set<String> getOnlineDevice(){
+    public Set<String> getOnlineDevice() {
         Set<String> uuids = new HashSet<>();
         Set<String> hash_keys = null;
         try {
@@ -56,19 +62,17 @@ public class SnmpStatusUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(hash_keys != null && !hash_keys.isEmpty()){
+        if (hash_keys != null && !hash_keys.isEmpty()) {
             for (String hash_key : hash_keys) {
                 Integer value = (Integer) snmp.get(hash_key);
-                if(value == 1){
+                if (value == 1) {
                     uuids.add(hash_key);
-                };
+                }
+                ;
             }
         }
         return uuids;
     }
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     // 分批读取
     public void scanValue() {

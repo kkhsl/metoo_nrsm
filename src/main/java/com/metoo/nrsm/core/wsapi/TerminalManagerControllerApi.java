@@ -87,8 +87,6 @@ public class TerminalManagerControllerApi {
     private List<Terminal> fetchTerminalData(String uuid, String time, boolean isHistoricalData) {
         Map<String, Object> params = new HashMap<>();
         List<Terminal> terminalList = new ArrayList<>();
-
-        // 根据是否为历史数据来查询
         params.put("deviceUuid", uuid);
         List<Terminal> terminals;
         if (isHistoricalData) {

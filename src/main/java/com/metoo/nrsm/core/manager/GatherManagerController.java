@@ -45,7 +45,7 @@ public class GatherManagerController {
         Long time=System.currentTimeMillis();
         log.info("mac Start......");
         try {
-            this.gatherService.gatherMac(DateTools.gatherDate());
+            this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
         } catch (Exception e) {
             log.error("Error occurred during MAC", e);
         }

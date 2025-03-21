@@ -320,7 +320,7 @@ public class SNMPDataParser {
                 return true; // 设备支持 IPv6
             }
         }
-        return null;
+        return false;
     }
 
 }

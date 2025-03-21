@@ -38,37 +38,74 @@ public class TestController {
     private ApiService apiService;
     @Autowired
     private RestTemplate restTemplate;
+//
+//    public static void main(String[] args) {
+//        SystemInfo systemInfo = new SystemInfo();
+//        CentralProcessor processor = systemInfo.getHardware().getProcessor();
+//
+//        // 获取 CPU 核心数量
+//        int cpuCoreCount = processor.getLogicalProcessorCount();
+//
+//        // 获取 CPU 使用情况
+//        long[] prevTicks = processor.getSystemCpuLoadTicks();
+//        Util.sleep(1000);  // 等待 1 秒钟，以便获取负载变化
+//        long[] ticks = processor.getSystemCpuLoadTicks();
+//
+//        // 计算每个核心的 CPU 使用率
+//        double totalCpuLoad = 0.0;
+//        for (int i = 0; i < cpuCoreCount; i++) {
+//            // 获取每个核心的 CPU 使用率
+//            double cpuLoad = processor.getProcessorCpuLoadBetweenTicks(prevTicks[i], ticks[i]) * 100;
+//            System.out.println("CPU Core " + i + " usage: " + String.format("%.2f", cpuLoad) + "%");
+//            totalCpuLoad += cpuLoad;
+//        }
+//
+//        // 计算整体 CPU 使用率
+//        double averageCpuLoad = totalCpuLoad / cpuCoreCount;
+//        System.out.println("Total CPU usage: " + String.format("%.2f", averageCpuLoad) + "%");
+//    }
 
-    @GetMapping("exception")
-    public R<?> exception(){
-        throw new CustomRuntimeException(400, "测试自定义运行异常类");
+    @GetMapping("cpuinfo")
+    public void cpuinfo() {
+        // 获取 CPU 数量
+        int cpuCount = Runtime.getRuntime().availableProcessors();
+        System.out.println("CPU 数量: " + cpuCount);
+
+        // 获取操作系统的 CPU 使用率（如果支持）
+        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
+            try {
+                double cpuLoad = ((com.sun.management.OperatingSystemMXBean) osBean).getSystemCpuLoad() * 100;  // 获取 CPU 使用率，乘以 100 转为百分比
+                System.out.println("CPU 使用率: " + cpuLoad + "%");
+            } catch (UnsupportedOperationException e) {
+                System.out.println("当前 JVM 不支持获取 CPU 使用率");
+            }
+        } else {
+            System.out.println("无法获取 CPU 使用率，当前 JVM 不支持该操作");
+        }
     }
 
 
-
-    @GetMapping("metrics")
     public String metrics() {
-//        return SystemUsageUtils.rate();
-
 
         // 创建 SystemInfo 实例来获取系统信息
         SystemInfo systemInfo = new SystemInfo();
 
         // 获取硬件信息
-        CentralProcessor processor = systemInfo.getHardware().getProcessor();
-        GlobalMemory memory = systemInfo.getHardware().getMemory();
 
         // 获取操作系统信息
         OperatingSystem os = systemInfo.getOperatingSystem();
         FileSystem fileSystem = os.getFileSystem();
 
         // 获取 CPU 使用情况
+        CentralProcessor processor = systemInfo.getHardware().getProcessor();
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         Util.sleep(1000);  // 等待 1 秒钟以便获取负载变化
         long[] ticks = processor.getSystemCpuLoadTicks();
         double cpuLoad = processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100;
 
         // 获取内存信息
+        GlobalMemory memory = systemInfo.getHardware().getMemory();
         long totalMemory = memory.getTotal();  // 总内存
         long availableMemory = memory.getAvailable();  // 可用内存
         double memoryUsage = 100.0 * (1 - ((double) availableMemory / (double) totalMemory));
@@ -81,6 +118,8 @@ public class TestController {
 
         return "";
     }
+
+
 
     @GetMapping("cpu")
     public void cpu() {

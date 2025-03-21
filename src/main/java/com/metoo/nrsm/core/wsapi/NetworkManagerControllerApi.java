@@ -7,6 +7,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.dto.NetworkElementDto;
 import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.gather.snmp.utils.DeviceManager;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.wsapi.utils.NoticeWebsocketResp;
 import com.metoo.nrsm.core.wsapi.utils.RedisResponseUtils;
@@ -38,6 +39,8 @@ public class NetworkManagerControllerApi {
     private RedisResponseUtils redisResponseUtils;
     @Autowired
     private PythonExecUtils pythonExecUtils;
+    @Autowired
+    private DeviceManager deviceManager;
 
     /**
      *{"noticeType":"201","userId":"1","params":{"currentPage":1,"pageSize":20}}
@@ -45,6 +48,45 @@ public class NetworkManagerControllerApi {
      * @param requestParams
      * @return
      */
+//    @RequestMapping("/list")
+//    public NoticeWebsocketResp testApi(@RequestParam(value = "requestParams") String requestParams){
+//        NoticeWebsocketResp rep = new NoticeWebsocketResp();
+//        if(requestParams != null && !requestParams.isEmpty()){
+//            Map param = JSONObject.parseObject(requestParams, Map.class);
+//            String sessionId = (String) param.get("sessionId");
+//            Map result = new HashMap();
+//            // 获取类型
+//            NetworkElementDto dto = JSONObject.parseObject(param.get("params").toString(), NetworkElementDto.class);
+//            if (dto == null) {
+//                dto = new NetworkElementDto();
+//            }
+//            Page<NetworkElement> page = this.networkElementService.selectConditionQuery(dto);
+//            if (page.getResult().size() > 0) {
+//                for (NetworkElement ne : page.getResult()) {
+//                    // snmp状态
+//                    if(StringUtils.isEmpty(ne.getCommunity()) || StringUtils.isEmpty(ne.getVersion())){
+//                        result.put(ne.getIp(), "3");
+//                    }else{
+//                        String path = Global.PYPATH + "gethostname.py";
+//                        String[] params = {ne.getIp(), ne.getVersion(),
+//                                ne.getCommunity()};
+//                        String hostname = pythonExecUtils.exec(path, params);
+//                        result.put(ne.getIp(), "2");
+//                        if(StringUtils.isNotEmpty(hostname)){
+//                            result.put(ne.getIp(), "1");
+//                        }
+//                    }
+//                }
+//                rep.setNoticeType("201");
+//                rep.setNoticeStatus(1);
+//                rep.setNoticeInfo(result);
+//                this.redisResponseUtils.syncRedis(sessionId, result, 201);
+//            }
+//        }
+//        rep.setNoticeStatus(0);
+//        return rep;
+//    }
+
     @RequestMapping("/list")
     public NoticeWebsocketResp testApi(@RequestParam(value = "requestParams") String requestParams){
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
@@ -59,18 +101,19 @@ public class NetworkManagerControllerApi {
             }
             Page<NetworkElement> page = this.networkElementService.selectConditionQuery(dto);
             if (page.getResult().size() > 0) {
-                for (NetworkElement ne : page.getResult()) {
+                for (NetworkElement networkElement : page.getResult()) {
                     // snmp状态
-                    if(StringUtils.isEmpty(ne.getCommunity()) || StringUtils.isEmpty(ne.getVersion())){
-                        result.put(ne.getIp(), "3");
+                    if(StringUtils.isEmpty(networkElement.getCommunity()) || StringUtils.isEmpty(networkElement.getVersion())){
+                        result.put(networkElement.getIp(), "3");
                     }else{
-                        String path = Global.PYPATH + "gethostname.py";
-                        String[] params = {ne.getIp(), ne.getVersion(),
-                                ne.getCommunity()};
-                        String hostname = pythonExecUtils.exec(path, params);
-                        result.put(ne.getIp(), "2");
+//                        String path = Global.PYPATH + "gethostname.py";
+//                        String[] params = {networkElement.getIp(), networkElement.getVersion(),
+//                                networkElement.getCommunity()};
+//                        String hostname = pythonExecUtils.exec(path, params);
+                        String hostname = deviceManager.getDeviceNameByIpAndCommunityVersion(networkElement);
+                        result.put(networkElement.getIp(), "2");
                         if(StringUtils.isNotEmpty(hostname)){
-                            result.put(ne.getIp(), "1");
+                            result.put(networkElement.getIp(), "1");
                         }
                     }
                 }

@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.service;
 
+import com.metoo.nrsm.core.vo.SystemUsageVO;
 import com.metoo.nrsm.entity.SystemUsage;
 
 import java.util.List;
@@ -11,6 +12,8 @@ public interface ISystemUsageService {
     void saveSystemUsageToDatabase();
 
     List<SystemUsage> selectObjByMap(Map params);
+
+    List<SystemUsageVO> selectObjVOByMap(Map params);
 
     boolean save(SystemUsage instance);
 }

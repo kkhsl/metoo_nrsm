@@ -1,6 +1,10 @@
 package com.metoo.nrsm.core.service;
 
+import com.metoo.nrsm.entity.NetworkElement;
+
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author HKK
@@ -9,7 +13,7 @@ import java.util.Date;
  */
 public interface IGatherService {
 
-    void gatherMac(Date date);
+    Map gatherMac(Date date, List<NetworkElement> networkElements);
 
     void gatherMacThread(Date date);
 
@@ -17,17 +21,17 @@ public interface IGatherService {
 
     void gatherIpv4(Date date);
 
-    void gatherIpv4Thread(Date date);
+    Map gatherIpv4Thread(Date date, List<NetworkElement> networkElements);
 
     void gatherIpv4Detail(Date date);
 
-    void gatherIpv6(Date date);
+    Map gatherIpv6(Date date, List<NetworkElement> networkElements);
 
-    void gatherIpv6Thread(Date date);
+    Map gatherIpv6Thread(Date date, List<NetworkElement> networkElements);
 
-    void gatherPort(Date date);
+    void gatherPort(Date date, List<NetworkElement> networkElements);
 
-    void gatherPortIpv6(Date date);
+    void gatherPortIpv6(Date date, List<NetworkElement> networkElements);
 
     void gatherIsIpv6(Date date);
 

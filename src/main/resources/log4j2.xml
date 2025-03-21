@@ -44,7 +44,7 @@
                      fileName="${log4j2.file.path}/nrsm.log"
                      filepattern="${log4j2.file.path}/$${date:yyyy-MM-dd}/rollog-%d{yyyy-MM-dd}-%i.log">
 
-            <patternLayout pattern="%d{yyyy-MM-dd-HH:mm}[%t] [%-5level] %logger{36} - %msg%n"/>
+            <patternLayout pattern="%d{yyyy-MM-dd-HH:mm:ss}[%t] [%-5level] %logger{36} - %msg%n"/>
 
             <Policies>
                 <!--在系统启动是时，触发拆分规则，产生一个日志文件-->

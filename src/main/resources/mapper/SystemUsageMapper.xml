@@ -12,6 +12,15 @@
         </where>
     </select>
 
+    <select id="selectObjVOByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.core.vo.SystemUsageVO">
+        SELECT * FROM metoo_system_usage
+        <where>
+            <if test="startTime != null and endTime != null">
+                AND addTime between #{startTime} AND #{endTime}
+            </if>
+        </where>
+    </select>
+
     <insert id="save" parameterType="com.metoo.nrsm.entity.SystemUsage">
         INSERT INTO metoo_system_usage
         <trim prefix="(" suffix=")" suffixOverrides=",">

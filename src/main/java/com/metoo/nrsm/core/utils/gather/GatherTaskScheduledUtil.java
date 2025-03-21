@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.date.DateTools;
+import com.metoo.nrsm.core.utils.gather.snmp.utils.DeviceManager;
 import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
 import com.metoo.nrsm.core.vo.LicenseVo;
 import com.metoo.nrsm.entity.FlowStatistics;
@@ -60,6 +61,8 @@ public class GatherTaskScheduledUtil {
     private AesEncryptUtils aesEncryptUtils;
     @Autowired
     private ApiService apiService;
+    @Autowired
+    private DeviceManager deviceManager;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -167,14 +170,13 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-//    @org.springframework.scheduling.annotation.Scheduled(cron = "*/10 * * * * ?")
     @Scheduled(cron = "0 */3 * * * ?")
     public void mac() {
         if(flag){
             Long time=System.currentTimeMillis();
             log.info("mac Start......");
             try {
-                this.gatherService.gatherMac(DateTools.gatherDate());
+                this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
 //                gatherService.gatherMacThread(DateTools.gatherDate());
             } catch (Exception e) {
                 log.error("Error occurred during MAC", e);
@@ -192,7 +194,7 @@ public class GatherTaskScheduledUtil {
             log.info("Ipv4 Start......");
             try {
 //                gatherService.gatherIpv4(DateTools.gatherDate());
-                gatherService.gatherIpv4Thread(DateTools.gatherDate());
+                gatherService.gatherIpv4Thread(DateTools.gatherDate(), new ArrayList<>());
             } catch (Exception e) {
                 log.error("Error occurred during IPV4", e);
             }
@@ -221,8 +223,8 @@ public class GatherTaskScheduledUtil {
             Long time=System.currentTimeMillis();
             log.info("Ipv6 Start......");
             try {
-                gatherService.gatherIpv6(DateTools.gatherDate());
-//                gatherService.gatherIpv6Thread(DateTools.gatherDate());
+//                gatherService.gatherIpv6(DateTools.gatherDate());
+                gatherService.gatherIpv6Thread(DateTools.gatherDate(), new ArrayList<>());
             } catch (Exception e) {
                 log.error("Error occurred during IPV6", e);
             }
@@ -230,14 +232,13 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    //    @Scheduled(cron = "0 */3 * * * ?")
-    @Scheduled(fixedDelay = 180000)
+    @Scheduled(cron = "0 */3 * * * ?")
     public void port() {
         if(flag){
             Long time = System.currentTimeMillis();
             log.info("Port Start......");
             try {
-                gatherService.gatherPort(DateTools.gatherDate());
+                gatherService.gatherPort(DateTools.gatherDate(), new ArrayList<>());
             } catch (Exception e) {
                 log.error("Error occurred during PORT", e);
             }
@@ -245,14 +246,13 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    //    @Scheduled(cron = "0 */3 * * * ?")
-    @Scheduled(fixedDelay = 180000)
+    @Scheduled(cron = "0 */3 * * * ?")
     public void portIpv6() {
         if(flag){
             Long time = System.currentTimeMillis();
             log.info("PortIpv6 Start......");
             try {
-                gatherService.gatherPortIpv6(DateTools.gatherDate());
+                gatherService.gatherPortIpv6(DateTools.gatherDate(), new ArrayList<>());
             } catch (Exception e) {
                 log.error("Error occurred during PortIpv6", e);
             }
@@ -260,10 +260,8 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    ////////////////////////////////////////////
 
-    //    @Scheduled(cron = "0 */3 * * * ?")
-    @Scheduled(fixedDelay = 180000)
+    @Scheduled(cron = "0 */3 * * * ?")
     public void isIpv6() {
         if(flag){
             Long time = System.currentTimeMillis();
@@ -277,7 +275,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    @Scheduled(fixedDelay = 180000)
+    @Scheduled(cron = "0 */3 * * * ?")
     public void flux() {
         if(flag) {
             Long time = System.currentTimeMillis();
@@ -306,27 +304,15 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-//    @Scheduled(fixedDelay = 180000)
-//    public void snmpStatus() {
-//        if(flag){
-//            Long time = System.currentTimeMillis();
-//            log.info("Snmp status start......");
-//            try {
-//                this.gatherService.gatherSnmpStatus();
-//            } catch (Exception e) {
-//                log.error("Error occurred during SNMP", e);
-//            }
-//            log.info("Snmp status end......" + (System.currentTimeMillis()-time));
-//        }
-//    }
 
+    // TODO 已同步|待增加并发采集
     @Scheduled(cron = "0 */1 * * * ?")
     public void snmpStatus() {
         if(flag){
             Long time = System.currentTimeMillis();
             log.info("Snmp status start......");
             try {
-                this.gatherService.gatherSnmpStatus();
+                 deviceManager.saveAvailableDevicesToRedis();
             } catch (Exception e) {
                 log.error("Error occurred during SNMP", e);
             }
@@ -336,9 +322,9 @@ public class GatherTaskScheduledUtil {
 
 
 
-    @Scheduled(fixedDelay = 1800000)
+    @Scheduled(cron = "0 */3 * * * ?")
     public void probe() {
-        if(flag){
+        if(false){
             Long time = System.currentTimeMillis();
             log.info("Probe start......");
             try {

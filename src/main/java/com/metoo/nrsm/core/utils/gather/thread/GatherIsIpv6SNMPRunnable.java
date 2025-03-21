@@ -2,11 +2,14 @@ package com.metoo.nrsm.core.utils.gather.thread;
 
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -19,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherIsIpv6Runnable implements Runnable{
+public class GatherIsIpv6SNMPRunnable implements Runnable{
 
     private NetworkElement networkElement;
 
@@ -27,40 +30,35 @@ public class GatherIsIpv6Runnable implements Runnable{
 
     private CountDownLatch latch;
 
-    public GatherIsIpv6Runnable() {
+    public GatherIsIpv6SNMPRunnable() {
     }
 
-    public GatherIsIpv6Runnable(NetworkElement networkElement, Date date) {
+    public GatherIsIpv6SNMPRunnable(NetworkElement networkElement, Date date) {
         this.networkElement = networkElement;
         this.date = date;
     }
 
-    public GatherIsIpv6Runnable(NetworkElement networkElement, Date date, CountDownLatch latch) {
+    public GatherIsIpv6SNMPRunnable(NetworkElement networkElement, Date date, CountDownLatch latch) {
         this.networkElement = networkElement;
         this.date = date;
         this.latch = latch;
     }
 
-
     @Override
     public void run() {
-        PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
-        String path = Global.PYPATH +  "isipv6.py";
-        String[] params = {networkElement.getIp(), networkElement.getVersion(),
-                networkElement.getCommunity()};
-        String result = pythonExecUtils.exec(path, params);
-        if(StringUtil.isNotEmpty(result)){
+        try {
             INetworkElementService networkElementServiceImpl = (INetworkElementService) ApplicationContextUtils.getBean("networkElementServiceImpl");
-            try {
-                networkElement.setIsipv6(Boolean.valueOf(result));
+            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+            Boolean result = SNMPRequest.getIsV6(snmpParams);
+            if(result != null){
+                networkElement.setIsipv6(result);
                 networkElementServiceImpl.update(networkElement);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.info(networkElement.getIp() + " : " + result);
-            } finally {
-                if(latch != null){
-                    latch.countDown();
-                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(latch != null){
+                latch.countDown();
             }
         }
     }

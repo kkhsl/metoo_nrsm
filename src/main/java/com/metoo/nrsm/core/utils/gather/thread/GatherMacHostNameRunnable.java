@@ -1,6 +1,8 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.NetworkElement;
@@ -44,36 +46,20 @@ public class GatherMacHostNameRunnable implements Runnable{
 
     @Override
     public void run() {
-        log.info(Thread.currentThread().getName() + ": gethostname.py + : " + networkElement.getIp());
         try {
-            String path = Global.PYPATH + "gethostname.py";
+            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+            String result = SNMPRequest.getDeviceName(snmpParams);
 
-            PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
+            if(StringUtils.isNotEmpty(result)){
 
-            String[] params = {networkElement.getIp(), networkElement.getVersion(),
-                    networkElement.getCommunity()};
+                GatherDataThreadPool.getInstance().addThread(new GatherMacGetlldpRunnable(networkElement, date, result, latch));
 
-            String hostname = pythonExecUtils.exec2(path, params);
-            if(StringUtils.isNotEmpty(hostname)){
-                GatherDataThreadPool.getInstance().addThread(new GatherMacGetlldpRunnable(networkElement, date, hostname, latch));
+                GatherDataThreadPool.getInstance().addThread(new GatherMacGetMacRunnable(networkElement, date, result, latch));
 
-                GatherDataThreadPool.getInstance().addThread(new GatherMacGetMacRunnable(networkElement, date, hostname, latch));
-
-                GatherDataThreadPool.getInstance().addThread(new GatherMacGetPortMacRunnable(networkElement, date, hostname, latch));
-            }else{
-                if(latch != null){
-                    latch.countDown();
-                    latch.countDown();
-                    latch.countDown();
-                }
+                GatherDataThreadPool.getInstance().addThread(new GatherMacGetPortMacRunnable(networkElement, date, result, latch));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            if(latch != null){
-                latch.countDown();
-                latch.countDown();
-                latch.countDown();
-            }
         } finally {
             if(latch != null){
                 latch.countDown();
