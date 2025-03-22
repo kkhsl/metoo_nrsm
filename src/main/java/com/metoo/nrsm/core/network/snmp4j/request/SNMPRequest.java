@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser.convertOidToMac;
+
 /**
  * 设计线程安全方案
  */
@@ -67,7 +69,36 @@ public class SNMPRequest {
             PDU responsePDU = response.getResponse();
 
             if (responsePDU == null || responsePDU.getErrorStatus() != PDU.noError) {
-                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误"+responsePDU.getErrorStatusText());
+                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + responsePDU.getErrorStatusText());
+            }
+            return responsePDU;
+
+        } catch (Exception e) {
+            System.err.println("请求异常: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static PDU sendStrRequest(SNMPParams snmpParams, String snmpOid) {
+        Snmp snmp = threadSnmp.get();
+        if (snmp == null) {
+            System.err.println("SNMP 实例初始化失败");
+            return null;
+        }
+
+        try {
+            CommunityTarget communityTarget = configureTarget(snmpParams);
+            PDU pdu = new PDU();
+            OID oid = new OID(snmpOid);
+            pdu.add(new VariableBinding(oid));
+            pdu.setType(PDU.GET);
+
+            ResponseEvent response = snmp.send(pdu, communityTarget);
+            PDU responsePDU = response.getResponse();
+
+            if (responsePDU == null || responsePDU.getErrorStatus() != PDU.noError) {
+                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + responsePDU.getErrorStatusText());
             }
             return responsePDU;
 
@@ -114,7 +145,6 @@ public class SNMPRequest {
                 VariableBinding vb = responsePDU.get(0);
 
 
-
                 // 如果 OID 不再属于目标范围，退出
                 if (!vb.getOid().toString().startsWith(snmpOid.getOid())) {
                     break;
@@ -137,7 +167,6 @@ public class SNMPRequest {
         }
         return arpResultMap;
     }
-
 
     //解析 SNMP 响应，获取设备名
     public static String getDeviceName(SNMPParams snmpParams) {
@@ -164,6 +193,7 @@ public class SNMPRequest {
         Map<String, String> arpV6Map = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP_V6);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceArpV6(arpV6Map));
     }
+
     public static String getDeviceArpV6Port(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 ArpV6Port 表遍历
         Map<String, String> arpV6PortMap = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP_V6_PORT);
@@ -179,6 +209,7 @@ public class SNMPRequest {
         portMap.put("12","GigabitEthernet1/0/12");*/
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePort(portMap));
     }
+
     public static String getDevicePortIp(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortIp 表遍历
         Map<String, String> portIpMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_IP);
@@ -190,32 +221,70 @@ public class SNMPRequest {
         Map<String, String> portV6Map = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_IPV6);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePortV6(portV6Map));
     }
+
     public static String getDevicePortMask(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortMask 表遍历
         Map<String, String> portMaskMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_MASK);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePortMask(portMaskMap));
     }
+
     public static String getDevicePortDescription(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortDescription 表遍历
         Map<String, String> portDescriptionMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_DESCRIPTION);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePortDescription(portDescriptionMap));
     }
+
     public static String getDeviceMac(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
         Map<String, String> macMap = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC);
         /* Map<String, String> macMap = new HashMap<>();
         // 赋值
-        macMap.put("1.3.6.1.2.1.17.4.3.1.2.0.11.95.228.214.24","52");
+        macMap.put("1.3.6.1.2.1.17.4.3.1.2.0.11.95.228.214.24","52");  //1.3.6.1.2.1.17.4.3.1.2.0.11.95.228.214.0   163
         macMap.put("1.3.6.1.2.1.17.4.3.1.2.48.67.215.235.184.16","12");
         */
-        String str=SNMP_OID.MAC.getOid()+".";
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceMac(macMap,str));
+        String str = SNMP_OID.MAC.getOid() + ".";
+        String strNew;
+        String indexNew = null;
+
+        Map<String, String> result = new HashMap<>();
+
+        for (Map.Entry<String, String> entry : macMap.entrySet()) {
+            String oid = entry.getKey(); // OID
+            String index = entry.getValue(); // 端口值
+            strNew = "1.3.6.1.2.1.17.1.4.1.2." + index;
+            PDU pdu = sendStrRequest(snmpParams, strNew);
+            indexNew = pdu.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("= ", "").replace("\"", "");
+            String newOid = oid.replace(str, "");
+            // 提取 MAC 地址部分
+            String macAddress = convertOidToMac(newOid);
+            result.put(macAddress, indexNew);
+        }
+
+        return SNMPDataParser.convertToJson(result);
     }
+
     public static String getDeviceMac2(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
         Map<String, String> mac2Map = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC2);
-        String str=SNMP_OID.MAC2.getOid()+".";
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceMac(mac2Map,str));
+        String str = SNMP_OID.MAC2.getOid() + ".";
+        String strNew;
+        String indexNew = null;
+
+        Map<String, String> result = new HashMap<>();
+
+        for (Map.Entry<String, String> entry : mac2Map.entrySet()) {
+            String oid = entry.getKey(); // OID
+            String index = entry.getValue(); // 端口值
+            strNew = "1.3.6.1.2.1.17.1.4.1.2." + index;
+            PDU pdu = sendStrRequest(snmpParams, strNew);
+            indexNew = pdu.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("= ", "").replace("\"", "");
+            String newOid = oid.replace(str, "");
+            // 提取 MAC 地址部分
+            String macAddress = convertOidToMac(newOid);
+            result.put(macAddress, indexNew);
+        }
+
+        return SNMPDataParser.convertToJson(result);
     }
 
     public static String getDevicePortStatus(SNMPParams snmpParams) {
@@ -235,11 +304,12 @@ public class SNMPRequest {
         Map<String, String> macTypeMap = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC_TYPE);
          /*Map<String, String> macTypeMap = new HashMap<>();
         // 赋值
-        macTypeMap.put("1.3.6.1.2.1.17.4.3.1.3.0.11.95.228.214.24", "3");   //1.3.6.1.2.1.17.4.3.1.3
+        macTypeMap.put("1.3.6.1.2.1.17.4.3.1.3.0.11.95.228.214.24", "3");   //1.3.6.1.2.1.17.4.3.1.3.0.11.95.228.214.0   3
         macTypeMap.put("1.3.6.1.2.1.17.4.3.1.3.48.67.215.235.184.16", "3");*/
-        String str=SNMP_OID.MAC_TYPE.getOid()+".";
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceMac(macTypeMap,str));
+        String str = SNMP_OID.MAC_TYPE.getOid() + ".";
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceMacType(macTypeMap, str));
     }
+
     public static String getDeviceUpdateTime(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 MacType 表遍历
         PDU updateTimeMap = sendRequest(snmpParams, SNMP_OID.UP_TIME);
@@ -278,8 +348,6 @@ public class SNMPRequest {
         PDU isV6 = sendRequest(snmpParams, SNMP_OID.UP_TIME);
         return SNMPDataParser.parseIsV6(isV6);
     }
-
-
 
 
     // 获取 ARP 表、端口和端口映射

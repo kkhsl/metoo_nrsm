@@ -231,7 +231,23 @@ public class SNMPDataParser {
         return result;
     }
 
-    private static String convertOidToMac(String oid) {
+    public static Map<String, String> parseDeviceMacType(Map<String, String> macMap,String str) {
+        Map<String, String> result = new HashMap<>();
+
+        for (Map.Entry<String, String> entry : macMap.entrySet()) {
+            String oid = entry.getKey(); // OID
+            String index = entry.getValue(); // 端口值
+
+            String newOid = oid.replace(str, "");
+            // 提取 MAC 地址部分
+            String macAddress = convertOidToMac(newOid);
+            result.put(macAddress, index);
+        }
+
+        return result;
+    }
+
+    public static String convertOidToMac(String oid) {
         String[] parts = oid.split("\\.");
         StringBuilder macAddress = new StringBuilder();
         for (int i = 0; i < parts.length; i++) { // 从索引 0 开始遍历
