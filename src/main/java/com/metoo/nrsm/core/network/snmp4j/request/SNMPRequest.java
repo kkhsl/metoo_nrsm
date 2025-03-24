@@ -4,6 +4,7 @@ import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.snmp4j.CommunityTarget;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser.convertOidToMac;
 
@@ -288,6 +290,32 @@ public class SNMPRequest {
 
         return SNMPDataParser.convertToJson(result);
     }
+    public static String getDeviceMac3(SNMPParams snmpParams) {
+        // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
+        Map<String, String> mac3Map = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC3);
+        String str = SNMP_OID.MAC3.getOid() + ".";
+        String strNew;
+        String indexNew = null;
+
+        Map<String, String> result = new HashMap<>();
+
+        for (Map.Entry<String, String> entry : mac3Map.entrySet()) {
+            String oid = entry.getKey(); // OID
+            String index = entry.getValue(); // 端口值
+            strNew = "1.3.6.1.2.1.17.1.4.1.2." + index;
+            PDU pdu = sendStrRequest(snmpParams, strNew);
+            indexNew = pdu.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("= ", "").replace("\"", "");
+            String newOid = oid.replaceFirst(
+                    Pattern.quote(str) + "\\d+\\.", // 匹配 str 后紧跟的"数字+."
+                    ""
+            );
+            // 提取 MAC 地址部分
+            String macAddress = convertOidToMac(newOid);
+            result.put(macAddress, indexNew);
+        }
+
+        return SNMPDataParser.convertToJson(result);
+    }
 
     public static String getDevicePortStatus(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortStatus 表遍历
@@ -469,9 +497,9 @@ public class SNMPRequest {
     }
 
 
-    public static JSONArray getMac(SNMPParams snmpParams) {
+    /*public static JSONArray getMac(SNMPParams snmpParams) {
         // 获取 SNMP 数据
-        String macData = SNMPRequest.getDeviceMac(snmpParams);
+        String macData = SNMPRequest.getDeviceMac3(snmpParams);
         String macTypeData = SNMPRequest.getDeviceMacType(snmpParams);
         String portData = SNMPRequest.getDevicePort(snmpParams);
 
@@ -500,7 +528,90 @@ public class SNMPRequest {
         }
 
         return resultArray;
+    }*/
+
+    public static JSONArray getMac(SNMPParams snmpParams) {
+        // 按优先级获取 MAC 数据（getDeviceMac -> getDeviceMac2 -> getDeviceMac3）
+        JSONObject macJson = getPriorityMacData(snmpParams);
+
+        // 如果所有数据源都无效，返回空数组
+        if (macJson == null || macJson.length() == 0) {
+            return new JSONArray();
+        }
+
+        // 获取 MAC 类型和端口数据
+        JSONObject macTypeJson = getMacTypeData(snmpParams);
+        JSONObject portJson = getPortData(snmpParams);
+
+        // 构建结果集
+        JSONArray resultArray = new JSONArray();
+        for (String mac : macJson.keySet()) {
+            // 端口处理
+            String portNumber = macJson.optString(mac, "0");
+            String portName = portJson.optString(portNumber, "unknown");
+
+            // MAC 类型处理（默认值为3）
+            String macType = macTypeJson.optString(mac, "3");
+
+            // 生成结果对象
+            JSONObject entry = new JSONObject();
+            entry.put("mac", mac);
+            entry.put("port", portName);
+            entry.put("type", macType);
+            resultArray.put(entry);
+        }
+        return resultArray;
     }
+
+    // --- 辅助方法 ---
+    private static JSONObject getPriorityMacData(SNMPParams snmpParams) {
+        // 按优先级顺序尝试获取 MAC 数据
+        String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
+        for (String method : methods) {
+            try {
+                String data = (String) SNMPRequest.class
+                        .getMethod(method, SNMPParams.class)
+                        .invoke(null, snmpParams);
+                if (isValidJson(data)) {
+                    return new JSONObject(data);
+                }
+            } catch (Exception e) {
+                // 静默处理反射异常，继续下一个方法
+            }
+        }
+        return new JSONObject(); // 返回空对象
+    }
+
+    private static JSONObject getMacTypeData(SNMPParams snmpParams) {
+        try {
+            String data = SNMPRequest.getDeviceMacType(snmpParams);
+            return new JSONObject(data);
+        } catch (JSONException e) {
+            return new JSONObject(); // 返回空对象
+        }
+    }
+
+    private static JSONObject getPortData(SNMPParams snmpParams) {
+        try {
+            String data = SNMPRequest.getDevicePort(snmpParams);
+            return new JSONObject(data);
+        } catch (JSONException e) {
+            return new JSONObject(); // 返回空对象
+        }
+    }
+
+    private static boolean isValidJson(String data) {
+        if (data == null || data.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            JSONObject json = new JSONObject(data);
+            return json.length() > 0;
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
 
     public static JSONArray getLldp(SNMPParams snmpParams) {
         // 获取 SNMP 数据
