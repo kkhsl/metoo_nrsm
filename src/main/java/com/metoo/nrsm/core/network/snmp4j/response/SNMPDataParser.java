@@ -1,10 +1,10 @@
 package com.metoo.nrsm.core.network.snmp4j.response;
 
 import com.google.gson.Gson;
-import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
 import org.snmp4j.PDU;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 考虑到需要处理的数据较少，先讲处理snmp返回数据的方法，放到这一个类中
@@ -231,17 +231,33 @@ public class SNMPDataParser {
         return result;
     }
 
-    private static String convertOidToMac(String oid) {
+    public static Map<String, String> parseDeviceMacType(Map<String, String> macMap,String str) {
+        Map<String, String> result = new HashMap<>();
+
+        for (Map.Entry<String, String> entry : macMap.entrySet()) {
+            String oid = entry.getKey(); // OID
+            String index = entry.getValue(); // 端口值
+
+            String newOid = oid.replace(str, "");
+            // 提取 MAC 地址部分
+            String macAddress = convertOidToMac(newOid);
+            result.put(macAddress, index);
+        }
+
+        return result;
+    }
+
+    public static String convertOidToMac(String oid) {
         String[] parts = oid.split("\\.");
         StringBuilder macAddress = new StringBuilder();
-        for (int i = 1; i < parts.length; i++) {
+        for (int i = 0; i < parts.length; i++) { // 从索引 0 开始遍历
             int octet = Integer.parseInt(parts[i]);
             macAddress.append(String.format("%02x", octet));
             if (i < parts.length - 1) {
                 macAddress.append(":");
             }
         }
-        return macAddress.toString().toUpperCase();
+        return macAddress.toString().toLowerCase();
     }
 
 

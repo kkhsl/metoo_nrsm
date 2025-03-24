@@ -87,9 +87,9 @@ public class GatherSingleThreadingMacUtils {
     }
 
     // 处理网络元素数据
-    private void processNetworkElementData(NetworkElement networkElement, String hostName, Date date) {
+    public void processNetworkElementData(NetworkElement networkElement, String hostName, Date date) {
         log.info("getlldp.py ===== {}", networkElement.getIp());
-        getLldpDataSNMP(networkElement, hostName, date);
+        getLldpData(networkElement, hostName, date);
 
         log.info("getmac.py ====={}", networkElement.getIp());
         getMacData(networkElement, hostName, date);

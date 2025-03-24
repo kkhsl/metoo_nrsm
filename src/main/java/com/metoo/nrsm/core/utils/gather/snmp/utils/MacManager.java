@@ -29,7 +29,6 @@ public class MacManager {
         if(!StringUtils.isEmpty(hostName)){
             processNetworkElementData(networkElement, hostName, date);
         }
-
     }
 
     private String getHostName(NetworkElement networkElement){
@@ -84,9 +83,7 @@ public class MacManager {
     }
 
     public void getPortMacData(NetworkElement networkElement, Date date, String hostName){
-
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-        // 处理数据并返回结果
         try {
             JSONArray result = SNMPRequest.getPortMac(snmpParams);
             if (!result.isEmpty()) {
@@ -101,8 +98,6 @@ public class MacManager {
         }
     }
 
-
-    // 处理获取到的MAC数据
     private void processMacData(NetworkElement networkElement, Date date, List<Mac> macList, String hostName) {
         try {
             IMacService macService = (IMacService) ApplicationContextUtils.getBean("macServiceImpl");
@@ -126,7 +121,6 @@ public class MacManager {
         }
     }
 
-    // 处理获取到的端口MAC数据
     private void processPortMacData(NetworkElement networkElement, Date date, String hostName, List<Mac> macList) {
         try {
             IMacService macService = (IMacService) ApplicationContextUtils.getBean("macServiceImpl");

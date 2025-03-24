@@ -7,6 +7,7 @@ import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
+import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacUtils;
 import com.metoo.nrsm.core.utils.gather.snmp.utils.MacManager;
 import com.metoo.nrsm.core.utils.gather.thread.*;
@@ -67,6 +68,9 @@ public class GatherTaskScheduledUtilTest {
     @Autowired
     private GatherSingleThreadingMacUtils gatherSingleThreadingMacUtils;
     @Autowired
+    private GatherSingleThreadingMacSNMPUtils gatherSingleThreadingMacSNMPUtils;
+
+    @Autowired
     private MacManager macManager;
 
 
@@ -75,6 +79,91 @@ public class GatherTaskScheduledUtilTest {
     public GatherTaskScheduledUtilTest( GatherDataThreadPool gatherDataThreadPool) {
         this.gatherDataThreadPool = gatherDataThreadPool;
     }
+
+
+
+    @GetMapping("selfMac1")
+    public String selfMac(){
+
+        Date date = DateTools.gatherDate();
+
+        List<NetworkElement> networkElements = this.getGatherDevice();
+
+        macService.truncateTableGather();
+
+        CountDownLatch latch = new CountDownLatch(networkElements.size());
+
+        for (NetworkElement networkElement : networkElements) {
+
+            if(StringUtils.isBlank(networkElement.getVersion())
+                    || StringUtils.isBlank(networkElement.getCommunity())){
+                latch.countDown();
+                continue;
+            }
+
+            GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
+        }
+
+        try {
+
+            latch.await();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "end";
+    }
+
+    @GetMapping("selfMac2")
+    public String selfMac2(){
+        Date date = DateTools.gatherDate();
+
+        List<NetworkElement> networkElements = this.getGatherDevice();
+
+        macService.truncateTableGather();
+
+        CountDownLatch latch = new CountDownLatch(networkElements.size());
+
+        for (NetworkElement networkElement : networkElements) {
+
+            String hostName = gatherSingleThreadingMacSNMPUtils.getHostName(networkElement);
+
+            if (StringUtils.isNotEmpty(hostName)) {
+
+                gatherSingleThreadingMacUtils.processNetworkElementData(networkElement, hostName, date);
+
+            }
+
+        }
+
+        return "end";
+    }
+
+    @GetMapping("selfMac3")
+    public String selfMac3(){
+        Date date = DateTools.gatherDate();
+
+        List<NetworkElement> networkElements = this.getGatherDevice();
+
+        macService.truncateTableGather();
+
+        CountDownLatch latch = new CountDownLatch(networkElements.size());
+
+        for (NetworkElement networkElement : networkElements) {
+
+            String hostName = gatherSingleThreadingMacSNMPUtils.getHostNameSNMP(networkElement);
+
+            if (StringUtils.isNotEmpty(hostName)) {
+
+                gatherSingleThreadingMacSNMPUtils.processNetworkElementData(networkElement, hostName, date);
+
+            }
+
+        }
+
+        return "end";
+    }
+
 
     @GetMapping("lldp")
     public void getMacLLDP() {

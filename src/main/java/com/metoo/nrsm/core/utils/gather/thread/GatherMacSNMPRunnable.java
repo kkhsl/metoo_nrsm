@@ -63,10 +63,10 @@ public class GatherMacSNMPRunnable implements Runnable{
         this.latch = latch;
     }
 
-
     @Override
     public void run() {
         try {
+
             macManager.getMac(networkElement, date);
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,7 +76,5 @@ public class GatherMacSNMPRunnable implements Runnable{
             }
         }
     }
-
-
 
 }

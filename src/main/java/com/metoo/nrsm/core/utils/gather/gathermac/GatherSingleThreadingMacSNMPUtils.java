@@ -12,6 +12,7 @@ import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.gather.snmp.utils.MacManager;
 import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
 import com.metoo.nrsm.core.utils.gather.thread.GatherMacSNMPRunnable;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
@@ -77,14 +78,15 @@ public class GatherSingleThreadingMacSNMPUtils {
                 }
 
                 // TODO 多余，查询设备时已经查询了是否存在
-//                GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, date, latch));
-                String hostName = getHostNameSNMP(networkElement);
 
-                if (StringUtils.isNotEmpty(hostName)) {
-
-                    processNetworkElementData(networkElement, hostName, date);
-
-                }
+                GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
+//                String hostName = getHostNameSNMP(networkElement);
+//
+//                if (StringUtils.isNotEmpty(hostName)) {
+//
+//                    processNetworkElementData(networkElement, hostName, date);
+//
+//                }
 
                 count++;
 
@@ -109,7 +111,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     }
 
     // 处理网络元素数据
-    private void processNetworkElementData(NetworkElement networkElement, String hostName, Date date) {
+    public void processNetworkElementData(NetworkElement networkElement, String hostName, Date date) {
         log.info("getlldp.py ===== {}", networkElement.getIp());
         getLldpDataSNMP(networkElement, hostName, date);
 
@@ -121,7 +123,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     }
 
 
-    private String getHostName(NetworkElement networkElement){
+    public String getHostName(NetworkElement networkElement){
 
         String path = Global.PYPATH + "gethostname.py";
 
@@ -133,7 +135,7 @@ public class GatherSingleThreadingMacSNMPUtils {
         return hostName;
     }
 
-    private String getHostNameSNMP(NetworkElement networkElement){
+    public String getHostNameSNMP(NetworkElement networkElement){
         log.info("gethostname ===== {}", networkElement.getIp());
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         String hostName = SNMPRequest.getDeviceName(snmpParams);

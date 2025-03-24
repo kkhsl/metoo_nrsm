@@ -13,7 +13,8 @@ public enum SNMP_OID {
     PORT_MASK("1.3.6.1.2.1.4.20.1.3"),
     PORT_DESCRIPTION("1.3.6.1.2.1.31.1.1.1.18"),
     MAC("1.3.6.1.2.1.17.4.3.1.2"),
-    MAC2("1.3.6.1.4.1.2011.5.25.42.2.1.3.1.4 -Cc"),
+    MAC2("1.3.6.1.4.1.2011.5.25.42.2.1.3.1.4"),
+    MACINDEX("1.3.6.1.2.1.17.1.4.1.2"),
     PORT_STATUS("1.3.6.1.2.1.2.2.1.8"),
     PORT_MAC("1.3.6.1.2.1.2.2.1.6"),
     MAC_TYPE("1.3.6.1.2.1.17.4.3.1.3"),
@@ -34,4 +35,9 @@ public enum SNMP_OID {
     public String getOid() {
         return this.oid;
     }
+
+    public String buildFullOid(String index) {
+        return this.oid + "." + index;
+    }
+
 }

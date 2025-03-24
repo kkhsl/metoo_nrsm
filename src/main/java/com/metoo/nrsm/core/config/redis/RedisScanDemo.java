@@ -42,7 +42,7 @@ public class RedisScanDemo {
 
             do {
                 ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
-                cursor = scanResult.getCursor();
+                cursor = String.valueOf(scanResult.getCursor());
                 for (String key : scanResult.getResult()) {
                     String value = jedis.get(key);
                     allData.put(key, value);
@@ -110,7 +110,7 @@ public class RedisScanDemo {
             List listAll = new ArrayList();
             do {
                 ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
-                cursor = scanResult.getCursor();
+                cursor = String.valueOf(scanResult.getCursor());
                 for (String key : scanResult.getResult()) {
 //                    String value = jedis.get(key);
 //                    namespaceData.put(key, value);
@@ -209,7 +209,7 @@ public class RedisScanDemo {
             List listAll = new ArrayList();
             do {
                 ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
-                cursor = scanResult.getCursor();
+                cursor = String.valueOf(scanResult.getCursor());
                 for (String key : scanResult.getResult()) {
 //                    String value = jedis.get(key);
 //                    namespaceData.put(key, value);

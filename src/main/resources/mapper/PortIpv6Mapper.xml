@@ -40,6 +40,21 @@
         ORDER BY ipv6 IS NULL,INET_ATON(ipv6) ASC
     </select>
 
+    <select id="selectIpv6Cidrs" resultType="string">
+        SELECT
+            CONCAT(
+                    TRIM(ipv6),
+                    '/',
+                    CAST(port AS UNSIGNED)
+                ) AS cidr
+        FROM metoo_port_ipv6
+        WHERE
+            ipv6 IS NOT NULL
+          AND port REGEXP '^[0-9]{1,3}$'  -- 验证port为有效前缀长度
+          AND CAST(port AS UNSIGNED) BETWEEN 0 AND 128
+        GROUP BY cidr  -- 去重
+    </select>
+
     <insert id="save" parameterType="com.metoo.nrsm.entity.PortIpv6">
         INSERT INTO metoo_port_ipv6
         <trim prefix="(" suffixOverrides="," suffix=")">
