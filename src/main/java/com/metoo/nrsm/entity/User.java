@@ -126,6 +126,10 @@ m
     @ApiModelProperty("用户类型")
     private Integer type;
 
+    @ApiModelProperty("单位id")
+    private Long unitId;
+
+
     public boolean isLocked() {
         return locked;
     }

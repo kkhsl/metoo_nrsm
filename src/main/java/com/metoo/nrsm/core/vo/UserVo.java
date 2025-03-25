@@ -61,4 +61,7 @@ public class UserVo {
     @ApiModelProperty("组名称")
     private String groupName;
 
+    @ApiModelProperty("单位ID")
+    private Long unitId;
+
 }

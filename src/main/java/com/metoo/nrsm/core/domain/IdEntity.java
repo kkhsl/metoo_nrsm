@@ -21,6 +21,6 @@ public class IdEntity implements Serializable{
     private Date addTime;// 添加时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
-    private int deleteStatus;// 删除状态
+    private Integer deleteStatus;// 删除状态
 
 }
