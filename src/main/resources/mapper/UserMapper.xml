@@ -79,12 +79,12 @@
 
     <sql id="Base_Column_List">
         id, addTime, deleteStatus, username, password, sex,
-        age, userRole, email, mobile, note, type
+        age, userRole, email, mobile, note, type,unitId
     </sql>
 
     <sql id="Base_Update_Info">
         id, username, sex,
-        age, userRole, email, mobile, note
+        age, userRole, email, mobile, note,unitId
     </sql>
 
     <insert id="insert" parameterType="com.metoo.nrsm.entity.User" keyProperty="id" useGeneratedKeys="true">
@@ -132,6 +132,9 @@
             <if test="groupLevel != null">
                 groupLevel,
             </if>
+            <if test="unitId != null">
+                unitId,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -176,6 +179,9 @@
             <if test="groupLevel != null">
                 #{groupLevel},
             </if>
+            <if test="unitId != null">
+                #{unitId},
+            </if>
         </trim>
     </insert>
 
@@ -190,7 +196,8 @@
             age,
             groupLevel,
             groupName,
-            groupId
+            groupId,
+            unitId
         FROM
             metoo_user
         WHERE
@@ -212,12 +219,20 @@
     <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UserDto" resultType="com.metoo.nrsm.entity.User">
         SELECT *
         FROM metoo_user
-        where
-        deleteStatus >= 0
-        <if test = "orderBy != null and orderBy != ''">
+        <where>
+            <choose>
+                <when test="deleteStatus != null">
+                    deleteStatus = #{deleteStatus}
+                </when>
+                <otherwise>
+                    deleteStatus >= 0
+                </otherwise>
+            </choose>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
@@ -240,7 +255,7 @@
     <sql id="update_Column_List">
         mu.id mu_id,mu.addTime mu_addTime, mu.username mu_username, mu.sex mu_sex,
         mu.age mu_age,mu.userRole mu_userRole, mu.email mu_email, mu.mobile mu_mobile, mu.note mu_note, mu.groupId mu_groupId, mu.groupName mu_groupName,
-        mr.id mr_id
+        mr.id mr_id,mu.unitId
     </sql>
 
     <select id="findUserUpdate" parameterType="java.lang.Long" resultMap="Base_Update_Map">

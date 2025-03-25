@@ -59,6 +59,9 @@
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random
         FROM metoo_unit
         <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
             <if test="addTime != null">
                 AND `addTime` = #{addTime}
             </if>

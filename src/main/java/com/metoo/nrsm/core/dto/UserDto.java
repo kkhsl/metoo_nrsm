@@ -39,6 +39,8 @@ public class UserDto extends PageDto<User> {
     @ApiModelProperty("用户性别")
     private Integer sex;
 
+    private Integer deleteStatus;
+
     private String salt;
 
     @ApiModelProperty("角色ID字符串")
@@ -62,7 +64,10 @@ public class UserDto extends PageDto<User> {
     @ApiModelProperty("组ID")
     private Long groupId;
 
+
     private Long[] userIds;
 
     private String groupLevel;
+
+    private Long unitId;
 }
