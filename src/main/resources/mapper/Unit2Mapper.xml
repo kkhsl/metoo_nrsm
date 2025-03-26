@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.Unit2Mapper">
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Unit2">
+        SELECT id, addTime,updateTime, unitName, deleteStatus
+        FROM unit
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UnitDTO" resultType="com.metoo.nrsm.entity.Unit2">
+        SELECT id, addTime,updateTime,unitName,deleteStatus
+        FROM unit
+        <where>
+            <choose>
+                <when test="deleteStatus != null">
+                    deleteStatus = #{deleteStatus}
+                </when>
+                <otherwise>
+                    deleteStatus = 0
+                </otherwise>
+            </choose>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="addTime != null">
+                AND `addTime` = #{addTime}
+            </if>
+            <if test="unitName != null and unitName != ''">
+                AND `unitName` = #{unitName}
+            </if>
+        </where>
+        ORDER BY addTime DESC
+    </select>
+    <select id="selectAllQuery" resultType="com.metoo.nrsm.entity.Unit2">
+        SELECT id,unitName, addTime, updateTime,deleteStatus
+        FROM unit
+        <where>
+            <choose>
+                <when test="deleteStatus != null">
+                    deleteStatus = #{deleteStatus}
+                </when>
+                <otherwise>
+                    deleteStatus = 0
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY addTime DESC
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Unit2">
+        INSERT INTO unit
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="updateTime != null">
+                updateTime,
+            </if>
+            <if test="unitName != null and unitName != ''">
+                unitName,
+            </if>
+            <if test="deleteStatus != null and deleteStatus != ''">
+                deleteStatus,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="unitName != null and unitName != ''">
+                #{unitName},
+            </if>
+            <if test="deleteStatus != null and deleteStatus != ''">
+                #{deleteStatus},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Unit2">
+        UPDATE unit
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime},
+            </if>
+            <if test="unitName != null and unitName != ''">
+                unitName = #{unitName},
+            </if>
+            <if test="deleteStatus != null and deleteStatus != ''">
+                deleteStatus = #{deleteStatus},
+            </if>
+        </set> WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM unit WHERE id = #{id}
+    </delete>
+    
+</mapper>

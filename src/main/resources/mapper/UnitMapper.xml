@@ -71,6 +71,11 @@
         </where>
         ORDER BY addTime DESC
     </select>
+    <select id="selectAllQuery" resultType="com.metoo.nrsm.entity.Unit">
+        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random
+        FROM metoo_unit
+        ORDER BY addTime DESC
+    </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Unit">
         INSERT INTO metoo_unit

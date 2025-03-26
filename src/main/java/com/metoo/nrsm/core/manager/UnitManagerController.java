@@ -23,9 +23,9 @@ public class UnitManagerController {
         return result;
     }
 
-    @PostMapping("/selectAll")
-    private Result selectAll(@RequestBody UnitDTO dto){
-        Result result = this.unitService.selectAllQuery(dto);
+    @GetMapping("/selectAll")
+    private Result selectAll(){
+        Result result = this.unitService.selectAllQuery();
         return result;
     }
 
