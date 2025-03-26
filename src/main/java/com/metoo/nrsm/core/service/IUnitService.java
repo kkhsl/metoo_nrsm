@@ -1,9 +1,7 @@
 package com.metoo.nrsm.core.service;
 
-import com.metoo.nrsm.core.dto.GatewayDTO;
 import com.metoo.nrsm.core.dto.UnitDTO;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Unit;
 
 import java.util.List;
@@ -20,6 +18,7 @@ public interface IUnitService {
     int update(Unit instance);
 
     Result selectObjConditionQuery(UnitDTO dto);
+    Result selectAllQuery(UnitDTO dto);
 
     Result add();
 

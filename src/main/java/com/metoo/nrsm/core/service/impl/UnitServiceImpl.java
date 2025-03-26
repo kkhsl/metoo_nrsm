@@ -3,7 +3,6 @@ package com.metoo.nrsm.core.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
-import com.metoo.nrsm.core.dto.GatewayDTO;
 import com.metoo.nrsm.core.dto.UnitDTO;
 import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IGatewayService;
@@ -19,7 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -82,6 +84,14 @@ public class UnitServiceImpl implements IUnitService {
         data.put("gateway", gatewayList);
 
         return ResponseUtil.ok(new PageInfo<Unit>(page, data));
+    }
+    @Override
+    public Result selectAllQuery(UnitDTO dto) {
+        if(dto == null){
+            dto = new UnitDTO();
+        }
+        List<Unit> units = this.unitMapper.selectObjConditionQuery(dto);
+        return ResponseUtil.ok(units);
     }
 
     @Override

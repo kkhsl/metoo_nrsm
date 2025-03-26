@@ -2,16 +2,12 @@ package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.UnitDTO;
-import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Unit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RequestMapping("/admin/unit")
@@ -26,6 +22,13 @@ public class UnitManagerController {
         Result result = this.unitService.selectObjConditionQuery(dto);
         return result;
     }
+
+    @PostMapping("/selectAll")
+    private Result selectAll(@RequestBody UnitDTO dto){
+        Result result = this.unitService.selectAllQuery(dto);
+        return result;
+    }
+
 
     @GetMapping("/add")
     private Result add(){
