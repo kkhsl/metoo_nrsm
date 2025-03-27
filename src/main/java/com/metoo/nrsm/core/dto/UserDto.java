@@ -47,7 +47,7 @@ public class UserDto extends PageDto<User> {
     private Integer[] role_id;
 
     @ApiModelProperty("默认0：普通用户 1：管理员 ")
-    private String type;
+    private Integer type;
 
     @ApiModelProperty("是否强制退出用户")
     private boolean flag;
