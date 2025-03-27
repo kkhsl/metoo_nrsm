@@ -46,10 +46,15 @@ public class TopologyManagerController {
 
     @RequestMapping("/list")
     public Object list(@RequestBody(required = false) TopologyDTO dto){
+        User user = ShiroUserHolder.currentUser();
+        if(user.getUnitId() == null){
+            return ResponseUtil.ok();
+        }
         if(dto == null){
             dto = new TopologyDTO();
         }
-        User user = ShiroUserHolder.currentUser();
+
+        dto.setUnitId(user.getUnitId());
         Page<Topology> page = this.topologyService.selectConditionQuery(dto);
         if(page.getResult().size() > 0) {
             if(page.getResult().size() == 1){
@@ -271,12 +276,19 @@ public class TopologyManagerController {
             @RequestParam(value = "id") Long id,
             @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
             @RequestParam(value = "time", required = false) Date time){
+        User user = ShiroUserHolder.currentUser();
+        if(user.getUnitId() == null){
+            return ResponseUtil.ok();
+        }
         if(id == null){
             return  ResponseUtil.badArgument();
         }
-        List<Topology> topologies = this.selectObjById(id, time);
+        List<Topology> topologies = this.selectObjById(id, time, user.getUnitId());
         if(topologies != null && topologies.size() > 0){
             Topology topology = topologies.get(0);
+            if(topology.getUnitId() != user.getUnitId()){
+                return ResponseUtil.ok();
+            }
             if(topology.getContent() != null && !topology.getContent().equals("")){
                 JSONObject content = JSONObject.parseObject(topology.getContent().toString());
                 topology.setContent(content);
@@ -286,14 +298,16 @@ public class TopologyManagerController {
         return ResponseUtil.ok();
     }
 
-    public  List<Topology> selectObjById(Long id, Date time){
+    public  List<Topology> selectObjById(Long id, Date time, Long unitId){
         Map params = new HashMap();
         List<Topology> topologies = null;
         params.put("id", id);
+        params.put("unitId", unitId);
         if(time == null){
             topologies = this.topologyService.selectObjByMap(params);
         }else{
             params.put("id", id);
+            params.put("unitId", unitId);
             Calendar cal = Calendar.getInstance();
             cal.setTime(time);
             cal.set(Calendar.SECOND, 99);

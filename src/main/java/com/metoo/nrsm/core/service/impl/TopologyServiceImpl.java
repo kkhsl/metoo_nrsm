@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.TopologyDTO;
 import com.metoo.nrsm.core.mapper.TopologyMapper;
 import com.metoo.nrsm.core.service.IDeviceTypeService;
@@ -12,10 +13,7 @@ import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.service.IPortService;
 import com.metoo.nrsm.core.service.ITopologyService;
 import com.metoo.nrsm.core.utils.collections.ListSortUtil;
-import com.metoo.nrsm.entity.DeviceType;
-import com.metoo.nrsm.entity.NetworkElement;
-import com.metoo.nrsm.entity.Port;
-import com.metoo.nrsm.entity.Topology;
+import com.metoo.nrsm.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -54,7 +52,7 @@ public class TopologyServiceImpl implements ITopologyService {
         }
         Page<Topology> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
 
-        List<Topology> topologies = this.topologyMapper.selectConditionQuery(instance);
+        this.topologyMapper.selectConditionQuery(instance);
         return page;
     }
 
@@ -86,6 +84,8 @@ public class TopologyServiceImpl implements ITopologyService {
             Object content = this.writerUuid(instance.getContent());
             instance.setContent(content);
         }
+        User user = ShiroUserHolder.currentUser();
+        instance.setUnitId(user.getUnitId());
         if(instance.getId() == null){
             try {
                int i = this.topologyMapper.save(instance);

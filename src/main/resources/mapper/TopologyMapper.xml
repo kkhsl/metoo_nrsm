@@ -33,7 +33,7 @@
 
     <sql id="Content_Column_List">
         id, addTime, deleteStatus, `name`, updateTime, is_default, description, group_id,
-        group_name, user_id, user_name, base_url, content, suffix, nf, `location`
+        group_name, user_id, user_name, base_url, content, suffix, nf, `location`, unitId
     </sql>
 
     <sql id="Copy_Column_List">
@@ -65,6 +65,9 @@
             <if test="userId != null and userId != ''">
                 AND `user_id` = #{userId}
             </if>
+            <if test="unitId != null and unitId != ''">
+                AND `unitId` = #{unitId}
+            </if>
             <if test="groupIds != null and groupIds != ''">
                 AND group_id in
                 <foreach collection="groupIds" index="index" item="item" separator="," open="(" close=")">
@@ -94,6 +97,9 @@
             </if>
             <if test="isDefault != null and isDefault != ''">
                 AND `is_default` = #{isDefault}
+            </if>
+            <if test="unitId != null and unitId != ''">
+                AND `unitId` = #{unitId}
             </if>
             <if test="groupIds != null and groupIds != ''">
                 AND group_id in
@@ -126,6 +132,9 @@
             </if>
             <if test="isDefault != null and isDefault != ''">
                 AND `is_default` = #{isDefault}
+            </if>
+            <if test="unitId != null and unitId != ''">
+                AND `unitId` = #{unitId}
             </if>
             <if test="groupIds != null and groupIds != ''">
                 AND group_id in
@@ -210,6 +219,9 @@
             <if test="location != null">
                 `location`,
             </if>
+            <if test="unitId != null">
+                `unitId`,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -253,6 +265,9 @@
             </if>
             <if test="location != null">
                 #{location},
+            </if>
+            <if test="unitId != null">
+                #{unitId},
             </if>
         </trim>
     </insert>
@@ -305,6 +320,9 @@
             <if test="location != null">
                 `location`,
             </if>
+            <if test="unitId != null">
+                unitId,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="id != null">
@@ -351,6 +369,9 @@
             </if>
             <if test="location != null">
                 #{location},
+            </if>
+            <if test="unitId != null">
+                #{unitId},
             </if>
         </trim>
     </insert>

@@ -30,5 +30,6 @@ public class TopologyDTO extends PageDto<Topology> {
     private Set<Long> groupIds;
     private String baseUrl;
     private Date time;
+    private Long unitId;
 
 }

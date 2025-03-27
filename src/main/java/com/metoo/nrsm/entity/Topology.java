@@ -3,6 +3,7 @@ package com.metoo.nrsm.entity;
 
 import com.metoo.nrsm.core.domain.IdEntity;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,4 +32,7 @@ public class Topology extends IdEntity {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private String location;
+
+    @ApiModelProperty("单位Id")
+    private Long UnitId;
 }
