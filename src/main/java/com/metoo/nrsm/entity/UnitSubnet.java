@@ -1,6 +1,5 @@
 package com.metoo.nrsm.entity;
 
-import com.metoo.nrsm.core.domain.IdEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +11,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class UnitSubnet {
     private Long id;
+    private Long unitId;
     private Date addTime;
     private String name;
     private String ipv4;
