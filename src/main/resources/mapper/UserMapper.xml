@@ -135,6 +135,9 @@
             <if test="unitId != null">
                 unitId,
             </if>
+            <if test="type != null">
+                type,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -181,6 +184,9 @@
             </if>
             <if test="unitId != null">
                 #{unitId},
+            </if>
+            <if test="type != null">
+                #{type},
             </if>
         </trim>
     </insert>
@@ -338,6 +344,12 @@
             </if>
             <if test="groupLevel != null">
                 groupLevel = #{groupLevel},
+            </if>
+            <if test="unitId != null">
+                unitId = #{unitId},
+            </if>
+            <if test="type != null">
+                type = #{type},
             </if>
         </set>
         <where>
