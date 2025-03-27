@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.dto.UnitDTO;
 import com.metoo.nrsm.core.service.IUnit2Service;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Unit2;
@@ -17,7 +18,7 @@ public class Unit2ManagerController {
     private IUnit2Service unit2Service;
 
     @PostMapping("/list")
-    private Result list(@RequestBody Unit2 dto){
+    private Result list(@RequestBody UnitDTO dto){
         Result result = this.unit2Service.selectObjConditionQuery(dto);
         return result;
     }
@@ -43,8 +44,6 @@ public class Unit2ManagerController {
             return ResponseUtil.ok();
         }
         return ResponseUtil.badArgument();
-
-
     }
 
 }

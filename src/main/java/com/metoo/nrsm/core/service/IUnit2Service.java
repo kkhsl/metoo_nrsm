@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.service;
 
+import com.metoo.nrsm.core.dto.UnitDTO;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Unit2;
 
@@ -9,7 +10,7 @@ public interface IUnit2Service {
 
     int update(Unit2 instance);
 
-    Result selectObjConditionQuery(Unit2 dto);
+    Result selectObjConditionQuery(UnitDTO dto);
     Result selectAllQuery();
     Result save(Unit2 instance);
 

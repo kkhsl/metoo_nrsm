@@ -1,8 +1,12 @@
 package com.metoo.nrsm.core.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.dto.UnitDTO;
 import com.metoo.nrsm.core.mapper.Unit2Mapper;
 import com.metoo.nrsm.core.service.IUnit2Service;
+import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Unit2;
 import org.springframework.stereotype.Service;
@@ -36,12 +40,13 @@ public class Unit2ServiceImpl implements IUnit2Service {
     }
 
     @Override
-    public Result selectObjConditionQuery(Unit2 dto) {
+    public Result selectObjConditionQuery(UnitDTO dto) {
         if(dto == null){
-            dto = new Unit2();
+            dto = new UnitDTO();
         }
+        Page<Unit2> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
         List<Unit2> unit2s = this.unit2Mapper.selectObjConditionQuery(dto);
-        return ResponseUtil.ok(unit2s);
+        return ResponseUtil.ok(new PageInfo<Unit2>(page));
     }
     @Override
     public Result selectAllQuery() {

@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.dto;
 
 import com.metoo.nrsm.core.dto.page.PageDto;
-import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Unit;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
@@ -21,11 +20,13 @@ public class UnitDTO extends PageDto<Unit> {
     private Long id;
     private Date addTime;
     private String name;
+    private String unitName;
     private String department;
     private String area;
     private String city;
     private String vlanNum;
     private Long gatewayId;
     private String pattern;
+    private Integer deleteStatus;
 
 }
