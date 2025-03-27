@@ -18,7 +18,7 @@ public interface IUnitService {
     int update(Unit instance);
 
     Result selectObjConditionQuery(UnitDTO dto);
-    Result selectAllQuery(UnitDTO dto);
+    Result selectAllQuery();
 
     Result add();
 

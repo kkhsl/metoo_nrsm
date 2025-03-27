@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RequestMapping("/admin/unit")
+@RequestMapping("/admin/flow/unit")
 @RestController
 public class UnitManagerController {
 
@@ -25,7 +25,7 @@ public class UnitManagerController {
 
     @GetMapping("/selectAll")
     private Result selectAll(){
-        Result result = this.unitService.selectAllQuery(null);
+        Result result = this.unitService.selectAllQuery();
         return result;
     }
 

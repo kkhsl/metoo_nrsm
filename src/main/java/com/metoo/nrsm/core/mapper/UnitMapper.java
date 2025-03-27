@@ -1,8 +1,6 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.metoo.nrsm.core.dto.GatewayDTO;
 import com.metoo.nrsm.core.dto.UnitDTO;
-import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Unit;
 
 import java.util.List;
@@ -19,6 +17,7 @@ public interface UnitMapper {
     int update(Unit instance);
 
     List<Unit> selectObjConditionQuery(UnitDTO dto);
+    List<Unit> selectAllQuery();
 
     int save(Unit instance);
 

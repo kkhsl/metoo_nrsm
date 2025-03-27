@@ -86,11 +86,8 @@ public class UnitServiceImpl implements IUnitService {
         return ResponseUtil.ok(new PageInfo<Unit>(page, data));
     }
     @Override
-    public Result selectAllQuery(UnitDTO dto) {
-        if(dto == null){
-            dto = new UnitDTO();
-        }
-        List<Unit> units = this.unitMapper.selectObjConditionQuery(dto);
+    public Result selectAllQuery() {
+        List<Unit> units = this.unitMapper.selectAllQuery();
         return ResponseUtil.ok(units);
     }
 
