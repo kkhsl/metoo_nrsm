@@ -323,7 +323,7 @@ public class GatherTaskScheduledUtil {
     // TODO 已同步|待增加并发采集
     @Scheduled(cron = "0 */1 * * * ?")
     public void snmpStatus() {
-        if(flag){
+        if(true){
             Long time = System.currentTimeMillis();
             log.info("Snmp status start......");
             try {

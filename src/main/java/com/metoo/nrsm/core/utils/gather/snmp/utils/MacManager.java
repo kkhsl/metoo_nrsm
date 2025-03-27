@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
@@ -28,6 +29,13 @@ public class MacManager {
         String hostName = getHostName(networkElement);
         if(!StringUtils.isEmpty(hostName)){
             processNetworkElementData(networkElement, hostName, date);
+        }
+    }
+
+    public void getMac2(NetworkElement networkElement, Date date){
+        String hostName = getHostName(networkElement);
+        if(!StringUtils.isEmpty(hostName)){
+            processNetworkElementDataFuture(networkElement, hostName, date);
         }
     }
 
@@ -48,6 +56,38 @@ public class MacManager {
 
         log.info("getportmac ====={}", networkElement.getIp());
         getPortMacData(networkElement, date, hostName);
+    }
+
+    // 处理网络元素数据
+    private void processNetworkElementDataFuture(NetworkElement networkElement, String hostName, Date date) {
+        log.info("Processing data for network element: {}", networkElement.getIp());
+
+        // 使用 CompletableFuture 进行并行处理
+        CompletableFuture<Void> lldpFuture = CompletableFuture.runAsync(() -> {
+            log.info("getlldp ===== {}", networkElement.getIp());
+            getLldpDataSNMP(networkElement, date, hostName);
+        });
+
+        CompletableFuture<Void> macFuture = CompletableFuture.runAsync(() -> {
+            log.info("getmac ===== {}", networkElement.getIp());
+            getMacData(networkElement, date, hostName);
+        });
+
+        CompletableFuture<Void> portMacFuture = CompletableFuture.runAsync(() -> {
+            log.info("getportmac ===== {}", networkElement.getIp());
+            getPortMacData(networkElement, date, hostName);
+        });
+
+        // 等待所有任务完成
+        CompletableFuture<Void> allOf = CompletableFuture.allOf(lldpFuture, macFuture, portMacFuture);
+
+        try {
+            allOf.join(); // 等待所有子任务完成
+        } catch (Exception e) {
+            log.error("Error processing SNMP data for IP: {}", networkElement.getIp(), e);
+        }
+
+        log.info("Finished processing data for network element: {}", networkElement.getIp());
     }
 
     public void getLldpDataSNMP(NetworkElement networkElement, Date date, String hostName) {

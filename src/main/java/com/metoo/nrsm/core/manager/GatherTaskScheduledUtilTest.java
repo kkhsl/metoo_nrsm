@@ -114,6 +114,39 @@ public class GatherTaskScheduledUtilTest {
         return "end";
     }
 
+    @GetMapping("selfMac11")
+    public String selfMac1(){
+
+        Date date = DateTools.gatherDate();
+
+        List<NetworkElement> networkElements = this.getGatherDevice();
+
+        macService.truncateTableGather();
+
+        CountDownLatch latch = new CountDownLatch(networkElements.size());
+
+        for (NetworkElement networkElement : networkElements) {
+
+            if(StringUtils.isBlank(networkElement.getVersion())
+                    || StringUtils.isBlank(networkElement.getCommunity())){
+                latch.countDown();
+                continue;
+            }
+
+            GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable2(networkElement, new MacManager(), date, latch));
+        }
+
+        try {
+
+            latch.await();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "end";
+    }
+
+
     @GetMapping("selfMac2")
     public String selfMac2(){
         Date date = DateTools.gatherDate();
