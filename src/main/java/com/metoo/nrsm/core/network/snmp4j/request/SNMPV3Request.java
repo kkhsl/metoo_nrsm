@@ -489,6 +489,13 @@ public class SNMPV3Request {
         return SNMPDataParser.parseIsV6(isV6);
     }
 
+    public static String getTraffic(SNMPV3Params snmpParams, String oid1, String oid2) {
+        // 调用 sendArpRequest 方法进行 SNMP 请求
+        PDU in = sendStrRequest(snmpParams, oid1);
+        PDU out = sendStrRequest(snmpParams,oid2);
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseTraffic(in,out));
+    }
+
 
     // 获取 ARP 表、端口和端口映射
     public static JSONArray getArp(SNMPV3Params snmpParams) {

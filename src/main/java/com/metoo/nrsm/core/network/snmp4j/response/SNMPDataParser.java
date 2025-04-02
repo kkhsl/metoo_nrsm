@@ -339,4 +339,25 @@ public class SNMPDataParser {
         return false;
     }
 
+    public static Map<String, String> parseTraffic(
+            PDU inData,
+            PDU outData) {
+        String in = null;
+        String out = null;
+        Map<String, String> result = new HashMap<>(2);
+        if (inData != null && !inData.getVariableBindings().isEmpty()) {
+            in = inData.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("\"", "");
+        }
+        if (outData != null && !outData.getVariableBindings().isEmpty()) {
+            out = outData.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("\"", "");
+        }
+        // 入口流量求和
+        result.put("in",in);
+        // 出口流量求和
+        result.put("out",out);
+        return result;
+    }
+
+
+
 }

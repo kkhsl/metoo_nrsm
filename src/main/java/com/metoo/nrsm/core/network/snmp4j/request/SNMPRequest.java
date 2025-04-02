@@ -6,7 +6,6 @@ import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Test;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
@@ -17,7 +16,6 @@ import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -151,6 +149,64 @@ public class SNMPRequest {
 
                 // 如果 OID 不再属于目标范围，退出
                 if (!vb.getOid().toString().startsWith(snmpOid.getOid())) {
+                    break;
+                }
+
+                // 以 OID 为 key，将其对应的值加入到 Map 中
+                String key = vb.getOid().toString();
+                String value = vb.getVariable().toString();
+                arpResultMap.put(key, value);
+
+                // 更新 OID，准备下一次请求
+                oid = vb.getOid();
+
+
+            }
+        } catch (Exception e) {
+            System.err.println("请求异常: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+        return arpResultMap;
+    }
+    private static Map<String, String> sendStrGETNEXTRequest(SNMPParams snmpParams, String snmpOid) {
+        // 用于存储最终的 ARP 表项
+        Map<String, String> arpResultMap = new HashMap<>();
+
+        // 获取 SNMP 实例
+        Snmp snmp = threadSnmp.get();
+        if (snmp == null) {
+            System.err.println("SNMP 实例初始化失败");
+            return null;
+        }
+
+        try {
+            // 配置 SNMP 目标
+            CommunityTarget target = configureTarget(snmpParams);
+            OID oid = new OID(snmpOid);
+
+            while (true) {
+                // 创建 PDU 请求，设置为 GETNEXT
+                PDU pdu = new PDU();
+                pdu.add(new VariableBinding(oid));
+                pdu.setType(PDU.GETNEXT);
+
+                // 发送 SNMP 请求
+                ResponseEvent response = snmp.send(pdu, target);
+                PDU responsePDU = response.getResponse();
+
+                // 如果没有响应或者发生错误，退出
+                if (responsePDU == null || responsePDU.getErrorStatus() != 0) {
+                    System.err.println("SNMP 请求失败或无响应！");
+                    break;
+                }
+
+                // 获取响应中的 VariableBinding
+                VariableBinding vb = responsePDU.get(0);
+
+
+                // 如果 OID 不再属于目标范围，退出
+                if (!vb.getOid().toString().startsWith(snmpOid)) {
                     break;
                 }
 
@@ -377,6 +433,13 @@ public class SNMPRequest {
         // 调用 sendRequest 方法进行 SNMP 请求
         PDU isV6 = sendRequest(snmpParams, SNMP_OID.IS_IPV6);
         return SNMPDataParser.parseIsV6(isV6);
+    }
+
+    public static String getTraffic(SNMPParams snmpParams,String oid1,String oid2) {
+        // 调用 sendArpRequest 方法进行 SNMP 请求
+        PDU in = sendStrRequest(snmpParams, oid1);
+        PDU out = sendStrRequest(snmpParams,oid2);
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseTraffic(in,out));
     }
 
 
