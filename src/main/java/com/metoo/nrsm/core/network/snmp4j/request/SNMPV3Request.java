@@ -1,21 +1,22 @@
 package com.metoo.nrsm.core.network.snmp4j.request;
 
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
-import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.snmp4j.CommunityTarget;
-import org.snmp4j.PDU;
-import org.snmp4j.Snmp;
-import org.snmp4j.TransportMapping;
+import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv3;
 import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.*;
 import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
+import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -25,242 +26,295 @@ import static com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser.convert
 /**
  * 设计线程安全方案
  */
-public class SNMPRequest {
+public class SNMPV3Request {
 
-    private static ThreadLocal<Snmp> threadSnmp = ThreadLocal.withInitial(() -> {
+    // 新增安全协议初始化
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+        SecurityProtocols.getInstance().addDefaultProtocols();
+    }
+
+    // 使用自定义Holder同时保存Snmp和TransportMapping
+    private static class SnmpContext {
+        Snmp snmp;
+        TransportMapping<?> transport;
+    }
+
+    private static ThreadLocal<SnmpContext> threadContext = ThreadLocal.withInitial(() -> {
         try {
-            TransportMapping transport = new DefaultUdpTransportMapping();
-            Snmp snmp = new Snmp(transport);
-            transport.listen();
-            return snmp;
+            SnmpContext context = new SnmpContext();
+            // 显式创建并保存transport
+            context.transport = new DefaultUdpTransportMapping();
+            context.snmp = new Snmp(context.transport);
+
+            // USM初始化（原逻辑保留）
+            USM usm = new USM(SecurityProtocols.getInstance(),
+                    new OctetString(MPv3.createLocalEngineID()), 0);
+            SecurityModels.getInstance().addSecurityModel(usm);
+
+            context.transport.listen();
+            return context;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("SNMP传输层初始化失败: " + e.getMessage());
             return null;
         }
     });
 
-    // Helper method to configure SNMP target (community, address, timeout, etc.)
-    private static CommunityTarget configureTarget(SNMPParams snmpParams) {
-        String targetAddress = "udp:" + snmpParams.getIp() + "/161";
-        Address target = GenericAddress.parse(targetAddress);
-        CommunityTarget communityTarget = new CommunityTarget();
-        communityTarget.setCommunity(new OctetString(snmpParams.getCommunity()));
-        communityTarget.setVersion(SnmpConstants.version2c);
-        communityTarget.setAddress(target);
-        communityTarget.setTimeout(5000);
-        communityTarget.setRetries(5);
-        return communityTarget;
-    }
-
-    // Sending SNMP request
-    public static PDU sendRequest(SNMPParams snmpParams, SNMP_OID snmpOid) {
-        Snmp snmp = threadSnmp.get();
-        if (snmp == null) {
-            System.err.println("SNMP 实例初始化失败");
-            return null;
-        }
-
-        try {
-            CommunityTarget communityTarget = configureTarget(snmpParams);
-            PDU pdu = new PDU();
-            OID oid = new OID(snmpOid.getOid());
-            pdu.add(new VariableBinding(oid));
-            pdu.setType(PDU.GET);
-
-            ResponseEvent response = snmp.send(pdu, communityTarget);
-            PDU responsePDU = response.getResponse();
-
-            if (responsePDU == null || (responsePDU != null && responsePDU.getErrorStatus() != PDU.noError)) {
-                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + responsePDU.getErrorStatusText());
+    // 资源释放方法（不再依赖getTransportMapping）
+    public static void cleanup() {
+        SnmpContext context = threadContext.get();
+        if (context != null) {
+            try {
+                // 显式关闭transport
+                if (context.transport != null) {
+                    context.transport.close();
+                    //System.out.println("传输层已成功关闭");
+                }
+            } catch (IOException e) {
+                //System.err.println("关闭传输层失败: " + e.getMessage());
+            } finally {
+                // 确保移除ThreadLocal引用
+                threadContext.remove();
             }
-            return responsePDU;
-
-        } catch (Exception e) {
-            System.err.println("请求异常: " + e.getClass().getSimpleName() + ": " + e.getMessage());
-            e.printStackTrace();
-            return null;
         }
     }
 
-    public static PDU sendStrRequest(SNMPParams snmpParams, String snmpOid) {
-        Snmp snmp = threadSnmp.get();
-        if (snmp == null) {
-            System.err.println("SNMP 实例初始化失败");
-            return null;
+
+    // 修改配置目标方法（支持v3）
+    private static Target configureTarget(SNMPV3Params params) {
+        Address targetAddress = GenericAddress.parse("udp:" + params.getIp() + "/161");
+
+        if (params.getVersion() == SnmpConstants.version3) {
+            return configureV3Target(targetAddress, params);
         }
+        return configureV2cTarget(targetAddress, params);
+    }
 
+    private static CommunityTarget configureV2cTarget(Address address, SNMPV3Params params) {
+        CommunityTarget target = new CommunityTarget();
+        target.setCommunity(new OctetString(params.getCommunity()));
+        target.setAddress(address);
+        target.setVersion(SnmpConstants.version2c);
+        target.setTimeout(params.getTimeout());
+        target.setRetries(params.getRetries());
+        return target;
+    }
+
+    private static UserTarget configureV3Target(Address address, SNMPV3Params params) {
+        UserTarget target = new UserTarget();
+        target.setAddress(address);
+        target.setVersion(SnmpConstants.version3);
+        target.setSecurityLevel(params.getSecurityLevel());
+        target.setSecurityName(new OctetString(params.getSecurityName()));
+        target.setTimeout(params.getTimeout());
+        target.setRetries(params.getRetries());
+        return target;
+    }
+
+    // 新增用户安全配置
+    private static synchronized void configureV3Security(SNMPV3Params params) {
         try {
-            CommunityTarget communityTarget = configureTarget(snmpParams);
-            PDU pdu = new PDU();
-            OID oid = new OID(snmpOid);
-            pdu.add(new VariableBinding(oid));
-            pdu.setType(PDU.GET);
+            Snmp snmp = threadContext.get().snmp;
+            USM usm = snmp.getUSM();
 
-            ResponseEvent response = snmp.send(pdu, communityTarget);
-            PDU responsePDU = response.getResponse();
+            OctetString securityName = new OctetString(params.getSecurityName());
+            OctetString engineID = new OctetString(MPv3.createLocalEngineID());
 
-            if (responsePDU == null || responsePDU.getErrorStatus() != PDU.noError) {
-                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + responsePDU.getErrorStatusText());
+            // 检查用户是否存在
+            if (usm.getUser(engineID, securityName) == null) {
+                UsmUser user = new UsmUser(
+                        new OctetString(params.getSecurityName()),
+                        resolveAuthProtocol(params.getAuthProtocol()),
+                        params.getAuthPassword() != null ?
+                                new OctetString(params.getAuthPassword()) :
+                                new OctetString(),
+                        resolvePrivProtocol(params.getPrivProtocol()),
+                        params.getPrivPassword() != null ?
+                                new OctetString(params.getPrivPassword()) :
+                                new OctetString()
+                );
+                usm.addUser(securityName, user);
             }
-            return responsePDU;
-
         } catch (Exception e) {
-            System.err.println("请求异常: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            System.err.println("安全配置失败: " + e.getMessage());
             e.printStackTrace();
-            return null;
         }
     }
 
-    private static Map<String, String> sendGETNEXTRequest(SNMPParams snmpParams, SNMP_OID snmpOid) {
-        // 用于存储最终的 ARP 表项
-        Map<String, String> arpResultMap = new HashMap<>();
-
-        // 获取 SNMP 实例
-        Snmp snmp = threadSnmp.get();
-        if (snmp == null) {
-            System.err.println("SNMP 实例初始化失败");
-            return null;
+    // 协议解析方法
+    private static OID resolveAuthProtocol(String protocol) {
+        if (protocol == null) return null;
+        switch (protocol.toUpperCase()) {
+            case "SHA": return AuthSHA.ID;
+            case "MD5": return AuthMD5.ID;
+            default: throw new IllegalArgumentException("不支持的认证协议: " + protocol);
         }
+    }
 
+    private static OID resolvePrivProtocol(String protocol) {
+        if (protocol == null) return null;
+        switch (protocol.toUpperCase()) {
+            case "AES": return PrivAES128.ID;
+            case "DES": return PrivDES.ID;
+            default: throw new IllegalArgumentException("不支持的加密协议: " + protocol);
+        }
+    }
+
+    // 请求发送方法（支持v3）
+    public static PDU sendRequest(SNMPV3Params params, SNMP_OID oid) {
         try {
-            // 配置 SNMP 目标
-            CommunityTarget target = configureTarget(snmpParams);
-            OID oid = new OID(snmpOid.getOid());
+            Snmp snmp = threadContext.get().snmp;
+            if (snmp == null) {
+                System.err.println("SNMP实例未初始化");
+                return null;
+            }
 
-            while (true) {
-                // 创建 PDU 请求，设置为 GETNEXT
-                PDU pdu = new PDU();
-                pdu.add(new VariableBinding(oid));
-                pdu.setType(PDU.GETNEXT);
+            if (params.getVersion() == SnmpConstants.version3) {
+                configureV3Security(params);
+            }
 
-                // 发送 SNMP 请求
-                ResponseEvent response = snmp.send(pdu, target);
-                PDU responsePDU = response.getResponse();
+            Target target = configureTarget(params);
+            PDU pdu = createPDU(params, oid.getOid(), PDU.GET);
 
-                // 如果没有响应或者发生错误，退出
-                if (responsePDU == null || responsePDU.getErrorStatus() != 0) {
-                    System.err.println("SNMP 请求失败或无响应！");
-                    break;
+            ResponseEvent response = snmp.send(pdu, target);
+            return processResponse(response);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+    }
+
+
+    public static PDU sendStrRequest(SNMPV3Params params, String oid) {
+        try {
+            Snmp snmp = threadContext.get().snmp;
+            if (snmp == null) {
+                System.err.println("SNMP实例未初始化");
+                return null;
+            }
+
+            try {
+                // 配置v3安全参数
+                if (params.getVersion() == SnmpConstants.version3) {
+                    configureV3Security(params);
                 }
 
-                // 获取响应中的 VariableBinding
+                Target target = configureTarget(params);
+                PDU pdu = createPDU(params, oid, PDU.GET);
+
+                ResponseEvent response = snmp.send(pdu, target);
+                return processResponse(response);
+            } catch (Exception e) {
+                System.err.println("请求异常: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+                e.printStackTrace();
+                return null;
+            }
+        } finally {
+            cleanup();
+        }
+    }
+
+    // 创建PDU（支持v3的ScopedPDU）
+    private static PDU createPDU(SNMPV3Params params, String oid, int pduType) {
+        PDU pdu;
+        if (params.getVersion() == SnmpConstants.version3) {
+            pdu = new ScopedPDU();
+        } else {
+            pdu = new PDU();
+        }
+        pdu.add(new VariableBinding(new OID(oid)));
+        pdu.setType(pduType);
+        return pdu;
+    }
+
+    // 修改GETNEXT方法
+    private static Map<String, String> sendGETNEXTRequest(SNMPV3Params params, SNMP_OID snmpOid) {
+        Map<String, String> resultMap = new HashMap<>();
+        Snmp snmp = threadContext.get().snmp;
+        if (snmp == null) {
+            System.err.println("SNMP实例未初始化");
+            return null;
+        }
+
+        try {
+            if (params.getVersion() == SnmpConstants.version3) {
+                configureV3Security(params);
+            }
+
+            Target target = configureTarget(params);
+            OID currentOid = new OID(snmpOid.getOid());
+
+            while (true) {
+                PDU pdu = createPDU(params, currentOid.toString(), PDU.GETNEXT);
+                ResponseEvent response = snmp.send(pdu, target);
+                PDU responsePDU = processResponse(response);
+
+                if (responsePDU == null) break;
+
                 VariableBinding vb = responsePDU.get(0);
-
-
-                // 如果 OID 不再属于目标范围，退出
                 if (!vb.getOid().toString().startsWith(snmpOid.getOid())) {
                     break;
                 }
 
-                // 以 OID 为 key，将其对应的值加入到 Map 中
-                String key = vb.getOid().toString();
-                String value = vb.getVariable().toString();
-                arpResultMap.put(key, value);
-
-                // 更新 OID，准备下一次请求
-                oid = vb.getOid();
-
-
+                resultMap.put(vb.getOid().toString(), vb.getVariable().toString());
+                currentOid = vb.getOid();
             }
         } catch (Exception e) {
-            System.err.println("请求异常: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            System.err.println("GETNEXT请求异常: " + e.getMessage());
             e.printStackTrace();
             return null;
+        }finally {
+            cleanup();
         }
-        return arpResultMap;
+        return resultMap;
     }
-    private static Map<String, String> sendStrGETNEXTRequest(SNMPParams snmpParams, String snmpOid) {
-        // 用于存储最终的 ARP 表项
-        Map<String, String> arpResultMap = new HashMap<>();
 
-        // 获取 SNMP 实例
-        Snmp snmp = threadSnmp.get();
-        if (snmp == null) {
+    private static PDU processResponse(ResponseEvent event) {
+        if (event.getResponse() == null) {
             System.err.println("SNMP 实例初始化失败");
-            return null;
         }
-
-        try {
-            // 配置 SNMP 目标
-            CommunityTarget target = configureTarget(snmpParams);
-            OID oid = new OID(snmpOid);
-
-            while (true) {
-                // 创建 PDU 请求，设置为 GETNEXT
-                PDU pdu = new PDU();
-                pdu.add(new VariableBinding(oid));
-                pdu.setType(PDU.GETNEXT);
-
-                // 发送 SNMP 请求
-                ResponseEvent response = snmp.send(pdu, target);
-                PDU responsePDU = response.getResponse();
-
-                // 如果没有响应或者发生错误，退出
-                if (responsePDU == null || responsePDU.getErrorStatus() != 0) {
-                    System.err.println("SNMP 请求失败或无响应！");
-                    break;
-                }
-
-                // 获取响应中的 VariableBinding
-                VariableBinding vb = responsePDU.get(0);
-
-
-                // 如果 OID 不再属于目标范围，退出
-                if (!vb.getOid().toString().startsWith(snmpOid)) {
-                    break;
-                }
-
-                // 以 OID 为 key，将其对应的值加入到 Map 中
-                String key = vb.getOid().toString();
-                String value = vb.getVariable().toString();
-                arpResultMap.put(key, value);
-
-                // 更新 OID，准备下一次请求
-                oid = vb.getOid();
-
-
-            }
-        } catch (Exception e) {
-            System.err.println("请求异常: " + e.getClass().getSimpleName() + ": " + e.getMessage());
-            e.printStackTrace();
-            return null;
+        PDU response = event.getResponse();
+        if (response.getErrorStatus() != PDU.noError) {
+            System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + response.getErrorStatusText());
         }
-        return arpResultMap;
+        return response;
     }
+
 
     //解析 SNMP 响应，获取设备名
-    public static String getDeviceName(SNMPParams snmpParams) {
+    public static String getDeviceName(SNMPV3Params snmpParams) {
         PDU responsePdu = sendRequest(snmpParams, SNMP_OID.HOST_NAME);
         return SNMPDataParser.parseDeviceName(responsePdu);
     }
 
     //解析 SNMP 响应，获取arp
-    public static String getDeviceArp(SNMPParams snmpParams) {
+    public static String getDeviceArp(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 ARP 表遍历
         Map<String, String> arpMap = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceArp(arpMap));
     }
 
 
-    public static String getDeviceArpPort(SNMPParams snmpParams) {
+    public static String getDeviceArpPort(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 ArpPort 表遍历
         Map<String, String> arpPortMap = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP_PORT);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceArpPort(arpPortMap));
     }
 
-    public static String getDeviceArpV6(SNMPParams snmpParams) {
+    public static String getDeviceArpV6(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 ArpV6 表遍历
         Map<String, String> arpV6Map = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP_V6);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceArpV6(arpV6Map));
     }
 
-    public static String getDeviceArpV6Port(SNMPParams snmpParams) {
+    public static String getDeviceArpV6Port(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 ArpV6Port 表遍历
         Map<String, String> arpV6PortMap = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP_V6_PORT);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceArpPort(arpV6PortMap));
     }
 
-    public static String getDevicePort(SNMPParams snmpParams) {
+    public static String getDevicePort(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 Port 表遍历
         Map<String, String> portMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT);
         /*Map<String, String> portMap = new HashMap<>();
@@ -270,31 +324,31 @@ public class SNMPRequest {
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePort(portMap));
     }
 
-    public static String getDevicePortIp(SNMPParams snmpParams) {
+    public static String getDevicePortIp(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortIp 表遍历
         Map<String, String> portIpMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_IP);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePortIp(portIpMap));
     }
 
-    public static String getDevicePortV6(SNMPParams snmpParams) {
+    public static String getDevicePortV6(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortV6 表遍历
         Map<String, String> portV6Map = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_IPV6);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePortV6(portV6Map));
     }
 
-    public static String getDevicePortMask(SNMPParams snmpParams) {
+    public static String getDevicePortMask(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortMask 表遍历
         Map<String, String> portMaskMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_MASK);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePortMask(portMaskMap));
     }
 
-    public static String getDevicePortDescription(SNMPParams snmpParams) {
+    public static String getDevicePortDescription(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortDescription 表遍历
         Map<String, String> portDescriptionMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_DESCRIPTION);
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDevicePortDescription(portDescriptionMap));
     }
 
-    public static String getDeviceMac(SNMPParams snmpParams) {
+    public static String getDeviceMac(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
         Map<String, String> macMap = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC);
         /* Map<String, String> macMap = new HashMap<>();
@@ -323,7 +377,7 @@ public class SNMPRequest {
         return SNMPDataParser.convertToJson(result);
     }
 
-    public static String getDeviceMac2(SNMPParams snmpParams) {
+    public static String getDeviceMac2(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
         Map<String, String> mac2Map = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC2);
         String str = SNMP_OID.MAC2.getOid() + ".";
@@ -346,7 +400,7 @@ public class SNMPRequest {
 
         return SNMPDataParser.convertToJson(result);
     }
-    public static String getDeviceMac3(SNMPParams snmpParams) {
+    public static String getDeviceMac3(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
         Map<String, String> mac3Map = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC3);
         String str = SNMP_OID.MAC3.getOid() + ".";
@@ -373,19 +427,19 @@ public class SNMPRequest {
         return SNMPDataParser.convertToJson(result);
     }
 
-    public static String getDevicePortStatus(SNMPParams snmpParams) {
+    public static String getDevicePortStatus(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortStatus 表遍历
         Map<String, String> portStatusMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_STATUS);
         return SNMPDataParser.convertToJson(SNMPDataParser.parsePortStatus(portStatusMap));
     }
 
-    public static String getDevicePortMac(SNMPParams snmpParams) {
+    public static String getDevicePortMac(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortMac 表遍历
         Map<String, String> portMacMap = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_MAC);
         return SNMPDataParser.convertToJson(SNMPDataParser.parsePortMac(portMacMap));
     }
 
-    public static String getDeviceMacType(SNMPParams snmpParams) {
+    public static String getDeviceMacType(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 MacType 表遍历
         Map<String, String> macTypeMap = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC_TYPE);
          /*Map<String, String> macTypeMap = new HashMap<>();
@@ -396,19 +450,19 @@ public class SNMPRequest {
         return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceMacType(macTypeMap, str));
     }
 
-    public static String getDeviceUpdateTime(SNMPParams snmpParams) {
+    public static String getDeviceUpdateTime(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 MacType 表遍历
         PDU updateTimeMap = sendRequest(snmpParams, SNMP_OID.UP_TIME);
         return SNMPDataParser.parseDeviceUpdateTime(updateTimeMap);
     }
 
-    public static String getV6Device(SNMPParams snmpParams) {
+    public static String getV6Device(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 V6Device 表遍历
         Map<String, String> v6Device = sendGETNEXTRequest(snmpParams, SNMP_OID.IPV6_DEVICE);
         return SNMPDataParser.convertToJson(SNMPDataParser.parsePortMac(v6Device));
     }
 
-    public static String getLLDP(SNMPParams snmpParams) {
+    public static String getLLDP(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 LLDP 表遍历
         Map<String, String> lldp = sendGETNEXTRequest(snmpParams, SNMP_OID.LLDP);
         /*Map<String, String> lldp = new HashMap<>();
@@ -417,7 +471,7 @@ public class SNMPRequest {
         return SNMPDataParser.convertToJson(SNMPDataParser.parseLLDP(lldp));
     }
 
-    public static String getLLDPPort(SNMPParams snmpParams) {
+    public static String getLLDPPort(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 LLDP 表遍历
         Map<String, String> lldpPort = sendGETNEXTRequest(snmpParams, SNMP_OID.LLDP_ROMOTE_PORT);
         /*Map<String, String> lldpPort = new HashMap<>();
@@ -429,13 +483,13 @@ public class SNMPRequest {
     }
 
 
-    public static Boolean getIsV6(SNMPParams snmpParams) {
+    public static Boolean getIsV6(SNMPV3Params snmpParams) {
         // 调用 sendRequest 方法进行 SNMP 请求
         PDU isV6 = sendRequest(snmpParams, SNMP_OID.IS_IPV6);
         return SNMPDataParser.parseIsV6(isV6);
     }
 
-    public static String getTraffic(SNMPParams snmpParams,String oid1,String oid2) {
+    public static String getTraffic(SNMPV3Params snmpParams, String oid1, String oid2) {
         // 调用 sendArpRequest 方法进行 SNMP 请求
         PDU in = sendStrRequest(snmpParams, oid1);
         PDU out = sendStrRequest(snmpParams,oid2);
@@ -444,10 +498,10 @@ public class SNMPRequest {
 
 
     // 获取 ARP 表、端口和端口映射
-    public static JSONArray getArp(SNMPParams snmpParams) {
-        String arpData = SNMPRequest.getDeviceArp(snmpParams);
-        String arpPortData = SNMPRequest.getDeviceArpPort(snmpParams);
-        String portData = SNMPRequest.getDevicePort(snmpParams);
+    public static JSONArray getArp(SNMPV3Params snmpParams) {
+        String arpData = SNMPV3Request.getDeviceArp(snmpParams);
+        String arpPortData = SNMPV3Request.getDeviceArpPort(snmpParams);
+        String portData = SNMPV3Request.getDevicePort(snmpParams);
         // 解析 JSON 数据
         JSONObject arpJson = new JSONObject(arpData);
         JSONObject arpPortJson = new JSONObject(arpPortData);
@@ -474,11 +528,11 @@ public class SNMPRequest {
         return resultArray;
     }
 
-    public static JSONArray getPortMac(SNMPParams snmpParams) {
+    public static JSONArray getPortMac(SNMPV3Params snmpParams) {
         // 获取 SNMP 数据
-        String macData = SNMPRequest.getDevicePortMac(snmpParams);
-        String statusData = SNMPRequest.getDevicePortStatus(snmpParams);
-        String portData = SNMPRequest.getDevicePort(snmpParams);
+        String macData = SNMPV3Request.getDevicePortMac(snmpParams);
+        String statusData = SNMPV3Request.getDevicePortStatus(snmpParams);
+        String portData = SNMPV3Request.getDevicePort(snmpParams);
 
 
         // 解析 JSON 数据
@@ -508,13 +562,13 @@ public class SNMPRequest {
         return resultArray;
     }
 
-    public static JSONArray getPortTable(SNMPParams snmpParams) {
+    public static JSONArray getPortTable(SNMPV3Params snmpParams) {
         // 获取 SNMP 数据
-        String portData = SNMPRequest.getDevicePort(snmpParams);
-        String statusData = SNMPRequest.getDevicePortStatus(snmpParams);
-        String portIpData = SNMPRequest.getDevicePortIp(snmpParams);
-        String portMaskData = SNMPRequest.getDevicePortMask(snmpParams);
-        String portDescriptionData = SNMPRequest.getDevicePortDescription(snmpParams);
+        String portData = SNMPV3Request.getDevicePort(snmpParams);
+        String statusData = SNMPV3Request.getDevicePortStatus(snmpParams);
+        String portIpData = SNMPV3Request.getDevicePortIp(snmpParams);
+        String portMaskData = SNMPV3Request.getDevicePortMask(snmpParams);
+        String portDescriptionData = SNMPV3Request.getDevicePortDescription(snmpParams);
 
         // 解析 JSON 数据
         JSONObject portJson = new JSONObject(portData);
@@ -559,41 +613,7 @@ public class SNMPRequest {
         return ""; // 确保返回空字符串而不是 null
     }
 
-
-    /*public static JSONArray getMac(SNMPParams snmpParams) {
-        // 获取 SNMP 数据
-        String macData = SNMPRequest.getDeviceMac3(snmpParams);
-        String macTypeData = SNMPRequest.getDeviceMacType(snmpParams);
-        String portData = SNMPRequest.getDevicePort(snmpParams);
-
-        // 解析 JSON 数据
-        JSONObject macJson = new JSONObject(macData);
-        JSONObject macTypeJson = new JSONObject(macTypeData);
-        JSONObject portJson = new JSONObject(portData);
-
-        // 创建结果数组
-        JSONArray resultArray = new JSONArray();
-
-        // 遍历 MAC 数据
-        for (String mac : macJson.keySet()) {
-            String portNumber = macJson.getString(mac); // 获取端口号
-            String portName = portJson.optString(portNumber, "unknown"); // 根据端口号获取端口名称
-            String macType = macTypeJson.optString(mac, "unknown"); // 获取 MAC 类型
-
-            // 创建结果对象
-            JSONObject resultObject = new JSONObject();
-            resultObject.put("mac", mac);
-            resultObject.put("port", portName); // 端口名称
-            resultObject.put("type", macType); // MAC 类型
-
-            // 添加到结果数组
-            resultArray.put(resultObject);
-        }
-
-        return resultArray;
-    }*/
-
-    public static JSONArray getMac(SNMPParams snmpParams) {
+    public static JSONArray getMac(SNMPV3Params snmpParams) {
         // 按优先级获取 MAC 数据（getDeviceMac -> getDeviceMac2 -> getDeviceMac3）
         JSONObject macJson = getPriorityMacData(snmpParams);
 
@@ -627,13 +647,13 @@ public class SNMPRequest {
     }
 
     // --- 辅助方法 ---
-    private static JSONObject getPriorityMacData(SNMPParams snmpParams) {
+    private static JSONObject getPriorityMacData(SNMPV3Params snmpParams) {
         // 按优先级顺序尝试获取 MAC 数据
         String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
         for (String method : methods) {
             try {
-                String data = (String) SNMPRequest.class
-                        .getMethod(method, SNMPParams.class)
+                String data = (String) SNMPV3Request.class
+                        .getMethod(method, SNMPV3Params.class)
                         .invoke(null, snmpParams);
                 if (isValidJson(data)) {
                     return new JSONObject(data);
@@ -645,18 +665,18 @@ public class SNMPRequest {
         return new JSONObject(); // 返回空对象
     }
 
-    private static JSONObject getMacTypeData(SNMPParams snmpParams) {
+    private static JSONObject getMacTypeData(SNMPV3Params snmpParams) {
         try {
-            String data = SNMPRequest.getDeviceMacType(snmpParams);
+            String data = SNMPV3Request.getDeviceMacType(snmpParams);
             return new JSONObject(data);
         } catch (JSONException e) {
             return new JSONObject(); // 返回空对象
         }
     }
 
-    private static JSONObject getPortData(SNMPParams snmpParams) {
+    private static JSONObject getPortData(SNMPV3Params snmpParams) {
         try {
-            String data = SNMPRequest.getDevicePort(snmpParams);
+            String data = SNMPV3Request.getDevicePort(snmpParams);
             return new JSONObject(data);
         } catch (JSONException e) {
             return new JSONObject(); // 返回空对象
@@ -676,10 +696,10 @@ public class SNMPRequest {
     }
 
 
-    public static JSONArray getLldp(SNMPParams snmpParams) {
+    public static JSONArray getLldp(SNMPV3Params snmpParams) {
         // 获取 SNMP 数据
-        String lldpData = SNMPRequest.getLLDP(snmpParams);
-        String lldpPortData = SNMPRequest.getLLDPPort(snmpParams);
+        String lldpData = SNMPV3Request.getLLDP(snmpParams);
+        String lldpPortData = SNMPV3Request.getLLDPPort(snmpParams);
 
         // 解析 JSON 数据
         JSONObject lldpJson = new JSONObject(lldpData);

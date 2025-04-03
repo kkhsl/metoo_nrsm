@@ -37,8 +37,5 @@ public enum SNMP_OID {
         return this.oid;
     }
 
-    public String buildFullOid(String index) {
-        return this.oid + "." + index;
-    }
 
 }
