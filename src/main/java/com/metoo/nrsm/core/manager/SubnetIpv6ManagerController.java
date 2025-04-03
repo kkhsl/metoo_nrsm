@@ -2,18 +2,15 @@ package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.service.ISubnetIpv6Service;
-import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.Address;
-import com.metoo.nrsm.entity.Ipv4Detail;
-import com.metoo.nrsm.entity.Subnet;
 import com.metoo.nrsm.entity.SubnetIpv6;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author HKK
@@ -28,8 +25,8 @@ public class SubnetIpv6ManagerController {
     private ISubnetIpv6Service subnetIpv6Service;
 
     @GetMapping("/comb")
-    public void comb(){
-        this.subnetIpv6Service.getSubnet();
+    public Object comb(){
+        return this.subnetIpv6Service.getSubnet();
     }
 
     @GetMapping("list")

@@ -5,14 +5,16 @@ import org.snmp4j.security.SecurityLevel;
 
 public class SNMPV3Params {
     private String ip;
-    private int version;
+    private int version;            //版本     1：v2c   3:v3
     private String community;       // v2c参数
-    private String securityName;    // v3参数
-    private int securityLevel;
-    private String authProtocol;
-    private String authPassword;
-    private String privProtocol;
-    private String privPassword;
+
+    // v3参数
+    private String securityName;    //  安全名
+    private int securityLevel;    // 1:NOAUTH_NOPRIV  2:AUTH_NOPRIV  3:AUTH_PRIV
+    private String authProtocol;  //认证协议  "MD5"和"SHA"
+    private String authPassword;   //认证密码
+    private String privProtocol;   //加密协议   "AES"和"DES"
+    private String privPassword;   //加密密码
     private int timeout = 5000;
     private int retries = 3;
 
