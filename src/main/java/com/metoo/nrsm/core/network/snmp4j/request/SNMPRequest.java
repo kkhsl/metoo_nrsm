@@ -1,5 +1,7 @@
 package com.metoo.nrsm.core.network.snmp4j.request;
 
+import com.metoo.nrsm.core.network.networkconfig.DHCPUtil;
+import com.metoo.nrsm.core.network.networkconfig.test.dhcpDop;
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
@@ -70,7 +72,10 @@ public class SNMPRequest {
             ResponseEvent response = snmp.send(pdu, communityTarget);
             PDU responsePDU = response.getResponse();
 
-            if (responsePDU == null || (responsePDU != null && responsePDU.getErrorStatus() != PDU.noError)) {
+            if (responsePDU == null) {
+                System.err.println("无响应(超时或目标不可达)");
+            }
+            if (responsePDU != null && responsePDU.getErrorStatus() != PDU.noError) {
                 System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + responsePDU.getErrorStatusText());
             }
             return responsePDU;
@@ -705,4 +710,23 @@ public class SNMPRequest {
         return resultArray;
     }
 
+    // dhcp
+    public static String getDhcpStatus(){
+        return DHCPUtil.getDhcpStatus();
+    }
+
+    // 根据type参数，指定获取dhcp或dhcp6进程状态
+    public static String checkdhcpd(String type){
+        return DHCPUtil.checkdhcpd(type);
+    }
+
+    public static String processOperation(String operation, String service){
+        return DHCPUtil.processOperation(operation, service);
+    }
+
+    public static String modifyDHCP(String v4status, String v4int,
+                                    String v6status, String v6int){
+        DHCPUtil.modifyDHCP(v4status, v4int, v6status, v6int);
+        return "modifyDHCP";
+    }
 }

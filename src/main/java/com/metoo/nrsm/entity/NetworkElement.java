@@ -103,4 +103,22 @@ public class NetworkElement extends IdEntity {
     @ApiModelProperty("nswitch: 0：显示 1：隐藏")
     private boolean display = false;
 
+    // snmpv3
+    // 安全模型
+    // noAuthNoPriv：无认证和加密，最不安全的模式
+    // authNoPriv：仅认证，但不加密
+    // authPriv：认证并加密，是最安全的模式
+    @ApiModelProperty("用户名")
+    private String securityName;
+    @ApiModelProperty("安全等级")
+    private int securityLevel;
+    @ApiModelProperty("认证协议 MD5/SHA")
+    private String authProtocol;
+    @ApiModelProperty("认证密码")
+    private String authPassword;
+    @ApiModelProperty("加密协议 DES/AES")
+    private String privProtocol;
+    @ApiModelProperty("加密密码")
+    private String privPassword;
+
 }

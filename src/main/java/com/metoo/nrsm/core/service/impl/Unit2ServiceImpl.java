@@ -48,10 +48,17 @@ public class Unit2ServiceImpl implements IUnit2Service {
         List<Unit2> unit2s = this.unit2Mapper.selectObjConditionQuery(dto);
         return ResponseUtil.ok(new PageInfo<Unit2>(page));
     }
+
     @Override
     public Result selectAllQuery() {
         List<Unit2> units = this.unit2Mapper.selectAllQuery();
         return ResponseUtil.ok(units);
+    }
+
+    @Override
+    public List<Unit2> selectUnitAll() {
+        List<Unit2> units = this.unit2Mapper.selectAllQuery();
+        return units;
     }
 
     @Override

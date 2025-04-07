@@ -8,6 +8,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.metoo.nrsm.core.dto.DhcpDto;
 import com.metoo.nrsm.core.mapper.DhcpMapper;
+import com.metoo.nrsm.core.network.networkconfig.test.getDhcp;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.IDhcpHistoryService;
 import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.utils.Global;
@@ -22,7 +24,6 @@ import org.springframework.cglib.beans.BeanMap;
 import org.springframework.data.repository.init.ResourceReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.*;
 import java.util.*;
@@ -135,34 +136,35 @@ public class DhcpServiceImpl implements IDhcpService {
 
     @Override
     public String getdhcp() {
-        String path = Global.PYPATH + "getdhcp.py";
-        String result = pythonExecUtils.exec(path);
-        return result;
-    }
-
-    @Override
-    public String modifydhcp(Internet instance) {
-        String path = Global.PYPATH + "modifydhcp.py";
-        String[] params = {instance.getV4status(), instance.getV4int(),
-                instance.getV6status(), instance.getV6int()};
-        String result = pythonExecUtils.exec(path, params);
-        return result;
+//        String path = Global.PYPATH + "getdhcp.py";
+//        String result = pythonExecUtils.exec(path);
+//        return result;
+        return SNMPRequest.getDhcpStatus();
     }
 
     @Override
     public String checkdhcpd(String type) {
-        String path = Global.PYPATH + "checkdhcpd.py";
-        String[] params = {type};
-        String result = pythonExecUtils.exec(path, params);
-        return result;
+        return SNMPRequest.checkdhcpd(type);
     }
 
     @Override
-    public String dhcpdop(String action, String type) {
-        String path = Global.PYPATH + "dhcpdop.py";
-        String[] params = {action, type};
-        String result = pythonExecUtils.exec(path, params);
-        return result;
+    public String modifydhcp(Internet instance) {
+//        String path = Global.PYPATH + "modifydhcp.py";
+//        String[] params = {instance.getV4status(), instance.getV4int(),
+//                instance.getV6status(), instance.getV6int()};
+//        String result = pythonExecUtils.exec(path, params);
+//        return result;
+        return SNMPRequest.modifyDHCP(instance.getV4status(), instance.getV4int(),
+                instance.getV6status(), instance.getV6int());
+    }
+
+    @Override
+    public String dhcpdop(String operation, String service) {
+//        String path = Global.PYPATH + "dhcpdop.py";
+//        String[] params = {action, type};
+//        String result = pythonExecUtils.exec(path, params);
+//        return result;
+        return SNMPRequest.processOperation(operation, service);
     }
 
     @Override

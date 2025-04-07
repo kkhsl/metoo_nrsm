@@ -5,10 +5,14 @@ import com.jcraft.jsch.Session;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
 import com.metoo.nrsm.core.mapper.TrafficDataMapper;
+import com.metoo.nrsm.core.mapper.Unit2Mapper;
 import com.metoo.nrsm.core.network.ssh.SnmpHelper;
 
+import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.TrafficData;
+import com.metoo.nrsm.entity.Unit;
+import com.metoo.nrsm.entity.Unit2;
 import com.metoo.nrsm.entity.UnitSubnet;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,12 +35,8 @@ public class TerminalUnitManagerController {
 
     @Resource
     private TerminalUnitMapper terminalUnitMapper;
-
     @Resource
-    private TrafficDataMapper trafficDataMapper;
-
-
-
+    private Unit2Mapper unit2Mapper;
 
     @GetMapping("/selectAll")
     public Result selectAll() {
@@ -57,9 +57,21 @@ public class TerminalUnitManagerController {
         if (unitSubnets == null || unitSubnets.isEmpty()) {
             return ResponseUtil.error("Input data cannot be empty");
         }
+        if(!unitSubnets.isEmpty()){
+            Map map = new HashMap();
+            for (UnitSubnet unitSubnet : unitSubnets) {
+                if(map.get(unitSubnet.getUnitId()) != null){
+                    Unit2 unit2 = this.unit2Mapper.selectObjById(unitSubnet.getUnitId());
+                    return ResponseUtil.badArgument(unit2.getUnitName() + " 网段名称重复");
+                }
+                map.put(unitSubnet.getUnitId(), unitSubnet.getUnitId());
+
+            }
+        }
 
         try {
             for (UnitSubnet unitSubnet : unitSubnets) {
+                unitSubnet.setAddTime(new Date());
                 if (unitSubnet.getId() == null) {
                     // ID 为空，执行插入操作
                     terminalUnitMapper.insert(unitSubnet);

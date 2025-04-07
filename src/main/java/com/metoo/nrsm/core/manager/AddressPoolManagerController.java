@@ -65,10 +65,6 @@ public class AddressPoolManagerController {
     @GetMapping({"/write"})
     public Result writeDhcpd() {
         SysConfig sysconfig = this.sysConfigService.select();
-        /**
-         * 重复提交,导致多次执行；
-         * 并发，导致多次文件写入操作
-         */
         if(sysconfig.isV4_status()){
             this.addressPoolService.write();
         }

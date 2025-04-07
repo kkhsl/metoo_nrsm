@@ -4,12 +4,15 @@ import com.google.gson.Gson;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.Session;
 import com.metoo.nrsm.core.network.ssh.SnmpHelper;
+import com.metoo.nrsm.core.utils.Global;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class getDhcp {
+
+
     /**
      * getdhcp.py
      * @return  {"v6int":"","v4int":"","v6status":"true","v4status":"true"}
@@ -106,6 +109,4 @@ public class getDhcp {
             if (session != null) session.disconnect();
         }
     }
-
-
 } 

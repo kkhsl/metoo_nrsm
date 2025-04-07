@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.network.snmp4j.constants;
 
 public enum SNMP_OID {
 
+    // 采集
     HOST_NAME("1.3.6.1.2.1.1.5.0"),   // 主机名 OID
     ARP("1.3.6.1.2.1.4.22.1.2"),   // arp
     ARP_PORT("1.3.6.1.2.1.4.22.1.1"),  // arp_port
@@ -24,6 +25,10 @@ public enum SNMP_OID {
     LLDP("1.0.8802.1.1.2.1.4.1.1.9"),
     LLDP_ROMOTE_PORT("1.0.8802.1.1.2.1.4.1.1.7"),
     IS_IPV6("1.3.6.1.2.1.55.1.1");
+
+
+    // 流量
+
 
     private String oid;
 

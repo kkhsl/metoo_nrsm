@@ -59,8 +59,9 @@ public interface ITerminalService {
     void v4Tov6Terminal(Date date);
 
     void writeTerminalUnit();
-
     void writeTerminalUnitV6();
+
+    void writeTerminalUnitByUnit2();
 
     void dualStackTerminal();
 

@@ -118,7 +118,6 @@ public class NetworkElementManagerController {
             System.out.println(0);
         }else{
             System.out.println(1);
-            System.out.println(2);
         }
     }
 

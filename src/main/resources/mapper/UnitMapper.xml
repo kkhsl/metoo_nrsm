@@ -4,13 +4,13 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.UnitMapper">
 
     <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random
+        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, unitId
         FROM metoo_unit
         WHERE id = #{id}
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, v4Traffic
+        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, v4Traffic, unitId
         FROM metoo_unit
         <where>
             <if test="addTime != null">
@@ -56,7 +56,7 @@
     </select>
 
     <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UnitDTO" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random
+        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, unitId
         FROM metoo_unit
         <where>
             <if test="id != null">
@@ -119,6 +119,9 @@
             <if test="broadband_Account != null and broadband_Account != ''">
                 broadband_Account,
             </if>
+            <if test="unitId != null and unitId != ''">
+                unitId,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -159,6 +162,9 @@
             </if>
             <if test="broadband_Account != null and broadband_Account != ''">
                 #{broadband_Account},
+            </if>
+            <if test="unitId != null and unitId != ''">
+                #{unitId},
             </if>
         </trim>
     </insert>
@@ -204,6 +210,9 @@
             </if>
             <if test="broadband_Account != null and broadband_Account != ''">
                 broadband_Account = #{broadband_Account},
+            </if>
+            <if test="unitId != null and unitId != ''">
+                unitId = #{unitId},
             </if>
         </set> WHERE id = #{id}
     </update>

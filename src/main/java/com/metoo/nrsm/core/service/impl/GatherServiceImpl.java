@@ -558,6 +558,8 @@ public class GatherServiceImpl implements IGatherService {
                     continue;
                 }
                 GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6Runnable(networkElement, date, latch));
+//                GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6SNMPRunnable(networkElement, date, latch));
+
             }
 
             try {
@@ -600,8 +602,6 @@ public class GatherServiceImpl implements IGatherService {
                 e.printStackTrace();
             }
         }
-
-
     }
 
     @Override
@@ -610,13 +610,6 @@ public class GatherServiceImpl implements IGatherService {
         List<FluxConfig> fluxConfigs = this.fluxConfigService.selectObjByMap(null);
 
         if (fluxConfigs.size() > 0) {
-//            for (FluxConfig fc : fluxConfigs) {
-//                if(fc.getUpdate() == 1){
-//                    fc.setUpdate(0);
-//                    this.fluxConfigService.update(fc);
-//                    return;
-//                }
-//            }
 
             BigDecimal ipv4Sum = new BigDecimal(0);
             BigDecimal ipv6Sum = new BigDecimal(0);

@@ -5,6 +5,7 @@ package com.metoo.nrsm.core.config.shiro;
 import com.metoo.nrsm.core.config.filter.LicenseFilter;
 import com.metoo.nrsm.core.config.shiro.filter.MyAccessControlFilter;
 import com.metoo.nrsm.core.service.ILicenseService;
+import com.metoo.nrsm.core.utils.Global;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
@@ -75,6 +76,10 @@ public class ShiroConfig {
 
 //        filterChainDefinitionMap.put("/admin/dhcp/**", "anon");
 //        filterChainDefinitionMap.put("/admin/address/pool/**", "anon");
+
+        if(true){
+            filterChainDefinitionMap.put("/admin/**", "anon");
+        }
 
         filterChainDefinitionMap.put("/notice/**", "anon");
         filterChainDefinitionMap.put("/ws/**", "anon");

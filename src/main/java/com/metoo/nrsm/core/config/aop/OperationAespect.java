@@ -74,7 +74,6 @@ public class OperationAespect {
             if(operationLogAnno.name().equals("")){
                 System.out.println(args[0]);
             }
-
         }
     }
 

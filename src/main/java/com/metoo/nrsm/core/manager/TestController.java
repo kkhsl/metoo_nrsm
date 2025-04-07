@@ -1,8 +1,6 @@
 package com.metoo.nrsm.core.manager;
 
-import com.metoo.nrsm.core.domain.R;
-import com.metoo.nrsm.core.utils.api.ApiService;
-import com.metoo.nrsm.core.utils.exception.CustomRuntimeException;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +33,14 @@ import java.util.*;
 public class TestController {
 
     @Autowired
-    private ApiService apiService;
-    @Autowired
     private RestTemplate restTemplate;
+
+    @GetMapping("getDHCP")
+    public String getDHCP(){
+        return SNMPRequest.getDhcpStatus();
+    }
+
+
 //
 //    public static void main(String[] args) {
 //        SystemInfo systemInfo = new SystemInfo();

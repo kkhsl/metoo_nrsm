@@ -6,12 +6,14 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.UnitDTO;
 import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IGatewayService;
+import com.metoo.nrsm.core.service.IUnit2Service;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.service.IVendorService;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Unit;
+import com.metoo.nrsm.entity.Unit2;
 import com.metoo.nrsm.entity.Vendor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ public class UnitServiceImpl implements IUnitService {
     private IGatewayService gatewayService;
     @Autowired
     private IVendorService vendorService;
+    @Autowired
+    private IUnit2Service unit2Service;
 
     @Override
     public Unit selectObjById(Long id) {
@@ -76,13 +80,18 @@ public class UnitServiceImpl implements IUnitService {
                         instance.setGatewayName(gateway.getName());
                     }
                 }
+                if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
+                    Unit2 unit2 = this.unit2Service.selectObjById(instance.getUnitId());
+                    if(unit2 != null){
+                        instance.setUnitName(unit2.getUnitName());
+                    }
+                }
             }
         }
 
         List<Gateway> gatewayList = this.gatewayService.selectObjByMap(null);
         Map data = new HashMap();
         data.put("gateway", gatewayList);
-
         return ResponseUtil.ok(new PageInfo<Unit>(page, data));
     }
     @Override
@@ -108,6 +117,8 @@ public class UnitServiceImpl implements IUnitService {
             }
         }
         data.put("gateway", gatewayList);
+        List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+        data.put("unitList", unit2s);
         return ResponseUtil.ok(data);
     }
 
@@ -117,6 +128,14 @@ public class UnitServiceImpl implements IUnitService {
             Gateway gateway = this.gatewayService.selectObjById(instance.getGatewayId());
             if(gateway == null){
                 return ResponseUtil.badArgument("网关设备不存在");
+            }
+        }
+        if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
+            Unit2 unit2 = this.unit2Service.selectObjById(instance.getUnitId());
+            if(unit2 == null){
+                return ResponseUtil.badArgument("单位不存在");
+            }else{
+                instance.setUnitName(unit2.getUnitName());
             }
         }
         if (instance.getId() == null || instance.getId().equals("")) {

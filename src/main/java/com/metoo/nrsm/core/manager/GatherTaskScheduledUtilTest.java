@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.manager;
 
+import cn.hutool.core.date.DateTime;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
@@ -72,6 +73,8 @@ public class GatherTaskScheduledUtilTest {
 
     @Autowired
     private MacManager macManager;
+    @Autowired
+    private ITerminalService terminalService;
 
 
     private final GatherDataThreadPool gatherDataThreadPool;
@@ -80,6 +83,17 @@ public class GatherTaskScheduledUtilTest {
         this.gatherDataThreadPool = gatherDataThreadPool;
     }
 
+    @GetMapping("terminal/unit2")
+    public void terminalUnit2(){
+        this.terminalService.writeTerminalUnitByUnit2();
+    }
+
+    @GetMapping("terminal/unit3")
+    public void terminalUnit3(){
+        Terminal terminal = this.terminalService.selectObjById(1039L);
+        terminal.setAddTime(new DateTime());
+        this.terminalService.update(terminal);
+    }
 
 
     @GetMapping("selfMac1")

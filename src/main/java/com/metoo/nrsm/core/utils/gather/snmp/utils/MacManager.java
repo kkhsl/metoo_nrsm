@@ -32,18 +32,10 @@ public class MacManager {
         }
     }
 
-    public void getMac2(NetworkElement networkElement, Date date){
-        String hostName = getHostName(networkElement);
-        if(!StringUtils.isEmpty(hostName)){
-            processNetworkElementDataFuture(networkElement, hostName, date);
-        }
-    }
-
     private String getHostName(NetworkElement networkElement){
         log.info("gethostname ===== {}", networkElement.getIp());
         String hostName = SNMPRequest.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
         return hostName;
-
     }
 
     // 处理网络元素数据
@@ -58,6 +50,29 @@ public class MacManager {
         getPortMacData(networkElement, date, hostName);
     }
 
+    public void getLldpDataSNMP(NetworkElement networkElement, Date date, String hostName) {
+        try {
+            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+            org.json.JSONArray result = SNMPRequest.getLldp(snmpParams);
+            if (!result.isEmpty()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>(){});
+                this.setRemoteDevice(networkElement, lldps, hostName, date);
+            }
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void getMac2(NetworkElement networkElement, Date date){
+        String hostName = getHostName(networkElement);
+        if(!StringUtils.isEmpty(hostName)){
+            processNetworkElementDataFuture(networkElement, hostName, date);
+        }
+    }
     // 处理网络元素数据
     private void processNetworkElementDataFuture(NetworkElement networkElement, String hostName, Date date) {
         log.info("Processing data for network element: {}", networkElement.getIp());
@@ -88,22 +103,6 @@ public class MacManager {
         }
 
         log.info("Finished processing data for network element: {}", networkElement.getIp());
-    }
-
-    public void getLldpDataSNMP(NetworkElement networkElement, Date date, String hostName) {
-        try {
-            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-            org.json.JSONArray result = SNMPRequest.getLldp(snmpParams);
-            if (!result.isEmpty()) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>(){});
-                this.setRemoteDevice(networkElement, lldps, hostName, date);
-            }
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
     }
 
     public void getMacData(NetworkElement networkElement, Date date, String hostName){

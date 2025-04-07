@@ -38,7 +38,7 @@
 
     <sql id="Copy_Column_List">
         addTime, deleteStatus, `name`, updateTime, description, group_id,
-        group_name, user_id, user_name, base_url, content
+        group_name, user_id, user_name, base_url, content, unitId
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">

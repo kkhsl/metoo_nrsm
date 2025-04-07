@@ -7,6 +7,7 @@ public class SNMPV3Params {
     private String ip;
     private int version;
     private String community;       // v2c参数
+
     private String securityName;    // v3参数
     private int securityLevel;
     private String authProtocol;

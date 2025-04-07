@@ -316,6 +316,24 @@
             <if test="display != null">
                 display,
             </if>
+            <if test="securityName != null">
+                securityName,
+            </if>
+            <if test="securityLevel != null">
+                securityLevel,
+            </if>
+            <if test="authProtocol != null">
+                authProtocol,
+            </if>
+            <if test="authPassword != null">
+                authPassword,
+            </if>
+            <if test="privProtocol != null">
+                privProtocol,
+            </if>
+            <if test="privPassword != null">
+                privPassword,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -404,6 +422,24 @@
             </if>
             <if test="display != null">
                 #{display},
+            </if>
+            <if test="securityName != null">
+                #{securityName},
+            </if>
+            <if test="securityLevel != null">
+                #{securityLevel},
+            </if>
+            <if test="authProtocol != null">
+                #{authProtocol},
+            </if>
+            <if test="authPassword != null">
+                #{authPassword},
+            </if>
+            <if test="privProtocol != null">
+                #{privProtocol},
+            </if>
+            <if test="privPassword != null">
+                #{privPassword},
             </if>
         </trim>
     </insert>
@@ -523,6 +559,24 @@
             </if>
             <if test="display != null">
                 display = #{display},
+            </if>
+            <if test="securityName != null">
+                securityName = #{securityName},
+            </if>
+            <if test="securityLevel != null">
+                securityLevel = #{securityLevel},
+            </if>
+            <if test="authProtocol != null">
+                authProtocol = #{authProtocol},
+            </if>
+            <if test="authPassword != null">
+                authPassword = #{authPassword},
+            </if>
+            <if test="privProtocol != null">
+                privProtocol = #{privProtocol},
+            </if>
+            <if test="privPassword != null">
+                privPassword = #{privPassword},
             </if>
         </set>
         where id = #{id}

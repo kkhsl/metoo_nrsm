@@ -221,14 +221,14 @@ public class GatherTaskScheduledUtil {
     public void ipv4Detail() {
         if(flag){
             Long time=System.currentTimeMillis();
-            log.info("Ipv4 Start......");
+            log.info("Ipv4 detail start......");
             try {
                 gatherService.gatherIpv4Detail(DateTools.gatherDate());
 //                gatherService.gatherIpv4Thread(DateTools.gatherDate());
             } catch (Exception e) {
                 log.error("Error occurred during IPV4Detail", e);
             }
-            log.info("Ipv4 End......" + (System.currentTimeMillis()-time));
+            log.info("Ipv4 detail end......" + (System.currentTimeMillis()-time));
         }
     }
 
@@ -323,7 +323,7 @@ public class GatherTaskScheduledUtil {
     // TODO 已同步|待增加并发采集
     @Scheduled(cron = "0 */1 * * * ?")
     public void snmpStatus() {
-        if(true){
+        if(flag){
             Long time = System.currentTimeMillis();
             log.info("Snmp status start......");
             try {

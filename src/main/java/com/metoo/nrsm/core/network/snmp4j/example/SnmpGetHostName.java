@@ -11,7 +11,7 @@ public class SnmpGetHostName {
         String version = "v2c";       // SNMP 版本
         String community = "public@123";  // SNMP 社区字符串
         SNMPParams snmpParams = new SNMPParams(host,version,community);
-        String deviceName = SNMPRequest.getDevicePortV6(snmpParams);
+        String deviceName = SNMPRequest.getDeviceName(snmpParams);
         System.out.println(deviceName);
     }
 }

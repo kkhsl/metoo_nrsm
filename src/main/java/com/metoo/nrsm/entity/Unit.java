@@ -32,5 +32,6 @@ public class Unit extends IdEntity {
     private String broadband_Account;
     private String random;
     private String v4Traffic;
+    private Long unitId;
 
 }
