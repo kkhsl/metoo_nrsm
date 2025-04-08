@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.network.snmp4j.request;
 
 import com.metoo.nrsm.core.network.networkconfig.DHCPUtil;
-import com.metoo.nrsm.core.network.networkconfig.test.dhcpDop;
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
@@ -729,4 +728,36 @@ public class SNMPRequest {
         DHCPUtil.modifyDHCP(v4status, v4int, v6status, v6int);
         return "modifyDHCP";
     }
+
+
+    public static String getDnsSettings(){
+        return DHCPUtil.getDnsSettings();
+    }
+
+
+    public static String modifyDns(String dns1, String dns2){
+        DHCPUtil.modifyDNS(dns1,dns2);
+        return "modifyDNS";
+    }
+
+    public static String getNetworkInterfaces(){
+        return DHCPUtil.getNetworkInterfaces();
+    }
+
+
+    public static String modifyIp(String iface, String ipv4address, String ipv6address,
+                                  String gateway4, String gateway6){
+        return String.valueOf(DHCPUtil.modifyIp(iface,ipv4address,ipv6address,gateway4,gateway6));
+    }
+
+    public static String pingOp(String action, String service){
+        return DHCPUtil.pingOp(action,service);
+    }
+
+    public static void pingTest(String network, int mask){
+        DHCPUtil.pingSubnet(network,mask);
+    }
+
+
+
 }

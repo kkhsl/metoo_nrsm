@@ -22,7 +22,7 @@ public class pingtest {
         }
     }
 
-    private static void scanSubnet(String network, int mask) {
+    public static void scanSubnet(String network, int mask) {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
         try {

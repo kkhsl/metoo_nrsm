@@ -1,8 +1,8 @@
 package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.DnsMapper;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.IDNSService;
-import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Dns;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,15 +78,17 @@ public class DNSServiceImpl implements IDNSService {
 
     @Override
     public String get() {
-        String path = Global.PYPATH + "getdns.py";
-        String result = pythonExecUtils.exec(path);
+//        String path = Global.PYPATH + "getdns.py";
+//        String result = pythonExecUtils.exec(path);
+        String result = SNMPRequest.getDnsSettings();
         return result;
     }
 
     @Override
     public String modifydns(String[] params) {
-        String path = Global.PYPATH + "modifydns.py";
-        String result = pythonExecUtils.exec(path, params);
+//        String path = Global.PYPATH + "modifydns.py";
+//        String result = pythonExecUtils.exec(path, params);
+        String result = SNMPRequest.modifyDns(params[0],params[1]);
         return result;
     }
 }

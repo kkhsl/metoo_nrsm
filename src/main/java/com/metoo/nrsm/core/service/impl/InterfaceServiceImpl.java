@@ -4,14 +4,16 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
 import com.metoo.nrsm.core.mapper.InterfaceMapper;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.IInterfaceService;
-import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Interface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class InterfaceServiceImpl implements IInterfaceService {
@@ -121,10 +123,11 @@ public class InterfaceServiceImpl implements IInterfaceService {
 
     @Override
     public boolean modify_ip(Interface instance){
-        String path = Global.PYPATH + "modifyip.py";
-        String[] params = {instance.getName(), instance.getIpv4address(),
-                instance.getIpv6address(), instance.getGateway4(), instance.getGateway6()};
-        String result = pythonExecUtils.exec(path, params);
+//        String path = Global.PYPATH + "modifyip.py";
+//        String[] params = {instance.getName(), instance.getIpv4address(),
+//                instance.getIpv6address(), instance.getGateway4(), instance.getGateway6()};
+//        String result = pythonExecUtils.exec(path, params);
+        String result = SNMPRequest.modifyIp(instance.getName(), instance.getIpv4address(), instance.getIpv6address(), instance.getGateway4(), instance.getGateway6());
         if(result.equals("0")){
             return true;
         }

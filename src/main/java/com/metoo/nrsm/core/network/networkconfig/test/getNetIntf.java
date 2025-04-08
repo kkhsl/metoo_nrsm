@@ -8,7 +8,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.*;
 
-public class getNetntf {
+public class getNetIntf {
 
     public static void main(String[] args) throws Exception {
         String networkInterfaces = getNetworkInterfaces();

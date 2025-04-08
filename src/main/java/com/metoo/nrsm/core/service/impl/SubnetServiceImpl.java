@@ -6,9 +6,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SubnetUtils;
 import com.metoo.nrsm.core.mapper.SubnetMapper;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.IPortService;
 import com.metoo.nrsm.core.service.ISubnetService;
-import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
@@ -223,10 +223,11 @@ public class SubnetServiceImpl implements ISubnetService {
                     GatherDataThreadPool.getInstance().addThread(new Runnable() {
                         @Override
                         public void run() {
-                            String path = Global.PYPATH + "pingtest.py";
-                            String[] params = {subnet.getIp(), String.valueOf(subnet.getMask())};
-                            String result = pythonExecUtils.exec(path, params);
-                            System.out.println(result);
+//                            String path = Global.PYPATH + "pingtest.py";
+//                            String[] params = {subnet.getIp(), String.valueOf(subnet.getMask())};
+//                            String result = pythonExecUtils.exec(path, params);
+//                            System.out.println(result);
+                            SNMPRequest.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
                         }
                     });
 
