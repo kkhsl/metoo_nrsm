@@ -66,11 +66,6 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
                 SysConfig sysconfig = this.sysConfigService.select();
                 sysconfig.setV4_status(true);
                 this.sysConfigService.update(sysconfig);
-//                try {
-//                    this.write();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
                 return i;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -78,13 +73,6 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
             }
         }else{
             try {
-//                int i = this.addressPoolMapper.update(addressPool);
-//                try {
-//                    this.write();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-                // 判断是否是否变化
                 AddressPool obj = this.addressPoolMapper.selectObjById(addressPool.getId());
                 boolean flag = Md5Crypt.getDiffrent(obj, addressPool);
                 if(!flag){
@@ -158,7 +146,6 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
         List<AddressPoolVO> addressPoolVOList = this.addressPoolMapper.selectObjToVOByMap(null);
         AddressPoolIpv4ConcurrentUtil instance = AddressPoolIpv4ConcurrentUtil.getInstance();
         try {
-
             // 是否可采用双重校验锁；可以不用，instance，单例线程安全，多个线程修改v4_status为false，并不影响
             boolean flag = instance.write(addressPoolVOList);
             if(flag){

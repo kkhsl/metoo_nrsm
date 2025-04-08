@@ -1,21 +1,10 @@
 package com.metoo.nrsm.core.wsapi;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.core.dto.NetworkElementDto;
 import com.metoo.nrsm.core.service.IApService;
-import com.metoo.nrsm.core.service.INetworkElementService;
-import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.wsapi.utils.NoticeWebsocketResp;
 import com.metoo.nrsm.core.wsapi.utils.RedisResponseUtils;
-import com.metoo.nrsm.entity.DeviceType;
-import com.metoo.nrsm.entity.NetworkElement;
-import com.metoo.nrsm.entity.Terminal;
-import com.metoo.nrsm.entity.Vendor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

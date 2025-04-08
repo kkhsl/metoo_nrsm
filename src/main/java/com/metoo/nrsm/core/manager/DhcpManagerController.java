@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.manager;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.util.StringUtil;
@@ -50,35 +51,10 @@ public class DhcpManagerController {
     public Result internet(){
        String result = this.dhcpService.getdhcp();
 //       JSONArray array = JSONObject.parseArray(result);
-//       if(array != null && array.size() > 0){
+//       if(array != null && !array.isEmpty()){
 //           return ResponseUtil.ok(JSONObject.toJSONString(array.get(0)));
 //       }
        return ResponseUtil.ok(result);
-    }
-
-    @RequestMapping("modifydhcp")
-    public Result internet(@RequestBody Internet internet){
-        try {
-         if(Boolean.valueOf(internet.getV4status())){
-                this.dhcpService.dhcpdop("restart", "dhcpd");
-            }else{
-                this.dhcpService.dhcpdop("stop", "dhcpd");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            if(Boolean.valueOf(internet.getV6status())){
-                this.dhcpService.dhcpdop("restart", "dhcpd6");
-            }else{
-                this.dhcpService.dhcpdop("stop", "dhcpd6");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        String result = this.dhcpService.modifydhcp(internet);
-        return ResponseUtil.ok(result);
     }
 
     @RequestMapping("checkdhcpd")
@@ -98,6 +74,31 @@ public class DhcpManagerController {
         }
         return ResponseUtil.ok(result);
     }
+
+    @RequestMapping("modifydhcp")
+    public Result internet(@RequestBody Internet internet){
+        String result = this.dhcpService.modifydhcp(internet);
+        try {
+            if(Boolean.valueOf(internet.getV4status())){
+                this.dhcpService.dhcpdop("restart", "dhcpd");
+            }else{
+                this.dhcpService.dhcpdop("stop", "dhcpd");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            if(Boolean.valueOf(internet.getV6status())){
+                this.dhcpService.dhcpdop("restart", "dhcpd6");
+            }else{
+                this.dhcpService.dhcpdop("stop", "dhcpd6");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseUtil.ok(result);
+    }
+
 
     @GetMapping("/dhcp")
     public void dhcp() throws FileNotFoundException {

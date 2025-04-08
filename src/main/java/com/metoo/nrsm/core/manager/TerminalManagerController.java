@@ -42,6 +42,8 @@ public class TerminalManagerController {
     private ITerminalMacIpv6Service terminalMacIpv6Service;
     @Autowired
     private TerminalMacIpv6Mapper terminalMacIpv6Mapper;
+    @Autowired
+    private IUnit2Service unit2Service;
 
     @GetMapping("/vdt")
     public Result vdt(String ip){
@@ -180,22 +182,25 @@ public class TerminalManagerController {
     @GetMapping("/add")
     public Object add(){
         // 设备类型
-        Map map = new HashMap();
+        Map data = new HashMap();
         Map parmas = new HashMap();
         parmas.put("diff", 1);
         parmas.put("orderBy", "sequence");
         parmas.put("orderType", "DESC");
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
-        map.put("deviceTypeList", deviceTypeList);
+        data.put("deviceTypeList", deviceTypeList);
         // 厂商
         List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
-        map.put("vendor", vendors);
+        data.put("vendor", vendors);
         // 项目
         Map params = new HashMap();
         List<Project> projectList = this.projectService.selectObjByMap(params);
-        map.put("project", projectList);
+        data.put("project", projectList);
 
-        return ResponseUtil.ok(map);
+        List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+        data.put("unitList", unit2s);
+
+        return ResponseUtil.ok(data);
     }
 
     @GetMapping("/update/{id}")
@@ -215,8 +220,8 @@ public class TerminalManagerController {
                 }
             }
         }
-        Map map = new HashMap();
-        map.put("terminal", terminal);
+        Map data = new HashMap();
+        data.put("terminal", terminal);
 
         User user = ShiroUserHolder.currentUser();
         // 设备类型
@@ -225,17 +230,21 @@ public class TerminalManagerController {
         parmas.put("orderBy", "sequence");
         parmas.put("orderType", "DESC");
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
-        map.put("deviceTypeList", deviceTypeList);
+        data.put("deviceTypeList", deviceTypeList);
 
         // 厂商
         List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
-        map.put("vendor", vendors);
+        data.put("vendor", vendors);
         // 项目
         Map params = new HashMap();
         List<Project> projectList = this.projectService.selectObjByMap(params);
-        map.put("project", projectList);
+        data.put("project", projectList);
 
-        return ResponseUtil.ok(map);
+        List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+        data.put("unitList", unit2s);
+
+
+        return ResponseUtil.ok(data);
     }
 
     @GetMapping("/verify")

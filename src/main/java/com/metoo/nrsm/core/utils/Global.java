@@ -131,6 +131,18 @@ public class Global {
         Global.dhcp6 = dhcp6;
     }
 
+    public static String DHCPPath;
+    @Value("${snmp.dhcp.file.path}")
+    public void setDHCPPath(String DHCPPath) {
+        Global.DHCPPath = DHCPPath;
+    }
+    public static String DHCPName;
+    @Value("${snmp.dhcp.file.name}")
+    public void setDHCPName(String DHCPName) {
+        Global.DHCPName = DHCPName;
+    }
+
+
     public static String env;
 
     @Value("${spring.profiles.active}")

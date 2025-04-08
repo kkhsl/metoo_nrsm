@@ -51,4 +51,5 @@ public class GatewayManagerController {
         Result result = this.gatewayService.delete(ids);
         return result;
     }
+
 }

@@ -65,9 +65,11 @@ public class GatherSingleThreadingMacSNMPUtils {
 
             // 更新终端
             updateTerminal(date);
-
+            log.info("terminal end");
             macService.truncateTableGather();
             int count = 0;
+
+
             for (NetworkElement networkElement : networkElements) {
 
                 if(StringUtils.isBlank(networkElement.getVersion())
@@ -78,23 +80,15 @@ public class GatherSingleThreadingMacSNMPUtils {
                 }
 
                 // TODO 多余，查询设备时已经查询了是否存在
-
+                log.info("MAC：" + networkElement.getIp() + "设备加入线程");
                 GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
 //                String hostName = getHostNameSNMP(networkElement);
-//
 //                if (StringUtils.isNotEmpty(hostName)) {
-//
 //                    processNetworkElementData(networkElement, hostName, date);
-//
 //                }
-
                 count++;
-
                 logMessages.put("MAC：" + networkElement.getIp(), "采集完成");
-
             }
-
-
             try {
 
                 latch.await();
@@ -104,8 +98,6 @@ public class GatherSingleThreadingMacSNMPUtils {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-
         }
         return logMessages;
     }
@@ -388,9 +380,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     private void updateTerminalInfo(Date date) {
         try {
             terminalService.syncTerminal(date);
-
-            // 政务外网
-//          this.terminalService.v4Tov6Terminal(date);
+//          this.terminalService.v4Tov6Terminal(date);// 政务外网
 
             // 政务外网
             // 根据vendor判断终端类型
@@ -513,8 +503,10 @@ public class GatherSingleThreadingMacSNMPUtils {
     // 统计终端单位数据
     private void writeTerminalUnitData() {
         try {
-            terminalService.writeTerminalUnit();
-            terminalService.writeTerminalUnitV6();
+//            terminalService.writeTerminalUnit();
+//            terminalService.writeTerminalUnitV6();
+
+            terminalService.writeTerminalUnitByUnit2();
         } catch (Exception e) {
             log.error("Error while writing terminal unit data", e);
         }

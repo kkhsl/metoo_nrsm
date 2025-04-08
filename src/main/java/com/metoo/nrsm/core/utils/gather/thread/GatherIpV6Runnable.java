@@ -61,14 +61,13 @@ public class GatherIpV6Runnable implements Runnable{
     @Override
     public void run() {
 
-        PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
-
-        String path = Global.PYPATH +  "getarpv6.py";
-        String[] params = {networkElement.getIp(), networkElement.getVersion(),
-                networkElement.getCommunity()};
-        String result = pythonExecUtils.exec(path, params);
-        if(StringUtil.isNotEmpty(result)){
-            try {
+        try {
+            PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
+            String path = Global.PYPATH +  "getarpv6.py";
+            String[] params = {networkElement.getIp(), networkElement.getVersion(),
+                    networkElement.getCommunity()};
+            String result = pythonExecUtils.exec(path, params);
+            if(StringUtil.isNotEmpty(result)){
                 List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
                 if(array.size()>0){
                     array.forEach(e -> {
@@ -77,19 +76,12 @@ public class GatherIpV6Runnable implements Runnable{
                         e.setAddTime(date);
                     });
                 }
-
                 Ipv6ServiceImpl ipv6Service = (Ipv6ServiceImpl) ApplicationContextUtils.getBean("ipv6ServiceImpl");
-
                 ipv6Service.batchSaveGather(array);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if(latch != null){
-                    latch.countDown();
-                }
             }
-        }else{
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
             if(latch != null){
                 latch.countDown();
             }

@@ -66,7 +66,6 @@ public class GatherMacSNMPRunnable implements Runnable{
     @Override
     public void run() {
         try {
-
             macManager.getMac(networkElement, date);
         } catch (Exception e) {
             e.printStackTrace();

@@ -221,14 +221,14 @@ public class GatherTaskScheduledUtil {
     public void ipv4Detail() {
         if(flag){
             Long time=System.currentTimeMillis();
-            log.info("Ipv4 Start......");
+            log.info("Ipv4 detail start......");
             try {
                 gatherService.gatherIpv4Detail(DateTools.gatherDate());
 //                gatherService.gatherIpv4Thread(DateTools.gatherDate());
             } catch (Exception e) {
                 log.error("Error occurred during IPV4Detail", e);
             }
-            log.info("Ipv4 End......" + (System.currentTimeMillis()-time));
+            log.info("Ipv4 detail end......" + (System.currentTimeMillis()-time));
         }
     }
 

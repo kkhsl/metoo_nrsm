@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-public class modifyDhcp {
+public class ModifyDhcp {
 
     // 配置文件路径
     private static final String DHCP_CONFIG_PATH = "/etc/default/isc-dhcp-server";
@@ -20,12 +20,12 @@ public class modifyDhcp {
                                String v6status, String v6int) throws IOException {
         // 1. 读取当前配置状态
         Map<String, String> current = parseCurrentConfig();
-        
+
         // 2. 处理 IPv4 配置变更
-        processInterface(current, 
-                         "v4", v4status, v4int, 
+        processInterface(current,
+                         "v4", v4status, v4int,
                          current.get("v4status"), current.get("v4int"));
-        
+
         // 3. 处理 IPv6 配置变更
         processInterface(current,
                          "v6", v6status, v6int,
@@ -99,13 +99,13 @@ public class modifyDhcp {
     /**
      * 更新指定配置行（支持注释状态）
      */
-    private static void updateConfigLine(String prefix, String newInt, boolean comment) 
+    private static void updateConfigLine(String prefix, String newInt, boolean comment)
             throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(DHCP_CONFIG_PATH));
         List<String> newLines = new ArrayList<>();
 
         for (String line : lines) {
-            if (line.trim().startsWith(prefix + "=") || 
+            if (line.trim().startsWith(prefix + "=") ||
                 line.trim().startsWith("#" + prefix + "=")) {
                 String newLine = prefix + "=\"" + newInt + "\"";
                 newLines.add(comment ? "#" + newLine : newLine);
@@ -113,7 +113,7 @@ public class modifyDhcp {
                 newLines.add(line);
             }
         }
-        
+
         writeConfig(newLines);
     }
 

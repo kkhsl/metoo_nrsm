@@ -51,11 +51,11 @@ public class IndexManagerController {
         params.put("isipv6", false);
         List<NetworkElement> ipv4_count = networkElementService.selectObjByMap(params);
         Map result = new HashMap();
-//        result.put("v4ip_v6ip_count", v4ip_v6ip_count.size());
-//        result.put("ipv4_count", ipv4_count.size());
+        result.put("v4ip_v6ip_count", v4ip_v6ip_count.size());
+        result.put("ipv4_count", ipv4_count.size());
 
-        result.put("v4ip_v6ip_count", 163);
-        result.put("ipv4_count", 0);
+//        result.put("v4ip_v6ip_count", 163);
+//        result.put("ipv4_count", 0);
 
         return ResponseUtil.ok(result);
 

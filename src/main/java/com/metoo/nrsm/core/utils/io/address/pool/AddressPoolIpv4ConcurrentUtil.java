@@ -24,6 +24,13 @@ public class AddressPoolIpv4ConcurrentUtil {
     private AddressPoolIpv4ConcurrentUtil(){};
 
     public static AddressPoolIpv4ConcurrentUtil getInstance(){
+        if (addressPoolIpv4ConcurrentUtil == null) {
+            synchronized (AddressPoolIpv4ConcurrentUtil.class) {
+                if (addressPoolIpv4ConcurrentUtil == null) {
+                    addressPoolIpv4ConcurrentUtil = new AddressPoolIpv4ConcurrentUtil();
+                }
+            }
+        }
         return addressPoolIpv4ConcurrentUtil;
     }
 

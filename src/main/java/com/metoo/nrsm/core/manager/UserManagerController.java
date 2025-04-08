@@ -7,11 +7,14 @@ import com.metoo.nrsm.core.config.utils.SaltUtils;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.UserDto;
 import com.metoo.nrsm.core.service.IRoleService;
+import com.metoo.nrsm.core.service.IUnit2Service;
 import com.metoo.nrsm.core.service.IUserService;
 import com.metoo.nrsm.core.utils.CommUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
+import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.core.vo.UserVo;
 import com.metoo.nrsm.entity.Role;
+import com.metoo.nrsm.entity.Unit2;
 import com.metoo.nrsm.entity.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,6 +39,8 @@ public class UserManagerController {
     private IUserService userService;
     @Autowired
     private IRoleService roleService;
+    @Autowired
+    private IUnit2Service unit2Service;
 
     Logger logger = LoggerFactory.getLogger(UserManagerController.class);
 
@@ -56,15 +61,16 @@ public class UserManagerController {
     @GetMapping("/add")
     public Object add() {
         Map params = new HashMap();
+        Map data = new HashMap();
         params.put("currentPage", 0);
         params.put("pageSize", 1000);
         List<Role> roleList = this.roleService.findObjByMap(params);
         if (roleList.size() > 0) {
-            Map data = new HashMap();
             data.put("roleList", roleList);
-            return ResponseUtil.ok(data);
         }
-        return ResponseUtil.ok();
+        List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+        data.put("unitList", unit2s);
+        return ResponseUtil.ok(data);
     }
 
     //    @RequiresPermissions(value = {"LK:USER", "LK:USER:MANAGER"})
@@ -85,6 +91,8 @@ public class UserManagerController {
             if (roleList.size() > 0) {
                 data.put("roleList", roleList);
             }
+            List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+            data.put("unitList", unit2s);
             return ResponseUtil.ok(data);
         }
         return ResponseUtil.badArgument();

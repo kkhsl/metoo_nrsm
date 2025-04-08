@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.manager;
 
+import cn.hutool.core.date.DateTime;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
@@ -72,6 +73,8 @@ public class GatherTaskScheduledUtilTest {
 
     @Autowired
     private MacManager macManager;
+    @Autowired
+    private ITerminalService terminalService;
 
 
     private final GatherDataThreadPool gatherDataThreadPool;
@@ -80,6 +83,17 @@ public class GatherTaskScheduledUtilTest {
         this.gatherDataThreadPool = gatherDataThreadPool;
     }
 
+    @GetMapping("terminal/unit2")
+    public void terminalUnit2(){
+        this.terminalService.writeTerminalUnitByUnit2();
+    }
+
+    @GetMapping("terminal/unit3")
+    public void terminalUnit3(){
+        Terminal terminal = this.terminalService.selectObjById(1039L);
+        terminal.setAddTime(new DateTime());
+        this.terminalService.update(terminal);
+    }
 
 
     @GetMapping("selfMac1")
@@ -113,6 +127,39 @@ public class GatherTaskScheduledUtilTest {
         }
         return "end";
     }
+
+    @GetMapping("selfMac11")
+    public String selfMac1(){
+
+        Date date = DateTools.gatherDate();
+
+        List<NetworkElement> networkElements = this.getGatherDevice();
+
+        macService.truncateTableGather();
+
+        CountDownLatch latch = new CountDownLatch(networkElements.size());
+
+        for (NetworkElement networkElement : networkElements) {
+
+            if(StringUtils.isBlank(networkElement.getVersion())
+                    || StringUtils.isBlank(networkElement.getCommunity())){
+                latch.countDown();
+                continue;
+            }
+
+            GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable2(networkElement, new MacManager(), date, latch));
+        }
+
+        try {
+
+            latch.await();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "end";
+    }
+
 
     @GetMapping("selfMac2")
     public String selfMac2(){

@@ -162,20 +162,22 @@ public class NetworkManagerControllerApi {
                         params.put("ip", str[0]);
                         List<NetworkElement> nes = this.networkElementService.selectObjByMap(params);
                         if(nes.size() > 0){
-                            NetworkElement ne = nes.get(0);
+                            NetworkElement networkElement = nes.get(0);
                             // snmp状态
-                            if(StringUtils.isEmpty(ne.getCommunity()) || StringUtils.isEmpty(ne.getVersion())){
+                            if(StringUtils.isEmpty(networkElement.getCommunity()) || StringUtils.isEmpty(networkElement.getVersion())){
                                 map.put("snmp", "3");
                             }else{
-                                String path = Global.PYPATH + "gethostname.py";
-                                String[] args = {ne.getIp(), ne.getVersion(),
-                                        ne.getCommunity()};
-                                String hostname = pythonExecUtils.exec(path, args);
+//                                String path = Global.PYPATH + "gethostname.py";
+//                                String[] args = {networkElement.getIp(), networkElement.getVersion(),
+//                                        networkElement.getCommunity()};
+//                                String hostname = pythonExecUtils.exec(path, args);
+                                String hostname = deviceManager.getDeviceNameByIpAndCommunityVersion(networkElement);
                                 map.put("snmp", "2");
                                 if(StringUtils.isNotEmpty(hostname)){
                                     map.put("snmp", "1");
                                 }
                             }
+                            map.put("isIPv6", networkElement.isIsipv6());
                             map.put("uuid", str[1]);
                             result.add(map);
                         }

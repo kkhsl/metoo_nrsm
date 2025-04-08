@@ -129,6 +129,7 @@ public class Terminal extends IdEntity {
     private Long departmentId;
     @ApiModelProperty("部门名称")
     private String departmentName;
+
     @ApiModelProperty("责任人")
     private String duty;
     @ApiModelProperty("设备位置：摄像头等")
