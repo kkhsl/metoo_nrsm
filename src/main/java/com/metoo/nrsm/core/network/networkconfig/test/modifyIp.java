@@ -2,14 +2,24 @@ package com.metoo.nrsm.core.network.networkconfig.test;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import java.io.*;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class modifyIp {
 
     private static final String NETPLAN_PATH = "/etc/netplan/00-installer-config.yaml";
+    //private static final String NETPLAN_PATH = "C:\\Users\\leo\\Desktop\\00-installer-config.yaml";
 
 
     /**
@@ -99,9 +109,20 @@ public class modifyIp {
     private static void writeYamlConfig(Map<String, Object> config) throws IOException {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        options.setPrettyFlow(true);
+        options.setIndent(2);
 
-        Yaml yaml = new Yaml(options);
+        // 自定义Representer处理空集合
+        Representer representer = new Representer(options) {
+            protected Node representSequence(Tag tag, List<?> sequence, Boolean flowStyle) {
+                // 对空列表强制使用流样式 []
+                if (sequence.isEmpty()) {
+                    flowStyle = DumperOptions.FlowStyle.FLOW.getStyleBoolean();
+                }
+                return super.representSequence(tag, sequence, DumperOptions.FlowStyle.fromBoolean(flowStyle));
+            }
+        };
+
+        Yaml yaml = new Yaml(representer, options);
         try (Writer writer = Files.newBufferedWriter(Paths.get(NETPLAN_PATH))) {
             yaml.dump(config, writer);
         }

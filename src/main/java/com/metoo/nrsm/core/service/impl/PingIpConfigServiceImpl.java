@@ -3,7 +3,6 @@ package com.metoo.nrsm.core.service.impl;
 import com.metoo.nrsm.core.mapper.PingIpConfigMapper;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.IPingIpConfigService;
-import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.PingIpConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +42,9 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
 
     @Override
     public boolean checkaliveip() {
-        String path = Global.PYPATH + "checkping.py";
-        String result = pythonExecUtils.exec(path);
+//        String path = Global.PYPATH + "checkping.py";
+//        String result = pythonExecUtils.exec(path);
+        String result = SNMPRequest.checkdhcpd("checkaliveip");
         if("None".equals(result)){
             return false;
         }
