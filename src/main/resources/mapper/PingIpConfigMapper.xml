@@ -21,6 +21,12 @@
             <if test="v6ip2 != null">
                 v6ip2,
             </if>
+            <if test="v4ip1 != null">
+                v4ip1,
+            </if>
+            <if test="v4ip2 != null">
+                v4ip2,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="status != null">
@@ -31,6 +37,12 @@
             </if>
             <if test="v6ip2 != null">
                 #{v6ip2},
+            </if>
+            <if test="v4ip1 != null">
+                #{v4ip1},
+            </if>
+            <if test="v4ip2 != null">
+                #{v4ip2},
             </if>
         </trim>
     </insert>
@@ -46,6 +58,12 @@
             </if>
             <if test="v6ip2 != null">
                 v6ip2 = #{v6ip2},
+            </if>
+            <if test="v4ip1 != null">
+                v4ip1 = #{v4ip1},
+            </if>
+            <if test="v4ip2 != null">
+                v4ip2 = #{v4ip2},
             </if>
         </set>
         where id = #{id}
