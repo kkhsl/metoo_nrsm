@@ -22,8 +22,8 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class dnsredis {
-    private static final Logger log = LoggerFactory.getLogger(dnsredis.class);
+public class Dnsredis {
+    private static final Logger log = LoggerFactory.getLogger(Dnsredis.class);
     private static final int CACHE_TTL_SECONDS = 300;
     private static final int MAX_CACHE_RECORDS = 1000;
     private static final int DNS_PACKET_SIZE = 512;
@@ -60,7 +60,7 @@ public class dnsredis {
     private static void loadConfig() {
         try {
             Properties prop = new Properties();
-            prop.load(dnsredis.class.getResourceAsStream("/application-test.properties"));
+            prop.load(Dnsredis.class.getResourceAsStream("/application-test.properties"));
             
             dnsPort = Integer.parseInt(prop.getProperty("dns.port", "53"));
             redisHost = prop.getProperty("spring.redis.redis.host");

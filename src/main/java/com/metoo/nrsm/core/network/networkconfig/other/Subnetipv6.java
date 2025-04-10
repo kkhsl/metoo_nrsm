@@ -12,7 +12,7 @@ import java.util.*;
 
 @RequestMapping("/admin/subnetipv6")
 @RestController
-public class subnetipv6 {
+public class Subnetipv6 {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired

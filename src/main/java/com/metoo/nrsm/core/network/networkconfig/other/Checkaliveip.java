@@ -17,16 +17,18 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicReference;
+import java.lang.Process;
 
 @Slf4j
 @Service
-public class checkaliveip {
+public class Checkaliveip {
 
     // 数据库配置（通过连接池管理）
     private final DataSource dataSource;
-    
+
     // 监控配置
-    private final AtomicReference<String[]> monitoredIps = new AtomicReference<>();
+    private final AtomicReference<String[]> monitoredV6Ips = new AtomicReference<>();
+    private final AtomicReference<String[]> monitoredV4Ips = new AtomicReference<>();
     private volatile LocalDateTime lastConfigUpdate;
 
     // 重试配置
@@ -34,7 +36,7 @@ public class checkaliveip {
     private static final long CONFIG_REFRESH_MINUTES = 10;
 
     @Autowired
-    public checkaliveip(DataSource dataSource) {
+    public Checkaliveip(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -49,7 +51,7 @@ public class checkaliveip {
     /**
      * 定时监控任务（每分钟执行）
      */
-    //@Scheduled(fixedRate = 60_000)
+    @Scheduled(fixedRate = 60_000)
     public void scheduledMonitoring() {
         // 配置自动刷新
         if (shouldRefreshConfig()) {
@@ -70,17 +72,27 @@ public class checkaliveip {
      */
     private void performMonitoring(Connection conn) {
         try {
-            String[] ips = monitoredIps.get();
-            if (ips == null || ips.length < 2) {
-                throw new IllegalStateException("监控IP未正确配置");
+            String[] v6Ips = monitoredV6Ips.get();
+            String[] v4Ips = monitoredV4Ips.get();
+            if (v6Ips == null || v6Ips.length < 2 || v4Ips == null || v4Ips.length < 2) {
+                throw new IllegalStateException("监控IP配置不完整");
             }
 
-            boolean ip1Alive = ping(ips[0]);
-            boolean ip2Alive = ping(ips[1]);
-            boolean networkHealthy = ip1Alive || ip2Alive;
+            // IPv6监控
+            boolean v6ip1Alive = ping(v6Ips[0]);
+            boolean v6ip2Alive = ping(v6Ips[1]);
+            boolean v6isok = v6ip1Alive || v6ip2Alive;
 
-            saveMonitoringResult(conn, ip1Alive, ip2Alive, networkHealthy);
-            logStatus(ip1Alive, ip2Alive, networkHealthy);
+            // IPv4监控
+            boolean v4ip1Alive = ping(v4Ips[0]);
+            boolean v4ip2Alive = ping(v4Ips[1]);
+            boolean v4isok = v4ip1Alive || v4ip2Alive;
+
+            saveMonitoringResult(conn,
+                    v6ip1Alive, v6ip2Alive, v6isok,
+                    v4ip1Alive, v4ip2Alive, v4isok);
+            logStatus(v6ip1Alive, v6ip2Alive, v6isok,
+                    v4ip1Alive, v4ip2Alive, v4isok);
 
         } catch (Exception e) {
             log.error("监控任务执行失败: {}", e.getMessage());
@@ -91,15 +103,22 @@ public class checkaliveip {
     /**
      * 保存监控结果
      */
-    private void saveMonitoringResult(Connection conn, boolean ip1, boolean ip2, boolean network) 
-        throws SQLException {
-        
-        String sql = "INSERT INTO metoo_ping(ip1status, ip2status, v6isok, uptime) VALUES (?,?,?,?)";
+    private void saveMonitoringResult(Connection conn,
+                                      boolean v6ip1, boolean v6ip2, boolean v6isok,
+                                      boolean v4ip1, boolean v4ip2, boolean v4isok) throws SQLException {
+
+        String sql = "INSERT INTO metoo_ping(ip1status, ip2status, v6isok, " +
+                "ipv41status, ipv42status, v4isok, uptime) " +
+                "VALUES (?,?,?,?,?,?,?)";
+
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, ip1 ? "1" : "0");
-            ps.setString(2, ip2 ? "1" : "0");
-            ps.setString(3, network ? "1" : "0");
-            ps.setString(4, LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            ps.setString(1, v6ip1 ? "1" : "0");
+            ps.setString(2, v6ip2 ? "1" : "0");
+            ps.setString(3, v6isok ? "1" : "0");
+            ps.setString(4, v4ip1 ? "1" : "0");
+            ps.setString(5, v4ip2 ? "1" : "0");
+            ps.setString(6, v4isok ? "1" : "0");
+            ps.setString(7, LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             ps.executeUpdate();
         }
     }
@@ -112,13 +131,16 @@ public class checkaliveip {
             executeWithRetry(() -> {
                 try (Connection conn = dataSource.getConnection();
                      PreparedStatement ps = conn.prepareStatement(
-                         "SELECT v6ip1, v6ip2 FROM metoo_pingipconfig LIMIT 1")) {
-                    
+                             "SELECT v6ip1, v6ip2, v4ip1, v4ip2 FROM metoo_pingipconfig LIMIT 1")) {
+
                     ResultSet rs = ps.executeQuery();
                     if (rs.next()) {
-                        monitoredIps.set(new String[]{rs.getString(1), rs.getString(2)});
+                        monitoredV6Ips.set(new String[]{rs.getString(1), rs.getString(2)});
+                        monitoredV4Ips.set(new String[]{rs.getString(3), rs.getString(4)});
                         lastConfigUpdate = LocalDateTime.now();
-                        log.info("监控配置已更新: {}", (Object) monitoredIps.get());
+                        log.info("监控配置已更新: IPv6={}, IPv4={}",
+                                (Object) monitoredV6Ips.get(),
+                                (Object) monitoredV4Ips.get());
                     }
                     return null;
                 }
@@ -145,7 +167,7 @@ public class checkaliveip {
      * 判断是否需要刷新配置
      */
     private boolean shouldRefreshConfig() {
-        return lastConfigUpdate == null || 
+        return lastConfigUpdate == null ||
                lastConfigUpdate.isBefore(LocalDateTime.now().minusMinutes(CONFIG_REFRESH_MINUTES));
     }
 
@@ -159,7 +181,7 @@ public class checkaliveip {
 
         Process process = new ProcessBuilder(command).start();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            return reader.lines().anyMatch(line -> line.toLowerCase().contains("ttl=")) && 
+            return reader.lines().anyMatch(line -> line.toLowerCase().contains("ttl=")) &&
                    process.waitFor() == 0;
         }
     }
@@ -167,11 +189,16 @@ public class checkaliveip {
     /**
      * 状态日志记录
      */
-    private void logStatus(boolean ip1status, boolean ip2status, boolean v6isok) {
-        log.info("[状态] IP1: {}, IP2: {}, 可用: {}",
-                ip1status ? "1" : "0",
-                ip2status ? "1" : "0",
-                v6isok ? "1" : "0");
+    private void logStatus(boolean v6ip1, boolean v6ip2, boolean v6isok,
+                           boolean v4ip1, boolean v4ip2, boolean v4isok) {
+        log.info("[状态] IPv6-1: {}, IPv6-2: {}, V6可用: {} | " +
+                        "IPv4-1: {}, IPv4-2: {}, V4可用: {}",
+                v6ip1 ? "1" : "0",
+                v6ip2 ? "1" : "0",
+                v6isok ? "1" : "0",
+                v4ip1 ? "1" : "0",
+                v4ip2 ? "1" : "0",
+                v4isok ? "1" : "0");
     }
 
     @FunctionalInterface

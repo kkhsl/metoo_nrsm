@@ -6,6 +6,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.utils.Global;
@@ -31,9 +32,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
 
 @Api("接口设置")
 @RequestMapping("/admin/interface")
@@ -59,8 +57,9 @@ public class InterfaceManagerController {
         Unbound unbound = this.unboundService.selectObjByOne(Collections.EMPTY_MAP);
 
         Set<String> list = new HashSet<>();
-        String path = Global.PYPATH + "getnetintf.py";
-        String result = pythonExecUtils.exec(path);
+//        String path = Global.PYPATH + "getnetintf.py";
+//        String result = pythonExecUtils.exec(path);
+        String result = SNMPRequest.getNetworkInterfaces();
         if(!"".equals(result)){
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {
@@ -129,8 +128,9 @@ public class InterfaceManagerController {
     @GetMapping({"/info"})
     public Result info() {
         List<Interface> list = new ArrayList<>();
-        String path = "/opt/nrsm/py/getnetintf.py";
-        String result = pythonExecUtils.exec(path);
+//        String path = "/opt/nrsm/py/getnetintf.py";
+//        String result = pythonExecUtils.exec(path);
+        String result = SNMPRequest.getNetworkInterfaces();
         if(!"".equals(result)){
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {
@@ -245,8 +245,9 @@ public class InterfaceManagerController {
         Unbound unbound = this.unboundService.selectObjByOne(Collections.EMPTY_MAP);
 
         Set<String> list = new HashSet<>();
-        String path = Global.PYPATH + "getnetintf.py";
-        String result = pythonExecUtils.exec(path);
+//        String path = Global.PYPATH + "getnetintf.py";
+//        String result = pythonExecUtils.exec(path);
+        String result = SNMPRequest.getNetworkInterfaces();
         if(!"".equals(result)){
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {

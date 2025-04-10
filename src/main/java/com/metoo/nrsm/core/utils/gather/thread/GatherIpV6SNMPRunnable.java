@@ -1,16 +1,11 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.impl.Ipv6ServiceImpl;
-import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
-import com.metoo.nrsm.entity.Ipv4;
 import com.metoo.nrsm.entity.Ipv6;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;

@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 
 @Configuration
 @EnableScheduling
-public class monitor {
+public class Monitor {
 
     @Bean
     public PerformanceMonitor performanceMonitor() {

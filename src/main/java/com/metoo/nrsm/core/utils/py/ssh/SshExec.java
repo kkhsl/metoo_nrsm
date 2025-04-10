@@ -15,7 +15,7 @@ public class SshExec {
 
     public static void main(String[] args){
         try {
-            Process proc = Runtime.getRuntime().exec("/opt/autostart/dnsredis.sh start 0");
+            Process proc = Runtime.getRuntime().exec("/opt/autostart/Dnsredis.sh start 0");
             // 标准输入流（必须写在 waitFor 之前）
             String inStr = consumeInputStream(proc.getInputStream());
             // 标准错误流（必须写在 waitFor 之前）

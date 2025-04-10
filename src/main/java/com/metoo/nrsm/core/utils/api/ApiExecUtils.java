@@ -1,31 +1,18 @@
 package com.metoo.nrsm.core.utils.api;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
-import com.metoo.nrsm.core.config.utils.CopyPropertiesReflect;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.Unit;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import java.awt.*;
-import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -117,7 +104,7 @@ public class ApiExecUtils {
         List<UnitVO> unitVos = getUnitVos(time, currentTimestamp);
 
         if (unitVos.isEmpty()) {
-            log.info("No units found to process.");
+            log.info("No units found to Process.");
             return;
         }
 

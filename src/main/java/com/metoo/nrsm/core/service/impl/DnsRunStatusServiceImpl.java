@@ -1,8 +1,8 @@
 package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.DnsRunStatusMapper;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.IDnsRunStatusService;
-import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.py.ssh.SshExec;
 import com.metoo.nrsm.entity.DnsRunStatus;
@@ -42,8 +42,9 @@ public class DnsRunStatusServiceImpl implements IDnsRunStatusService {
 
     @Override
     public boolean checkdns() {
-        String path = Global.PYPATH + "checkdns.py";
-        String result = pythonExecUtils.exec(path);
+//        String path = Global.PYPATH + "checkdns.py";
+//        String result = pythonExecUtils.exec(path);
+        String result = SNMPRequest.checkdhcpd("Dnsredis");
         if("None".equals(result)){
             return false;
         }else{
@@ -53,23 +54,23 @@ public class DnsRunStatusServiceImpl implements IDnsRunStatusService {
 
     @Override
     public void start() {
-//        String path = Global.PYPATH + "dnsredis.py";
+//        String path = Global.PYPATH + "Dnsredis.py";
 //        String[] params = {"0", "&"};
 //        String result = PythonExecUtils.execNohup(path, params, "nohup");
-        String command = "/opt/autostart/dnsredis.sh start 0";
+        String command = "/opt/autostart/Dnsredis.sh start 0";
         SshExec.exec(command);
     }
 
     @Override
     public void stop() {
-//        String path = Global.PYPATH + "processkill.py";
+//        String path = Global.PYPATH + "Processkill.py";
 //
-//        String param_path = Global.PYPATH + "dnsredis.py";
+//        String param_path = Global.PYPATH + "Dnsredis.py";
 //
 //        String[] params = {"\"^python3 " + param_path + "\\b\""};
 //
 //        String result = PythonExecUtils.exec(path, params);
-        String command = "/opt/autostart/dnsredis.sh stop";
+        String command = "/opt/autostart/Dnsredis.sh stop";
         SshExec.exec(command);
     }
 }

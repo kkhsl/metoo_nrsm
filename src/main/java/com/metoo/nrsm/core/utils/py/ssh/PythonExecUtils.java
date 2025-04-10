@@ -291,7 +291,7 @@ public class PythonExecUtils implements InitializingBean {
     }
 
     public void execNohup() {
-        ProcessBuilder processBuilder = new ProcessBuilder("nohup", "python3", "/opt/nrsm/py/dnsredis.py", "0", "&");
+        ProcessBuilder processBuilder = new ProcessBuilder("nohup", "python3", "/opt/nrsm/py/Dnsredis.py", "0", "&");
         processBuilder.redirectErrorStream(true); //将错误输出重定向到标准输出
         try {
             Process process = processBuilder.start();

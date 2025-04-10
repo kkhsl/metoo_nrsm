@@ -5,7 +5,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import java.util.concurrent.TimeUnit;
 
-public class process {
+public class ProcessUtils {
     private static final SystemInfo si = new SystemInfo();
     private static final OperatingSystem os = si.getOperatingSystem();
 

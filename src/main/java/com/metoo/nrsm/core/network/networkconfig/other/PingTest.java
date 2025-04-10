@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.concurrent.*;
 
-public class pingtest {
+public class PingTest {
     private static final int TIMEOUT_MS = 1000;
     private static final int THREAD_POOL_SIZE = 50;
 
@@ -22,7 +22,7 @@ public class pingtest {
         }
     }
 
-    private static void scanSubnet(String network, int mask) {
+    public static void scanSubnet(String network, int mask) {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
         try {

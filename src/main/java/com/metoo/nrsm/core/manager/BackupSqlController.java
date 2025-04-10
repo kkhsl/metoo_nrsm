@@ -85,8 +85,8 @@ public class BackupSqlController {
 //        try {
 //            System.out.println(stringBuilder.toString());
 //            //调用外部执行exe文件的javaAPI
-//            Process process = Runtime.getRuntime().exec(stringBuilder.toString());
-//            if (process.waitFor() == 0) {// 0 表示线程正常终止。
+//            Process Process = Runtime.getRuntime().exec(stringBuilder.toString());
+//            if (Process.waitFor() == 0) {// 0 表示线程正常终止。
 //                return true;
 //            }
 //        } catch (IOException e) {
@@ -392,10 +392,10 @@ public class BackupSqlController {
 //                String fileName = getDbName();
 //                processBuilder.redirectInput(new File(dbPath + fileName));
 //                // 启动进程
-//                Process process = processBuilder.start();
+//                Process Process = processBuilder.start();
 //
 //                // 读取进程的输出流并打印
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(Process.getInputStream()));
 //                String line;
 //                while ((line = reader.readLine()) != null) {
 //                    System.out.println(line);
@@ -403,7 +403,7 @@ public class BackupSqlController {
 //
 //                // 启动一个单独的线程来读取进程的错误流
 //                Thread errorReaderThread = new Thread(() -> {
-//                    BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//                    BufferedReader errorReader = new BufferedReader(new InputStreamReader(Process.getErrorStream()));
 //                    String errorLine;
 //                    try {
 //                        while ((errorLine = errorReader.readLine()) != null) {
@@ -416,7 +416,7 @@ public class BackupSqlController {
 //                errorReaderThread.start();
 //
 //                // 等待进程执行完毕
-//                int exitCode = process.waitFor();
+//                int exitCode = Process.waitFor();
 //                System.out.println("MySQL command executed, exit code: " + exitCode);
 //
 //            } catch (Exception e) {

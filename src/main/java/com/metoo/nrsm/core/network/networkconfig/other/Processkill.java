@@ -5,12 +5,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.lang.Process;
 
-public class processkill {
+public class Processkill {
     private static final int TIMEOUT_SECONDS = 5;
 
     public static void main(String[] args) {
-        String processPattern = "";   //dnsredis
+        String processPattern = "";   //Dnsredis
         try {
             // 跨平台获取进程ID
             List<Integer> pids = getProcessIds(processPattern);
@@ -56,7 +57,7 @@ public class processkill {
         List<Integer> pids = new ArrayList<>();
 
         // 构建WMIC命令
-        String command = "wmic process where " +
+        String command = "wmic Process where " +
                 "\"commandline like '%" + pattern + "%'\" get processid";
 
         Process process = new ProcessBuilder("cmd.exe", "/c", command).start();

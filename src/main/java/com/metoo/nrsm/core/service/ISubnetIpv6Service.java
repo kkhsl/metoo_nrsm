@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.service;
 
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.Subnet;
 import com.metoo.nrsm.entity.SubnetIpv6;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public interface ISubnetIpv6Service {
 
     Result update(SubnetIpv6 instance);
 
-    void getSubnet();
+    Result getSubnet();
 
     int truncateTable();
 }

@@ -38,20 +38,20 @@ public class PingServiceServiceImpl implements IPingService {
 
     @Override
     public void killDns() {
-//        String path = Global.PYPATH + "processkill.py";
-//        String[] params = {"dnsredis"};
+//        String path = Global.PYPATH + "Processkill.py";
+//        String[] params = {"Dnsredis"};
 //        String result = PythonExecUtils.exec(path, params);
-        String command = "/opt/autostart/dnsredis.sh stop";
+        String command = "/opt/autostart/Dnsredis.sh stop";
         SshExec.exec(command);
     }
 
     @Override
     public void startDns(String param) {
-//        String path = Global.PYPATH + "dnsredis.py";
-//        String[] params = {"dnsredis", param,"&"};
+//        String path = Global.PYPATH + "Dnsredis.py";
+//        String[] params = {"Dnsredis", param,"&"};
 //        String result = PythonExecUtils.exec(path, params, "nohup");
 
-        String command = "/opt/autostart/dnsredis.sh start " + param;
+        String command = "/opt/autostart/Dnsredis.sh start " + param;
         SshExec.exec(command);
     }
 

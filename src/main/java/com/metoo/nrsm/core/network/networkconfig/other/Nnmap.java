@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class nnmap {
+public class Nnmap {
     private static final Pattern OS_DETAILS_PATTERN =
             Pattern.compile("OS details: (.+?)\n", Pattern.CASE_INSENSITIVE);
     private static final Pattern RUNNING_PATTERN =

@@ -322,13 +322,13 @@ public class PythonScriptRunner {
 
 //            log.info("==============arg 8");
 //            // 等待进程终止，并获取退出值
-//            int exitCode = process.waitFor();
+//            int exitCode = Process.waitFor();
 //            System.out.println("==================Exited with code: " + exitCode);
 //
 //            log.info("==============arg 1");
 //            // 读取进程输出
 //            BufferedReader reader = new BufferedReader(
-//                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
+//                    new InputStreamReader(Process.getInputStream(), StandardCharsets.UTF_8));
 //
 //            log.info("==============arg 2");
 ////            String output = reader.lines().toString();

@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 public class checkProcessStatus {
     /**
      * checkdhcpd.py  checkdns.py  checkping.py  checkprocess.py
-     * @param process   "dhcpd", "dhcpd6", "checkaliveip", "dnsredis"
+     * @param process   "dhcpd", "dhcpd6", "checkaliveip", "Dnsredis"
      * @return
      */
     public static String checkProcessStatus(String process) {
@@ -26,8 +26,8 @@ public class checkProcessStatus {
             case "checkaliveip":
                 command = "ps -ef | grep checkaliveip.py | grep -v grep";
                 break;
-            case "dnsredis":
-                command = "ps -ef | grep dnsredis.py | grep -v grep";
+            case "Dnsredis":
+                command = "ps -ef | grep Dnsredis.py | grep -v grep";
                 break;
             default:
                 return null;
@@ -54,11 +54,11 @@ public class checkProcessStatus {
     }
 
     public static void main(String[] args) {
-        // 测试 {"dhcpd", "dhcpd6", "checkaliveip", "dnsredis"}
+        // 测试 {"dhcpd", "dhcpd6", "checkaliveip", "Dnsredis"}
         Session session = null;
         ChannelExec channel = null;
         String command = "";
-        String process="dhcpd6";     //{"dhcpd", "dhcpd6", "checkaliveip", "dnsredis"}
+        String process="dhcpd6";     //{"dhcpd", "dhcpd6", "checkaliveip", "Dnsredis"}
         try {
             session= SnmpHelper.createSession();
             // 创建一个执行频道
@@ -73,8 +73,8 @@ public class checkProcessStatus {
                 case "checkaliveip":
                     command = "ps -ef | grep checkaliveip.py | grep -v grep";
                     break;
-                case "dnsredis":
-                    command = "ps -ef | grep dnsredis.py | grep -v grep";
+                case "Dnsredis":
+                    command = "ps -ef | grep Dnsredis.py | grep -v grep";
                     break;
             }
 

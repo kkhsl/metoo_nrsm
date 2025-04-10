@@ -32,7 +32,7 @@ public class SshTracerouteDemo {
         Session session = conn.openSession();
 
 //        session.execCommand("traceroute 202.103.100.247");
-//        session.execCommand("nohup python3 /opt/nrsm/py/dnsredis.py 0 &");
+//        session.execCommand("nohup python3 /opt/nrsm/py/Dnsredis.py 0 &");
 
 //        python3 gettraffic.py --type h3c --vendor h3c --command get_ipv4_port --dhost 202.103.100.254 --version v2c --community transfar@123 --ip 172.16.253.253 --oid '1.3.6.1.2.1.4.20.1.2'
         session.execCommand("python3 gettraffic.py --type h3c --vendor h3c --command get_ipv4_port --dhost 202.103.100.254 --version v2c --community transfar@123 --ip 172.16.253.253 --oid '1.3.6.1.2.1.4.20.1.2'");
@@ -57,7 +57,7 @@ public class SshTracerouteDemo {
         Session session = conn.openSession();
 
 //        session.execCommand("traceroute 202.103.100.247");
-//        session.execCommand("nohup python3 /opt/nrsm/py/dnsredis.py 0 &");
+//        session.execCommand("nohup python3 /opt/nrsm/py/Dnsredis.py 0 &");
 
 //        python3 gettraffic.py --type h3c --vendor h3c --command get_ipv4_port --dhost 202.103.100.254 --version v2c --community transfar@123 --ip 172.16.253.253 --oid '1.3.6.1.2.1.4.20.1.2'
         session.execCommand("python3 --version");

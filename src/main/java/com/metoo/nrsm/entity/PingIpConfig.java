@@ -33,4 +33,8 @@ public class PingIpConfig {
     private String v6ip1;
 
     private String v6ip2;
+
+    private String v4ip1;
+
+    private String v4ip2;
 }
