@@ -53,6 +53,12 @@ public class UserManagerController {
         }
         Page<User> page = this.userService.selectObjConditionQuery(dto);
         if (page.getResult().size() > 0) {
+            for (User user : page.getResult()) {
+                Unit2 unit2 = this.unit2Service.selectObjById(user.getUnitId());
+                if(unit2 != null){
+                    user.setUnitName(unit2.getUnitName());
+                }
+            }
             return ResponseUtil.ok(new PageInfo<User>(page));
         }
         return ResponseUtil.ok();

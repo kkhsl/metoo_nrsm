@@ -64,6 +64,7 @@
         <result column="mu_note" property="note"></result>
         <result column="mu_groupName" property="groupName"></result>
         <result column="mu_groupId" property="groupId"></result>
+        <result column="mu_unitId" property="unitId"></result>
        <collection property="roleIds" column="mr_id" ofType="java.lang.Long">
            <id column="mr_id" property="roleIds"></id>
        </collection>
@@ -273,7 +274,7 @@
     <sql id="update_Column_List">
         mu.id mu_id,mu.addTime mu_addTime, mu.username mu_username, mu.sex mu_sex,
         mu.age mu_age,mu.userRole mu_userRole, mu.email mu_email, mu.mobile mu_mobile, mu.note mu_note, mu.groupId mu_groupId, mu.groupName mu_groupName,
-        mr.id mr_id,mu.unitId
+        mr.id mr_id, mu.unitId mu_unitId
     </sql>
 
     <select id="findUserUpdate" parameterType="java.lang.Long" resultMap="Base_Update_Map">
