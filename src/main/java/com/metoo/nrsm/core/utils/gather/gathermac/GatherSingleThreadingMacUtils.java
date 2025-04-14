@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
@@ -133,7 +133,7 @@ public class GatherSingleThreadingMacUtils {
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         // 处理数据并返回结果
         try {
-            org.json.JSONArray result = SNMPRequest.getLldp(snmpParams);
+            org.json.JSONArray result = SNMPv2Request.getLldp(snmpParams);
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>(){});

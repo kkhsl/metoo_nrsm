@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SubnetUtils;
 import com.metoo.nrsm.core.mapper.SubnetMapper;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IPortService;
 import com.metoo.nrsm.core.service.ISubnetService;
 import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
@@ -227,7 +227,7 @@ public class SubnetServiceImpl implements ISubnetService {
 //                            String[] params = {subnet.getIp(), String.valueOf(subnet.getMask())};
 //                            String result = pythonExecUtils.exec(path, params);
 //                            System.out.println(result);
-                            SNMPRequest.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+                            SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
                         }
                     });
 

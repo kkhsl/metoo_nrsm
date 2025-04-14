@@ -2,10 +2,8 @@ package com.metoo.nrsm.core.network.snmp4j.example;
 
 
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPV3Request;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.security.SecurityLevel;
 
 import java.io.IOException;
@@ -57,88 +55,113 @@ public class SnmpV3Example {
 */
 
         // v2
-        SNMPV3Params v3Params1 = new SNMPV3Params();
-        v3Params1.setIp("192.168.6.1");
-        v3Params1.setVersion(SnmpConstants.version2c);
-        v3Params1.setCommunity("public@123");
-        v3Params1.validate();
-        v3Params1.setSecurityName(null);
-        v3Params1.setSecurityLevel(0);
-        v3Params1.validate();
+//        SNMPV3Params v3Params1 = new SNMPV3Params();
+//        v3Params1.setIp("192.168.6.1");
+//        v3Params1.setVersion("v2c");
+//        v3Params1.setCommunity("public@123");
+//        v3Params1.validate();
+//        v3Params1.setSecurityName(null);
+//        v3Params1.setSecurityLevel(0);
+//        v3Params1.validate();
 
-        String deviceName1 = SNMPV3Request.getDeviceName(v3Params1);
+        // 调整
+        SNMPV3Params v2c = new SNMPV3Params.Builder()
+                .version("v2c")
+                .host("192.168.6.1")
+                .port(161)
+                .community("public@123")
+                .build();
+
+        String deviceName1 = SNMPv3Request.getDeviceName(v2c);
         System.out.println(deviceName1);
         log.info("主机名 v3：" + deviceName1);
 
 
         // v3带认证加密的请求
         // 方式一
-        SNMPV3Params v3Params = new SNMPV3Params();
-        v3Params.setIp("192.168.6.1");
-        v3Params.setVersion(SnmpConstants.version3);
+//        SNMPV3Params v3Params = new SNMPV3Params();
+//        v3Params.setIp("192.168.6.1");
+////        v3Params.setVersion(SnmpConstants.version3);
+//
+//        v3Params.setVersion("v3");
+//
+//        v3Params.setSecurityName("user_test");
+//        v3Params.setSecurityLevel(SecurityLevel.NOAUTH_NOPRIV);
+//
+//        v3Params.validate();
 
-        v3Params.setSecurityName("user_test");
-        v3Params.setSecurityLevel(SecurityLevel.NOAUTH_NOPRIV);
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version("v3")
+                .host("192.168.6.1")
+                .port(161)
+                .username("user_test")
+                .securityLevel(SecurityLevel.NOAUTH_NOPRIV)
+                .build();
 
-        v3Params.validate();
-
-        String deviceName = SNMPV3Request.getDeviceName(v3Params);
+        String deviceName = SNMPv3Request.getDeviceName(snmpv3Params);
         System.out.println(deviceName);
         log.info("主机名 无认证：" + deviceName1);
 
 
 
         // 方式二
-        SNMPV3Params v3Params2 = new SNMPV3Params();
-        v3Params2.setIp("192.168.6.1");
-        v3Params2.setVersion(SnmpConstants.version3);
+//        SNMPV3Params v3Params2 = new SNMPV3Params();
+//        v3Params2.setIp("192.168.6.1");
+////        v3Params2.setVersion(SnmpConstants.version3);
+//        v3Params.setVersion("v3");
+//
+//        v3Params2.setSecurityLevel(SecurityLevel.AUTH_NOPRIV);
+//        v3Params2.setSecurityName("user-test2");
+//        v3Params2.setAuthProtocol("MD5");// SHA
+//        v3Params2.setAuthPassword("metoo8974500");
+//        v3Params2.validate();
 
-        v3Params2.setSecurityLevel(SecurityLevel.AUTH_NOPRIV);
-        v3Params2.setSecurityName("user-test2");
-        v3Params2.setAuthProtocol("MD5");// SHA
-        v3Params2.setAuthPassword("metoo8974500");
-        v3Params2.validate();
+        snmpv3Params = new SNMPV3Params.Builder()
+                .version("v3")
+                .host("192.168.6.1")
+                .port(161)
+                .username("user_test")
+                .securityLevel(SecurityLevel.AUTH_NOPRIV)
+                .username("user-test2")
+                .authProtocol("MD5")
+                .authPassword("metoo8974500")
+                .build();
 
-        String deviceName2 = SNMPV3Request.getDeviceName(v3Params2);
+        String deviceName2 = SNMPv3Request.getDeviceName(snmpv3Params);
         System.out.println(deviceName2);
 
 
 
         // 方式三
-        SNMPV3Params v3Params3 = new SNMPV3Params();
-        v3Params3.setIp("192.168.6.1");
-        v3Params3.setVersion(SnmpConstants.version3);
+//        SNMPV3Params v3Params3 = new SNMPV3Params();
+//        v3Params3.setIp("192.168.6.1");
+////        v3Params3.setVersion(SnmpConstants.version3);
+//
+//        v3Params.setVersion("v3");
+//
+//        v3Params3.setSecurityLevel(SecurityLevel.AUTH_PRIV);
+//        v3Params3.setSecurityName("user_test3");
+//        v3Params3.setAuthProtocol("MD5");
+//        v3Params3.setAuthPassword("metoo8974500");
+//        v3Params3.setPrivProtocol("DES");
+//        v3Params3.setPrivPassword("Metoo89745000");
+//        v3Params3.validate();
 
-        v3Params3.setSecurityLevel(SecurityLevel.AUTH_PRIV);
-        v3Params3.setSecurityName("user_test3");
-        v3Params3.setAuthProtocol("MD5");
-        v3Params3.setAuthPassword("metoo8974500");
-        v3Params3.setPrivProtocol("DES");
-        v3Params3.setPrivPassword("Metoo89745000");
-        v3Params3.validate();
+        snmpv3Params = new SNMPV3Params.Builder()
+                .version("v3")
+                .host("192.168.6.1")
+                .port(161)
+                .securityLevel(SecurityLevel.AUTH_PRIV)
+                .username("user-test3")
+                .authProtocol("MD5")
+                .authPassword("metoo8974500")
+                .privProtocol("DES")
+                .privPassword("Metoo89745000")
+                .build();
 
-        String deviceName3 = SNMPV3Request.getDeviceName(v3Params3);
+        String deviceName3 = SNMPv3Request.getDeviceName(snmpv3Params);
         System.out.println(deviceName3);
     }
 
-    @Test
-    public void test(){
-        // v2
-        SNMPV3Params v3Params = new SNMPV3Params();
-        v3Params.setIp("192.168.6.1");
-        v3Params.setVersion(SnmpConstants.version2c);
-        v3Params.setCommunity("public@123");
 
-
-        v3Params.setSecurityLevel(0);
-        v3Params.setSecurityName("");
-        v3Params.setAuthProtocol("");
-        v3Params.setAuthPassword("");
-        v3Params.setPrivProtocol("");
-        v3Params.setPrivPassword("");
-
-        String deviceName1 = SNMPV3Request.getDevicePort(v3Params);
-        System.out.println(deviceName1);
-        log.info("主机名 v3：" + deviceName1);
-    }
 }

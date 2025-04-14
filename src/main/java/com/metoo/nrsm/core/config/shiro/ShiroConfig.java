@@ -77,10 +77,7 @@ public class ShiroConfig {
 //        filterChainDefinitionMap.put("/admin/dhcp/**", "anon");
 //        filterChainDefinitionMap.put("/admin/address/pool/**", "anon");
 
-        if(true){
-            filterChainDefinitionMap.put("/admin/**", "anon");
-        }
-
+    
         filterChainDefinitionMap.put("/notice/**", "anon");
         filterChainDefinitionMap.put("/ws/**", "anon");
         filterChainDefinitionMap.put("/file/**", "anon");

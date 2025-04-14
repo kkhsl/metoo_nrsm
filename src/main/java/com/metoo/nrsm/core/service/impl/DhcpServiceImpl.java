@@ -8,8 +8,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.metoo.nrsm.core.dto.DhcpDto;
 import com.metoo.nrsm.core.mapper.DhcpMapper;
-import com.metoo.nrsm.core.network.networkconfig.test.getDhcp;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IDhcpHistoryService;
 import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.utils.Global;
@@ -139,12 +138,12 @@ public class DhcpServiceImpl implements IDhcpService {
 //        String path = Global.PYPATH + "getdhcp.py";
 //        String result = pythonExecUtils.exec(path);
 //        return result;
-        return SNMPRequest.getDhcpStatus();
+        return SNMPv2Request.getDhcpStatus();
     }
 
     @Override
     public String checkdhcpd(String type) {
-        return SNMPRequest.checkdhcpd(type);
+        return SNMPv2Request.checkdhcpd(type);
     }
 
     @Override
@@ -154,7 +153,7 @@ public class DhcpServiceImpl implements IDhcpService {
 //                instance.getV6status(), instance.getV6int()};
 //        String result = pythonExecUtils.exec(path, params);
 //        return result;
-        return SNMPRequest.modifyDHCP(instance.getV4status(), instance.getV4int(),
+        return SNMPv2Request.modifyDHCP(instance.getV4status(), instance.getV4int(),
                 instance.getV6status(), instance.getV6int());
     }
 
@@ -164,7 +163,7 @@ public class DhcpServiceImpl implements IDhcpService {
 //        String[] params = {action, type};
 //        String result = pythonExecUtils.exec(path, params);
 //        return result;
-        return SNMPRequest.processOperation(operation, service);
+        return SNMPv2Request.processOperation(operation, service);
     }
 
     @Override

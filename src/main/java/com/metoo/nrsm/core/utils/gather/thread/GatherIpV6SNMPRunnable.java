@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.impl.Ipv6ServiceImpl;
 import com.metoo.nrsm.entity.Ipv6;
 import com.metoo.nrsm.entity.NetworkElement;
@@ -65,7 +65,7 @@ public class GatherIpV6SNMPRunnable implements Runnable{
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         // 处理数据并返回结果
         try {
-            JSONArray result = SNMPRequest.getArp(snmpParams);
+            JSONArray result = SNMPv2Request.getArp(snmpParams);
             if(!result.isEmpty()) {
                 // 使用 Jackson 将 JSON 字符串转换为 List<Ipv4>
                 ObjectMapper objectMapper = new ObjectMapper();

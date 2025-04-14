@@ -106,12 +106,13 @@ public class TopologyManagerController {
 
     @ApiOperation("拓扑复制")
     @GetMapping("/copy")
-    public Object copy(String id, String name, String groupId){
+    public Object copy(String id, String name, String groupId, Long unitId){
         Map params = new HashMap();
         if(name != null && !name.equals("")){
             params.clear();
             params.put("name", name);
             params.put("NotId", id);
+            params.put("unitId", unitId);
             List<Topology> Topos = this.topologyService.selectObjByMap(params);
             if(Topos.size() > 0){
                 return  ResponseUtil.badArgument("拓扑名称已存在");
@@ -185,6 +186,7 @@ public class TopologyManagerController {
         if(StringUtils.isNotEmpty(instance.getName())){
             params.put("topologyId", instance.getId());
             params.put("name", instance.getName());
+            params.put("unitId", instance.getUnitId());
             List<Topology> topologList = this.topologyService.selectObjByMap(params);
             if(topologList.size() > 0){
                 return ResponseUtil.badArgument("拓扑名称重复");
@@ -243,10 +245,11 @@ public class TopologyManagerController {
     }
 
     /**
-     * 设置乐观锁，多用户同时登陆，避免并发提交
+     *
      * @param id
      * @return
      */
+    // TODO 设置乐观锁，多用户同时登陆，避免并发提交
     @ApiOperation("设置默认拓扑")
     @RequestMapping("/default")
     public Object isDefault(String id){

@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.IMacService;
 import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
@@ -34,7 +37,8 @@ public class MacManager {
 
     private String getHostName(NetworkElement networkElement){
         log.info("gethostname ===== {}", networkElement.getIp());
-        String hostName = SNMPRequest.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
+//        String hostName = SNMPv2Request.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
+        String hostName = SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement));
         return hostName;
     }
 
@@ -52,8 +56,9 @@ public class MacManager {
 
     public void getLldpDataSNMP(NetworkElement networkElement, Date date, String hostName) {
         try {
-            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-            org.json.JSONArray result = SNMPRequest.getLldp(snmpParams);
+//            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+//            org.json.JSONArray result = SNMPv2Request.getLldp(snmpParams);
+            JSONArray result = SNMPv3Request.getLldp(SNMPParamFactory.createSNMPParam(networkElement));
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>(){});
@@ -108,7 +113,8 @@ public class MacManager {
     public void getMacData(NetworkElement networkElement, Date date, String hostName){
         try {
             SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-            JSONArray result = SNMPRequest.getMac(snmpParams);
+//            JSONArray result = SNMPv2Request.getMac(snmpParams);
+            JSONArray result = SNMPv3Request.getMac(SNMPParamFactory.createSNMPParam(networkElement));
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
@@ -124,7 +130,8 @@ public class MacManager {
     public void getPortMacData(NetworkElement networkElement, Date date, String hostName){
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         try {
-            JSONArray result = SNMPRequest.getPortMac(snmpParams);
+//            JSONArray result = SNMPv2Request.getPortMac(snmpParams);
+            JSONArray result = SNMPv3Request.getPortMac(SNMPParamFactory.createSNMPParam(networkElement));
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});

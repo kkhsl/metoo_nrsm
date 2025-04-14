@@ -1,12 +1,11 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
-import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.INetworkElementService;
-import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -48,8 +47,10 @@ public class GatherIsIpv6SNMPRunnable implements Runnable{
     public void run() {
         try {
             INetworkElementService networkElementServiceImpl = (INetworkElementService) ApplicationContextUtils.getBean("networkElementServiceImpl");
-            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-            Boolean result = SNMPRequest.getIsV6(snmpParams);
+//            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+//            Boolean result = SNMPv2Request.getIsV6(snmpParams);
+            Boolean result = SNMPv3Request.getIsV6(SNMPParamFactory.createSNMPParam(networkElement));
+
             if(result != null){
                 networkElement.setIsipv6(result);
                 networkElementServiceImpl.update(networkElement);

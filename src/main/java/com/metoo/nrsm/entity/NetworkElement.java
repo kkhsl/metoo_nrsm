@@ -89,7 +89,7 @@ public class NetworkElement extends IdEntity {
     @ExcelImport("SNMP community")
     private String community;
     @ApiModelProperty("SNMP版本")
-    @ExcelImport("SNMP版本")
+    @ExcelImport("SNMP版本 version1: 0  version2c：1 version3：3")
     private String version;
 
     private String timeticks;
@@ -110,8 +110,8 @@ public class NetworkElement extends IdEntity {
     // authPriv：认证并加密，是最安全的模式
     @ApiModelProperty("用户名")
     private String securityName;
-    @ApiModelProperty("安全等级")
-    private int securityLevel;
+    @ApiModelProperty("安全等级 1 2 3")
+    private Integer securityLevel;
     @ApiModelProperty("认证协议 MD5/SHA")
     private String authProtocol;
     @ApiModelProperty("认证密码")

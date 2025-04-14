@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.DnsRunStatusMapper;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IDnsRunStatusService;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.py.ssh.SshExec;
@@ -44,7 +44,7 @@ public class DnsRunStatusServiceImpl implements IDnsRunStatusService {
     public boolean checkdns() {
 //        String path = Global.PYPATH + "checkdns.py";
 //        String result = pythonExecUtils.exec(path);
-        String result = SNMPRequest.checkdhcpd("Dnsredis");
+        String result = SNMPv2Request.checkdhcpd("Dnsredis");
         if("None".equals(result)){
             return false;
         }else{

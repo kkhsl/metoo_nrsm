@@ -1,17 +1,16 @@
 package com.metoo.nrsm.core.utils.gather.snmp.utils;
 
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.INetworkElementService;
-import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
-import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.NetworkElement;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,9 +46,10 @@ public class DeviceManager {
     }
 
     // 获取设备名
-    public String getDeviceNameByIpAndCommunityVersion(NetworkElement element){
-        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
-        return SNMPRequest.getDeviceName(snmpParams); // 获取设备名
+    public String getDeviceNameByIpAndCommunityVersion(NetworkElement networkElement){
+//        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
+        String result = SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement));
+        return result;
     }
 
 }

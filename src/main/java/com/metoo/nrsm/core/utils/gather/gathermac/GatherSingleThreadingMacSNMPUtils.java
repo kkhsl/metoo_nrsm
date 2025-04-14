@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.gather.snmp.utils.MacManager;
@@ -130,7 +130,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     public String getHostNameSNMP(NetworkElement networkElement){
         log.info("gethostname ===== {}", networkElement.getIp());
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-        String hostName = SNMPRequest.getDeviceName(snmpParams);
+        String hostName = SNMPv2Request.getDeviceName(snmpParams);
         return hostName;
 
     }
@@ -157,7 +157,7 @@ public class GatherSingleThreadingMacSNMPUtils {
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         // 处理数据并返回结果
         try {
-            org.json.JSONArray result = SNMPRequest.getLldp(snmpParams);
+            org.json.JSONArray result = SNMPv2Request.getLldp(snmpParams);
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>(){});
@@ -189,7 +189,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     public void getMacDataSNMP(NetworkElement networkElement, String hostName, Date date){
         try {
             SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-            org.json.JSONArray result = SNMPRequest.getMac(snmpParams);
+            org.json.JSONArray result = SNMPv2Request.getMac(snmpParams);
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
@@ -286,7 +286,7 @@ public class GatherSingleThreadingMacSNMPUtils {
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         // 处理数据并返回结果
         try {
-            org.json.JSONArray result = SNMPRequest.getPortMac(snmpParams);
+            org.json.JSONArray result = SNMPv2Request.getPortMac(snmpParams);
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
@@ -379,8 +379,8 @@ public class GatherSingleThreadingMacSNMPUtils {
      */
     private void updateTerminalInfo(Date date) {
         try {
-            terminalService.syncTerminal(date);
-//          this.terminalService.v4Tov6Terminal(date);// 政务外网
+//            terminalService.syncTerminal(date);
+          this.terminalService.v4Tov6Terminal(date);// 政务外网
 
             // 政务外网
             // 根据vendor判断终端类型

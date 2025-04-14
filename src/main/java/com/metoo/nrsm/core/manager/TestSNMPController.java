@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.concurrent.SNMPThreadPoolManager;
 import com.metoo.nrsm.core.network.snmp4j.mockito.SNMPCommandHandler;
 import com.metoo.nrsm.core.service.INetworkElementService;
@@ -48,7 +48,7 @@ public class TestSNMPController {
         for (NetworkElement element : networkElements) {
             tasks.add(() -> {
                 SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
-                String deviceName = SNMPRequest.getDeviceName(snmpParams);  // 获取设备名
+                String deviceName = SNMPv2Request.getDeviceName(snmpParams);  // 获取设备名
                 return deviceName;
             });
         }

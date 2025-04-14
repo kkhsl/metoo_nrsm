@@ -1,10 +1,7 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
-import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
-import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +45,7 @@ public class GatherMacHostNameRunnable implements Runnable{
     public void run() {
         try {
             SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-            String result = SNMPRequest.getDeviceName(snmpParams);
+            String result = SNMPv2Request.getDeviceName(snmpParams);
 
             if(StringUtils.isNotEmpty(result)){
 

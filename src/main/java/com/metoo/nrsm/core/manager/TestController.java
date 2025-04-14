@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.manager;
 
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class TestController {
 
     @GetMapping("getDHCP")
     public String getDHCP(){
-        return SNMPRequest.getDhcpStatus();
+        return SNMPv2Request.getDhcpStatus();
     }
 
 

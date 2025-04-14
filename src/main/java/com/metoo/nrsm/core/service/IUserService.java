@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.vo.UserVo;
 import com.metoo.nrsm.entity.User;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IUserService {
 
@@ -41,6 +42,8 @@ public interface IUserService {
     boolean allocation(List<User> list);
 
     List<User> findObjByIds(Long[] ids) ;
+
+    List<User> selectObjByMap(Map params) ;
 
     
 }

@@ -26,7 +26,7 @@ import static com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser.convert
 /**
  * 设计线程安全方案
  */
-public class SNMPRequest {
+public class SNMPv2Request {
 
     private static ThreadLocal<Snmp> threadSnmp = ThreadLocal.withInitial(() -> {
         try {
@@ -103,7 +103,10 @@ public class SNMPRequest {
             ResponseEvent response = snmp.send(pdu, communityTarget);
             PDU responsePDU = response.getResponse();
 
-            if (responsePDU == null || responsePDU.getErrorStatus() != PDU.noError) {
+            if (responsePDU == null) {
+                System.err.println("无响应(超时或目标不可达) ");
+            }
+            if(responsePDU != null && responsePDU.getErrorStatus() != PDU.noError){
                 System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + responsePDU.getErrorStatusText());
             }
             return responsePDU;
@@ -449,9 +452,9 @@ public class SNMPRequest {
 
     // 获取 ARP 表、端口和端口映射
     public static JSONArray getArp(SNMPParams snmpParams) {
-        String arpData = SNMPRequest.getDeviceArp(snmpParams);
-        String arpPortData = SNMPRequest.getDeviceArpPort(snmpParams);
-        String portData = SNMPRequest.getDevicePort(snmpParams);
+        String arpData = SNMPv2Request.getDeviceArp(snmpParams);
+        String arpPortData = SNMPv2Request.getDeviceArpPort(snmpParams);
+        String portData = SNMPv2Request.getDevicePort(snmpParams);
         // 解析 JSON 数据
         JSONObject arpJson = new JSONObject(arpData);
         JSONObject arpPortJson = new JSONObject(arpPortData);
@@ -480,9 +483,9 @@ public class SNMPRequest {
 
     public static JSONArray getPortMac(SNMPParams snmpParams) {
         // 获取 SNMP 数据
-        String macData = SNMPRequest.getDevicePortMac(snmpParams);
-        String statusData = SNMPRequest.getDevicePortStatus(snmpParams);
-        String portData = SNMPRequest.getDevicePort(snmpParams);
+        String macData = SNMPv2Request.getDevicePortMac(snmpParams);
+        String statusData = SNMPv2Request.getDevicePortStatus(snmpParams);
+        String portData = SNMPv2Request.getDevicePort(snmpParams);
 
 
         // 解析 JSON 数据
@@ -514,11 +517,11 @@ public class SNMPRequest {
 
     public static JSONArray getPortTable(SNMPParams snmpParams) {
         // 获取 SNMP 数据
-        String portData = SNMPRequest.getDevicePort(snmpParams);
-        String statusData = SNMPRequest.getDevicePortStatus(snmpParams);
-        String portIpData = SNMPRequest.getDevicePortIp(snmpParams);
-        String portMaskData = SNMPRequest.getDevicePortMask(snmpParams);
-        String portDescriptionData = SNMPRequest.getDevicePortDescription(snmpParams);
+        String portData = SNMPv2Request.getDevicePort(snmpParams);
+        String statusData = SNMPv2Request.getDevicePortStatus(snmpParams);
+        String portIpData = SNMPv2Request.getDevicePortIp(snmpParams);
+        String portMaskData = SNMPv2Request.getDevicePortMask(snmpParams);
+        String portDescriptionData = SNMPv2Request.getDevicePortDescription(snmpParams);
 
         // 解析 JSON 数据
         JSONObject portJson = new JSONObject(portData);
@@ -566,9 +569,9 @@ public class SNMPRequest {
 
     /*public static JSONArray getMac(SNMPParams snmpParams) {
         // 获取 SNMP 数据
-        String macData = SNMPRequest.getDeviceMac3(snmpParams);
-        String macTypeData = SNMPRequest.getDeviceMacType(snmpParams);
-        String portData = SNMPRequest.getDevicePort(snmpParams);
+        String macData = SNMPv2Request.getDeviceMac3(snmpParams);
+        String macTypeData = SNMPv2Request.getDeviceMacType(snmpParams);
+        String portData = SNMPv2Request.getDevicePort(snmpParams);
 
         // 解析 JSON 数据
         JSONObject macJson = new JSONObject(macData);
@@ -636,7 +639,7 @@ public class SNMPRequest {
         String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
         for (String method : methods) {
             try {
-                String data = (String) SNMPRequest.class
+                String data = (String) SNMPv2Request.class
                         .getMethod(method, SNMPParams.class)
                         .invoke(null, snmpParams);
                 if (isValidJson(data)) {
@@ -651,7 +654,7 @@ public class SNMPRequest {
 
     private static JSONObject getMacTypeData(SNMPParams snmpParams) {
         try {
-            String data = SNMPRequest.getDeviceMacType(snmpParams);
+            String data = SNMPv2Request.getDeviceMacType(snmpParams);
             return new JSONObject(data);
         } catch (JSONException e) {
             return new JSONObject(); // 返回空对象
@@ -660,7 +663,7 @@ public class SNMPRequest {
 
     private static JSONObject getPortData(SNMPParams snmpParams) {
         try {
-            String data = SNMPRequest.getDevicePort(snmpParams);
+            String data = SNMPv2Request.getDevicePort(snmpParams);
             return new JSONObject(data);
         } catch (JSONException e) {
             return new JSONObject(); // 返回空对象
@@ -682,8 +685,8 @@ public class SNMPRequest {
 
     public static JSONArray getLldp(SNMPParams snmpParams) {
         // 获取 SNMP 数据
-        String lldpData = SNMPRequest.getLLDP(snmpParams);
-        String lldpPortData = SNMPRequest.getLLDPPort(snmpParams);
+        String lldpData = SNMPv2Request.getLLDP(snmpParams);
+        String lldpPortData = SNMPv2Request.getLLDPPort(snmpParams);
 
         // 解析 JSON 数据
         JSONObject lldpJson = new JSONObject(lldpData);

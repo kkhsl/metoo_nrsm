@@ -1,9 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
-import com.alibaba.fastjson.JSONObject;
-import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
@@ -11,8 +9,6 @@ import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacUtils;
 import com.metoo.nrsm.core.utils.gather.thread.*;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
-import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.core.vo.SystemUsageVO;
 import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
 import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
@@ -104,7 +100,7 @@ public class GatherTest {
         for (NetworkElement networkElement : networkElements) {
             SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
             try {
-                JSONArray result = SNMPRequest.getArp(snmpParams);
+                JSONArray result = SNMPv2Request.getArp(snmpParams);
                 log.info("snmp result {}", result);
             } catch (Exception e) {
                 System.out.println(e.getMessage());

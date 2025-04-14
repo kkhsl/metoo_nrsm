@@ -26,7 +26,7 @@ import static com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser.convert
 /**
  * 设计线程安全方案
  */
-public class SNMPV3Request {
+public class SNMPv3Request {
 
     // 新增安全协议初始化
     static {
@@ -82,9 +82,9 @@ public class SNMPV3Request {
 
     // 修改配置目标方法（支持v3）
     private static Target configureTarget(SNMPV3Params params) {
-        Address targetAddress = GenericAddress.parse("udp:" + params.getIp() + "/161");
+        Address targetAddress = GenericAddress.parse("udp:" + params.getHost() + "/" + params.getPort());
 
-        if (params.getVersion() == SnmpConstants.version3) {
+        if (params.getVersion().equals("v3")) {
             return configureV3Target(targetAddress, params);
         }
         return configureV2cTarget(targetAddress, params);
@@ -105,7 +105,7 @@ public class SNMPV3Request {
         target.setAddress(address);
         target.setVersion(SnmpConstants.version3);
         target.setSecurityLevel(params.getSecurityLevel());
-        target.setSecurityName(new OctetString(params.getSecurityName()));
+        target.setSecurityName(new OctetString(params.getUsername()));
         target.setTimeout(params.getTimeout());
         target.setRetries(params.getRetries());
         return target;
@@ -117,13 +117,13 @@ public class SNMPV3Request {
             Snmp snmp = threadContext.get().snmp;
             USM usm = snmp.getUSM();
 
-            OctetString securityName = new OctetString(params.getSecurityName());
+            OctetString securityName = new OctetString(params.getUsername());
             OctetString engineID = new OctetString(MPv3.createLocalEngineID());
 
             // 检查用户是否存在
             if (usm.getUser(engineID, securityName) == null) {
                 UsmUser user = new UsmUser(
-                        new OctetString(params.getSecurityName()),
+                        new OctetString(params.getUsername()),
                         resolveAuthProtocol(params.getAuthProtocol()),
                         params.getAuthPassword() != null ?
                                 new OctetString(params.getAuthPassword()) :
@@ -169,7 +169,7 @@ public class SNMPV3Request {
                 return null;
             }
 
-            if (params.getVersion() == SnmpConstants.version3) {
+            if (params.getVersion().equals("v3")) {
                 configureV3Security(params);
             }
 
@@ -196,7 +196,7 @@ public class SNMPV3Request {
 
             try {
                 // 配置v3安全参数
-                if (params.getVersion() == SnmpConstants.version3) {
+                if (params.getVersion().equals("v3")) {
                     configureV3Security(params);
                 }
 
@@ -218,7 +218,7 @@ public class SNMPV3Request {
     // 创建PDU（支持v3的ScopedPDU）
     private static PDU createPDU(SNMPV3Params params, String oid, int pduType) {
         PDU pdu;
-        if (params.getVersion() == SnmpConstants.version3) {
+        if (params.getVersion().equals("v3")) {
             pdu = new ScopedPDU();
         } else {
             pdu = new PDU();
@@ -238,7 +238,7 @@ public class SNMPV3Request {
         }
 
         try {
-            if (params.getVersion() == SnmpConstants.version3) {
+            if (params.getVersion().equals("v3")) {
                 configureV3Security(params);
             }
 
@@ -275,7 +275,10 @@ public class SNMPV3Request {
             System.err.println("SNMP 实例初始化失败");
         }
         PDU response = event.getResponse();
-        if (response.getErrorStatus() != PDU.noError) {
+        if (response == null) {
+            System.err.println("无响应(超时或目标不可达) ");
+        }
+        if(response != null && response.getErrorStatus() != PDU.noError){
             System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + response.getErrorStatusText());
         }
         return response;
@@ -499,9 +502,9 @@ public class SNMPV3Request {
 
     // 获取 ARP 表、端口和端口映射
     public static JSONArray getArp(SNMPV3Params snmpParams) {
-        String arpData = SNMPV3Request.getDeviceArp(snmpParams);
-        String arpPortData = SNMPV3Request.getDeviceArpPort(snmpParams);
-        String portData = SNMPV3Request.getDevicePort(snmpParams);
+        String arpData = SNMPv3Request.getDeviceArp(snmpParams);
+        String arpPortData = SNMPv3Request.getDeviceArpPort(snmpParams);
+        String portData = SNMPv3Request.getDevicePort(snmpParams);
         // 解析 JSON 数据
         JSONObject arpJson = new JSONObject(arpData);
         JSONObject arpPortJson = new JSONObject(arpPortData);
@@ -530,9 +533,9 @@ public class SNMPV3Request {
 
     public static JSONArray getPortMac(SNMPV3Params snmpParams) {
         // 获取 SNMP 数据
-        String macData = SNMPV3Request.getDevicePortMac(snmpParams);
-        String statusData = SNMPV3Request.getDevicePortStatus(snmpParams);
-        String portData = SNMPV3Request.getDevicePort(snmpParams);
+        String macData = SNMPv3Request.getDevicePortMac(snmpParams);
+        String statusData = SNMPv3Request.getDevicePortStatus(snmpParams);
+        String portData = SNMPv3Request.getDevicePort(snmpParams);
 
 
         // 解析 JSON 数据
@@ -564,11 +567,11 @@ public class SNMPV3Request {
 
     public static JSONArray getPortTable(SNMPV3Params snmpParams) {
         // 获取 SNMP 数据
-        String portData = SNMPV3Request.getDevicePort(snmpParams);
-        String statusData = SNMPV3Request.getDevicePortStatus(snmpParams);
-        String portIpData = SNMPV3Request.getDevicePortIp(snmpParams);
-        String portMaskData = SNMPV3Request.getDevicePortMask(snmpParams);
-        String portDescriptionData = SNMPV3Request.getDevicePortDescription(snmpParams);
+        String portData = SNMPv3Request.getDevicePort(snmpParams);
+        String statusData = SNMPv3Request.getDevicePortStatus(snmpParams);
+        String portIpData = SNMPv3Request.getDevicePortIp(snmpParams);
+        String portMaskData = SNMPv3Request.getDevicePortMask(snmpParams);
+        String portDescriptionData = SNMPv3Request.getDevicePortDescription(snmpParams);
 
         // 解析 JSON 数据
         JSONObject portJson = new JSONObject(portData);
@@ -652,7 +655,7 @@ public class SNMPV3Request {
         String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
         for (String method : methods) {
             try {
-                String data = (String) SNMPV3Request.class
+                String data = (String) SNMPv3Request.class
                         .getMethod(method, SNMPV3Params.class)
                         .invoke(null, snmpParams);
                 if (isValidJson(data)) {
@@ -667,7 +670,7 @@ public class SNMPV3Request {
 
     private static JSONObject getMacTypeData(SNMPV3Params snmpParams) {
         try {
-            String data = SNMPV3Request.getDeviceMacType(snmpParams);
+            String data = SNMPv3Request.getDeviceMacType(snmpParams);
             return new JSONObject(data);
         } catch (JSONException e) {
             return new JSONObject(); // 返回空对象
@@ -676,7 +679,7 @@ public class SNMPV3Request {
 
     private static JSONObject getPortData(SNMPV3Params snmpParams) {
         try {
-            String data = SNMPV3Request.getDevicePort(snmpParams);
+            String data = SNMPv3Request.getDevicePort(snmpParams);
             return new JSONObject(data);
         } catch (JSONException e) {
             return new JSONObject(); // 返回空对象
@@ -698,8 +701,8 @@ public class SNMPV3Request {
 
     public static JSONArray getLldp(SNMPV3Params snmpParams) {
         // 获取 SNMP 数据
-        String lldpData = SNMPV3Request.getLLDP(snmpParams);
-        String lldpPortData = SNMPV3Request.getLLDPPort(snmpParams);
+        String lldpData = SNMPv3Request.getLLDP(snmpParams);
+        String lldpPortData = SNMPv3Request.getLLDPPort(snmpParams);
 
         // 解析 JSON 数据
         JSONObject lldpJson = new JSONObject(lldpData);

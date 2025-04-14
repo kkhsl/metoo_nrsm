@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.mapper.DnsMapper;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IDNSService;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Dns;
@@ -80,7 +80,7 @@ public class DNSServiceImpl implements IDNSService {
     public String get() {
 //        String path = Global.PYPATH + "getdns.py";
 //        String result = pythonExecUtils.exec(path);
-        String result = SNMPRequest.getDnsSettings();
+        String result = SNMPv2Request.getDnsSettings();
         return result;
     }
 
@@ -88,7 +88,7 @@ public class DNSServiceImpl implements IDNSService {
     public String modifydns(String[] params) {
 //        String path = Global.PYPATH + "modifydns.py";
 //        String result = pythonExecUtils.exec(path, params);
-        String result = SNMPRequest.modifyDns(params[0],params[1]);
+        String result = SNMPv2Request.modifyDns(params[0],params[1]);
         return result;
     }
 }

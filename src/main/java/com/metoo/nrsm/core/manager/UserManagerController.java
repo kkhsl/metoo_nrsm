@@ -14,6 +14,7 @@ import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.core.vo.UserVo;
 import com.metoo.nrsm.entity.Role;
+import com.metoo.nrsm.entity.Unit;
 import com.metoo.nrsm.entity.Unit2;
 import com.metoo.nrsm.entity.User;
 import io.swagger.annotations.Api;
@@ -255,6 +256,10 @@ public class UserManagerController {
         User user = ShiroUserHolder.currentUser();
         if (user == null) {
             return ResponseUtil.unlogin();
+        }
+        Unit2 unit2 = this.unit2Service.selectObjById(user.getUnitId());
+        if(unit2 != null){
+            user.setUnitName(unit2.getUnitName());
         }
         return ResponseUtil.ok(user);
     }

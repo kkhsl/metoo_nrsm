@@ -6,7 +6,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.utils.Global;
@@ -59,7 +59,7 @@ public class InterfaceManagerController {
         Set<String> list = new HashSet<>();
 //        String path = Global.PYPATH + "getnetintf.py";
 //        String result = pythonExecUtils.exec(path);
-        String result = SNMPRequest.getNetworkInterfaces();
+        String result = SNMPv2Request.getNetworkInterfaces();
         if(!"".equals(result)){
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {
@@ -130,7 +130,7 @@ public class InterfaceManagerController {
         List<Interface> list = new ArrayList<>();
 //        String path = "/opt/nrsm/py/getnetintf.py";
 //        String result = pythonExecUtils.exec(path);
-        String result = SNMPRequest.getNetworkInterfaces();
+        String result = SNMPv2Request.getNetworkInterfaces();
         if(!"".equals(result)){
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {
@@ -247,7 +247,7 @@ public class InterfaceManagerController {
         Set<String> list = new HashSet<>();
 //        String path = Global.PYPATH + "getnetintf.py";
 //        String result = pythonExecUtils.exec(path);
-        String result = SNMPRequest.getNetworkInterfaces();
+        String result = SNMPv2Request.getNetworkInterfaces();
         if(!"".equals(result)){
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {

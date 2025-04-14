@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.network.snmp4j.example;
 
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 
 // 测试通过snmp获取
 public class SnmpGetHostName {
@@ -11,7 +11,7 @@ public class SnmpGetHostName {
         String version = "v2c";       // SNMP 版本
         String community = "public@123";  // SNMP 社区字符串
         SNMPParams snmpParams = new SNMPParams(host,version,community);
-        String deviceName = SNMPRequest.getDeviceName(snmpParams);
+        String deviceName = SNMPv2Request.getDeviceName(snmpParams);
         System.out.println(deviceName);
     }
 }
@@ -23,38 +23,38 @@ getDeviceArp
 getDeviceArpPort
 {"192.168.6.117":"193","192.168.6.205":"193","192.168.6.129":"193","192.168.6.1":"193","192.168.4.1":"195","192.168.5.1":"192","192.168.4.2":"195","192.168.6.23":"193","192.168.6.89":"193","192.168.6.100":"193","192.168.6.166":"193","192.168.6.101":"193","192.168.6.189":"193","192.168.6.252":"193","192.168.6.253":"193","192.168.6.11":"193","192.168.6.77":"193","192.168.6.99":"193","192.168.6.65":"193","192.168.6.75":"193","192.168.6.102":"193"}
 
-SNMPRequest.getDevicePort
+SNMPv2Request.getDevicePort
 {"22":"gigabitethernet0/22","23":"gigabitethernet0/23","190":"null0","191":"vlan1","192":"vlan100","193":"vlan200","194":"vlan1234","195":"gigabitethernet0/24","10":"gigabitethernet0/10","11":"gigabitethernet0/11","12":"gigabitethernet0/12","13":"gigabitethernet0/13","14":"gigabitethernet0/14","15":"gigabitethernet0/15","16":"gigabitethernet0/16","17":"gigabitethernet0/17","18":"gigabitethernet0/18","19":"gigabitethernet0/19","1":"gigabitethernet0/1","2":"gigabitethernet0/2","3":"gigabitethernet0/3","4":"gigabitethernet0/4","5":"gigabitethernet0/5","6":"gigabitethernet0/6","7":"gigabitethernet0/7","8":"gigabitethernet0/8","9":"gigabitethernet0/9","20":"gigabitethernet0/20","21":"gigabitethernet0/21"}
 
 
-SNMPRequest.getDevicePortStatus
+SNMPv2Request.getDevicePortStatus
 {"22":"2","23":"2","190":"1","191":"2","192":"1","193":"1","194":"2","195":"1","10":"1","11":"1","12":"2","13":"2","14":"1","15":"2","16":"1","17":"2","18":"2","19":"2","1":"1","2":"2","3":"2","4":"2","5":"2","6":"2","7":"2","8":"2","9":"2","20":"1","21":"2"}
 
-SNMPRequest.getDevicePortMac
+SNMPv2Request.getDevicePortMac
 {"22":"00:01:7A:94:A5:62","23":"00:01:7A:94:A5:62","190":"","191":"00:01:7A:94:A5:60","192":"00:01:7A:94:A5:60","193":"00:01:7A:94:A5:60","194":"00:01:7A:94:A5:60","195":"00:01:7A:94:A5:60","10":"00:01:7A:94:A5:62","11":"00:01:7A:94:A5:62","12":"00:01:7A:94:A5:62","13":"00:01:7A:94:A5:62","14":"00:01:7A:94:A5:62","15":"00:01:7A:94:A5:62","16":"00:01:7A:94:A5:62","17":"00:01:7A:94:A5:62","18":"00:01:7A:94:A5:62","19":"00:01:7A:94:A5:62","1":"00:01:7A:94:A5:62","2":"00:01:7A:94:A5:62","3":"00:01:7A:94:A5:62","4":"00:01:7A:94:A5:62","5":"00:01:7A:94:A5:62","6":"00:01:7A:94:A5:62","7":"00:01:7A:94:A5:62","8":"00:01:7A:94:A5:62","9":"00:01:7A:94:A5:62","20":"00:01:7A:94:A5:62","21":"00:01:7A:94:A5:62"}
 
 [{"mac":"00:01:7A:94:A5:62","port":"gigabitethernet0/22", "status": "2"}]
 
-SNMPRequest.getDevicePort
+SNMPv2Request.getDevicePort
 {"22":"gigabitethernet0/22","23":"gigabitethernet0/23","190":"null0","191":"vlan1","192":"vlan100","193":"vlan200","194":"vlan1234","195":"gigabitethernet0/24","10":"gigabitethernet0/10","11":"gigabitethernet0/11","12":"gigabitethernet0/12","13":"gigabitethernet0/13","14":"gigabitethernet0/14","15":"gigabitethernet0/15","16":"gigabitethernet0/16","17":"gigabitethernet0/17","18":"gigabitethernet0/18","19":"gigabitethernet0/19","1":"gigabitethernet0/1","2":"gigabitethernet0/2","3":"gigabitethernet0/3","4":"gigabitethernet0/4","5":"gigabitethernet0/5","6":"gigabitethernet0/6","7":"gigabitethernet0/7","8":"gigabitethernet0/8","9":"gigabitethernet0/9","20":"gigabitethernet0/20","21":"gigabitethernet0/21"}
 
-SNMPRequest.getDevicePortIp
+SNMPv2Request.getDevicePortIp
 {"192.168.6.1":"193","192.168.4.2":"195","192.168.5.1":"192"}
 
-SNMPRequest.getDevicePortMask
+SNMPv2Request.getDevicePortMask
 {"192.168.6.1":"255.255.255.0","192.168.4.2":"255.255.255.0","192.168.5.1":"255.255.255.0"}
 
-SNMPRequest.getDevicePortDescription
+SNMPv2Request.getDevicePortDescription
 {"22":"","23":"","190":"","191":"","192":"","193":"","194":"","195":"","10":"","11":"","12":"","13":"","14":"","15":"","16":"","17":"","18":"","19":"","1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":"","20":"","21":""}
 
 
-SNMPRequest.getDevicePort
+SNMPv2Request.getDevicePort
 {"52":"GigabitEthernet1/0/52","12":"GigabitEthernet1/0/12"}
 
-SNMPRequest.getDeviceMac
+SNMPv2Request.getDeviceMac
 {"43:D7:EB:B8:10":"12","0B:5F:E4:D6:18":"52"}
 
-SNMPRequest.getDeviceMacType
+SNMPv2Request.getDeviceMacType
 {"0B:5F:E4:D6:18":"3","43:D7:EB:B8:10":"3"}
 
 [{"mac":"00:0b:5f:e4:d6:18","port":"GigabitEthernet1/0/52","type":"3"}]

@@ -1,17 +1,12 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.impl.PortIpv6ServiceImpl;
-import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.NetworkElement;
-import com.metoo.nrsm.entity.Port;
 import com.metoo.nrsm.entity.PortIpv6;
 import org.json.JSONArray;
 import org.springframework.stereotype.Component;
@@ -53,7 +48,7 @@ public class GatherPortIpv6SNMPRunnable implements Runnable{
     public void run() {
         try {
             SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
-            JSONArray result = SNMPRequest.getPortTable(snmpParams);
+            JSONArray result = SNMPv2Request.getPortTable(snmpParams);
             if(!result.isEmpty()){
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<PortIpv6> ports = objectMapper.readValue(result.toString(), new TypeReference<List<PortIpv6>>(){});

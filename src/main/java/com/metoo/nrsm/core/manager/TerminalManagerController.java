@@ -134,10 +134,12 @@ public class TerminalManagerController {
     @GetMapping("/unit")
     public Result unitTerminal(){
         List<TerminalUnit> terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(null);
-        for (TerminalUnit terminalUnit : terminalUnitList) {
-            macUtils.terminalJoint(terminalUnit.getTerminalList());
-        }
+//        for (TerminalUnit terminalUnit : terminalUnitList) {
+//            macUtils.terminalJoint(terminalUnit.getTerminalList());
+//        }
         return ResponseUtil.ok(terminalUnitList);
+//        Result result = this.unit2Service.selectAllQuery();
+//        return result;
     }
 
     @GetMapping("/ipv6")

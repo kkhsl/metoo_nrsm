@@ -1,15 +1,13 @@
 package com.metoo.nrsm.core.utils.gather.thread;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.Ipv4Service;
-import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Ipv4;
 import com.metoo.nrsm.entity.NetworkElement;
 import org.json.JSONArray;
@@ -46,7 +44,9 @@ public class GatherIPv4SNMPRunnable implements Runnable{
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         // 处理数据并返回结果
         try {
-            JSONArray result = SNMPRequest.getArp(snmpParams);
+//            JSONArray result = SNMPv2Request.getArp(snmpParams);
+            JSONArray result = SNMPv3Request.getArp(SNMPParamFactory.createSNMPParam(networkElement));
+
             if(!result.isEmpty()) {
                 // 使用 Jackson 将 JSON 字符串转换为 List<Ipv4>
                 ObjectMapper objectMapper = new ObjectMapper();

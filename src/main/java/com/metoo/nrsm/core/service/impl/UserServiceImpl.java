@@ -220,5 +220,10 @@ public class UserServiceImpl implements IUserService {
         return this.userMapper.findObjByIds(ids);
     }
 
+    @Override
+    public List<User> selectObjByMap(Map params) {
+        return this.userMapper.selectObjByMap(params);
+    }
+
 
 }

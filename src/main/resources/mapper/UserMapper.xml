@@ -213,11 +213,23 @@
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+          <include refid="Base_Column_List"/>
         FROM metoo_user
         <where>
+            <choose>
+                <when test="deleteStatus != null">
+                    deleteStatus = #{deleteStatus}
+                </when>
+                <otherwise>
+                    deleteStatus = 0
+                </otherwise>
+            </choose>
             <if test="groupId != null and groupId != ''">
                 AND groupId = #{groupId}
+            </if>
+            <if test="unitId != null and unitId != ''">
+                AND unitId = #{unitId}
             </if>
         </where>
     </select>

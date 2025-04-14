@@ -4,7 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
 import com.metoo.nrsm.core.mapper.InterfaceMapper;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Interface;
@@ -127,7 +127,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 //        String[] params = {instance.getName(), instance.getIpv4address(),
 //                instance.getIpv6address(), instance.getGateway4(), instance.getGateway6()};
 //        String result = pythonExecUtils.exec(path, params);
-        String result = SNMPRequest.modifyIp(instance.getName(), instance.getIpv4address(), instance.getIpv6address(), instance.getGateway4(), instance.getGateway6());
+        String result = SNMPv2Request.modifyIp(instance.getName(), instance.getIpv4address(), instance.getIpv6address(), instance.getGateway4(), instance.getGateway6());
         if(result.equals("0")){
             return true;
         }

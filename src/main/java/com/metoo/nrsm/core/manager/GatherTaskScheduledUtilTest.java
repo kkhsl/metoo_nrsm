@@ -3,9 +3,8 @@ package com.metoo.nrsm.core.manager;
 import cn.hutool.core.date.DateTime;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
@@ -220,7 +219,7 @@ public class GatherTaskScheduledUtilTest {
         List<NetworkElement> networkElements = this.getGatherDevice();
         for (NetworkElement networkElement : networkElements) {
 
-            String hostName = SNMPRequest.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
+            String hostName = SNMPv2Request.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
 
             macManager.getLldpDataSNMP(networkElement, date, hostName);
         }
@@ -235,7 +234,7 @@ public class GatherTaskScheduledUtilTest {
         List<NetworkElement> networkElements = this.getGatherDevice();
         for (NetworkElement networkElement : networkElements) {
 
-            String hostName = SNMPRequest.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
+            String hostName = SNMPv2Request.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
 
             macManager.getMacData(networkElement, date, hostName);
         }

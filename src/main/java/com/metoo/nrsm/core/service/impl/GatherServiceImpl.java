@@ -2,8 +2,6 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPRequest;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
@@ -802,7 +800,7 @@ public class GatherServiceImpl implements IGatherService {
         hostName = pythonExecUtils.exec(path, args);
 
 //        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
-//        hostName = SNMPRequest.getDeviceName(snmpParams);  // 获取设备名
+//        hostName = SNMPv2Request.getDeviceName(snmpParams);  // 获取设备名
 
         return hostName;
     }
