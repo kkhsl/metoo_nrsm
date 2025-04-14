@@ -1,14 +1,11 @@
 package com.metoo.nrsm.core.manager;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.UnboundDTO;
 import com.metoo.nrsm.core.service.IPingIpConfigService;
 import com.metoo.nrsm.core.service.IPingService;
-import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.service.impl.UnboundServiceImpl;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.core.wsapi.utils.Md5Crypt;
 import com.metoo.nrsm.entity.Ping;
 import com.metoo.nrsm.entity.PingIpConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,14 +118,25 @@ public class PingIpConfigManagerController {
         UnboundDTO unboundDTO = new UnboundDTO();
         PingIpConfig pingIpConfig = this.pingIpConfigService.selectOneObj();
         Ping ping = this.pingService.selectOneObj();
-        boolean bool = pingIpConfig.getStatus() != 0;
-        if (!bool) {// 不启用，注释
-            unboundDTO.setPrivateAddress(false);
-            unboundService.open(unboundDTO);
-            boolean restart = unboundService.restart();
+        if (pingIpConfig == null){
+            Ping ping1 = new Ping();
+            ping1.setIp1status("0");
+            ping1.setIp2status("0");
+            ping1.setIpv42status("0");
+            ping1.setIpv41status("0");
+            ping1.setV4isok("0");
+            ping1.setV6isok("0");
+            return ResponseUtil.ok(ping1);
+        }else {
+            boolean bool = pingIpConfig.getStatus() != 0;
+            if (!bool) {// 不启用，注释
+                unboundDTO.setPrivateAddress(false);
+                unboundService.open(unboundDTO);
+                boolean restart = unboundService.restart();
+                return ResponseUtil.ok(ping);
+            }
             return ResponseUtil.ok(ping);
         }
-        return ResponseUtil.ok(ping);
     }
 
     // 定义一个定时任务
