@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RequestMapping("/admin/process")
 @RestController
-public class processManagerController {
+public class ProcessManagerController {
 
     @Autowired
     private IUnboundService unboundService;
@@ -25,12 +25,12 @@ public class processManagerController {
             // 获取服务状态
             String dhcpdStatus = checkProcessStatus.checkProcessStatus("dhcpd");
             String dhcpd6Status = checkProcessStatus.checkProcessStatus("dhcpd6");
-            String checkaliveipStatus = checkProcessStatus.checkProcessStatus("checkaliveip");
+            //String checkaliveipStatus = checkProcessStatus.checkProcessStatus("checkaliveip");
             boolean dnsStatus = unboundService.status(); // DNS状态
             Map<String, String> statusMap = new LinkedHashMap<>(4);
             statusMap.put("dhcpdStatus", convertStringStatus(dhcpdStatus));
             statusMap.put("dhcpd6Status", convertStringStatus(dhcpd6Status));
-            statusMap.put("checkaliveipStatus", convertStringStatus(checkaliveipStatus));
+            //statusMap.put("checkaliveipStatus", convertStringStatus(checkaliveipStatus));
             statusMap.put("dnsStatus", String.valueOf(dnsStatus).toLowerCase());
             return ResponseUtil.ok(statusMap);
         } catch (Exception e) {
