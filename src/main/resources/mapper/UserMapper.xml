@@ -234,6 +234,9 @@
                     deleteStatus >= 0
                 </otherwise>
             </choose>
+            <if test="unitId != null">
+                AND unitId = #{unitId}
+            </if>
         </where>
         <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
