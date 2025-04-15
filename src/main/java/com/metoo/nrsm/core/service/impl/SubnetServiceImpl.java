@@ -228,6 +228,7 @@ public class SubnetServiceImpl implements ISubnetService {
 //                            String result = pythonExecUtils.exec(path, params);
 //                            System.out.println(result);
                             SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+
                         }
                     });
 

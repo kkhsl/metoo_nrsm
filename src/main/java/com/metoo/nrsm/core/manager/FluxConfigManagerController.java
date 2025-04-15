@@ -42,15 +42,18 @@ public class FluxConfigManagerController {
 
     @PostMapping
     public Object save(@RequestBody FluxConfig fluxConfig){
+        if(fluxConfig == null){
+            return ResponseUtil.badArgument("参数错误");
+        }
         if(StringUtils.isNotEmpty(fluxConfig.getIpv4())){
             boolean flag = Ipv4Util.verifyIp(fluxConfig.getIpv4());
             if(!flag){
                 return ResponseUtil.badArgument("ipv4格式错误");
             }
         }
-        if(!StringUtils.isNotEmpty(fluxConfig.getIpv6())){
+        if(StringUtils.isNotEmpty(fluxConfig.getIpv6())){
             boolean flag = Ipv6Util.verifyIpv6(fluxConfig.getIpv6());
-            if(flag){
+            if(!flag){
                 return ResponseUtil.badArgument("ipv6格式错误");
             }
         }
@@ -65,7 +68,7 @@ public class FluxConfigManagerController {
             fluxConfig.setIpv6Oid(ipv6oid);
         }
 
-        if(fluxConfig.getId() != null || !fluxConfig.getId().equals("")){
+        if(fluxConfig.getId() != null){
             FluxConfig obj = this.fluxConfigService.selectObjById(fluxConfig.getId());
             fluxConfig.getIpv4Oids().clear();
             fluxConfig.getIpv6Oids().clear();

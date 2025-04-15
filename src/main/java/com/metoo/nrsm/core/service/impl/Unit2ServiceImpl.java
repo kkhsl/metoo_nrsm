@@ -45,7 +45,7 @@ public class Unit2ServiceImpl implements IUnit2Service {
             dto = new UnitDTO();
         }
         Page<Unit2> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
-        List<Unit2> unit2s = this.unit2Mapper.selectObjConditionQuery(dto);
+        this.unit2Mapper.selectObjConditionQuery(dto);
         return ResponseUtil.ok(new PageInfo<Unit2>(page));
     }
 

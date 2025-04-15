@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.utils.gather.snmp.utils;
 
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
@@ -8,6 +9,7 @@ import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
 import com.metoo.nrsm.entity.NetworkElement;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,6 +52,17 @@ public class DeviceManager {
 //        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
         String result = SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement));
         return result;
+    }
+
+    @Test
+    public void test(){
+        SNMPV3Params v2c = new SNMPV3Params.Builder()
+                .version("v3")
+                .host("192.168.6.1")
+                .port(161)
+                .community("public@123")
+                .build();
+
     }
 
 }

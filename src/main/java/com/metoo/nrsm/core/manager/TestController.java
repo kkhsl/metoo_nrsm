@@ -1,6 +1,8 @@
 package com.metoo.nrsm.core.manager;
 
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +42,19 @@ public class TestController {
         return SNMPv2Request.getDhcpStatus();
     }
 
+    @GetMapping("getTraffic")
+    public String getTraffic(){
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version("v2c")
+                .host("113.240.243.196")
+                .community("transfar@123")
+                .port(161)
+                .build();
 
+        String traffic = SNMPv3Request.getTraffic(snmpv3Params, "1.3.6.1.2.1.31.1.1.1.6.31", "1.3.6.1.2.1.31.1.1.1.10.31");
+        log.info("流量数据", traffic);
+        return traffic;
+    }
 //
 //    public static void main(String[] args) {
 //        SystemInfo systemInfo = new SystemInfo();

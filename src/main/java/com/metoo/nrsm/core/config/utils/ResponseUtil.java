@@ -25,7 +25,7 @@ public class ResponseUtil {
     }
 
     public static Result nullPointException() {
-        return result(402, "Data does not exist");
+        return result(402, "参数错误");
     }
 
     public static Result arithmeticException() {

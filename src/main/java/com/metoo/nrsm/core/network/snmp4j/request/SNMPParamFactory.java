@@ -1,6 +1,9 @@
 package com.metoo.nrsm.core.network.snmp4j.request;
 
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
+import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.py.ssh.SSHExecutor;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -200,20 +203,101 @@ public class SNMPParamFactory {
     //  v3 方式三：AUTH_PRIV（有认证和加密）
     @Test
     public void testSNMPv3(){
+//        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+//                .version("v3")
+//                .host("192.168.0.8")
+//                .port(161)
+//                .securityLevel(SecurityLevel.AUTH_PRIV)
+//                .username("test")
+//                .authProtocol("SHA")
+//                .authPassword("pulic@123")
+//                .privProtocol("AES")
+//                .privPassword("PUBLIC@123")
+//                .build();
+//
+//        String deviceName = SNMPv3Request.getDeviceName(snmpv3Params);
+//        log.info("方式三{}", deviceName);
+
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v3")
-                .host("192.168.6.1")
+                .host("192.168.0.13")
                 .port(161)
                 .securityLevel(SecurityLevel.AUTH_PRIV)
-                .username("user-test3")
+                .username("test")
                 .authProtocol("MD5")
-                .authPassword("metoo8974500")
-                .privProtocol("DES")
-                .privPassword("Metoo89745000")
+                .authPassword("asdf")
+                .privProtocol("AES")
+                .privPassword("123456")
                 .build();
 
         String deviceName = SNMPv3Request.getDeviceName(snmpv3Params);
         log.info("方式三{}", deviceName);
     }
+
+    @Test
+    public void testSNMPv3GetTraffic(){
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version("v2c")
+                .host("113.240.243.196")
+                .community("transfar@123")
+                .port(161)
+                .build();
+
+        String traffic = SNMPv3Request.getTraffic(snmpv3Params, "1.3.6.1.2.1.31.1.1.1.6.31", "1.3.6.1.2.1.31.1.1.1.10.31");
+        log.info("流量数据", traffic);
+    }
+
+    @Test
+    public void testSNMPv3GetTrafficPY(){
+        String path = "/opt/nrsm/py/gettraffic.py";
+        String[] params = {"113.240.243.196", "v2c",
+                "transfar@123", "1.3.6.1.2.1.31.1.1.1.6.31", "1.3.6.1.2.1.31.1.1.1.10.31"};
+
+        SSHExecutor sshExecutor = new SSHExecutor("192.168.60.90", 22, "root", "Transfar@123");
+
+        String result = sshExecutor.exec(path, params);
+
+        System.out.println(result);
+
+
+    }
+
+    @Test
+    public void aaa(){
+        String a = gettraffic("113.240.243.196", "", "transfar@123", "1.3.6.1.2.1.31.1.1.1.6.31", "1.3.6.1.2.1.31.1.1.1.10.31");
+        System.out.println(a);
+
+    }
+
+
+
+    public String gettraffic(String ip, String version, String community, String in, String out) {
+//        String path = Global.PYPATH + "gettraffic.py";
+//        String[] params = {ip, "v2c",
+//                community, in, out};
+//
+//        String result = pythonExecUtils.exec2(path, params);
+//        if(StringUtil.isNotEmpty(result)){
+//            return result;
+//        }
+//        return null;
+
+        version = "v2c";
+
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version(version)
+                .host(ip)
+                .version(version)
+                .community(community)
+                .build();
+
+        String traffic = SNMPv3Request.getTraffic(snmpv3Params, in, out);
+        if(StringUtil.isNotEmpty(traffic)){
+            return traffic;
+        }
+        return "";
+    }
+
+
 
 }

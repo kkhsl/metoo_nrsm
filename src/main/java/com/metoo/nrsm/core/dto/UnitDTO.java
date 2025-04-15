@@ -28,5 +28,10 @@ public class UnitDTO extends PageDto<Unit> {
     private Long gatewayId;
     private String pattern;
     private Integer deleteStatus;
+    private boolean flag;
+
+
+    private Integer currentPage = 1;// 当前页数
+    private Integer pageSize = 15;// 每页条数
 
 }

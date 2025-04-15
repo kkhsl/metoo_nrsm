@@ -2,6 +2,8 @@ package com.metoo.nrsm.core.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
@@ -15,6 +17,7 @@ import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
 import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.snmp4j.security.SecurityLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -631,7 +634,7 @@ public class GatherServiceImpl implements IGatherService {
                             if(in.equals("") || out.equals("")){
                                 continue;
                             }
-                            String result = gettraffic(fluxConfig.getIpv4(), in, out, fluxConfig.getCommunity());
+                            String result = gettraffic(fluxConfig.getIpv4(), fluxConfig.getVersion(), fluxConfig.getCommunity(), in, out);
                             if (StringUtils.isNotEmpty(result)) {
                                 Map map = JSONObject.parseObject(result, Map.class);
                                 v4_list.add(map);
@@ -650,7 +653,7 @@ public class GatherServiceImpl implements IGatherService {
                             if(in.equals("") || out.equals("")){
                                 continue;
                             }
-                            String result = gettraffic(fluxConfig.getIpv6(), in, out, fluxConfig.getCommunity());
+                            String result = gettraffic(fluxConfig.getIpv6(), fluxConfig.getVersion(), fluxConfig.getCommunity(), in, out);
                             if (StringUtils.isNotEmpty(result)) {
                                 Map map = JSONObject.parseObject(result, Map.class);
                                 v6_list.add(map);
@@ -722,8 +725,8 @@ public class GatherServiceImpl implements IGatherService {
 
             if(ipv4Sum.equals(BigDecimal.ZERO) && ipv6Sum.equals(BigDecimal.ZERO)){
 
-                flowStatistics.setIpv4(new BigDecimal(0));
-                flowStatistics.setIpv6(new BigDecimal(0));
+                flowStatistics.setIpv4Sum(new BigDecimal(0));
+                flowStatistics.setIpv6Sum(new BigDecimal(0));
                 this.flowStatisticsService.save(flowStatistics);
                 return;
             }
@@ -821,16 +824,31 @@ public class GatherServiceImpl implements IGatherService {
         return oneMinuteAgo;
     }
 
-    public String gettraffic(String ip, String in, String out, String community) {
-        String path = Global.PYPATH + "gettraffic.py";
-        String[] params = {ip, "v2c",
-                community, in, out};
+    public String gettraffic(String ip, String version, String community, String in, String out) {
+//        String path = Global.PYPATH + "gettraffic.py";
+//        String[] params = {ip, "v2c",
+//                community, in, out};
+//
+//        String result = pythonExecUtils.exec2(path, params);
+//        if(StringUtil.isNotEmpty(result)){
+//            return result;
+//        }
+//        return null;
 
-        String result = pythonExecUtils.exec2(path, params);
-        if(StringUtil.isNotEmpty(result)){
-            return result;
+        version = "v2c";
+
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version(version)
+                .host(ip)
+                .version(version)
+                .community(community)
+                .build();
+
+        String traffic = SNMPv3Request.getTraffic(snmpv3Params, in, out);
+        if(StringUtil.isNotEmpty(traffic)){
+            return traffic;
         }
-        return null;
+        return "";
     }
 
 

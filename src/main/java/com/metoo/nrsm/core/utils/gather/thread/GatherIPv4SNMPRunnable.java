@@ -41,9 +41,9 @@ public class GatherIPv4SNMPRunnable implements Runnable{
     @Override
     public void run() {
         Ipv4Service ipv4Service = (Ipv4Service) ApplicationContextUtils.getBean("ipv4ServiceImpl");
-        SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         // 处理数据并返回结果
         try {
+//             SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
 //            JSONArray result = SNMPv2Request.getArp(snmpParams);
             JSONArray result = SNMPv3Request.getArp(SNMPParamFactory.createSNMPParam(networkElement));
 

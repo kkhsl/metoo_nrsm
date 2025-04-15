@@ -129,18 +129,32 @@ public class TerminalManagerController {
         return ResponseUtil.ok(new PageInfo<Terminal>(page, map));
     }
 
-
+//    @GetMapping("/unit")
+//    public Result unitTerminal(){
+//        List<TerminalUnit> terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(null);
+////        for (TerminalUnit terminalUnit : terminalUnitList) {
+////            macUtils.terminalJoint(terminalUnit.getTerminalList());
+////        }
+//        return ResponseUtil.ok(terminalUnitList);
+////        Result result = this.unit2Service.selectAllQuery();
+////        return result;
+//    }
 
     @GetMapping("/unit")
-    public Result unitTerminal(){
-        List<TerminalUnit> terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(null);
-//        for (TerminalUnit terminalUnit : terminalUnitList) {
-//            macUtils.terminalJoint(terminalUnit.getTerminalList());
-//        }
+    public Result unitTerminal(
+            @RequestParam(required = false) String type){
+        List<TerminalUnit> terminalUnitList = null;
+        if("unit".equals(type)){
+            User user = ShiroUserHolder.currentUser();
+            Map params = new HashMap();
+            params.put("unitId", user.getUnitId());
+            terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(params);
+        }else{
+            terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(null);
+        }
         return ResponseUtil.ok(terminalUnitList);
-//        Result result = this.unit2Service.selectAllQuery();
-//        return result;
     }
+
 
     @GetMapping("/ipv6")
     public void ipv6(){

@@ -28,6 +28,8 @@ public class FluxConfig extends IdEntity {
 
     private String community;
 
+    private String version;
+
     private String ipv4Oid;
 
     private List<List<String>> ipv4Oids = new ArrayList<>();

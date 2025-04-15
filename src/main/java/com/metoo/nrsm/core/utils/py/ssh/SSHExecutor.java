@@ -30,6 +30,15 @@ public class SSHExecutor {
     @Value("${ssh.password}")
     private String password;
 
+    public SSHExecutor() {}
+
+    public SSHExecutor(String host, int port, String username, String password) {
+        this.host = host;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+    }
+
     public String exec(String path){
 
         Session session = null;
@@ -85,7 +94,7 @@ public class SSHExecutor {
             // 验证用户密码
             conn.authenticateWithPassword(username, password);
             session = conn.openSession();
-            String py_name = Global.py_name;
+            String py_name = "/opt/metoo_venv/bin/python3";
 
             String[] args = new String[]{
                     py_name, "-W", "ignor", path};

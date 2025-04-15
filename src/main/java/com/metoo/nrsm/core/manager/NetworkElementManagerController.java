@@ -298,6 +298,29 @@ public class NetworkElementManagerController {
             instance.setVendorName(vendor.getName());
         }
 
+        // 验证snmp参数
+        if (instance.getSecurityLevel() != null) {
+            int securityLevel = instance.getSecurityLevel();
+
+            // 检查认证密码（SecurityLevel 2 或 3 需要）
+            if (securityLevel == 2 || securityLevel == 3) {
+                if (instance.getAuthPassword() == null || instance.getAuthPassword().length() < 8) {
+                    System.out.println("[错误] SNMPv3 认证密码不能为空，且必须至少 8 个字符！");
+//                    throw new IllegalArgumentException("SNMPv3 认证密码不符合要求");
+                    return ResponseUtil.badArgument("[错误] SNMPv3 认证密码不能为空，且必须至少 8 个字符！");
+                }
+            }
+
+            // 检查加密密码（SecurityLevel 3 需要）
+            if (securityLevel == 3) {
+                if (instance.getPrivPassword() == null || instance.getPrivPassword().length() < 8) {
+                    System.out.println("[错误] SNMPv3 加密密码不能为空，且必须至少 8 个字符！");
+//                    throw new IllegalArgumentException("SNMPv3 加密密码不符合要求");
+                    return ResponseUtil.badArgument("[错误] SNMPv3 加密密码不能为空，且必须至少 8 个字符！");
+                }
+            }
+        }
+
         if(this.networkElementService.save(instance) >= 1 ? true : false){
 
             // 验证名称是否唯一

@@ -290,6 +290,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
+    // 采集流量
     @Scheduled(cron = "0 */3 * * * ?")
     public void flux() {
         if(flag) {
@@ -403,7 +404,7 @@ public class GatherTaskScheduledUtil {
         this.fluxDailyRateService.save(fluxDailyRate);
     }
 
-    //@Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(cron = "0 0/5 * * * ?")
     public Result getTraffic() {
         List<String> trafficResults = new ArrayList<>();
 
