@@ -8,10 +8,10 @@ import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.NetworkElementDto;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.file.DownLoadFileUtil;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.poi.ExcelUtils;
+import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.entity.*;
 import io.swagger.annotations.Api;
@@ -28,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -266,8 +265,12 @@ public class NetworkElementManagerController {
         String newIp = "";
         String deviceTypeName = "";
         NetworkElement ne = null;
+        handleSnmpVersion(instance);
+
+
         if(instance.getId() != null){
             ne = this.networkElementService.selectObjById(instance.getId());
+            handleSnmpVersion(ne);
             if(ne.getDeviceName() != instance.getDeviceName()){
                 name = ne.getDeviceName();
                 newName = instance.getDeviceName();
@@ -341,6 +344,26 @@ public class NetworkElementManagerController {
             return ResponseUtil.badArgument();
         }
     }
+
+    private void handleSnmpVersion(NetworkElement ne) {
+        if (ne == null) return;
+
+        String version = ne.getVersion();
+        if ("v3".equals(version)) {
+            ne.setCommunity("");
+        } else if ("v2c".equals(version)) {
+            // 初始化 v2c 安全参数默认值
+            ne.setSecurityLevel(1);
+            ne.setSecurityName("");
+            ne.setAuthProtocol("");
+            ne.setAuthPassword("");
+            ne.setPrivProtocol("");
+            ne.setPrivPassword("");
+        }
+        // 可扩展其他版本处理逻辑
+    }
+
+
     @DeleteMapping("/delete")
     public Object delete(String ids){
         if(ids != null && !ids.equals("")){
