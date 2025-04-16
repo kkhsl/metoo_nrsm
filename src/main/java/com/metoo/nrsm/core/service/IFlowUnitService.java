@@ -10,6 +10,7 @@ import java.util.Map;
 public interface IFlowUnitService {
 
     FlowUnit selectObjById(Long id);
+    List<FlowUnit> selectByUnitId(Long unitId);
 
     List<FlowUnit> selectObjByMap(Map params);
 

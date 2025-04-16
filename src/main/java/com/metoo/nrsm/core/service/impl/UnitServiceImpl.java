@@ -64,6 +64,16 @@ public class UnitServiceImpl implements IUnitService {
     @Override
     public Result save(Unit instance) {
         if (instance.getId() == null || instance.getId().equals("")) {
+            // 检查unitName是否为空
+            if (instance.getUnitName() == null || instance.getUnitName().isEmpty()) {
+                return ResponseUtil.error("单位名称不能为空");
+            }
+            // 根据unitName查询是否存在重复
+            int count = this.unitMapper.countByUnitName(instance.getUnitName());
+            if (count > 0) {
+                return ResponseUtil.error("单位名称已存在");
+            }
+            // 新增逻辑
             instance.setAddTime(new Date());
             int i = this.unitMapper.save(instance);
             if (i >= 1) {

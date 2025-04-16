@@ -11,6 +11,7 @@ public interface FlowUnitMapper {
     FlowUnit selectObjById(Long id);
 
     List<FlowUnit> selectObjByMap(Map params);
+    List<FlowUnit> selectByUnitId(Long unitId);
 
     List<FlowUnit> selectObjByMapToMonitor(Map params);
 
