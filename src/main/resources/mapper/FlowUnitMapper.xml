@@ -76,6 +76,11 @@
         FROM metoo_flow_unit
         ORDER BY addTime DESC
     </select>
+    <select id="selectByUnitId" resultType="com.metoo.nrsm.entity.FlowUnit">
+        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, unitId
+        FROM metoo_flow_unit
+        WHERE unitId = #{unitId}
+    </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.FlowUnit">
         INSERT INTO metoo_flow_unit

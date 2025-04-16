@@ -47,6 +47,10 @@ public class FlowUnitServiceImpl implements IFlowUnitService {
     public List<FlowUnit> selectObjByMap(Map params) {
         return this.flowUnitMapper.selectObjByMap(params);
     }
+    @Override
+    public List<FlowUnit> selectByUnitId(Long unitId) {
+        return this.flowUnitMapper.selectByUnitId(unitId);
+    }
 
     @Override
     public List<FlowUnit> selectObjByMapToMonitor(Map params) {

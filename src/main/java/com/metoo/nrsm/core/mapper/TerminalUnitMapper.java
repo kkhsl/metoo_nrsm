@@ -23,6 +23,9 @@ public interface TerminalUnitMapper {
     @Select("SELECT * FROM metoo_unit_subnet")
     List<UnitSubnet> selectAll();
 
+    @Select("SELECT * FROM metoo_unit_subnet WHERE unitId = #{unitId}")
+    List<UnitSubnet> selectByUnitId(Long id);
+
     @Select("SELECT * FROM metoo_unit_subnet WHERE id = #{id}")
     UnitSubnet findById(Long id);
 

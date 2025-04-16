@@ -102,5 +102,9 @@
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM metoo_unit WHERE id = #{id}
     </delete>
+
+    <select id="countByUnitName" resultType="int">
+        SELECT COUNT(*) FROM metoo_unit WHERE unitName = #{unitName}
+    </select>
     
 </mapper>

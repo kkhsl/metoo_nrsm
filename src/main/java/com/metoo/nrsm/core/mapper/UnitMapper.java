@@ -18,5 +18,6 @@ public interface UnitMapper {
     int save(Unit instance);
 
     int delete(Long id);
+    int countByUnitName(String unitName);
 
 }
