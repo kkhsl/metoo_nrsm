@@ -1,9 +1,5 @@
 package com.metoo.nrsm.core.config.utils.gather.factory.gather;
 
-import com.metoo.nrsm.entity.Unit;
-
-import java.util.List;
-
 /**
  * @author HKK
  * @version 1.0

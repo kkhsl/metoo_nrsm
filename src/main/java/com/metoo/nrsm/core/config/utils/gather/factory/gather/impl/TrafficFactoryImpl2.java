@@ -5,10 +5,10 @@ import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder3;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
 import com.metoo.nrsm.core.service.IGatewayService;
-import com.metoo.nrsm.core.service.IUnitService;
+import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.entity.Gateway;
-import com.metoo.nrsm.entity.Unit;
+import com.metoo.nrsm.entity.FlowUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,7 @@ public class TrafficFactoryImpl2 implements Gather {
     @Override
     public void executeMethod() {
         log.info("Traffic start=========");
-        IUnitService unitService = (IUnitService) ApplicationContextUtils.getBean("unitServiceImpl");
+        IFlowUnitService flowUnitService = (IFlowUnitService) ApplicationContextUtils.getBean("flowUnitServiceImpl");
         IGatewayService gatewayService = (IGatewayService) ApplicationContextUtils.getBean("gatewayServiceImpl");
         PyExecUtils pyExecUtils = (PyExecUtils) ApplicationContextUtils.getBean("pyExecUtils");
         List<Gateway> list = gatewayService.selectObjByMap(null);
@@ -40,11 +40,11 @@ public class TrafficFactoryImpl2 implements Gather {
                         Map params = new HashMap();
                         params.put("hidden", false);
                         params.put("gatewayId", gateway.getId());
-                        List<Unit> units = unitService.selectObjByMap(params);
+                        List<FlowUnit> units = flowUnitService.selectObjByMap(params);
                         if (units.size() <= 0) {
                             return;
                         } else {
-                            Unit unit = units.get(0);
+                            FlowUnit unit = units.get(0);
                             vlanNum = unit.getVlanNum();
                             pattern = unit.getPattern();
                         }

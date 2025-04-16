@@ -7,15 +7,13 @@ import com.metoo.nrsm.core.config.utils.SaltUtils;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.UserDto;
 import com.metoo.nrsm.core.service.IRoleService;
-import com.metoo.nrsm.core.service.IUnit2Service;
+import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.service.IUserService;
 import com.metoo.nrsm.core.utils.CommUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
-import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.core.vo.UserVo;
 import com.metoo.nrsm.entity.Role;
 import com.metoo.nrsm.entity.Unit;
-import com.metoo.nrsm.entity.Unit2;
 import com.metoo.nrsm.entity.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,20 +39,20 @@ public class UserManagerController {
     @Autowired
     private IRoleService roleService;
     @Autowired
-    private IUnit2Service unit2Service;
+    private IUnitService unitService;
 
     Logger logger = LoggerFactory.getLogger(UserManagerController.class);
 
     @ApiOperation("用户列表")
-    @RequestMapping("/list")
-    public Object list(@RequestBody(required = false) UserDto dto) {
+    @PostMapping("/list")
+    private Object list(@RequestBody(required = false) UserDto dto) {
         if (dto == null) {
             dto = new UserDto();
         }
         Page<User> page = this.userService.selectObjConditionQuery(dto);
         if (page.getResult().size() > 0) {
             for (User user : page.getResult()) {
-                Unit2 unit2 = this.unit2Service.selectObjById(user.getUnitId());
+                Unit unit2 = this.unitService.selectObjById(user.getUnitId());
                 if(unit2 != null){
                     user.setUnitName(unit2.getUnitName());
                 }
@@ -75,7 +73,7 @@ public class UserManagerController {
         if (roleList.size() > 0) {
             data.put("roleList", roleList);
         }
-        List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+        List<Unit> unit2s = this.unitService.selectUnitAll();
         data.put("unitList", unit2s);
         return ResponseUtil.ok(data);
     }
@@ -98,7 +96,7 @@ public class UserManagerController {
             if (roleList.size() > 0) {
                 data.put("roleList", roleList);
             }
-            List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+            List<Unit> unit2s = this.unitService.selectUnitAll();
             data.put("unitList", unit2s);
             return ResponseUtil.ok(data);
         }
@@ -263,7 +261,7 @@ public class UserManagerController {
         if (user == null) {
             return ResponseUtil.unlogin();
         }
-        Unit2 unit2 = this.unit2Service.selectObjById(user.getUnitId());
+        Unit unit2 = this.unitService.selectObjById(user.getUnitId());
         if(unit2 != null){
             user.setUnitName(unit2.getUnitName());
         }

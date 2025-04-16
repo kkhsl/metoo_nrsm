@@ -1,32 +1,18 @@
 package com.metoo.nrsm.core.manager;
 
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.Session;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
-import com.metoo.nrsm.core.mapper.TrafficDataMapper;
-import com.metoo.nrsm.core.mapper.Unit2Mapper;
-import com.metoo.nrsm.core.network.ssh.SnmpHelper;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 
-import com.metoo.nrsm.core.service.ITerminalService;
+import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.TrafficData;
 import com.metoo.nrsm.entity.Unit;
-import com.metoo.nrsm.entity.Unit2;
 import com.metoo.nrsm.entity.UnitSubnet;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.AbstractMap;
 import java.util.Map;
 
 @RestController
@@ -36,7 +22,7 @@ public class TerminalUnitManagerController {
     @Resource
     private TerminalUnitMapper terminalUnitMapper;
     @Resource
-    private Unit2Mapper unit2Mapper;
+    private IUnitService unitService;
 
     @GetMapping("/selectAll")
     public Result selectAll() {
@@ -61,7 +47,7 @@ public class TerminalUnitManagerController {
             Map map = new HashMap();
             for (UnitSubnet unitSubnet : unitSubnets) {
                 if(map.get(unitSubnet.getUnitId()) != null){
-                    Unit2 unit2 = this.unit2Mapper.selectObjById(unitSubnet.getUnitId());
+                    Unit unit2 = this.unitService.selectObjById(unitSubnet.getUnitId());
                     return ResponseUtil.badArgument(unit2.getUnitName() + " 网段名称重复");
                 }
                 map.put(unitSubnet.getUnitId(), unitSubnet.getUnitId());

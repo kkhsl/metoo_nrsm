@@ -10,14 +10,14 @@ import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
 import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.ITrafficService;
-import com.metoo.nrsm.core.service.IUnitService;
+import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.date.RandomIntervalGenerator;
 import com.metoo.nrsm.core.utils.date.TimeRangeChecker;
 import com.metoo.nrsm.core.utils.date.WeekendChecker;
+import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Traffic;
-import com.metoo.nrsm.entity.Unit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -37,7 +37,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
     public void executeMethod() {
         log.info("unit exec traffic start...");
 
-        IUnitService unitService = (IUnitService) ApplicationContextUtils.getBean("unitServiceImpl");
+        IFlowUnitService flowUnitService = (IFlowUnitService) ApplicationContextUtils.getBean("flowUnitServiceImpl");
         IGatewayService gatewayService = (IGatewayService) ApplicationContextUtils.getBean("gatewayServiceImpl");
 
         PyExecUtils pyExecUtils = (PyExecUtils) ApplicationContextUtils.getBean("pyExecUtils");
@@ -48,7 +48,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
         if (list.size() > 0){
 
-            List<Unit> unitList = new ArrayList<>();
+            List<FlowUnit> unitList = new ArrayList<>();
 
             CountDownLatch latch = new CountDownLatch(list.size());
 
@@ -59,7 +59,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 //                context.setEntity(gateway);
 //
 //                TrafficByGatewayCollectionStrategy collectionStrategy =
-//                        new TrafficByGatewayCollectionStrategy(unitService, gatewayService,
+//                        new TrafficByGatewayCollectionStrategy(flowUnitService, gatewayService,
 //                                trafficService, pyExecUtils);
 //
 ////                DataCollector dataCollector = new DataCollector(context, collectionStrategy);
@@ -75,18 +75,18 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                         Map params = new HashMap();
                         params.put("hidden", false);
                         params.put("gatewayId", gateway.getId());
-                        List<Unit> units = unitService.selectObjByMapToMonitor(params);
+                        List<FlowUnit> units = flowUnitService.selectObjByMapToMonitor(params);
                         if (units.size() <= 0) {
                             return;
                         } else {
-                            Unit unit = units.get(0);
+                            FlowUnit unit = units.get(0);
                             pattern = unit.getPattern();
                         }
 
-                        for (Unit unit : units) {
+                        for (FlowUnit unit : units) {
                             try {
                                 if (pattern.equals("0")) {
-                                    Unit unit1 = insertTrafficYingTan4(unit, date);
+                                    FlowUnit unit1 = insertTrafficYingTan4(unit, date);
                                     if(unit1 != null){
                                         unitList.add(unit1);
                                     }
@@ -94,7 +94,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-//                            unitService.update(unit);
+//                            flowUnitService.update(unit);
                         }
                     }
                 } catch (Exception e) {
@@ -111,7 +111,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
         return;
     }
 
-    public void insertTraffic2(String data, Unit unit, Date date) {
+    public void insertTraffic2(String data, FlowUnit unit, Date date) {
 
         ITrafficService trafficService = (ITrafficService) ApplicationContextUtils.getBean("trafficServiceImpl");
 
@@ -180,7 +180,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
     }
 
     // version-2
-    public void insertTrafficYingTan2(String data, Unit unit, Date date) {
+    public void insertTrafficYingTan2(String data, FlowUnit unit, Date date) {
 
         ITrafficService trafficService = (ITrafficService) ApplicationContextUtils.getBean("trafficServiceImpl");
 
@@ -376,7 +376,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
         }
     }
 
-//    public void insertTrafficYingTan3(Unit unit, Date date) {
+//    public void insertTrafficYingTan3(FlowUnit unit, Date date) {
 //
 //        ITrafficService trafficService = (ITrafficService) ApplicationContextUtils.getBean("trafficServiceImpl");
 //
@@ -449,7 +449,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 //        }
 //    }
 
-    public Unit insertTrafficYingTan4(Unit unit, Date date) {
+    public FlowUnit insertTrafficYingTan4(FlowUnit unit, Date date) {
 
         log.info("Traffic data start ==========================");
 
@@ -558,7 +558,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
 
     // version-1
-    public void insertTrafficYingTan(String data, Unit unit, Date date) {
+    public void insertTrafficYingTan(String data, FlowUnit unit, Date date) {
 
         ITrafficService trafficService = (ITrafficService) ApplicationContextUtils.getBean("trafficServiceImpl");
 

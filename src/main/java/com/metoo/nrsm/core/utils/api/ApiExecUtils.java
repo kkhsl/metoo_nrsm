@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
-import com.metoo.nrsm.core.service.IUnitService;
+import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.vo.UnitVO;
-import com.metoo.nrsm.entity.Unit;
+import com.metoo.nrsm.entity.FlowUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import java.util.*;
 public class ApiExecUtils {
 
     @Autowired
-    private IUnitService unitService;
+    private IFlowUnitService flowUnitService;
     @Autowired
     private ApiUtils apiUtils;
 
@@ -39,11 +39,11 @@ public class ApiExecUtils {
         Map<String, Object> params = new HashMap<>();
         params.put("hidden", false);
 
-        List<Unit> unitList = this.unitService.selectObjByMapToMonitor(params);
+        List<FlowUnit> unitList = this.flowUnitService.selectObjByMapToMonitor(params);
         List<UnitVO> unitVos = new ArrayList<>();
 
         if (!unitList.isEmpty()) {
-            for (Unit unit : unitList) {
+            for (FlowUnit unit : unitList) {
                 UnitVO unitVO = new UnitVO(
                         unit.getUnitName(), unit.getDepartment(), unit.getArea(),
                         unit.getCity(), time, currentTimestamp,
@@ -108,7 +108,7 @@ public class ApiExecUtils {
             return;
         }
 
-        log.info("Unit list: {}", JSONObject.toJSONString(unitVos));
+        log.info("FlowUnit list: {}", JSONObject.toJSONString(unitVos));
 
         callApi(unitVos);
     }

@@ -3,27 +3,18 @@ package com.metoo.nrsm.core.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
-import com.metoo.nrsm.core.dto.UnitDTO;
+import com.metoo.nrsm.core.dto.UnitNewDTO;
 import com.metoo.nrsm.core.mapper.UnitMapper;
-import com.metoo.nrsm.core.service.IGatewayService;
-import com.metoo.nrsm.core.service.IUnit2Service;
 import com.metoo.nrsm.core.service.IUnitService;
-import com.metoo.nrsm.core.service.IVendorService;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Unit;
-import com.metoo.nrsm.entity.Unit2;
-import com.metoo.nrsm.entity.Vendor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -31,27 +22,12 @@ public class UnitServiceImpl implements IUnitService {
 
     @Resource
     private UnitMapper unitMapper;
-    @Autowired
-    private IGatewayService gatewayService;
-    @Autowired
-    private IVendorService vendorService;
-    @Autowired
-    private IUnit2Service unit2Service;
 
     @Override
     public Unit selectObjById(Long id) {
         return this.unitMapper.selectObjById(id);
     }
 
-    @Override
-    public List<Unit> selectObjByMap(Map params) {
-        return this.unitMapper.selectObjByMap(params);
-    }
-
-    @Override
-    public List<Unit> selectObjByMapToMonitor(Map params) {
-        return this.unitMapper.selectObjByMapToMonitor(params);
-    }
 
     @Override
     public int update(Unit instance) {
@@ -64,36 +40,15 @@ public class UnitServiceImpl implements IUnitService {
     }
 
     @Override
-    public Result selectObjConditionQuery(UnitDTO dto) {
+    public Result selectObjConditionQuery(UnitNewDTO dto) {
         if(dto == null){
-            dto = new UnitDTO();
+            dto = new UnitNewDTO();
         }
         Page<Unit> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
         this.unitMapper.selectObjConditionQuery(dto);
-
-        if (page.getResult().size() > 0) {
-            for (Unit instance : page.getResult()) {
-                if(instance.getGatewayId() != null
-                        && !instance.getGatewayId().equals("")){
-                    Gateway gateway = this.gatewayService.selectObjById(instance.getGatewayId());
-                    if(gateway != null){
-                        instance.setGatewayName(gateway.getName());
-                    }
-                }
-                if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
-                    Unit2 unit2 = this.unit2Service.selectObjById(instance.getUnitId());
-                    if(unit2 != null){
-                        instance.setUnitName(unit2.getUnitName());
-                    }
-                }
-            }
-        }
-
-        List<Gateway> gatewayList = this.gatewayService.selectObjByMap(null);
-        Map data = new HashMap();
-        data.put("gateway", gatewayList);
-        return ResponseUtil.ok(new PageInfo<Unit>(page, data));
+        return ResponseUtil.ok(new PageInfo<Unit>(page));
     }
+
     @Override
     public Result selectAllQuery() {
         List<Unit> units = this.unitMapper.selectAllQuery();
@@ -101,43 +56,13 @@ public class UnitServiceImpl implements IUnitService {
     }
 
     @Override
-    public Result add() {
-        Map data = new HashMap();
-        List<Gateway> gatewayList = this.gatewayService.selectObjByMap(null);
-        if(gatewayList.size() > 0){
-            for (Gateway gateway : gatewayList) {
-                if(gateway.getVendorId() != null && !gateway.getVendorId().equals("")){
-                    Vendor vendor = this.vendorService.selectObjById(gateway.getVendorId());
-                    if(vendor != null){
-                        gateway.setVendorName(vendor.getName());
-                        gateway.setVendorAlias(vendor.getNameEn());
-                    }
-                }
-
-            }
-        }
-        data.put("gateway", gatewayList);
-        List<Unit2> unit2s = this.unit2Service.selectUnitAll();
-        data.put("unitList", unit2s);
-        return ResponseUtil.ok(data);
+    public List<Unit> selectUnitAll() {
+        List<Unit> units = this.unitMapper.selectAllQuery();
+        return units;
     }
 
     @Override
     public Result save(Unit instance) {
-        if(instance.getGatewayId() != null && !instance.getGatewayId().equals("")){
-            Gateway gateway = this.gatewayService.selectObjById(instance.getGatewayId());
-            if(gateway == null){
-                return ResponseUtil.badArgument("网关设备不存在");
-            }
-        }
-        if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
-            Unit2 unit2 = this.unit2Service.selectObjById(instance.getUnitId());
-            if(unit2 == null){
-                return ResponseUtil.badArgument("单位不存在");
-            }else{
-                instance.setUnitName(unit2.getUnitName());
-            }
-        }
         if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             int i = this.unitMapper.save(instance);
@@ -146,6 +71,7 @@ public class UnitServiceImpl implements IUnitService {
             }
         } else {
             int i = this.unitMapper.update(instance);
+            instance.setUpdateTime(new Date());
             if (i >= 1) {
                 return ResponseUtil.ok();
             }

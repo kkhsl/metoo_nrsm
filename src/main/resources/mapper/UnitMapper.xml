@@ -4,76 +4,48 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.UnitMapper">
 
     <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, unitId
+        SELECT id, addTime,updateTime, unitName, deleteStatus
         FROM metoo_unit
         WHERE id = #{id}
     </select>
 
-    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, v4Traffic, unitId
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UnitNewDTO" resultType="com.metoo.nrsm.entity.Unit">
+        SELECT id, addTime,updateTime,unitName,deleteStatus
         FROM metoo_unit
         <where>
-            <if test="addTime != null">
-                AND `addTime` = #{addTime}
-            </if>
-            <if test="name != null and name != ''">
-                AND `name` = #{name}
-            </if>
-            <if test="notId != null and notId != ''">
-                AND `id` != #{notId}
-            </if>
-            <if test="hidden != null">
-                AND `hidden` = #{hidden}
-            </if>
-            <if test="gatewayId != null">
-                AND `gatewayId` = #{gatewayId}
-            </if>
-        </where>
-        ORDER BY addTime desc
-    </select>
-
-    <select id="selectObjByMapToMonitor" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT *
-        FROM metoo_unit
-        <where>
-            <if test="addTime != null">
-                AND `addTime` = #{addTime}
-            </if>
-            <if test="name != null and name != ''">
-                AND `name` = #{name}
-            </if>
-            <if test="notId != null and notId != ''">
-                AND `id` != #{notId}
-            </if>
-            <if test="hidden != null">
-                AND `hidden` = #{hidden}
-            </if>
-            <if test="gatewayId != null">
-                AND `gatewayId` = #{gatewayId}
-            </if>
-        </where>
-        ORDER BY addTime desc
-    </select>
-
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UnitDTO" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random, unitId
-        FROM metoo_unit
-        <where>
+            <choose>
+                <when test="deleteStatus != null">
+                    deleteStatus = #{deleteStatus}
+                </when>
+                <otherwise>
+                    deleteStatus = 0
+                </otherwise>
+            </choose>
             <if test="id != null">
                 AND `id` = #{id}
             </if>
             <if test="addTime != null">
                 AND `addTime` = #{addTime}
             </if>
-            <if test="name != null and name != ''">
-                AND `name` = #{name}
+            <if test="unitName != null and unitName != ''">
+                AND `unitName` = #{unitName}
             </if>
         </where>
         ORDER BY addTime DESC
     </select>
     <select id="selectAllQuery" resultType="com.metoo.nrsm.entity.Unit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random
+        SELECT id,unitName, addTime, updateTime,deleteStatus
         FROM metoo_unit
+        <where>
+            <choose>
+                <when test="deleteStatus != null">
+                    deleteStatus = #{deleteStatus}
+                </when>
+                <otherwise>
+                    deleteStatus = 0
+                </otherwise>
+            </choose>
+        </where>
         ORDER BY addTime DESC
     </select>
 
@@ -83,88 +55,28 @@
             <if test="addTime != null">
                 addTime,
             </if>
+            <if test="updateTime != null">
+                updateTime,
+            </if>
             <if test="unitName != null and unitName != ''">
                 unitName,
             </if>
-            <if test="department != null and department != ''">
-                department,
-            </if>
-            <if test="area != null and area != ''">
-                area,
-            </if>
-            <if test="city != null and city != ''">
-                city,
-            </if>
-            <if test="vlanNum != null and vlanNum != ''">
-                vlanNum,
-            </if>
-            <if test="gatewayId != null and gatewayId != ''">
-                gatewayId,
-            </if>
-            <if test="pattern != null and pattern != ''">
-                pattern,
-            </if>
-            <if test="rule != null and rule != ''">
-                rule,
-            </if>
-            <if test="hidden != null and hidden != ''">
-                hidden,
-            </if>
-            <if test="vfourFlow != null and vfourFlow != ''">
-                vfourFlow,
-            </if>
-            <if test="vsixFlow != null and vsixFlow != ''">
-                vsixFlow,
-            </if>
-            <if test="broadband_Account != null and broadband_Account != ''">
-                broadband_Account,
-            </if>
-            <if test="unitId != null and unitId != ''">
-                unitId,
+            <if test="deleteStatus != null and deleteStatus != ''">
+                deleteStatus,
             </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
                 #{addTime},
             </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
             <if test="unitName != null and unitName != ''">
                 #{unitName},
             </if>
-            <if test="department != null and department != ''">
-                #{department},
-            </if>
-            <if test="area != null and area != ''">
-                #{area},
-            </if>
-            <if test="city != null and city != ''">
-                #{city},
-            </if>
-            <if test="vlanNum != null and vlanNum != ''">
-                #{vlanNum},
-            </if>
-            <if test="gatewayId != null and gatewayId != ''">
-                #{gatewayId},
-            </if>
-            <if test="pattern != null and pattern != ''">
-                #{pattern},
-            </if>
-            <if test="rule != null and rule != ''">
-                #{rule},
-            </if>
-            <if test="hidden != null and hidden != ''">
-                #{hidden},
-            </if>
-            <if test="vfourFlow != null and vfourFlow != ''">
-                #{vfourFlow},
-            </if>
-            <if test="vsixFlow != null and vsixFlow != ''">
-                #{vsixFlow},
-            </if>
-            <if test="broadband_Account != null and broadband_Account != ''">
-                #{broadband_Account},
-            </if>
-            <if test="unitId != null and unitId != ''">
-                #{unitId},
+            <if test="deleteStatus != null and deleteStatus != ''">
+                #{deleteStatus},
             </if>
         </trim>
     </insert>
@@ -175,44 +87,14 @@
             <if test="addTime != null">
                 addTime = #{addTime},
             </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime},
+            </if>
             <if test="unitName != null and unitName != ''">
                 unitName = #{unitName},
             </if>
-            <if test="department != null and department != ''">
-                department = #{department},
-            </if>
-            <if test="area != null and area != ''">
-                area = #{area},
-            </if>
-            <if test="city != null and city != ''">
-                city = #{city},
-            </if>
-            <if test="vlanNum != null and vlanNum != ''">
-                vlanNum = #{vlanNum},
-            </if>
-            <if test="gatewayId != null and gatewayId != ''">
-                gatewayId = #{gatewayId},
-            </if>
-            <if test="pattern != null and pattern != ''">
-                pattern = #{pattern},
-            </if>
-            <if test="rule != null and rule != ''">
-                rule = #{rule},
-            </if>
-            <if test="hidden != null">
-                hidden = #{hidden},
-            </if>
-            <if test="vfourFlow != null and vfourFlow != ''">
-                vfourFlow = #{vfourFlow},
-            </if>
-            <if test="vsixFlow != null and vsixFlow != ''">
-                vsixFlow = #{vsixFlow},
-            </if>
-            <if test="broadband_Account != null and broadband_Account != ''">
-                broadband_Account = #{broadband_Account},
-            </if>
-            <if test="unitId != null and unitId != ''">
-                unitId = #{unitId},
+            <if test="deleteStatus != null and deleteStatus != ''">
+                deleteStatus = #{deleteStatus},
             </if>
         </set> WHERE id = #{id}
     </update>

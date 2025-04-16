@@ -4,17 +4,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
-import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder;
 import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder3;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.FlowUtils;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.utils.GeneraFlowUtils;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
 import com.metoo.nrsm.core.service.IGatewayService;
-import com.metoo.nrsm.core.service.IUnitService;
+import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Gateway;
-import com.metoo.nrsm.entity.Unit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.stereotype.Component;
@@ -28,7 +27,7 @@ public class TrafficFactoryImplYingtan implements Gather {
     @Override
     public void executeMethod() {
         log.info("Traffic start=========");
-        IUnitService unitService = (IUnitService) ApplicationContextUtils.getBean("unitServiceImpl");
+        IFlowUnitService flowUnitService = (IFlowUnitService) ApplicationContextUtils.getBean("flowUnitServiceImpl");
         IGatewayService gatewayService = (IGatewayService) ApplicationContextUtils.getBean("gatewayServiceImpl");
         PyExecUtils pyExecUtils = (PyExecUtils) ApplicationContextUtils.getBean("pyExecUtils");
         List<Gateway> list = gatewayService.selectObjByMap(null);
@@ -44,11 +43,11 @@ public class TrafficFactoryImplYingtan implements Gather {
                         Map params = new HashMap();
                         params.put("hidden", false);
                         params.put("gatewayId", gateway.getId());
-                        List<Unit> units = unitService.selectObjByMap(params);
+                        List<FlowUnit> units = flowUnitService.selectObjByMap(params);
                         if (units.size() <= 0) {
                             return;
                         } else {
-                            Unit unit = units.get(0);
+                            FlowUnit unit = units.get(0);
                             vlanNum = unit.getVlanNum();
                             pattern = unit.getPattern();
                         }
@@ -71,7 +70,7 @@ public class TrafficFactoryImplYingtan implements Gather {
                         log.info("Traffic result: ================= {} ",result);
 
                         if (StringUtil.isNotEmpty(result)) {
-                            for (Unit unit : units) {
+                            for (FlowUnit unit : units) {
                                 try {
                                     // 根据pattern，判断使用哪种方式获取流量
 //                                    if (pattern.equals("1")) {
@@ -79,22 +78,22 @@ public class TrafficFactoryImplYingtan implements Gather {
                                      if (pattern.equals("0")) {
                                         insertTraffic(result, unit);
                                         unit.setAddTime(date);
-                                        unitService.update(unit);
+                                        flowUnitService.update(unit);
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     unit.setVfourFlow("0");
                                     unit.setVsixFlow("0");
-                                    unitService.update(unit);
+                                    flowUnitService.update(unit);
                                 }
                             }
                         }else{
-                            for (Unit unit : units) {
+                            for (FlowUnit unit : units) {
                                 // 清空单位流量
                                 unit.setAddTime(date);
                                 unit.setVfourFlow("0");
                                 unit.setVsixFlow("0");
-                                unitService.update(unit);
+                                flowUnitService.update(unit);
                             }
                         }
                     }
@@ -106,7 +105,7 @@ public class TrafficFactoryImplYingtan implements Gather {
         }
     }
 
-//    public void insertTraffic(String data, Unit unit) {
+//    public void insertTraffic(String data, FlowUnit unit) {
 //        if (StringUtil.isNotEmpty(data)) {
 //
 //            JSONArray jsonArray = JSONArray.parseArray(data);
@@ -201,7 +200,7 @@ public class TrafficFactoryImplYingtan implements Gather {
 //        }
 //    }
 
-    public void insertTraffic(String data, Unit unit) {
+    public void insertTraffic(String data, FlowUnit unit) {
         if (StringUtil.isNotEmpty(data)) {
 
             JSONArray jsonArray = JSONArray.parseArray(data);
@@ -292,7 +291,7 @@ public class TrafficFactoryImplYingtan implements Gather {
     @Test
     public void test(){
         // 模拟单位
-        Unit unit = new Unit();
+        FlowUnit unit = new FlowUnit();
         unit.setRandom("35,45");
         unit.setRule("35");
 

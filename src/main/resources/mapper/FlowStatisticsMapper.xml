@@ -57,10 +57,10 @@
             <if test="ipv6Sum != null">
                 ipv6Sum,
             </if>
-            <if test="ipv4 != null and ipv4!= ''">
+            <if test="ipv4 != null">
                 ipv4,
             </if>
-            <if test="ipv6 != null and ipv6!= ''">
+            <if test="ipv6 != null">
                 ipv6,
             </if>
         </trim>
@@ -77,10 +77,10 @@
             <if test="ipv6Sum != null">
                 #{ipv6Sum},
             </if>
-            <if test="ipv4 != null and ipv4!= ''">
+            <if test="ipv4 != null">
                 #{ipv4},
             </if>
-            <if test="ipv6 != null and ipv6!= ''">
+            <if test="ipv6 != null">
                 #{ipv6},
             </if>
         </trim>

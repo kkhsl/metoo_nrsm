@@ -9,11 +9,11 @@ import com.metoo.nrsm.core.config.utils.gather.strategy.DataCollectionStrategy;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
 import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.ITrafficService;
-import com.metoo.nrsm.core.service.IUnitService;
+import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Traffic;
-import com.metoo.nrsm.entity.Unit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,15 +35,15 @@ import java.util.Map;
 @Component
 public class TrafficByGatewayCollectionStrategy implements DataCollectionStrategy {
 
-    private final IUnitService unitService;
+    private final IFlowUnitService flowUnitService;
     private final IGatewayService gatewayService;
     private final ITrafficService trafficService;
     private final PyExecUtils pyExecUtils;
 
     @Autowired
-    public TrafficByGatewayCollectionStrategy(IUnitService unitService, IGatewayService gatewayService, ITrafficService trafficService,
+    public TrafficByGatewayCollectionStrategy(IFlowUnitService flowUnitService, IGatewayService gatewayService, ITrafficService trafficService,
                                               PyExecUtils pyExecUtils) {
-        this.unitService = unitService;
+        this.flowUnitService = flowUnitService;
         this.gatewayService = gatewayService;
         this.trafficService = trafficService;
         this.pyExecUtils = pyExecUtils;
@@ -62,11 +62,11 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                 Map params = new HashMap();
                 params.put("hidden", false);
                 params.put("gatewayId", gateway.getId());
-                List<Unit> units = unitService.selectObjByMap(params);
+                List<FlowUnit> units = flowUnitService.selectObjByMap(params);
                 if (units.size() <= 0) {
                     return;
                 } else {
-                    Unit unit = units.get(0);
+                    FlowUnit unit = units.get(0);
                     vlanNum = unit.getVlanNum();
                     pattern = unit.getPattern();
                 }
@@ -87,7 +87,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
 
                 String result = this.pyExecUtils.exec(pyCommand);
                 if (StringUtil.isNotEmpty(result)) {
-                    for (Unit unit : units) {
+                    for (FlowUnit unit : units) {
                         try {
                             // 根据pattern，判断使用哪种方式获取流量
                             if (pattern.equals("1")) {
@@ -104,7 +104,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        unitService.update(unit);
+                        flowUnitService.update(unit);
                     }
                 }
             }
@@ -113,7 +113,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
         }
     }
 
-    public void insertTraffic2(String data, Unit unit, Date date) {
+    public void insertTraffic2(String data, FlowUnit unit, Date date) {
         if (StringUtil.isNotEmpty(data)) {
             JSONArray jsonArray = JSONArray.parseArray(data);
             if (jsonArray.size() > 0) {
@@ -174,7 +174,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
         }
     }
 
-    public void insertTrafficYingTan(String data, Unit unit, Date date) {
+    public void insertTrafficYingTan(String data, FlowUnit unit, Date date) {
 
         log.info("traffic - data - start ==========================");
         if (StringUtil.isNotEmpty(data)) {

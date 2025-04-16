@@ -15,7 +15,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class UnitDTO extends PageDto<Unit> {
+public class UnitNewDTO extends PageDto<Unit> {
 
     private Long id;
     private Date addTime;
@@ -28,6 +28,5 @@ public class UnitDTO extends PageDto<Unit> {
     private Long gatewayId;
     private String pattern;
     private Integer deleteStatus;
-    private boolean flag;
 
 }

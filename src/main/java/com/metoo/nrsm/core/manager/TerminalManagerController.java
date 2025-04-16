@@ -12,7 +12,6 @@ import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.*;
-import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ public class TerminalManagerController {
     @Autowired
     private TerminalMacIpv6Mapper terminalMacIpv6Mapper;
     @Autowired
-    private IUnit2Service unit2Service;
+    private IUnitService unitService;
 
     @GetMapping("/vdt")
     public Result vdt(String ip){
@@ -136,7 +135,7 @@ public class TerminalManagerController {
 ////            macUtils.terminalJoint(terminalUnit.getTerminalList());
 ////        }
 //        return ResponseUtil.ok(terminalUnitList);
-////        Result result = this.unit2Service.selectAllQuery();
+////        Result result = this.unitService.selectAllQuery();
 ////        return result;
 //    }
 
@@ -213,7 +212,7 @@ public class TerminalManagerController {
         List<Project> projectList = this.projectService.selectObjByMap(params);
         data.put("project", projectList);
 
-        List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+        List<Unit> unit2s = this.unitService.selectUnitAll();
         data.put("unitList", unit2s);
 
         return ResponseUtil.ok(data);
@@ -256,7 +255,7 @@ public class TerminalManagerController {
         List<Project> projectList = this.projectService.selectObjByMap(params);
         data.put("project", projectList);
 
-        List<Unit2> unit2s = this.unit2Service.selectUnitAll();
+        List<Unit> unit2s = this.unitService.selectUnitAll();
         data.put("unitList", unit2s);
 
 

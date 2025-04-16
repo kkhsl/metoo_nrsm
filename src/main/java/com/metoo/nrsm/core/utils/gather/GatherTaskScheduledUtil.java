@@ -91,7 +91,7 @@ public class GatherTaskScheduledUtil {
                 generalLog.put("第二步：", "获取锁");
                 try {
                     Long time = System.currentTimeMillis();
-                    log.info("Unit traffic start=================================");
+                    log.info("FlowUnit traffic start=================================");
                     try {
 
                         generalLog.put("第三步：", "流量推送开始");
@@ -101,7 +101,7 @@ public class GatherTaskScheduledUtil {
                         log.error("Error unit traffic =================================" + e.getMessage());
                     }
                     generalLog.put("第五步：", "采集结束");
-                    log.info("Unit traffic end=================================" + (System.currentTimeMillis()-time));
+                    log.info("FlowUnit traffic end=================================" + (System.currentTimeMillis()-time));
                 } finally {
                     lock.unlock();
                     generalLog.put("第六步：", "释放锁");
@@ -110,7 +110,7 @@ public class GatherTaskScheduledUtil {
                         String data = JSONObject.toJSONString(generalLog);
                         apiService.general(data);
                     } catch (Exception e) {
-                        log.info("Unit traffic error =================================" + e.getMessage());
+                        log.info("FlowUnit traffic error =================================" + e.getMessage());
                         generalLog.put("第七步：", e.getMessage());
                     }
                 }
@@ -125,13 +125,13 @@ public class GatherTaskScheduledUtil {
 //            if (lock.tryLock()) {
 //                try {
 //                    Long time = System.currentTimeMillis();
-//                    log.info("Unit traffic Start=================================");
+//                    log.info("FlowUnit traffic Start=================================");
 //                    try {
 //                        apiExecUtils.exec();
 //                    } catch (Exception e) {
 //                        log.error("Error unit traffic =================================" + e.getMessage());
 //                    }
-//                    log.info("Unit traffic End=================================" + (System.currentTimeMillis()-time));
+//                    log.info("FlowUnit traffic End=================================" + (System.currentTimeMillis()-time));
 //                } finally {
 //                    lock.unlock();
 //                }

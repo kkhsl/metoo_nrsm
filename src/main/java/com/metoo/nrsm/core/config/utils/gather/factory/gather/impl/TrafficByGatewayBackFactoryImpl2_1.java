@@ -10,11 +10,11 @@ import com.metoo.nrsm.core.config.utils.gather.factory.gather.utils.GeneraFlowUt
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
 import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.ITrafficService;
-import com.metoo.nrsm.core.service.IUnitService;
+import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Traffic;
-import com.metoo.nrsm.entity.Unit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
 
     public void executeMethod() {
         log.info("unit exec traffic start...");
-        IUnitService unitService = (IUnitService) ApplicationContextUtils.getBean("unitServiceImpl");
+        IFlowUnitService flowUnitService = (IFlowUnitService) ApplicationContextUtils.getBean("flowUnitServiceImpl");
         IGatewayService gatewayService = (IGatewayService) ApplicationContextUtils.getBean("gatewayServiceImpl");
         PyExecUtils pyExecUtils = (PyExecUtils) ApplicationContextUtils.getBean("pyExecUtils");
 
@@ -45,11 +45,11 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                         Map params = new HashMap();
                         params.put("hidden", false);
                         params.put("gatewayId", gateway.getId());
-                        List<Unit> units = unitService.selectObjByMap(params);
+                        List<FlowUnit> units = flowUnitService.selectObjByMap(params);
                         if (units.size() <= 0) {
                             return;
                         } else {
-                            Unit unit = units.get(0);
+                            FlowUnit unit = units.get(0);
                             vlanNum = unit.getVlanNum();
                             pattern = unit.getPattern();
                         }
@@ -73,7 +73,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                         log.info("vlanNum: pattern: result: ================= {} {} {}", vlanNum, pattern, result);
 
                         if (StringUtil.isNotEmpty(result)) {
-                            for (Unit unit : units) {
+                            for (FlowUnit unit : units) {
                                 try {
                                     // 根据pattern，判断使用哪种方式获取流量
                                     if (pattern.equals("1")) {
@@ -84,7 +84,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                                unitService.update(unit);
+                                flowUnitService.update(unit);
                             }
                         }
                     }
@@ -98,7 +98,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
     }
 
 
-    public void insertTraffic(String data, Unit unit, Date date) {
+    public void insertTraffic(String data, FlowUnit unit, Date date) {
         log.info("Traffic data start ==========================");
 
         if (StringUtil.isNotEmpty(data)) {

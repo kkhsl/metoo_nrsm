@@ -10,12 +10,12 @@ import com.metoo.nrsm.core.config.utils.gather.strategy.DataCollectionStrategy;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
 import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.ITrafficService;
-import com.metoo.nrsm.core.service.IUnitService;
+import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.api.ApiService;
+import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Traffic;
-import com.metoo.nrsm.entity.Unit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,15 +36,15 @@ import java.util.Date;
 @Component
 public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
-    private final IUnitService unitService;
+    private final IFlowUnitService flowUnitService;
     private final IGatewayService gatewayService;
     private final ITrafficService trafficService;
     private final PyExecUtils pyExecUtils;
 
     @Autowired
-    public TrafficCollectionStrategy(IUnitService unitService, IGatewayService gatewayService, ITrafficService trafficService,
+    public TrafficCollectionStrategy(IFlowUnitService flowUnitService, IGatewayService gatewayService, ITrafficService trafficService,
                                      PyExecUtils pyExecUtils) {
-        this.unitService = unitService;
+        this.flowUnitService = flowUnitService;
         this.gatewayService = gatewayService;
         this.trafficService = trafficService;
         this.pyExecUtils = pyExecUtils;
@@ -53,7 +53,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
     @Override
     public void collectData(Context context) {
         try {
-            Unit unit = (Unit) context.getEntity();
+            FlowUnit unit = (FlowUnit) context.getEntity();
             Date date = context.getAddTime();
             if (unit != null) {
 //                unit.setHidden(false);
@@ -96,7 +96,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                         }
                     }
                 }
-                unitService.update(unit);
+                flowUnitService.update(unit);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,7 +107,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
 
 
-    public void insertTrafficYingTan(String outData, String inData, Unit unit, Date date){
+    public void insertTrafficYingTan(String outData, String inData, FlowUnit unit, Date date){
 
         double vfourFlow = vfourFlow(outData, inData, unit, date);
         double vsixFlow = vsixFlow(outData, inData, unit, date);
@@ -137,7 +137,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
 
 
-    public double vfourFlow(String outData, String inData, Unit unit, Date date){
+    public double vfourFlow(String outData, String inData, FlowUnit unit, Date date){
         double vfourFlowOut = vfourFlowOut(outData, unit, date);
 
         return 0;
@@ -147,7 +147,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
 
 
-    public double vsixFlow(String data, String inData, Unit unit, Date date){
+    public double vsixFlow(String data, String inData, FlowUnit unit, Date date){
         double vsixFlowOut = vsixFlowOut(data, unit, date);
 
         return 0;
@@ -155,7 +155,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
 
     // 共享
-    public double vfourFlowOut(String outData, Unit unit, Date date){
+    public double vfourFlowOut(String outData, FlowUnit unit, Date date){
         double ipv4Outbound = 0;
         if(StringUtil.isNotEmpty(outData)) {
             JSONArray jsonArray = JSONArray.parseArray(outData);
@@ -181,7 +181,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
     }
 
 
-    public double vsixFlowOut(String outData, Unit unit, Date date){
+    public double vsixFlowOut(String outData, FlowUnit unit, Date date){
         double ipv6Outbound = 0;
         if(StringUtil.isNotEmpty(outData)){
             JSONArray jsonArray = JSONArray.parseArray(outData);
@@ -211,11 +211,11 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
     @Test
     public void test(){
         String data = "[{\"Type\": \"sum-ipv4-out\", \"1/7\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"1/8\": {\"1\": \"1640\", \"2\": \"0\", \"3\": \"16\", \"4\": \"0\", \"5\": \"37720\", \"6\": \"0\"}, \"2/7\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"2/8\": {\"1\": \"4040\", \"2\": \"0\", \"3\": \"8\", \"4\": \"0\", \"5\": \"1864\", \"6\": \"0\"}}, {\"Type\": \"sum-ipv6-out\", \"1/7\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"1/8\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"2/7\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"2/8\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"32\", \"6\": \"0\"}}, {\"Type\": \"sum-ipv4-in\", \"1/7\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}, \"1/8\": {\"1\": \"61040\", \"3\": \"8\", \"5\": \"60112\"}, \"2/7\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}, \"2/8\": {\"1\": \"272\", \"3\": \"0\", \"5\": \"124560\"}}, {\"Type\": \"sum-ipv6-in\", \"1/7\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}, \"1/8\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"24\"}, \"2/7\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}, \"2/8\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}}]";
-        insertTrafficYingTan(data, new Unit(), new Date());
+        insertTrafficYingTan(data, new FlowUnit(), new Date());
     }
 
 
-    public void insertTrafficYingTan(String data, Unit unit, Date date){
+    public void insertTrafficYingTan(String data, FlowUnit unit, Date date){
 
         log.info("traffic - data - start ==========================");
         if(StringUtil.isNotEmpty(data)){
@@ -378,7 +378,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
 
     // 共享
-    public void insertTraffic(String data, Unit unit, Date date){
+    public void insertTraffic(String data, FlowUnit unit, Date date){
         if(StringUtil.isNotEmpty(data)){
             JSONArray jsonArray = JSONArray.parseArray(data);
             String rule = unit.getRule();
@@ -499,7 +499,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 //        return 0 ;
     }
 
-    public void insertTraffic2(String data, Unit unit, Date date){
+    public void insertTraffic2(String data, FlowUnit unit, Date date){
         if(StringUtil.isNotEmpty(data)){
             JSONArray jsonArray = JSONArray.parseArray(data);
             if(jsonArray.size() > 0){
