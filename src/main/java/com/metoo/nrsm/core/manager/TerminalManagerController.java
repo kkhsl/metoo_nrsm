@@ -17,6 +17,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,32 +44,6 @@ public class TerminalManagerController {
     private TerminalMacIpv6Mapper terminalMacIpv6Mapper;
     @Autowired
     private IUnitService unitService;
-
-    @GetMapping("/vdt")
-    public Result vdt(String ip){
-        if(StringUtils.isNotEmpty(ip)){
-            Map params = new HashMap();
-            params.put("deviceIp", ip);
-            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-            // 写入终端的设备名
-            if(!terminals.isEmpty()){
-                for (Terminal terminal : terminals) {
-                    params.clear();
-                    params.put("deviceUuid", terminal.getDeviceUuid());
-                    params.put("deviceTypeId", 34);
-                    List<Terminal> vmHosts = this.terminalService.selectObjByMap(params);
-                    if(!vmHosts.isEmpty()){
-                        DeviceType deviceType = this.deviceTypeService.selectObjById(34L);
-                        if(deviceType != null){
-                            terminal.setDeviceName(deviceType.getName());
-                        }
-                    }
-                }
-                return ResponseUtil.ok(terminals);
-            }
-        }
-      return ResponseUtil.ok();
-    }
 
     @PostMapping("/list")
     public Object list(@RequestBody TerminalDTO dto){
@@ -106,7 +81,6 @@ public class TerminalManagerController {
                         e.setProjectName(project.getName());
                     }
                 }
-                macUtils.terminalSetMacVendor(e);
             });
         }
         Map map = new HashMap();
@@ -118,7 +92,7 @@ public class TerminalManagerController {
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(params);
         map.put("deviceTypeList", deviceTypeList);
         // 品牌
-        List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
+        List<Vendor> vendors = this.vendorService.selectConditionQuery(Collections.emptyMap());
         map.put("vendor", vendors);
         // 项目
         params.clear();
@@ -126,6 +100,33 @@ public class TerminalManagerController {
         map.put("project", projectList);
 
         return ResponseUtil.ok(new PageInfo<Terminal>(page, map));
+    }
+
+
+    @GetMapping("/vdt")
+    public Result vdt(String ip){
+        if(StringUtils.isNotEmpty(ip)){
+            Map params = new HashMap();
+            params.put("deviceIp", ip);
+            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+            // 写入终端的设备名
+            if(!terminals.isEmpty()){
+                for (Terminal terminal : terminals) {
+                    params.clear();
+                    params.put("deviceUuid", terminal.getDeviceUuid());
+                    params.put("deviceTypeId", 34);
+                    List<Terminal> vmHosts = this.terminalService.selectObjByMap(params);
+                    if(!vmHosts.isEmpty()){
+                        DeviceType deviceType = this.deviceTypeService.selectObjById(34L);
+                        if(deviceType != null){
+                            terminal.setDeviceName(deviceType.getName());
+                        }
+                    }
+                }
+                return ResponseUtil.ok(terminals);
+            }
+        }
+        return ResponseUtil.ok();
     }
 
 //    @GetMapping("/unit")

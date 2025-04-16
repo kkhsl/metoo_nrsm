@@ -124,6 +124,16 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
+    public List<Terminal> selectCustomPartitionByMap(Map params) {
+        return this.terminalMapper.selectCustomPartitionByMap(params);
+    }
+
+    @Override
+    public List<Terminal> selectCustomPartitionHistoryByMap(Map params) {
+        return this.terminalMapper.selectCustomPartitionHistoryByMap(params);
+    }
+
+    @Override
     public boolean updateVMHostDeviceType() {
         try {
             this.terminalMapper.updateVMHostDeviceType();

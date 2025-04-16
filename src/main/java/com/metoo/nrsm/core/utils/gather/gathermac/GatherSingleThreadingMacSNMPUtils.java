@@ -379,8 +379,8 @@ public class GatherSingleThreadingMacSNMPUtils {
      */
     private void updateTerminalInfo(Date date) {
         try {
-//            terminalService.syncTerminal(date);
-          this.terminalService.v4Tov6Terminal(date);// 政务外网
+            terminalService.syncTerminal(date);
+//          this.terminalService.v4Tov6Terminal(date);// 政务外网
 
             // 政务外网
             // 根据vendor判断终端类型

@@ -42,6 +42,10 @@ public interface TerminalMapper {
 
     List<Terminal> selectHistoryNSwitchToTopology(Map params);
 
+    List<Terminal> selectCustomPartitionByMap(Map params);
+
+    List<Terminal> selectCustomPartitionHistoryByMap(Map params);
+
     int save(Terminal instance);
 
     int update(Terminal instance);

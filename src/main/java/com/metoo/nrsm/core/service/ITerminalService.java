@@ -34,6 +34,10 @@ public interface ITerminalService {
 
     List<Terminal> selectHistoryNSwitchToTopology(Map params);
 
+    List<Terminal> selectCustomPartitionByMap(Map params);
+
+    List<Terminal> selectCustomPartitionHistoryByMap(Map params);
+
     boolean updateVMHostDeviceType();
 
     boolean updateVMDeviceType();

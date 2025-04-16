@@ -170,8 +170,7 @@ public class TerminalManagerControllerApi {
                         entry.getValue().stream().forEach(m -> {
                             params.clear();
                             params.put("mac", m);
-                            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-                            macUtils.terminalJoint(terminals);
+                            List<Terminal> terminals = this.terminalService.selectCustomPartitionByMap(params);
                             if (terminals.size() > 0) {
                                 Terminal terminal = terminals.get(0);
                                 DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
@@ -202,10 +201,8 @@ public class TerminalManagerControllerApi {
                             params.clear();
                             params.put("mac", m);
                             params.put("time", param.get("time"));
-                            List<Terminal> terminals = this.terminalService.selectObjHistoryByMap(params);
-                            macUtils.terminalJoint(terminals);
+                            List<Terminal> terminals = this.terminalService.selectCustomPartitionHistoryByMap(params);
                             if (terminals.size() > 0) {
-
                                 Terminal terminal = terminals.get(0);
                                 DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
                                 if (deviceType != null) {

@@ -11,6 +11,9 @@
     <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalDTO" resultType="com.metoo.nrsm.entity.Terminal">
         select * from metoo_terminal terminal
         <where>
+            <!-- 默认条件 -->
+            ((d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
+            or (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != ''))
             <if test="filter != null and filter != ''">
                 <bind name="pattern" value="'%' + filter + '%'"/>
                 OR terminal.v4ip
@@ -75,6 +78,7 @@
             <if test="deviceUuid != null and deviceUuid != ''">
                 AND deviceUuid = #{deviceUuid}
             </if>
+
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
     </select>
@@ -250,49 +254,64 @@
     <select id="selectPartitionTerminal" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
         SELECT *
         FROM metoo_terminal
-        WHERE deviceUuid = #{deviceUuid} AND online = 1
-
+        WHERE deviceUuid = #{deviceUuid}
+        AND online = 1
+        AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
+        OR (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
         UNION
-
         SELECT *
         FROM metoo_terminal
         WHERE deviceUuid2 = #{deviceUuid}
         AND deviceTypeId = 34
         AND online = 1
+       AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
+        OR (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
     </select>
 
     <select id="selectPartitionTerminalHistory" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
-        SELECT *
-        FROM metoo_terminal_history
-        WHERE deviceUuid = #{deviceUuid} AND online = 1
-        and `time` = (
         SELECT
-        time
+            *
         FROM
-        metoo_terminal_history
+            metoo_terminal_history
         WHERE
-        `time` &lt;= #{time}
-        ORDER BY `time` DESC limit 1
+            deviceUuid = #{deviceUuid}
+        AND ONLINE = 1
+        AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
+        OR (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
+        AND `time` = (
+            SELECT
+                time
+            FROM
+                metoo_terminal_history
+            WHERE
+                `time` &lt;= #{time}
+            ORDER BY
+                `time` DESC
+            LIMIT 1
         )
-
         UNION
-
-        -- 查询 2: 使用 deviceUuid2, deviceTypeId 和 ONLINE 条件
-        SELECT *
-        FROM metoo_terminal_history
-        WHERE deviceUuid2 = #{deviceUuid}
-        AND deviceTypeId = 34
-        AND online = 1 and `time` = (
-        SELECT
-        `time`
-        FROM
-        metoo_terminal_history
-        WHERE
-        time  &lt;= #{time}
-        ORDER BY `time` DESC limit 1
-        )
+            SELECT
+                *
+            FROM
+                metoo_terminal_history
+            WHERE
+                deviceUuid2 = #{deviceUuid}
+            AND deviceTypeId = 34
+            AND ONLINE = 1
+            AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
+            OR (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
+            AND `time` = (
+                SELECT
+                    `time`
+                FROM
+                    metoo_terminal_history
+                WHERE
+                    `time` &lt;= #{time}
+                ORDER BY
+                    `time` DESC
+                limit 1
+          )
     </select>
-
 
     <select id="selectObjIntersection" resultType="com.metoo.nrsm.entity.Terminal">
          SELECT
@@ -889,48 +908,48 @@
 
     <resultMap id="NSwitch_Result_Map" type="com.metoo.nrsm.entity.Terminal">
         <id column="id" property="id"></id>
-        <id column="deviceIp" property="deviceIp"></id>
-        <id column="deviceName" property="deviceName"></id>
-        <id column="deviceUuid" property="deviceUuid"></id>
-        <id column="deviceUuid2" property="deviceUuid2"></id>
-        <id column="deviceTypeId" property="deviceTypeId"></id>
-        <id column="v4ip" property="v4ip"></id>
-        <id column="v6ip" property="v6ip"></id>
-        <id column="mac" property="mac"></id>
-        <id column="vlan" property="vlan"></id>
-        <id column="macVendor" property="macVendor"></id>
-        <id column="remoteDevice" property="remoteDevice"></id>
-        <id column="remotePort" property="remotePort"></id>
-        <id column="location" property="location"></id>
-        <id column="duty" property="duty"></id>
-        <id column="deviceType" property="deviceType"></id>
-        <id column="os" property="os"></id>
-        <id column="combined_port_protocol" property="combined_port_protocol"></id>
-        <id column="combined_vendor_gen_family" property="combined_vendor_gen_family"></id>
-        <id column="online" property="online"></id>
+        <result column="deviceIp" property="deviceIp"></result>
+        <result column="deviceName" property="deviceName"></result>
+        <result column="deviceUuid" property="deviceUuid"></result>
+        <result column="deviceUuid2" property="deviceUuid2"></result>
+        <result column="deviceTypeId" property="deviceTypeId"></result>
+        <result column="v4ip" property="v4ip"></result>
+        <result column="v6ip" property="v6ip"></result>
+        <result column="mac" property="mac"></result>
+        <result column="vlan" property="vlan"></result>
+        <result column="macVendor" property="macVendor"></result>
+        <result column="remoteDevice" property="remoteDevice"></result>
+        <result column="remotePort" property="remotePort"></result>
+        <result column="location" property="location"></result>
+        <result column="duty" property="duty"></result>
+        <result column="deviceType" property="deviceType"></result>
+        <result column="os" property="os"></result>
+        <result column="combined_port_protocol" property="combined_port_protocol"></result>
+        <result column="combined_vendor_gen_family" property="combined_vendor_gen_family"></result>
+        <result column="online" property="online"></result>
         <collection property="terminalList" ofType="com.metoo.nrsm.entity.Terminal">
             <id column="d2_id" property="id"></id>
-            <id column="d2_deviceIp" property="deviceIp"></id>
-            <id column="d2_deviceName" property="deviceName"></id>
-            <id column="d2_deviceUuid" property="deviceUuid"></id>
-            <id column="d2_deviceUuid2" property="deviceUuid2"></id>
-            <id column="d2_deviceTypeId" property="deviceTypeId"></id>
-            <id column="d2_v4ip" property="v4ip"></id>
-            <id column="d2_v6ip" property="v6ip"></id>
-            <id column="d2_mac" property="mac"></id>
-            <id column="d2_vlan" property="vlan"></id>
-            <id column="d2_macVendor" property="macVendor"></id>
-            <id column="d2_remoteDevice" property="remoteDevice"></id>
-            <id column="d2_remotePort" property="remotePort"></id>
-            <id column="d2_location" property="location"></id>
-            <id column="d2_duty" property="duty"></id>
-            <id column="d2_deviceType" property="deviceType"></id>
-            <id column="d2_os" property="os"></id>
-            <id column="d2_online" property="online"></id>
+            <result column="d2_deviceIp" property="deviceIp"></result>
+            <result column="d2_deviceName" property="deviceName"></result>
+            <result column="d2_deviceUuid" property="deviceUuid"></result>
+            <result column="d2_deviceUuid2" property="deviceUuid2"></result>
+            <result column="d2_deviceTypeId" property="deviceTypeId"></result>
+            <result column="d2_v4ip" property="v4ip"></result>
+            <result column="d2_v6ip" property="v6ip"></result>
+            <result column="d2_mac" property="mac"></result>
+            <result column="d2_vlan" property="vlan"></result>
+            <result column="d2_macVendor" property="macVendor"></result>
+            <result column="d2_remoteDevice" property="remoteDevice"></result>
+            <result column="d2_remotePort" property="remotePort"></result>
+            <result column="d2_location" property="location"></result>
+            <result column="d2_duty" property="duty"></result>
+            <result column="d2_deviceType" property="deviceType"></result>
+            <result column="d2_os" property="os"></result>
+            <result column="d2_online" property="online"></result>
         </collection>
     </resultMap>
 
-    <select id="selectNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
+    <select id="selectNSwitchToTopology" parameterType="java.util.Map" resultMap="NSwitch_Result_Map">
           SELECT
               d1.id,
               null as deviceIp,
@@ -981,7 +1000,8 @@
                     deviceUuid
                 )d1
             JOIN metoo_terminal d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
-            WHERE d2.deviceName LIKE 'NSwitch%' AND d2.online = 1
+            WHERE d2.deviceName LIKE 'NSwitch%' AND d2.online = 1  AND  ((d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
+            or (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != ''))
     </select>
 
     <select id="selectHistoryNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
@@ -1057,7 +1077,61 @@
         WHERE
         `time` &lt;= #{time}
         ORDER BY `time` DESC limit 1
-        )
+        ) AND  ((d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
+            or (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != ''))
+    </select>
+
+
+    <select id="selectCustomPartitionByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+        select * from metoo_terminal
+        <where>
+            <!-- 默认条件 -->
+            ((d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
+            or (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != ''))
+            <if test="mac != null and mac != ''">
+                AND mac = #{mac}
+            </if>
+        </where>
+        ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+    </select>
+
+    <select id="selectCustomPartitionHistoryByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+        select * from metoo_terminal_history
+        <where>
+            <if test="deviceIp != null and deviceIp != ''">
+                AND deviceIp = #{deviceIp}
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
+            <if test="deviceIp2 != null and deviceIp2 != ''">
+                AND deviceIp2 = #{deviceIp2}
+            </if>
+            <if test="deviceUuid2 != null and deviceUuid2 != ''">
+                OR deviceUuid2 = #{deviceUuid2}
+            </if>
+            <if test="deviceUuidAndDeviceTypeId != null and deviceUuidAndDeviceTypeId != ''">
+                or (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34)
+            </if>
+            <if test="mac != null and mac != ''">
+                AND mac = #{mac}
+            </if>
+            <if test="online != null">
+                AND online = #{online}
+            </if>
+            <if test="time != null">
+                AND `time` = (
+                SELECT
+                `time`
+                FROM
+                metoo_terminal_history
+                WHERE
+                time &lt;= #{time}
+                ORDER BY `time` DESC limit 1
+                )
+            </if>
+        </where>
+        ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Terminal" keyProperty="id" keyColumn="id" useGeneratedKeys="true">

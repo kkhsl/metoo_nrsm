@@ -3,7 +3,9 @@ package com.metoo.nrsm.core.manager;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
+import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
+import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -36,6 +38,8 @@ public class TestController {
 
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private ITerminalService terminalService;
 
     @GetMapping("getDHCP")
     public String getDHCP(){
@@ -55,6 +59,19 @@ public class TestController {
         log.info("流量数据", traffic);
         return traffic;
     }
+
+    @GetMapping("nswitchList")
+    public List<Terminal> nswitchList(String uuid){
+        Map params = new HashMap();
+        params.clear();
+        params.put("deviceUuid", uuid);
+        List<Terminal> nswitchList = terminalService.selectNSwitchToTopology(params);
+        return nswitchList;
+    }
+
+
+
+
 //
 //    public static void main(String[] args) {
 //        SystemInfo systemInfo = new SystemInfo();
