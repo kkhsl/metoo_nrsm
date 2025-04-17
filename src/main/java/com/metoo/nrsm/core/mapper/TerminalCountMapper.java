@@ -11,6 +11,8 @@ import java.util.Map;
 @Mapper
 public interface TerminalCountMapper {
 
+    TerminalCount selectObjByMap(Map params);
+
     TerminalCount selectHistoryObjByMap(Map params);
 
     int save(TerminalCount instance);

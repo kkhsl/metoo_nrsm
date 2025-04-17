@@ -91,11 +91,11 @@
               <!--res.level = 0-->
         <!--ORDER BY res.sequence ASC,res2.sequence ASC-->
         SELECT
-        res.id, res.name, res.value, res.sequence, res.componentName, res.icon,
-        res.url, res.component, res.hidden, res.level,
-        res2.id res2_id, res2.name res2_name, res2.value res2_value, res2.url res2_url,
-        res2.component res_component, res2.sequence res2_sequence, res2.componentName res2_componentName,
-        res2.icon res2_icon, res2.hidden res2_hidden
+            res.id, res.name, res.value, res.sequence, res.componentName, res.icon,
+            res.url, res.component, res.hidden, res.level,
+            res2.id res2_id, res2.name res2_name, res2.value res2_value, res2.url res2_url,
+            res2.component res_component, res2.sequence res2_sequence, res2.componentName res2_componentName,
+            res2.icon res2_icon, res2.hidden res2_hidden
         FROM
         metoo_res res
         LEFT JOIN (

@@ -460,7 +460,7 @@ public class GatherServiceImpl implements IGatherService {
                 }
                 count++;
 
-                GatherDataThreadPool.getInstance().addThread(new GatherIpV6Runnable(networkElement, date, latch));
+                GatherDataThreadPool.getInstance().addThread(new GatherIpV6SNMPRunnable(networkElement, date, latch));
 
                 logMessages.put("IPv6 ARP：" + networkElement.getIp(), "采集完成");
             }
@@ -558,8 +558,8 @@ public class GatherServiceImpl implements IGatherService {
                     latch.countDown();
                     continue;
                 }
-                GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6Runnable(networkElement, date, latch));
-//                GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6SNMPRunnable(networkElement, date, latch));
+//                GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6Runnable(networkElement, date, latch));
+                GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6SNMPRunnable(networkElement, date, latch));
 
             }
 

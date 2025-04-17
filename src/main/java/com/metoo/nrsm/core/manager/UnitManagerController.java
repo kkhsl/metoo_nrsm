@@ -26,7 +26,7 @@ import java.util.List;
 public class UnitManagerController {
 
     @Autowired
-    private IUnitService unitNewService;
+    private IUnitService unitService;
     @Autowired
     private IUserService userService;
     @Autowired
@@ -36,19 +36,19 @@ public class UnitManagerController {
 
     @PostMapping("/list")
     public Result list(@RequestBody(required=false) UnitNewDTO dto){
-        Result result = this.unitNewService.selectObjConditionQuery(dto);
+        Result result = this.unitService.selectObjConditionQuery(dto);
         return result;
     }
 
     @GetMapping("/selectAll")
     public Result selectAll(){
-        Result result = this.unitNewService.selectAllQuery();
+        Result result = this.unitService.selectAllQuery();
         return result;
     }
 
     @PostMapping("/save")
     public Result save(@RequestBody Unit instance){
-        Result result = this.unitNewService.save(instance);
+        Result result = this.unitService.save(instance);
         return result;
     }
 
@@ -72,7 +72,7 @@ public class UnitManagerController {
         List<String> errors = new ArrayList<>();
 
         for (Long id : checkIds) {
-            Unit unit = unitNewService.selectObjById(id);
+            Unit unit = unitService.selectObjById(id);
             if (unit == null) {
                 errors.add("单位不存在: " + id);
                 continue;
@@ -109,7 +109,7 @@ public class UnitManagerController {
         // 执行逻辑删除
         for (Unit unit : unitsToDelete) {
             unit.setDeleteStatus(1);
-            unitNewService.update(unit);
+            unitService.update(unit);
         }
 
         return ResponseUtil.ok("删除成功");

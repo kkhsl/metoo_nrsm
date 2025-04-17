@@ -86,7 +86,8 @@ public class IndexManagerController {
 
         networkElements.forEach(ne -> {
             boolean hasIp = ne.getIp() != null && !ne.getIp().isEmpty();
-            boolean hasIpv6 = ne.getV6ip() != null && !ne.getV6ip().isEmpty();
+//            boolean hasIpv6 = ne.isIsipv6() != null && !ne.getV6ip().isEmpty();
+            boolean hasIpv6 = ne.isIsipv6();
 
             String key;
             if (hasIp && hasIpv6) {

@@ -50,6 +50,9 @@ public class GatherSingleThreadingMacSNMPUtils {
     private IDeviceTypeService deviceTypeService;
     @Autowired
     private PythonExecUtils pythonExecUtils;
+    @Autowired
+    private MacManager macManager;
+
     private static final String MAC_PREFIX = "00:00:5e"; // 常量定义，避免硬编码
 
     // 单线程采集
@@ -81,7 +84,10 @@ public class GatherSingleThreadingMacSNMPUtils {
 
                 // TODO 多余，查询设备时已经查询了是否存在
                 log.info("MAC：" + networkElement.getIp() + "设备加入线程");
-                GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
+//                GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
+
+                macManager.getMac(networkElement, date);
+
 //                String hostName = getHostNameSNMP(networkElement);
 //                if (StringUtils.isNotEmpty(hostName)) {
 //                    processNetworkElementData(networkElement, hostName, date);

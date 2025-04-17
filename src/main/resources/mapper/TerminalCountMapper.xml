@@ -4,17 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.TerminalCountMapper">
 
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.TerminalCount">
+        select * from metoo_terminal_count order by addTime desc limit 1
+    </select>
+
     <select id="selectHistoryObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.TerminalCount">
         select * from metoo_terminal_count
         <where>
             <if test="time != null">
                 AND addTime = (
                 SELECT
-                addTime
+                  addTime
                 FROM
-                metoo_terminal_history
+                  metoo_terminal_history
                 WHERE
-                addTime &lt;= #{time}
+                  addTime &lt;= #{time}
                 ORDER BY addTime DESC limit 1
                 )
             </if>

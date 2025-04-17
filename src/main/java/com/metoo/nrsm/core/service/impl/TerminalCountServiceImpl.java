@@ -29,6 +29,11 @@ public class TerminalCountServiceImpl implements ITerminalCountService {
     private TerminalCountMapper terminalCountMapper;
 
     @Override
+    public TerminalCount selectObjByMap(Map params) {
+        return this.terminalCountMapper.selectObjByMap(params);
+    }
+
+    @Override
     public TerminalCount selectHistoryObjByMap(Map params) {
         return this.terminalCountMapper.selectHistoryObjByMap(params);
     }

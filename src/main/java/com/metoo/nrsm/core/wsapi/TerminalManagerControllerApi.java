@@ -248,9 +248,7 @@ public class TerminalManagerControllerApi {
         Map params = new HashMap();
         TerminalCount terminalCount = null;
         if(requestParam.get("time") == null || StringUtil.isEmpty(String.valueOf(requestParam.get("time")))){
-            params.clear();
-            params.put("time", DateTools.gatherDate());
-            terminalCount = this.terminalCountService.selectHistoryObjByMap(params);
+            terminalCount = this.terminalCountService.selectObjByMap(Collections.emptyMap());
         }else{
             params.clear();
             params.put("time", requestParam.get("time"));
