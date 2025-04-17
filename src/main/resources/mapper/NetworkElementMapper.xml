@@ -5,6 +5,7 @@
     <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.NetworkElement">
         <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long"></id>
         <result column="addTime" property="addTime"></result>
+        <result column="updateTime" property="updateTime"></result>
         <result column="deleteStatus" property="deleteStatus"></result>
         <result column="ip" property="ip"></result>
         <result column="device_name" property="deviceName"></result>
@@ -43,7 +44,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, addTime, deleteStatus, ip, v6ip, device_name, group_id, group_name,
+        id, addTime,updateTime, deleteStatus, ip, v6ip, device_name, group_id, group_name,
          device_type_id, device_type_name, vendor_id, vendor_name, description, user_id, user_name,
          uuid, interface_name, interface_names, flux, connect_type, port, credential_id,
          web_url, permit_connect, community, version, sync_device
@@ -231,6 +232,9 @@
             <if test="addTime != null">
                 addTime,
             </if>
+            <if test="updateTime != null">
+                updateTime,
+            </if>
             <if test="deleteStatus != null and deleteStatus != ''">
                 deleteStatus,
             </if>
@@ -337,6 +341,9 @@
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
                 #{addTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
             </if>
             <if test="deleteStatus != null and deleteStatus != ''">
                 #{deleteStatus},
@@ -445,13 +452,14 @@
 
     <insert id="batchInsert" parameterType="java.util.List">
         INSERT INTO metoo_ne(
-        addTime, uuid, device_name, interface_name, ip, v6ip,
+        addTime,updateTime, uuid, device_name, interface_name, ip, v6ip,
         vendor_id, vendor_name,
         device_type_id, device_type_name, description, user_id, user_name, version, community, type)
         VALUES
         <foreach collection="list" item="item" separator=",">
             (
                 #{item.addTime},
+                #{updateTime},
                 #{item.uuid},
                 #{item.deviceName},
                 #{item.interfaceName},
@@ -477,6 +485,9 @@
         <set>
             <if test="addTime != null">
                 addTime = #{addTime},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime},
             </if>
             <if test="deleteStatus != null">
                 deleteStatus = #{deleteStatus},

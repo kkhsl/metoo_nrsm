@@ -89,6 +89,7 @@ public class NetworkElementServiceImpl implements INetworkElementService {
             }
         }else{
             try {
+                instance.setUpdateTime(new Date());
                 return this.networkElementMapper.update(instance);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -118,6 +119,7 @@ public class NetworkElementServiceImpl implements INetworkElementService {
     @Override
     public int update(NetworkElement instance) {
         try {
+            instance.setUpdateTime(new Date());
             this.networkElementMapper.update(instance);
             return 1;
         } catch (Exception e) {
