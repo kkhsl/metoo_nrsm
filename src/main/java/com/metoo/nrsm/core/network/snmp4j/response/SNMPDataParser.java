@@ -84,34 +84,35 @@ public class SNMPDataParser {
             // 分割 OID 剩余部分
             String[] parts = ipSegment.split("\\.");
 
-            if (parts.length < 18) { // 至少应有 18 个部分（去掉前两个后仍需 16 个）
-                System.err.println("Error: Invalid IPv6 OID format: " + oid);
+            if (parts.length < 16) {
+                // 处理异常：OID 字段不足，无法解析 IPv6
+                System.err.println("Invalid OID format: " + oid);
                 continue;
             }
 
-            // **移除前两个数值**（例如 `193` 和 `16`）
             String[] ipv6Parts = new String[16];
-            System.arraycopy(parts, 2, ipv6Parts, 0, 16);
+            int startIndex = parts.length - 16;  // 从后往前取16位
+            System.arraycopy(parts, startIndex, ipv6Parts, 0, 16);
 
             // **转换 IPv6 地址格式**
-            StringBuilder ipv6Address = new StringBuilder();
+            StringBuilder rawIPv6 = new StringBuilder();
             for (int i = 0; i < 16; i += 2) {
                 int part1 = Integer.parseInt(ipv6Parts[i]);
                 int part2 = Integer.parseInt(ipv6Parts[i + 1]);
-                String hexPart = String.format("%02x%02x", part1, part2);
-                ipv6Address.append(hexPart);
-                if (i < 14) ipv6Address.append(":");
+                rawIPv6.append(String.format("%02x%02x", part1, part2));
+                if (i < 14) rawIPv6.append(":");
             }
 
-            String formattedIPv6 = ipv6Address.toString();
+            // 压缩 IPv6 地址
+            String compressedIPv6 = compressIPv6(rawIPv6.toString());
 
-            // **处理 MAC 地址，确保格式正确**
+            // 处理 MAC 地址
             if (mac.isEmpty()) {
-                System.err.println("Warning: Missing MAC for IPv6: " + formattedIPv6);
+                System.err.println("Warning: Missing MAC for IPv6: " + compressedIPv6);
                 mac = "UNKNOWN";
             }
-            // **存入结果映射**
-            arpResult.put(formattedIPv6, mac);
+
+            arpResult.put(compressedIPv6, mac.toUpperCase());
         }
 
         return arpResult;
@@ -159,28 +160,30 @@ public class SNMPDataParser {
             // 分割 OID 剩余部分
             String[] parts = ipSegment.split("\\.");
 
-            if (parts.length < 18) { // 至少应有 18 个部分（去掉前两个后仍需 16 个）
-                System.err.println("Error: Invalid IPv6 OID format: " + oid);
+            if (parts.length < 16) {
+                // 处理异常：OID 字段不足，无法解析 IPv6
+                System.err.println("Invalid OID format: " + oid);
                 continue;
             }
 
-            // **移除前两个数值**（例如 `193` 和 `16`）
             String[] ipv6Parts = new String[16];
-            System.arraycopy(parts, 2, ipv6Parts, 0, 16);
+            int startIndex = parts.length - 16;  // 从后往前取16位
+            System.arraycopy(parts, startIndex, ipv6Parts, 0, 16);
 
             // **转换 IPv6 地址格式**
-            StringBuilder ipv6Address = new StringBuilder();
+            StringBuilder rawIPv6 = new StringBuilder();
             for (int i = 0; i < 16; i += 2) {
                 int part1 = Integer.parseInt(ipv6Parts[i]);
                 int part2 = Integer.parseInt(ipv6Parts[i + 1]);
-                String hexPart = String.format("%02x%02x", part1, part2);
-                ipv6Address.append(hexPart);
-                if (i < 14) ipv6Address.append(":");
+                rawIPv6.append(String.format("%02x%02x", part1, part2));
+                if (i < 14) rawIPv6.append(":");
             }
 
-            String formattedIPv6 = ipv6Address.toString();
+            // 压缩 IPv6 地址
+            String compressedIPv6 = compressIPv6(rawIPv6.toString());
+
             // **存入结果映射**
-            portV6Result.put(formattedIPv6, port);
+            portV6Result.put(compressedIPv6, port);
         }
 
         return portV6Result;
@@ -355,6 +358,83 @@ public class SNMPDataParser {
         result.put("in",in);
         // 出口流量求和
         result.put("out",out);
+        return result;
+    }
+
+
+    /**
+     * 压缩 IPv6 地址（符合 RFC 5952 标准）
+     * 示例输入：fe80000000000000025056fffe8683a2
+     * 输出：fe80::250:56ff:fe86:83a2
+     */
+    private static String compressIPv6(String rawIPv6) {
+        String[] blocks = rawIPv6.split(":");
+
+        // 1. 将全零块转换为单个 0
+        for (int i = 0; i < blocks.length; i++) {
+            if ("0000".equals(blocks[i])) {
+                blocks[i] = "0";
+            } else {
+                // 去除前导零（但至少保留一个字符）
+                blocks[i] = blocks[i].replaceFirst("^0+(?!$)", "");
+            }
+        }
+
+        // 2. 查找最长的连续零块
+        int maxZeroStart = -1;
+        int maxZeroLength = 0;
+        int currentZeroStart = -1;
+        int currentZeroLength = 0;
+
+        for (int i = 0; i < blocks.length; i++) {
+            if ("0".equals(blocks[i]) || "0000".equals(blocks[i])) {
+                if (currentZeroStart == -1) {
+                    currentZeroStart = i;
+                }
+                currentZeroLength++;
+            } else {
+                if (currentZeroLength > maxZeroLength) {
+                    maxZeroLength = currentZeroLength;
+                    maxZeroStart = currentZeroStart;
+                }
+                currentZeroStart = -1;
+                currentZeroLength = 0;
+            }
+        }
+
+        // 检查末尾的零序列
+        if (currentZeroLength > maxZeroLength) {
+            maxZeroLength = currentZeroLength;
+            maxZeroStart = currentZeroStart;
+        }
+
+        // 3. 构建压缩后的地址
+        StringBuilder compressed = new StringBuilder();
+        boolean hasCompressed = false;
+
+        for (int i = 0; i < blocks.length; ) {
+            if (i == maxZeroStart && maxZeroLength > 1) {
+                compressed.append(i == 0 ? "::" : ":");
+                hasCompressed = true;
+                i += maxZeroLength;
+            } else {
+                if (i != 0) compressed.append(":");
+                compressed.append(blocks[i]);
+                i++;
+            }
+        }
+
+        // 处理全零的特殊情况
+        if (compressed.toString().equals("0:0:0:0:0:0:0:0")) {
+            return "::";
+        }
+
+        // 处理开头或结尾的压缩标记
+        String result = compressed.toString()
+                .replaceAll("::+", "::")
+                .replaceAll("^0::", "::")
+                .replaceAll("::$", "::");
+
         return result;
     }
 
