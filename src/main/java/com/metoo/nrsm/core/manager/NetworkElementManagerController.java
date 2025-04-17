@@ -373,7 +373,7 @@ public class NetworkElementManagerController {
 
         String version = ne.getVersion();
         if ("v3".equals(version)) {
-            ne.setCommunity("");
+//            ne.setCommunity("");
         } else if ("v2c".equals(version)) {
             // 初始化 v2c 安全参数默认值
             ne.setSecurityLevel(1);

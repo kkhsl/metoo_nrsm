@@ -162,7 +162,7 @@
         JOIN metoo_terminal terminal ON unit.id = terminal.unitId
         <where>
             <!-- 默认删除状态为0 -->
-            unit.deleteStatus = #{deleteStatus,jdbcType=INTEGER,defaultValue=0}
+            unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
             <!-- 优化IP检查条件 -->
             AND (
                 NULLIF(TRIM(terminal.v4ip), '') IS NOT NULL
@@ -190,7 +190,7 @@
         JOIN metoo_terminal_history terminal ON unit.id = terminal.unitId
         <where>
             <!-- 默认删除状态为0 -->
-            unit.deleteStatus = #{deleteStatus,jdbcType=INTEGER,defaultValue=0}
+            unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
             <!-- 优化IP检查条件 -->
             AND (
                 NULLIF(TRIM(terminal.v4ip), '') IS NOT NULL

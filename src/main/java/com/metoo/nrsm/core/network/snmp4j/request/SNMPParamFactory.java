@@ -13,23 +13,28 @@ import org.snmp4j.security.SecurityLevel;
 public class SNMPParamFactory {
 
     public static SNMPV3Params createSNMPParam(NetworkElement networkElement) {
-        switch(networkElement.getVersion()) {
-            case "v1":
-                return createV1Param(networkElement.getIp(), 161, networkElement.getCommunity(), 1500, 3);
-            case "v2c":
-                return createV2cParam(networkElement.getIp(), 161, networkElement.getCommunity(), 1500, 3);
+        try {
+            switch(networkElement.getVersion()) {
+                case "v1":
+                    return createV1Param(networkElement.getIp(), 161, networkElement.getCommunity(), 1500, 3);
+                case "v2c":
+                    return createV2cParam(networkElement.getIp(), 161, networkElement.getCommunity(), 1500, 3);
 
-            case "v3":
-                if (networkElement.getSecurityLevel() == null) {
-                    throw new IllegalArgumentException("SNMPv3 requires security level");
-                }
-                return createV3Param(networkElement.getIp(), 161, networkElement.getSecurityName(), networkElement.getAuthProtocol(), networkElement.getAuthPassword(),
-                        networkElement.getPrivProtocol(), networkElement.getPrivPassword(), 1500, 3,
-                        networkElement.getSecurityLevel());
+                case "v3":
+                    if (networkElement.getSecurityLevel() == null) {
+                        throw new IllegalArgumentException("SNMPv3 requires security level");
+                    }
+                    return createV3Param(networkElement.getIp(), 161, networkElement.getSecurityName(), networkElement.getAuthProtocol(), networkElement.getAuthPassword(),
+                            networkElement.getPrivProtocol(), networkElement.getPrivPassword(), 1500, 3,
+                            networkElement.getSecurityLevel());
 
-            default:
-                throw new IllegalArgumentException("Unsupported SNMP version: " + networkElement.getVersion());
+                default:
+                    throw new IllegalArgumentException("Unsupported SNMP version: " + networkElement.getVersion());
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -298,6 +303,19 @@ public class SNMPParamFactory {
         return "";
     }
 
+
+    @Test
+    public void getArpV6() {
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version("v2c")
+                .host("192.168.0.1")
+                .port(161)
+                .community("transfar@123")
+                .build();
+
+        String result = SNMPv3Request.getDeviceArpV6(snmpv3Params);
+       log.info("arpV6:{}", result);
+    }
 
 
 }

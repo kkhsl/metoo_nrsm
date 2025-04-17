@@ -162,6 +162,9 @@ public class SNMPv3Request {
 
     // 请求发送方法（支持v3）
     public static PDU sendRequest(SNMPV3Params params, SNMP_OID oid) {
+        if(params == null){
+            return null;
+        }
         try {
             Snmp snmp = threadContext.get().snmp;
             if (snmp == null) {
@@ -187,6 +190,9 @@ public class SNMPv3Request {
 
 
     public static PDU sendStrRequest(SNMPV3Params params, String oid) {
+        if(params == null){
+            return null;
+        }
         try {
             Snmp snmp = threadContext.get().snmp;
             if (snmp == null) {
@@ -230,6 +236,9 @@ public class SNMPv3Request {
 
     // 修改GETNEXT方法
     private static Map<String, String> sendGETNEXTRequest(SNMPV3Params params, SNMP_OID snmpOid) {
+        if(params == null){
+            return null;
+        }
         Map<String, String> resultMap = new HashMap<>();
         Snmp snmp = threadContext.get().snmp;
         if (snmp == null) {
