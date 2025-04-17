@@ -41,6 +41,27 @@
             <if test="ipv6Oid != null and ipv6Oid!= ''">
                 ipv6Oid,
             </if>
+            <if test="version != null">
+                version,
+            </if>
+            <if test="securityName != null">
+                securityName,
+            </if>
+            <if test="securityLevel != null">
+                securityLevel,
+            </if>
+            <if test="authProtocol != null">
+                authProtocol,
+            </if>
+            <if test="authPassword != null">
+                authPassword,
+            </if>
+            <if test="privProtocol != null">
+                privProtocol,
+            </if>
+            <if test="privPassword != null">
+                privPassword,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -63,6 +84,27 @@
             </if>
             <if test="ipv6Oid != null and ipv6Oid!= ''">
                 #{ipv6Oid},
+            </if>
+            <if test="version != null">
+                #{version},
+            </if>
+            <if test="securityName != null">
+                #{securityName},
+            </if>
+            <if test="securityLevel != null">
+                #{securityLevel},
+            </if>
+            <if test="authProtocol != null">
+                #{authProtocol},
+            </if>
+            <if test="authPassword != null">
+                #{authPassword},
+            </if>
+            <if test="privProtocol != null">
+                #{privProtocol},
+            </if>
+            <if test="privPassword != null">
+                #{privPassword},
             </if>
         </trim>
     </insert>
@@ -90,6 +132,27 @@
             </if>
             <if test="update != null">
                 `update` = #{update},
+            </if>
+            <if test="version != null">
+                version = #{version},
+            </if>
+            <if test="securityName != null">
+                securityName = #{securityName},
+            </if>
+            <if test="securityLevel != null">
+                securityLevel = #{securityLevel},
+            </if>
+            <if test="authProtocol != null">
+                authProtocol = #{authProtocol},
+            </if>
+            <if test="authPassword != null">
+                authPassword = #{authPassword},
+            </if>
+            <if test="privProtocol != null">
+                privProtocol = #{privProtocol},
+            </if>
+            <if test="privPassword != null">
+                privPassword = #{privPassword},
             </if>
         </set>
         where id = #{id}
