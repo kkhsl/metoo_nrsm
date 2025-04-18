@@ -481,6 +481,17 @@ public class SNMPv2Request {
         return resultArray;
     }
 
+    //获取 ARPV6 表、端口和端口映射
+    public static JSONArray getArpV6(SNMPParams snmpParams) {
+        Map<String, String> arpV6Map = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP_V6);
+        String portData = SNMPv2Request.getDevicePort(snmpParams);
+        JSONObject portJson = new JSONObject(portData);
+        JSONArray resultArray = SNMPDataParser.parseDeviceArpV6(arpV6Map, portJson);
+        return resultArray;
+    }
+
+
+
     public static JSONArray getPortMac(SNMPParams snmpParams) {
         // 获取 SNMP 数据
         String macData = SNMPv2Request.getDevicePortMac(snmpParams);
@@ -552,6 +563,23 @@ public class SNMPv2Request {
             // 添加到结果数组
             resultArray.put(resultObject);
         }
+
+        return resultArray;
+    }
+
+    public static JSONArray getPortTableV6(SNMPParams snmpParams) {
+        Map<String, String> portV6Map = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_IPV6);
+        // 获取 SNMP 数据
+        String portData = SNMPv2Request.getDevicePort(snmpParams);
+        String statusData = SNMPv2Request.getDevicePortStatus(snmpParams);
+        String portDescriptionData = SNMPv2Request.getDevicePortDescription(snmpParams);
+
+        // 解析 JSON 数据
+        JSONObject portJson = new JSONObject(portData);
+        JSONObject statusJson = new JSONObject(statusData);
+        JSONObject portDescriptionJson = new JSONObject(portDescriptionData);
+
+        JSONArray resultArray = SNMPDataParser.parseDevicePortV6(portV6Map, portJson, statusJson, portDescriptionJson);
 
         return resultArray;
     }

@@ -87,7 +87,7 @@ public class GatherSingleThreadingMacSNMPUtils {
 //                GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
 //
                 macManager.getMac(networkElement, date);
-
+                latch.countDown();
 //                String hostName = getHostNameSNMP(networkElement);
 //                if (StringUtils.isNotEmpty(hostName)) {
 //                    processNetworkElementData(networkElement, hostName, date);

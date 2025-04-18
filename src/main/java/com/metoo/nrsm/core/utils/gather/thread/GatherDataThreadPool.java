@@ -39,7 +39,7 @@ import java.util.concurrent.*;
  *
  */
 
-@Component
+
 public class GatherDataThreadPool {
 
     private final ExecutorService fixedThreadPool;

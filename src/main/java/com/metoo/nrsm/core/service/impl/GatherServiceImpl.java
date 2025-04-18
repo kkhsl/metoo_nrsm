@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author HKK
@@ -68,12 +69,6 @@ public class GatherServiceImpl implements IGatherService {
     @Autowired
     private IPortIpv6Service portIpv6Service;
 
-    private final GatherDataThreadPool gatherDataThreadPool;
-
-    @Autowired
-    public GatherServiceImpl( GatherDataThreadPool gatherDataThreadPool) {
-        this.gatherDataThreadPool = gatherDataThreadPool;
-    }
 
     // 获取需要采集的设备
     public List<NetworkElement> getGatherDevice(){
@@ -290,13 +285,15 @@ public class GatherServiceImpl implements IGatherService {
                 count++;
                 logMessages.put("IPv4 ARP：" + networkElement.getIp(), "采集完成");
 
-                gatherDataThreadPool.addThread(new GatherIPv4SNMPRunnable(networkElement, date, latch));
+                GatherDataThreadPool.getInstance().addThread(new GatherIPv4SNMPRunnable(networkElement, date, latch));
 
             }
 
             try {
 
-                latch.await();
+                if(!latch.await(5, TimeUnit.MINUTES)) {
+                    log.warn("IPv4数据采集任务等待超时");
+                }
 
                 logMessages.put("IPv4 ARP 采集总数", count);
             } catch (InterruptedException e) {

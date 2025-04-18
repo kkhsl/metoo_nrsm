@@ -51,8 +51,8 @@ public class GatherPortIpv6SNMPRunnable implements Runnable{
         try {
 //            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
 //            JSONArray result = SNMPv2Request.getPortTable(snmpParams);
-            String result = SNMPv3Request.getDevicePortV6(SNMPParamFactory.createSNMPParam(networkElement));
-            if(!result.isEmpty()){
+            JSONArray result = SNMPv3Request.getPortTableV6(SNMPParamFactory.createSNMPParam(networkElement));
+            if(result != null && result.length() > 0){
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<PortIpv6> ports = objectMapper.readValue(result.toString(), new TypeReference<List<PortIpv6>>(){});
                 ports.forEach(e -> {

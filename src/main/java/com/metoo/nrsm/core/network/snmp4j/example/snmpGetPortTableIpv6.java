@@ -5,7 +5,7 @@ import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import org.json.JSONArray;
 
-public class snmpGetPortTable {
+public class snmpGetPortTableIpv6 {
 
     public static void main(String[] args) throws JsonProcessingException {
 

@@ -75,13 +75,6 @@ public class GatherTaskScheduledUtilTest {
     @Autowired
     private ITerminalService terminalService;
 
-
-    private final GatherDataThreadPool gatherDataThreadPool;
-    @Autowired
-    public GatherTaskScheduledUtilTest( GatherDataThreadPool gatherDataThreadPool) {
-        this.gatherDataThreadPool = gatherDataThreadPool;
-    }
-
     @GetMapping("terminal/unit2")
     public void terminalUnit2(){
         this.terminalService.writeTerminalUnitByUnit2();
@@ -323,7 +316,7 @@ public class GatherTaskScheduledUtilTest {
                     continue;
                 }
 
-                gatherDataThreadPool.addThread(new GatherIPv4SNMPRunnable(networkElement, date, latch));
+                GatherDataThreadPool.getInstance().addThread(new GatherIPv4SNMPRunnable(networkElement, date, latch));
             }
 
             try {

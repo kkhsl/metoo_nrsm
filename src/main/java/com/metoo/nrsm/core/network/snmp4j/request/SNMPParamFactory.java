@@ -314,7 +314,7 @@ public class SNMPParamFactory {
                 .community("transfar")
                 .build();
 
-        JSONArray result = SNMPv3Request.getPortMac(snmpv3Params);
+        JSONArray result = SNMPv3Request.getMac(snmpv3Params);
        log.info("arpV6:{}", result);
     }
 

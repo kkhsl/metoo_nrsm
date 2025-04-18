@@ -68,8 +68,8 @@ public class GatherIpV6SNMPRunnable implements Runnable{
         try {
     //        SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
 //            JSONArray result = SNMPv2Request.getArp(snmpParams);
-            String result = SNMPv3Request.getDeviceArpV6(SNMPParamFactory.createSNMPParam(networkElement));
-            if(!result.isEmpty()) {
+            JSONArray result = SNMPv3Request.getArpV6(SNMPParamFactory.createSNMPParam(networkElement));
+            if(result != null && result.length() > 0) {
                 // 使用 Jackson 将 JSON 字符串转换为 List<Ipv4>
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Ipv6> ipv6s = objectMapper.readValue(result.toString(), new TypeReference<List<Ipv6>>(){});
@@ -90,4 +90,5 @@ public class GatherIpV6SNMPRunnable implements Runnable{
             }
         }
     }
+
 }

@@ -8,7 +8,6 @@ import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;

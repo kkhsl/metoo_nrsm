@@ -1,6 +1,8 @@
 package com.metoo.nrsm.core.network.snmp4j.response;
 
 import com.google.gson.Gson;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.snmp4j.PDU;
 
 import java.util.HashMap;
@@ -118,6 +120,53 @@ public class SNMPDataParser {
         return arpResult;
     }
 
+    public static JSONArray parseDeviceArpV6(Map<String, String> arpV6Map, JSONObject portJson) {
+        JSONArray resultArray = new JSONArray();
+
+        for (Map.Entry<String, String> entry : arpV6Map.entrySet()) {
+            String oid = entry.getKey();
+            String rawMac = entry.getValue();
+
+            // 1. 提取索引和IPv6地址部分
+            String ipSegment = oid.replace("1.3.6.1.2.1.55.1.12.1.2.", "");
+            String[] parts = ipSegment.split("\\.");
+
+            // 2. 验证OID结构
+            if (parts.length < 16) {
+                // 处理异常：OID 字段不足，无法解析 IPv6
+                System.err.println("Invalid OID format: " + oid);
+                continue;
+            }
+
+            // 3. 提取索引和端口
+            String index = parts[0];
+            String port = portJson.optString(index, "N/A");
+
+            // 4. 构建IPv6地址
+            StringBuilder ipv6Builder = new StringBuilder();
+            for (int i=1; i<parts.length; i+=2) { // 跳过索引
+                int high = Integer.parseInt(parts[i]);
+                int low = Integer.parseInt(parts[i+1]);
+                ipv6Builder.append(String.format("%02x%02x", high, low));
+                if (i < parts.length-2) ipv6Builder.append(":");
+            }
+            String ip = compressIPv6(ipv6Builder.toString());
+
+            // 5. 过滤链路本地地址
+            if (ip.startsWith("fe80:")) continue;
+
+
+            // 7. 构建结果对象
+            JSONObject entry1 = new JSONObject();
+            entry1.put("ip", ip);
+            entry1.put("mac", rawMac.toUpperCase());
+            entry1.put("port", port);
+            resultArray.put(entry1);
+        }
+
+        return resultArray;
+    }
+
     // 解析 ArpV6Port 表的逻辑，转换为 Map<String, String> 格式
     public static String parseDeviceArpV6Port(PDU responsePdu) {
         return null;
@@ -188,6 +237,70 @@ public class SNMPDataParser {
 
         return portV6Result;
     }
+
+    public static JSONArray parseDevicePortV6(Map<String, String> arpV6Map,
+                                              JSONObject portJson,
+                                              JSONObject statusJson,
+                                              JSONObject descriptionJson) {
+        JSONArray resultArray = new JSONArray();
+
+        for (Map.Entry<String, String> entry : arpV6Map.entrySet()) {
+            String oid = entry.getKey();
+            String rawValue = entry.getValue(); // 格式应为 "INTEGER: 64"
+
+            // 1. 提取索引和IPv6地址部分
+            String ipSegment = oid.replace("1.3.6.1.2.1.55.1.8.1.2.", "");
+            String[] parts = ipSegment.split("\\.");
+
+            // 2. 验证OID结构
+            if (parts.length < 16) {
+                // 处理异常：OID 字段不足，无法解析 IPv6
+                System.err.println("Invalid OID format: " + oid);
+                continue;
+            }
+
+            // 3. 提取索引
+            String index = parts[0];
+
+            // 4. 获取端口信息
+            String port = portJson.optString(index, "N/A");
+            String status = statusJson.optString(index, "unknown");
+            String description = descriptionJson.optString(index, "");
+
+            // 5. 解析掩码长度（前缀）
+            String prefixLength = rawValue.replaceAll("\\D+", ""); // 提取数字部分
+
+            // 6. 构建IPv6地址
+            StringBuilder ipv6Builder = new StringBuilder();
+            for (int i = 1; i < 17; i += 2) { // 处理16字节（索引后的16个元素）
+                int high = Integer.parseInt(parts[i]);
+                int low = Integer.parseInt(parts[i + 1]);
+                ipv6Builder.append(String.format("%02x%02x", high, low));
+                if (i < 15) ipv6Builder.append(":"); // 共8段，最后不加冒号
+            }
+            String ip = compressIPv6(ipv6Builder.toString());
+
+            // 7. 过滤链路本地地址
+            if (ip.startsWith("fe80:")) continue;
+
+            // 8. 构建结果对象
+            JSONObject entryObj = new JSONObject();
+            entryObj.put("port", port);
+            entryObj.put("status", status);
+            entryObj.put("ip", ip);
+            entryObj.put("mask", prefixLength);
+            entryObj.put("description", description);
+
+            resultArray.put(entryObj);
+        }
+
+        return resultArray;
+    }
+
+
+
+
+
 
 
 
