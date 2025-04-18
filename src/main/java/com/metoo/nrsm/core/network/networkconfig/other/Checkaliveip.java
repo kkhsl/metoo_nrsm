@@ -55,7 +55,7 @@ public class Checkaliveip {
     /**
      * 定时监控任务（每分钟执行）
      */
-    @Scheduled(fixedRate = 60_000)
+//    @Scheduled(fixedRate = 60_000)
     public void scheduledMonitoring() {
         // 配置自动刷新
         if (shouldRefreshConfig()) {

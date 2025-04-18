@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.SSHExecutor;
 import com.metoo.nrsm.entity.NetworkElement;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.junit.Test;
 import org.snmp4j.security.SecurityLevel;
 
@@ -308,12 +309,12 @@ public class SNMPParamFactory {
     public void getArpV6() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("192.168.0.1")
+                .host("192.168.0.6")
                 .port(161)
-                .community("transfar@123")
+                .community("transfar")
                 .build();
 
-        String result = SNMPv3Request.getDeviceArpV6(snmpv3Params);
+        JSONArray result = SNMPv3Request.getPortMac(snmpv3Params);
        log.info("arpV6:{}", result);
     }
 

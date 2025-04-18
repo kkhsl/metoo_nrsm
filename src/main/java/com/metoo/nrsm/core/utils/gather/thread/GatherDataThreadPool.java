@@ -44,18 +44,32 @@ public class GatherDataThreadPool {
 
     private final ExecutorService fixedThreadPool;
 
+//    @Autowired
+//    public GatherDataThreadPool() {
+//        int poolSize = Integer.max(Runtime.getRuntime().availableProcessors() * 2, 15);
+//        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+//                poolSize,
+//                poolSize * 2,
+//                60,
+//                TimeUnit.SECONDS,
+//                new LinkedBlockingQueue<>(1000),
+//                new ThreadPoolExecutor.AbortPolicy());// 如果队列满了，会抛出异常
+////                new ThreadPoolExecutor.CallerRunsPolicy());// 如果队列满了，当前任务会在主线程中执行
+//
+//        this.fixedThreadPool = executor;
+//    }
+
     @Autowired
     public GatherDataThreadPool() {
-        int poolSize = Integer.max(Runtime.getRuntime().availableProcessors() * 2, 15);
+        int corePoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 4);
+        int maximumPoolSize = corePoolSize * 2; // 最大线程数设为核心线程数的两倍
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
-                poolSize,
-                poolSize * 2,
+                corePoolSize,
+                maximumPoolSize,
                 60,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(1000),
-                new ThreadPoolExecutor.AbortPolicy());// 如果队列满了，会抛出异常
-//                new ThreadPoolExecutor.CallerRunsPolicy());// 如果队列满了，当前任务会在主线程中执行
-
+                new LinkedBlockingQueue<>(100),
+                new ThreadPoolExecutor.CallerRunsPolicy()); // 如果队列满了，就在主线程中执行任务
         this.fixedThreadPool = executor;
     }
 

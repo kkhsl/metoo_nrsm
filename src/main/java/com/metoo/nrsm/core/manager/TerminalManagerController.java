@@ -152,6 +152,20 @@ public class TerminalManagerController {
         }else{
             terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(null);
         }
+        if(terminalUnitList.size() > 0){
+            for (TerminalUnit terminalUnit : terminalUnitList) {
+                if(terminalUnit.getTerminalList().size() > 0){
+                    for (Terminal terminal : terminalUnit.getTerminalList()) {
+                        if(terminal.getDeviceTypeId() != null){
+                            DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
+                            if(deviceType != null){
+                                terminal.setDeviceTypeName(deviceType.getName());
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return ResponseUtil.ok(terminalUnitList);
     }
 

@@ -291,7 +291,7 @@ public class GatherTaskScheduledUtil {
     }
 
     // 采集流量
-    @Scheduled(cron = "0 */3 * * * ?")
+//    @Scheduled(cron = "0 */3 * * * ?")
     public void flux() {
         if(flag) {
             Long time = System.currentTimeMillis();

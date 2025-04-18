@@ -85,7 +85,7 @@ public class GatherSingleThreadingMacSNMPUtils {
                 // TODO 多余，查询设备时已经查询了是否存在
                 log.info("MAC：" + networkElement.getIp() + "设备加入线程");
 //                GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
-
+//
                 macManager.getMac(networkElement, date);
 
 //                String hostName = getHostNameSNMP(networkElement);
@@ -385,8 +385,8 @@ public class GatherSingleThreadingMacSNMPUtils {
      */
     private void updateTerminalInfo(Date date) {
         try {
-//            terminalService.syncTerminal(date);
-          this.terminalService.v4Tov6Terminal(date);// 政务外网
+            terminalService.syncTerminal(date);
+//          this.terminalService.v4Tov6Terminal(date);// 政务外网
 
             // 政务外网
             // 根据vendor判断终端类型
