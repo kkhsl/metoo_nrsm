@@ -320,7 +320,7 @@ public class SNMPv3Request {
         JSONObject statusJson = new JSONObject(statusData);
         JSONObject portDescriptionJson = new JSONObject(portDescriptionData);
 
-        JSONArray resultArray = SNMPDataParser.parseDevicePortV6(portV6Map, portJson, statusJson, portDescriptionJson);
+        JSONArray resultArray = SNMPDataParser.parseDevicePortV6(portV6Map, portJson);
 
         return resultArray;
     }

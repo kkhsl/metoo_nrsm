@@ -239,9 +239,7 @@ public class SNMPDataParser {
     }
 
     public static JSONArray parseDevicePortV6(Map<String, String> arpV6Map,
-                                              JSONObject portJson,
-                                              JSONObject statusJson,
-                                              JSONObject descriptionJson) {
+                                              JSONObject portJson) {
         JSONArray resultArray = new JSONArray();
 
         for (Map.Entry<String, String> entry : arpV6Map.entrySet()) {
@@ -264,8 +262,6 @@ public class SNMPDataParser {
 
             // 4. 获取端口信息
             String port = portJson.optString(index, "N/A");
-            String status = statusJson.optString(index, "unknown");
-            String description = descriptionJson.optString(index, "");
 
             // 5. 解析掩码长度（前缀）
             String prefixLength = rawValue.replaceAll("\\D+", ""); // 提取数字部分
@@ -286,10 +282,7 @@ public class SNMPDataParser {
             // 8. 构建结果对象
             JSONObject entryObj = new JSONObject();
             entryObj.put("port", port);
-            entryObj.put("status", status);
-            entryObj.put("ip", ip);
-            entryObj.put("mask", prefixLength);
-            entryObj.put("description", description);
+            entryObj.put("ip", ip+"/"+prefixLength);
 
             resultArray.put(entryObj);
         }
