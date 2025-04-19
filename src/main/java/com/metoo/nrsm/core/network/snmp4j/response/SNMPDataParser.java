@@ -282,7 +282,7 @@ public class SNMPDataParser {
             // 8. 构建结果对象
             JSONObject entryObj = new JSONObject();
             entryObj.put("port", port);
-            entryObj.put("ip", ip+"/"+prefixLength);
+            entryObj.put("ipv6", ip+"/"+prefixLength);
 
             resultArray.put(entryObj);
         }

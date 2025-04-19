@@ -4,7 +4,7 @@ package com.metoo.nrsm.core.network.snmp4j.example;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import lombok.extern.slf4j.Slf4j;
-import org.snmp4j.security.SecurityLevel;
+import org.json.JSONArray;
 
 import java.io.IOException;
 
@@ -67,16 +67,15 @@ public class SnmpV3Example {
         // 调整
         SNMPV3Params v2c = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("192.168.6.1")
+                .host("192.168.0.1")
                 .port(161)
-                .community("public@123")
+                .community("transfar@123")
                 .build();
 
-        String deviceName1 = SNMPv3Request.getDeviceName(v2c);
-        System.out.println(deviceName1);
-        log.info("主机名 v3：" + deviceName1);
+        JSONArray result = SNMPv3Request.getMac(v2c);
+        System.out.println(result.toString());
 
-
+/*
         // v3带认证加密的请求
         // 方式一
 //        SNMPV3Params v3Params = new SNMPV3Params();
@@ -160,7 +159,7 @@ public class SnmpV3Example {
                 .build();
 
         String deviceName3 = SNMPv3Request.getDeviceName(snmpv3Params);
-        System.out.println(deviceName3);
+        System.out.println(deviceName3);*/
     }
 
 
