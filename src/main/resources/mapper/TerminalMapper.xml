@@ -9,35 +9,22 @@
     </select>
 
     <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalDTO" resultType="com.metoo.nrsm.entity.Terminal">
-        select * from metoo_terminal terminal
+        SELECT * FROM metoo_terminal terminal
         <where>
             <if test="filter != null and filter != ''">
                 <bind name="pattern" value="'%' + filter + '%'"/>
-                OR terminal.v4ip
-                like
-                concat(concat('%',#{filter}),'%')
-                or  terminal.v4ip1
-                like concat(concat('%',#{filter}),'%')
-                or  terminal.v4ip2
-                like concat(concat('%',#{filter}),'%')
-                or  terminal.v4ip3
-                like concat(concat('%',#{filter}),'%')
-                or  terminal.v6ip
-                like concat(concat('%',#{filter}),'%')
-                or  terminal.v6ip1
-                like concat(concat('%',#{filter}),'%')
-                or  terminal.v6ip2
-                like concat(concat('%',#{filter}),'%')
-                or  terminal.v6ip3
-                like concat(concat('%',#{filter}),'%')
-                or terminal.name
-                like concat(concat('%',#{filter}),'%')
-                or terminal.mac
-                like concat(concat('%',#{filter}),'%')
-                OR terminal.asset_number
-                LIKE CONCAT('%', #{filter}, '%')
-                OR terminal.serial_number
-                LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.v4ip LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.v4ip1 LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.v4ip2 LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.v4ip3 LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.v6ip LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.v6ip1 LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.v6ip2 LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.v6ip3 LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.name LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.mac LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.asset_number LIKE CONCAT('%', #{filter}, '%')
+                OR terminal.serial_number LIKE CONCAT('%', #{filter}, '%')
             </if>
             <if test="hostname != null and hostname != ''">
                 AND hostname = #{hostname}
@@ -76,8 +63,10 @@
                 AND deviceUuid = #{deviceUuid}
             </if>
         </where>
-        ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
+        ORDER BY ISNULL(v4ip),v4ip = '', INET_ATON(v4ip) ASC
     </select>
+
+
 
     <sql id="Base_Column_Sql">
 
