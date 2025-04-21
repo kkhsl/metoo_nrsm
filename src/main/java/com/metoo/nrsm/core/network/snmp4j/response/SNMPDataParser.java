@@ -1,6 +1,5 @@
 package com.metoo.nrsm.core.network.snmp4j.response;
 
-import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.snmp4j.PDU;
@@ -12,11 +11,17 @@ import java.util.Map;
  * 考虑到需要处理的数据较少，先讲处理snmp返回数据的方法，放到这一个类中
  */
 public class SNMPDataParser {
-    private static final Gson gson = new Gson();
+//    private static final Gson gson = new Gson();
+//    public static String convertToJson(Map<String, String> arpResult) {
+//        Gson gson = new Gson();
+//        return gson.toJson(arpResult);
+//    }
+
     public static String convertToJson(Map<String, String> arpResult) {
-        Gson gson = new Gson();
-        return gson.toJson(arpResult);
+        JSONObject jsonObject = new JSONObject(arpResult);
+        return  jsonObject.toString();
     }
+
 
     // 解析 SNMP 响应，获取设备名
     public static String parseDeviceName(PDU responsePdu) {
@@ -239,9 +244,7 @@ public class SNMPDataParser {
     }
 
     public static JSONArray parseDevicePortV6(Map<String, String> arpV6Map,
-                                              JSONObject portJson,
-                                              JSONObject statusJson,
-                                              JSONObject descriptionJson) {
+                                              JSONObject portJson) {
         JSONArray resultArray = new JSONArray();
 
         for (Map.Entry<String, String> entry : arpV6Map.entrySet()) {
@@ -264,8 +267,6 @@ public class SNMPDataParser {
 
             // 4. 获取端口信息
             String port = portJson.optString(index, "N/A");
-            String status = statusJson.optString(index, "unknown");
-            String description = descriptionJson.optString(index, "");
 
             // 5. 解析掩码长度（前缀）
             String prefixLength = rawValue.replaceAll("\\D+", ""); // 提取数字部分
@@ -286,10 +287,7 @@ public class SNMPDataParser {
             // 8. 构建结果对象
             JSONObject entryObj = new JSONObject();
             entryObj.put("port", port);
-            entryObj.put("status", status);
-            entryObj.put("ip", ip);
-            entryObj.put("mask", prefixLength);
-            entryObj.put("description", description);
+            entryObj.put("ipv6", ip+"/"+prefixLength);
 
             resultArray.put(entryObj);
         }

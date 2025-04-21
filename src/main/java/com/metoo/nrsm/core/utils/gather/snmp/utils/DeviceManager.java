@@ -47,6 +47,13 @@ public class DeviceManager {
         return hostNames;
     }
 
+    public static void main(String[] args) {
+        String hostName = null;
+        if(StringUtils.isNotEmpty(hostName)){
+            System.out.println(1);
+        }
+    }
+
     // 获取设备名
     public String getDeviceNameByIpAndCommunityVersion(NetworkElement networkElement){
 //        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());

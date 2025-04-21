@@ -15,7 +15,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherMacSNMPRunnable implements Runnable{
+public class GatherMacSNMPRunnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -43,15 +43,20 @@ public class GatherMacSNMPRunnable implements Runnable{
 
     @Override
     public void run() {
+        String ip = networkElement.getIp();
         try {
+            long start = System.currentTimeMillis();
+            log.debug("开始采集: {}", ip);
+
             macManager.getMac(networkElement, date);
+
+            long cost = System.currentTimeMillis() - start;
+            log.debug("采集完成: {}, 耗时: {}ms", ip, cost);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("采集设备 {} 异常: {}", ip, e.getMessage());
         } finally {
-            if(latch != null){
-                latch.countDown();
-            }
+            latch.countDown();
+            log.trace("计数器减1, 剩余: {}", latch.getCount());
         }
     }
-
 }

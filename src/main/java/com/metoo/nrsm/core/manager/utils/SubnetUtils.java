@@ -33,6 +33,11 @@ public class SubnetUtils {
     private Ipv4DetailService ipv4DetailService;
     @Autowired
     private IAddressService addressService;
+    private final GatherDataThreadPool threadPool;
+    @Autowired
+    public SubnetUtils(GatherDataThreadPool threadPool) {
+        this.threadPool = threadPool;
+    }
 
     @PostConstruct
     public void init() {
@@ -46,7 +51,7 @@ public class SubnetUtils {
         List<Subnet> subnets = this.subnetService.selectSubnetByParentId(null);
         List<Ipv4Detail> ipv4Details = this.ipv4DetailService.selectObjByMap(null);
         if (subnets.size() > 0) {
-            GatherDataThreadPool.getInstance().addThread(new Runnable() {
+            threadPool.execute(new Runnable() {
                 @Override
                 public void run() {
                     synchronized (this) {

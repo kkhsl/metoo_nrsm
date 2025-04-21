@@ -40,6 +40,12 @@ public class GatherMultithreadingMacUtils {
     @Autowired
     private ITerminalCountService terminalCountService;
 
+    private final GatherDataThreadPool threadPool;
+
+    @Autowired
+    public GatherMultithreadingMacUtils(GatherDataThreadPool threadPool) {
+        this.threadPool = threadPool;
+    }
     public void gatherMacThread(List<NetworkElement> networkElements, Date date) {
 
         log.info("Mac start =========");
@@ -86,7 +92,7 @@ public class GatherMultithreadingMacUtils {
                     latch.countDown();
                     continue;
                 }
-                GatherDataThreadPool.getInstance().addThread(new GatherMacHostNameRunnable(networkElement, date, latch));
+//                threadPool.execute((new GatherMacHostNameRunnable(networkElement, date, latch));
             }
 
             try {
@@ -120,7 +126,7 @@ public class GatherMultithreadingMacUtils {
                 this.macService.truncateTableGather();
 
                 for (NetworkElement networkElement : networkElements) {
-                    GatherDataThreadPool.getInstance().addThread(new GatherMacHostNameRunnable(networkElement, date));
+//                    threadPool.execute(new GatherMacHostNameRunnable(networkElement, date));
                 }
             }
         } catch (Exception e) {

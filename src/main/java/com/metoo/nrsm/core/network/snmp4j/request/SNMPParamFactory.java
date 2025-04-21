@@ -14,18 +14,22 @@ import org.snmp4j.security.SecurityLevel;
 public class SNMPParamFactory {
 
     public static SNMPV3Params createSNMPParam(NetworkElement networkElement) {
+        if(networkElement.getVersion() == null || "".equals(networkElement.getVersion())){
+            log.info("version is null");
+            return null;
+        }
         try {
             switch(networkElement.getVersion()) {
                 case "v1":
-                    return createV1Param(networkElement.getIp(), 161, networkElement.getCommunity(), 1500, 3);
+                    return createV1Param(networkElement.getIp(), networkElement.getPort(), networkElement.getCommunity(), 1500, 3);
                 case "v2c":
-                    return createV2cParam(networkElement.getIp(), 161, networkElement.getCommunity(), 1500, 3);
+                    return createV2cParam(networkElement.getIp(), networkElement.getPort(), networkElement.getCommunity(), 1500, 3);
 
                 case "v3":
                     if (networkElement.getSecurityLevel() == null) {
                         throw new IllegalArgumentException("SNMPv3 requires security level");
                     }
-                    return createV3Param(networkElement.getIp(), 161, networkElement.getSecurityName(), networkElement.getAuthProtocol(), networkElement.getAuthPassword(),
+                    return createV3Param(networkElement.getIp(), networkElement.getPort(), networkElement.getSecurityName(), networkElement.getAuthProtocol(), networkElement.getAuthPassword(),
                             networkElement.getPrivProtocol(), networkElement.getPrivPassword(), 1500, 3,
                             networkElement.getSecurityLevel());
 
@@ -153,9 +157,9 @@ public class SNMPParamFactory {
     @Test
     public void testSNMPv2(){
         NetworkElement networkElement = new NetworkElement();
-        networkElement.setIp("192.168.6.1");
+        networkElement.setIp("192.168.0.16");
         networkElement.setVersion("v2c");
-        networkElement.setCommunity("public@123");
+        networkElement.setCommunity("hnitms_ro");
         SNMPV3Params snmpv3Params = SNMPParamFactory.createSNMPParam(networkElement);
         String deviceName = SNMPv3Request.getDeviceName(snmpv3Params);
         System.out.println(deviceName);
@@ -244,8 +248,8 @@ public class SNMPParamFactory {
     public void testSNMPv3GetTraffic(){
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("113.240.243.196")
-                .community("transfar@123")
+                .host("192.168.0.13")
+                .community("transfar")
                 .port(161)
                 .build();
 
@@ -309,14 +313,26 @@ public class SNMPParamFactory {
     public void getArpV6() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("192.168.0.6")
-                .port(161)
+                .host("192.168.0.13")
                 .community("transfar")
+                .port(161)
                 .build();
 
-        JSONArray result = SNMPv3Request.getMac(snmpv3Params);
+       JSONArray result = SNMPv3Request.getMac(snmpv3Params);
        log.info("arpV6:{}", result);
     }
 
+    @Test
+    public void getPortTableV6() {
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version("v2c")
+                .host("192.168.0.36")
+                .port(161)
+                .community("hnccsroot_read")
+                .build();
+
+        JSONArray result = SNMPv3Request.getArp(snmpv3Params);
+        log.info("arpV6:{}", result);
+    }
 
 }

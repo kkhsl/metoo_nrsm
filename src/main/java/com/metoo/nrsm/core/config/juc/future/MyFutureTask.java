@@ -45,28 +45,5 @@ public class MyFutureTask {
     }
 
 
-    @Test
-    public void main2() throws InterruptedException, ExecutionException {
-
-        for (Integer i = 0; i < 2 ; i++) {
-            FutureTask<Integer> futrueTask = new FutureTask(new Callable() {
-                @Override
-                public Object call() throws Exception {
-
-                    for (int j = 0; j <10 ; j++) {
-                        System.out.println(Thread.currentThread().getName() + ": " + j);
-                    }
-                    Thread.sleep(1000);
-                    return 100;
-                }
-            });
-
-            GatherDataThreadPool.getInstance().addThread(futrueTask);
-            log.info(String.valueOf(futrueTask.get()));// 主线程阻塞
-        }
-
-        log.info("123");
-    }
-
 
 }

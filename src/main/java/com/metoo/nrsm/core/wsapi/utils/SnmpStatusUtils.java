@@ -12,12 +12,12 @@ import java.util.*;
 @Component
 public class SnmpStatusUtils {
 
-    @Autowired
-    private static MyRedisManager snmp = new MyRedisManager("snmp");
+    public static void main(String[] args) {
+        MyRedisManager snmp = new MyRedisManager("snmp");
+        snmp.put("bfc0e2f4-dd8a-4f5e-886e-305319e22005", 0);
+    }
 
-    // 优化redis数据获取，避免数据量过多，造成的性能问题
-    @Autowired
-    private RedisTemplate redisTemplate;
+   private static MyRedisManager snmp = new MyRedisManager("snmp");
 
     // 获取在线设备，然后redis在线设备改为离线
     public void editSnmpStatus(Set<String> newDevices) {
@@ -73,6 +73,12 @@ public class SnmpStatusUtils {
         }
         return uuids;
     }
+
+
+
+    // 优化redis数据获取，避免数据量过多，造成的性能问题
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     // 分批读取
     public void scanValue() {

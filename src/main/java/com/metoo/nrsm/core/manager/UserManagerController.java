@@ -147,6 +147,14 @@ public class UserManagerController {
                     dto.setSalt(sale);
                     dto.setFlag(true);
                 }
+                if(dto.getUnitId() == null || "".equals(dto.getUnitId())){
+                    return ResponseUtil.badArgument("请选择所属单位");
+                }else{
+                    Unit unit = this.unitService.selectObjById(dto.getUnitId());
+                    if(unit == null){
+                        return ResponseUtil.badArgument("选择所属单位不存在");
+                    }
+                }
                 if (this.userService.save(dto)) {
                     return ResponseUtil.ok();
                 }
@@ -209,6 +217,15 @@ public class UserManagerController {
                     String password = CommUtils.password(dto.getPassword(), sale);
                     dto.setPassword(password);
                     dto.setSalt(sale);
+                }
+            }
+
+            if(dto.getUnitId() == null || "".equals(dto.getUnitId())){
+                return ResponseUtil.badArgument("请选择所属单位");
+            }else{
+                Unit unit = this.unitService.selectObjById(dto.getUnitId());
+                if(unit == null){
+                    return ResponseUtil.badArgument("选择所属单位不存在");
                 }
             }
             if (this.userService.save(dto)) {

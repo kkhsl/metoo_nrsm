@@ -401,6 +401,7 @@ public class TerminalServiceImpl implements ITerminalService {
             for (Arp arp : arps) {
                 Terminal terminal = new Terminal();
                 terminal.setAddTime(date);
+                terminal.setTime(date);
                 terminal.setV4ip(arp.getV4ip());
                 terminal.setV6ip(arp.getV6ip());
                 terminal.setMac(arp.getMac());

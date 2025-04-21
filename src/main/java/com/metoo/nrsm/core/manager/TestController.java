@@ -8,6 +8,8 @@ import com.metoo.nrsm.core.utils.system.DiskInfo;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -40,6 +42,28 @@ public class TestController {
     private RestTemplate restTemplate;
     @Autowired
     private ITerminalService terminalService;
+
+    public static void main(String[] args) {
+        String data = "{\n" +
+                "  \"id\": 16,\n" +
+                "  \"deviceTypeId\": 17,\n" +
+                "  \"name\": \"q\",\n" +
+                "  \"mac\": \"00:50:79:66:68:55\",\n" +
+                "  \"departmentId\": null,\n" +
+                "  \"location\": null,\n" +
+                "  \"duty\": null,\n" +
+                "  \"v4ip\": \"123.0.0.170\"\n" +
+                "}";
+        JSONObject macJson = new JSONObject(data);
+        System.out.println(macJson);
+
+    }
+
+
+    @Test
+    public void getArpV6() {
+        System.out.println(JSONObject.class.getProtectionDomain().getCodeSource().getLocation());
+    }
 
     @GetMapping("getDHCP")
     public String getDHCP(){

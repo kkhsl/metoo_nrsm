@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.network.snmp4j.request;
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +19,7 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 import java.io.IOException;
 import java.security.Security;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -26,6 +28,7 @@ import static com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser.convert
 /**
  * 设计线程安全方案
  */
+@Slf4j
 public class SNMPv3Request {
 
     // 新增安全协议初始化
@@ -162,6 +165,9 @@ public class SNMPv3Request {
 
     // 请求发送方法（支持v3）
     public static PDU sendRequest(SNMPV3Params params, SNMP_OID oid) {
+        if(params == null){
+            return null;
+        }
         try {
             Snmp snmp = threadContext.get().snmp;
             if (snmp == null) {
@@ -187,6 +193,9 @@ public class SNMPv3Request {
 
 
     public static PDU sendStrRequest(SNMPV3Params params, String oid) {
+        if(params == null){
+            return null;
+        }
         try {
             Snmp snmp = threadContext.get().snmp;
             if (snmp == null) {
@@ -230,6 +239,9 @@ public class SNMPv3Request {
 
     // 修改GETNEXT方法
     private static Map<String, String> sendGETNEXTRequest(SNMPV3Params params, SNMP_OID snmpOid) {
+        if(params == null){
+            return null;
+        }
         Map<String, String> resultMap = new HashMap<>();
         Snmp snmp = threadContext.get().snmp;
         if (snmp == null) {
@@ -271,15 +283,22 @@ public class SNMPv3Request {
     }
 
     private static PDU processResponse(ResponseEvent event) {
-        if (event.getResponse() == null) {
-            System.err.println("SNMP 实例初始化失败");
-        }
-        PDU response = event.getResponse();
-        if (response == null) {
-            System.err.println("无响应(超时或目标不可达) ");
-        }
-        if(response != null && response.getErrorStatus() != PDU.noError){
-            System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + response.getErrorStatusText());
+        PDU response = null;
+        try {
+            log.info("snmp请求地址:{}", event.getPeerAddress());
+            if (event.getResponse() == null) {
+                log.info("SNMP 实例初始化失败");
+            }
+            response = event.getResponse();
+            if (response == null) {
+                log.info("无响应(超时或目标不可达)");
+            }
+            if(response != null && response.getErrorStatus() != PDU.noError){
+                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + response.getErrorStatusText());
+                log.info("无响应(超时或目标不可达) 或者SNMP 错误" + response.getErrorStatusText());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return response;
     }
@@ -677,6 +696,24 @@ public class SNMPv3Request {
 
     // --- 辅助方法 ---
     private static JSONObject getPriorityMacData(SNMPV3Params snmpParams) {
+        // 按优先级顺序尝试获取 MAC 数据
+        String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
+        for (String method : methods) {
+            try {
+                String data = (String) SNMPv3Request.class
+                        .getMethod(method, SNMPV3Params.class)
+                        .invoke(null, snmpParams);
+                if (isValidJson(data)) {
+                    return new JSONObject(data);
+                }
+            } catch (Exception e) {
+                // 静默处理反射异常，继续下一个方法
+            }
+        }
+        return new JSONObject(); // 返回空对象
+    }
+
+    private static JSONObject aaa(SNMPV3Params snmpParams) {
         // 按优先级顺序尝试获取 MAC 数据
         String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
         for (String method : methods) {

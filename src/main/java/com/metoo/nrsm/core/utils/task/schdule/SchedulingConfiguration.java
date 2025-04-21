@@ -23,6 +23,7 @@ public class SchedulingConfiguration {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(15);// 配置线程池大小，根据需要调整
 //        taskScheduler.setPoolSize(36);
+        taskScheduler.initialize();
         taskScheduler.setThreadNamePrefix("scheduled-gather-");
         return taskScheduler;
     }

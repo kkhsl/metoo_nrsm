@@ -52,4 +52,9 @@ public class GatewayManagerController {
         return result;
     }
 
+    @GetMapping("/test")
+    public Result test(@RequestParam String ids) {
+        Result result = this.gatewayService.delete(ids);
+        return result;
+    }
 }

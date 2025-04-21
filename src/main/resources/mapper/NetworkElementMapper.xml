@@ -206,12 +206,12 @@
 
     <!--<select id="selectObjAllByGather" resultMap="Base_Result_Map">-->
     <select id="selectObjAllByGather" resultType="com.metoo.nrsm.entity.NetworkElement">
-    SELECT *
-    FROM metoo_ne
-    WHERE
-      ip IS NOT NULL AND ip != ''
-    AND version IS NOT NULL AND version != ''
-    AND community IS NOT NULL AND community != ''
+        SELECT *
+        FROM metoo_ne
+        WHERE
+          ip IS NOT NULL AND ip != ''
+        AND version IS NOT NULL AND version != ''
+        AND community IS NOT NULL AND community != ''
     </select>
 
     <select id="selectAccessoryByUuid" parameterType="java.lang.String" resultMap="Accessory_Ne_Map">

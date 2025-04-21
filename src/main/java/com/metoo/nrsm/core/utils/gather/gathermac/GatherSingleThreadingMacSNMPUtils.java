@@ -26,6 +26,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @author HKK
@@ -52,6 +54,9 @@ public class GatherSingleThreadingMacSNMPUtils {
     private PythonExecUtils pythonExecUtils;
     @Autowired
     private MacManager macManager;
+
+    @Autowired
+    private GatherDataThreadPool gatherDataThreadPool;
 
     private static final String MAC_PREFIX = "00:00:5e"; // 常量定义，避免硬编码
 
@@ -84,10 +89,10 @@ public class GatherSingleThreadingMacSNMPUtils {
 
                 // TODO 多余，查询设备时已经查询了是否存在
                 log.info("MAC：" + networkElement.getIp() + "设备加入线程");
-//                GatherDataThreadPool.getInstance().addThread(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
+                gatherDataThreadPool.execute(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
 //
-                macManager.getMac(networkElement, date);
-                latch.countDown();
+//                macManager.getMac(networkElement, date);
+//                latch.countDown();
 //                String hostName = getHostNameSNMP(networkElement);
 //                if (StringUtils.isNotEmpty(hostName)) {
 //                    processNetworkElementData(networkElement, hostName, date);
@@ -97,12 +102,16 @@ public class GatherSingleThreadingMacSNMPUtils {
             }
             try {
 
-                latch.await();
+                boolean completed = latch.await(10, TimeUnit.MINUTES);
+                log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
 
+                log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
+                
                 logMessages.put("MAC 采集总数", count);
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                log.warn("处理被中断");
             }
         }
         return logMessages;
@@ -385,8 +394,8 @@ public class GatherSingleThreadingMacSNMPUtils {
      */
     private void updateTerminalInfo(Date date) {
         try {
-            terminalService.syncTerminal(date);
-//          this.terminalService.v4Tov6Terminal(date);// 政务外网
+//            terminalService.syncTerminal(date);
+          this.terminalService.v4Tov6Terminal(date);// 政务外网
 
             // 政务外网
             // 根据vendor判断终端类型

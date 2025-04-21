@@ -68,6 +68,8 @@ public class GatherServiceImpl implements IGatherService {
     private IPortService portService;
     @Autowired
     private IPortIpv6Service portIpv6Service;
+    @Autowired
+    private GatherDataThreadPool gatherDataThreadPool;
 
 
     // 获取需要采集的设备
@@ -285,19 +287,22 @@ public class GatherServiceImpl implements IGatherService {
                 count++;
                 logMessages.put("IPv4 ARP：" + networkElement.getIp(), "采集完成");
 
-                GatherDataThreadPool.getInstance().addThread(new GatherIPv4SNMPRunnable(networkElement, date, latch));
+                gatherDataThreadPool.execute(new GatherIPv4SNMPRunnable(networkElement, date, latch));
 
             }
 
             try {
 
-                if(!latch.await(5, TimeUnit.MINUTES)) {
-                    log.warn("IPv4数据采集任务等待超时");
-                }
+                boolean completed = latch.await(10, TimeUnit.MINUTES);
+                log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
 
-                logMessages.put("IPv4 ARP 采集总数", count);
+                log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
+
+                logMessages.put("MAC 采集总数", count);
+
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                log.warn("处理被中断");
             }
         }
         return logMessages;
@@ -457,17 +462,20 @@ public class GatherServiceImpl implements IGatherService {
                 }
                 count++;
 
-                GatherDataThreadPool.getInstance().addThread(new GatherIpV6SNMPRunnable(networkElement, date, latch));
+                gatherDataThreadPool.execute(new GatherIpV6SNMPRunnable(networkElement, date, latch));
 
                 logMessages.put("IPv6 ARP：" + networkElement.getIp(), "采集完成");
             }
             try {
 
-                latch.await();
+                boolean completed = latch.await(10, TimeUnit.MINUTES);
+                log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
 
-                logMessages.put("IPv6 ARP 采集总数", count);
+                log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
+
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                log.warn("处理被中断");
             }
         }
         return logMessages;
@@ -520,18 +528,20 @@ public class GatherServiceImpl implements IGatherService {
                 }
 
 
-                GatherDataThreadPool.getInstance().addThread(new GatherPortSNMPRunnable(networkElement, date, latch));
+                gatherDataThreadPool.execute(new GatherPortSNMPRunnable(networkElement, date, latch));
 
             }
 
             try {
 
-                latch.await();// 等待结果线程池线程执行结束
+                boolean completed = latch.await(10, TimeUnit.MINUTES);
+                log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
 
-                log.info("run end......" + latch.getCount());
+                log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                log.warn("处理被中断");
             }
         }
     }
@@ -556,17 +566,19 @@ public class GatherServiceImpl implements IGatherService {
                     continue;
                 }
 //                GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6Runnable(networkElement, date, latch));
-                GatherDataThreadPool.getInstance().addThread(new GatherPortIpv6SNMPRunnable(networkElement, date, latch));
+                gatherDataThreadPool.execute(new GatherPortIpv6SNMPRunnable(networkElement, date, latch));
 
             }
-
             try {
-                latch.await();
 
-                log.info("run end......" + latch.getCount());
+                boolean completed = latch.await(10, TimeUnit.MINUTES);
+                log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
+
+                log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                log.warn("处理被中断");
             }
         }
     }
@@ -587,17 +599,19 @@ public class GatherServiceImpl implements IGatherService {
                     continue;
                 }
 
-                GatherDataThreadPool.getInstance().addThread(new GatherIsIpv6SNMPRunnable(networkElement, date, latch));
+                gatherDataThreadPool.execute(new GatherIsIpv6SNMPRunnable(networkElement, date, latch));
             }
 
             try {
 
-                latch.await();// 等待结果线程池线程执行结束
+                boolean completed = latch.await(10, TimeUnit.MINUTES);
+                log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
 
-                log.info("run end......" + latch.getCount());
+                log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                log.warn("处理被中断");
             }
         }
     }

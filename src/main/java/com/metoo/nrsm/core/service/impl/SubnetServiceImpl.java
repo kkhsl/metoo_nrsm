@@ -34,6 +34,12 @@ public class SubnetServiceImpl implements ISubnetService {
     private SubnetUtils subnetUtils;
     @Autowired
     private PythonExecUtils pythonExecUtils;
+    private final GatherDataThreadPool threadPool;
+
+    @Autowired
+    public SubnetServiceImpl(GatherDataThreadPool threadPool) {
+        this.threadPool = threadPool;
+    }
 
     @Override
     public Subnet selectObjById(Long id) {
@@ -220,7 +226,7 @@ public class SubnetServiceImpl implements ISubnetService {
 //                    String[] params = {subnet.getIp(), String.valueOf(subnet.getMask())};
 //                    String result = PythonExecUtils.exec(path, params);
 
-                    GatherDataThreadPool.getInstance().addThread(new Runnable() {
+                    threadPool.execute(new Runnable() {
                         @Override
                         public void run() {
 //                            String path = Global.PYPATH + "PingTest.py";

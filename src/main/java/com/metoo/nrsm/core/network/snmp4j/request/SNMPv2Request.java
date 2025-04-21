@@ -571,15 +571,10 @@ public class SNMPv2Request {
         Map<String, String> portV6Map = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_IPV6);
         // 获取 SNMP 数据
         String portData = SNMPv2Request.getDevicePort(snmpParams);
-        String statusData = SNMPv2Request.getDevicePortStatus(snmpParams);
-        String portDescriptionData = SNMPv2Request.getDevicePortDescription(snmpParams);
-
         // 解析 JSON 数据
         JSONObject portJson = new JSONObject(portData);
-        JSONObject statusJson = new JSONObject(statusData);
-        JSONObject portDescriptionJson = new JSONObject(portDescriptionData);
 
-        JSONArray resultArray = SNMPDataParser.parseDevicePortV6(portV6Map, portJson, statusJson, portDescriptionJson);
+        JSONArray resultArray = SNMPDataParser.parseDevicePortV6(portV6Map, portJson);
 
         return resultArray;
     }

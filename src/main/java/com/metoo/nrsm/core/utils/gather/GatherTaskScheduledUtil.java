@@ -140,116 +140,148 @@ public class GatherTaskScheduledUtil {
 //    }
 
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningDhcp = false;
+    @Scheduled(fixedDelay = 180_000)
     public void dhcp() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("DHCP Start......");
+        if(flag && !isRunningDhcp){
+            isRunningDhcp = true;
             try {
-                dhcpService.gather(DateTools.gatherDate());
-            } catch (Exception e) {
-                log.error("Error occurred during DHCP", e);
+                Long time=System.currentTimeMillis();
+                log.info("DHCP Start......");
+                try {
+                    dhcpService.gather(DateTools.gatherDate());
+                } catch (Exception e) {
+                    log.error("Error occurred during DHCP", e);
+                }
+                log.info("DHCP End......" + (System.currentTimeMillis()-time));
+            } finally {
+                isRunningDhcp = false;
             }
-            log.info("DHCP End......" + (System.currentTimeMillis()-time));
         }
     }
 
-
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningDhcp6 = false;
+    @Scheduled(fixedDelay = 180_000)
     public void dhcp6() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("DHCP6 Start......");
+        if(flag && !isRunningDhcp6){
+            isRunningDhcp6 = true;
             try {
-                dhcp6Service.gather(DateTools.gatherDate());
+                Long time=System.currentTimeMillis();
+                log.info("DHCP6 Start......");
+                try {
+                    dhcp6Service.gather(DateTools.gatherDate());
 
+                } catch (Exception e) {
+                    log.error("Error occurred during DHCP6", e);
+                }
+                log.info("DHCP6 End......" + (System.currentTimeMillis()-time));
             } catch (Exception e) {
-                log.error("Error occurred during DHCP6", e);
+                e.printStackTrace();
+            } finally {
+                isRunningDhcp6 = false;
             }
-            log.info("DHCP6 End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningARP = false;
+    @Scheduled(fixedDelay = 180_000)
     public void arp() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("arp Start......");
+        if(flag && !isRunningARP){
+            isRunningARP = true;
             try {
-//                arpService.gatherArp(date);
-                gatherService.gatherArp(DateTools.gatherDate());
+                Long time=System.currentTimeMillis();
+                log.info("arp Start......");
+                try {
+                    //                arpService.gatherArp(date);
+                    gatherService.gatherArp(DateTools.gatherDate());
+                } catch (Exception e) {
+                    log.error("Error occurred during ARP", e);
+                }
+                log.info("arp End......" + (System.currentTimeMillis()-time));
             } catch (Exception e) {
-                log.error("Error occurred during ARP", e);
+                e.printStackTrace();
+            } finally {
+                isRunningARP = false;
             }
-            log.info("arp End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningMAC = false;
+    @Scheduled(fixedDelay = 180_000)
     public void mac() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("mac Start......");
+        if(flag && !isRunningMAC){
+            isRunningMAC = true;
             try {
-                this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
-//                gatherService.gatherMacThread(DateTools.gatherDate());
+                Long time=System.currentTimeMillis();
+                log.info("mac Start......");
+                try {
+                    this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
+                    //                gatherService.gatherMacThread(DateTools.gatherDate());
+                } catch (Exception e) {
+                    log.error("Error occurred during MAC", e);
+                }
+                log.info("mac End......" + (System.currentTimeMillis()-time));
             } catch (Exception e) {
-                log.error("Error occurred during MAC", e);
+                e.printStackTrace();
+            } finally {
+                isRunningMAC = false;
             }
-            log.info("mac End......" + (System.currentTimeMillis()-time));
         }
     }
 
 //    @Transactional // 可以结合该注解确调度任务在事务中运行，并在异常时正确回滚事务
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningIPV4 = false;
+    @Scheduled(fixedDelay = 180_000)
     public void ipv4() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("Ipv4 Start......");
+        if(flag && !isRunningIPV4){
+            isRunningIPV4 = true;
             try {
-//                gatherService.gatherIpv4(DateTools.gatherDate());
-                gatherService.gatherIpv4Thread(DateTools.gatherDate(), new ArrayList<>());
+                Long time=System.currentTimeMillis();
+                log.info("Ipv4 Start......");
+                try {
+    //                gatherService.gatherIpv4(DateTools.gatherDate());
+                    gatherService.gatherIpv4Thread(DateTools.gatherDate(), new ArrayList<>());
+                } catch (Exception e) {
+                    log.error("Error occurred during IPV4", e);
+                }
+                log.info("Ipv4 End......" + (System.currentTimeMillis()-time));
             } catch (Exception e) {
-                log.error("Error occurred during IPV4", e);
+                e.printStackTrace();
+            } finally {
+                isRunningIPV4 = false;
             }
-            log.info("Ipv4 End......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningIPV4Detail = false;
+    @Scheduled(fixedDelay = 180_000)
     public void ipv4Detail() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("Ipv4 detail start......");
+        if(flag && !isRunningIPV4Detail){
+            isRunningIPV4Detail = true;
             try {
-                gatherService.gatherIpv4Detail(DateTools.gatherDate());
-//                gatherService.gatherIpv4Thread(DateTools.gatherDate());
+                Long time=System.currentTimeMillis();
+                log.info("Ipv4 detail start......");
+                try {
+                    gatherService.gatherIpv4Detail(DateTools.gatherDate());
+    //                gatherService.gatherIpv4Thread(DateTools.gatherDate());
+                } catch (Exception e) {
+                    log.error("Error occurred during IPV4Detail", e);
+                }
+                log.info("Ipv4 detail end......" + (System.currentTimeMillis()-time));
             } catch (Exception e) {
-                log.error("Error occurred during IPV4Detail", e);
+                e.printStackTrace();
+            } finally {
+                isRunningIPV4Detail = false;
             }
-            log.info("Ipv4 detail end......" + (System.currentTimeMillis()-time));
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
-    public void ipv6() {
-        if(flag){
-            Long time=System.currentTimeMillis();
-            log.info("Ipv6 Start......");
-            try {
-//                gatherService.gatherIpv6(DateTools.gatherDate());
-                gatherService.gatherIpv6Thread(DateTools.gatherDate(), new ArrayList<>());
-            } catch (Exception e) {
-                log.error("Error occurred during IPV6", e);
-            }
-            log.info("Ipv6 End......" + (System.currentTimeMillis()-time));
-        }
-    }
-
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningPort = false;
+    @Scheduled(fixedDelay = 180_000)
     public void port() {
-        if(flag){
+        if(flag && !isRunningPort){
+            isRunningPort = true;
             Long time = System.currentTimeMillis();
             log.info("Port Start......");
             try {
@@ -257,13 +289,46 @@ public class GatherTaskScheduledUtil {
             } catch (Exception e) {
                 log.error("Error occurred during PORT", e);
             }
-            log.info("Port End......" + (System.currentTimeMillis()-time));
+            try {
+                log.info("Port End......" + (System.currentTimeMillis()-time));
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                isRunningPort = false;
+            }
         }
     }
 
-    @Scheduled(cron = "0 */3 * * * ?")
+
+
+    private volatile boolean isRunningIPV6 = false;
+    @Scheduled(fixedDelay = 180_000)
+    public void ipv6() {
+        if(flag && !isRunningIPV6){
+            isRunningIPV6 = true;
+            try {
+                Long time=System.currentTimeMillis();
+                log.info("Ipv6 Start......");
+                try {
+                    // gatherService.gatherIpv6(DateTools.gatherDate());
+                    gatherService.gatherIpv6Thread(DateTools.gatherDate(), new ArrayList<>());
+                } catch (Exception e) {
+                    log.error("Error occurred during IPV6", e);
+                }
+                log.info("Ipv6 End......" + (System.currentTimeMillis()-time));
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                isRunningIPV6 = false;
+            }
+        }
+    }
+
+    private volatile boolean isRunningIPV6Port = false;
+    @Scheduled(fixedDelay = 180_000)
     public void portIpv6() {
-        if(flag){
+        if(flag && !isRunningIPV6Port){
+            isRunningIPV6Port = true;
             Long time = System.currentTimeMillis();
             log.info("PortIpv6 Start......");
             try {
@@ -271,22 +336,36 @@ public class GatherTaskScheduledUtil {
             } catch (Exception e) {
                 log.error("Error occurred during PortIpv6", e);
             }
-            log.info("PortIpv6 End......" + (System.currentTimeMillis()-time));
+            try {
+                log.info("PortIpv6 End......" + (System.currentTimeMillis()-time));
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                isRunningIPV6Port = false;
+            }
         }
     }
 
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningIsIPV6 = false;
+    @Scheduled(fixedDelay = 180_000)
     public void isIpv6() {
-        if(flag){
-            Long time = System.currentTimeMillis();
-            log.info("IsIpv6 Start......");
+        if(flag && !isRunningIsIPV6){
+            isRunningIsIPV6 = true;
             try {
-                gatherService.gatherIsIpv6(DateTools.gatherDate());
+                Long time = System.currentTimeMillis();
+                log.info("IsIpv6 Start......");
+                try {
+                    gatherService.gatherIsIpv6(DateTools.gatherDate());
+                } catch (Exception e) {
+                    log.error("Error occurred during isIpv6", e);
+                }
+                log.info("IsIpv6 End......" + (System.currentTimeMillis()-time));
             } catch (Exception e) {
-                log.error("Error occurred during isIpv6", e);
+                e.printStackTrace();
+            } finally {
+                isRunningIsIPV6 = false;
             }
-            log.info("IsIpv6 End......" + (System.currentTimeMillis()-time));
         }
     }
 
@@ -306,52 +385,76 @@ public class GatherTaskScheduledUtil {
     }
 
 
-    @Scheduled(cron = "0 */30 * * * ?")
-    public void pingSubnet() {
-        if(flag){
-            Long time = System.currentTimeMillis();
-            log.info("ping subnet Start......");
-            try {
-                this.subnetService.pingSubnet();
-            } catch (Exception e) {
-                log.error("Error occurred during Subnet", e);
-            }
-            log.info("ping subnet End......" + (System.currentTimeMillis()-time));
-        }
-    }
+//    private volatile boolean isRunningPing = false;
+//    @Scheduled(fixedDelay = 60 * 1000) // 30秒间隔，严格串行
+//    public void pingSubnet() {
+//        if(flag && !isRunningPing){
+//            isRunningPing = true;
+//            try {
+//                Long time = System.currentTimeMillis();
+//                log.info("ping subnet Start......");
+//                try {
+//                    this.subnetService.pingSubnet();
+//                } catch (Exception e) {
+//                    log.error("Error occurred during Subnet", e);
+//                }
+//                log.info("ping subnet End......" + (System.currentTimeMillis()-time));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            } finally {
+//                isRunningPing = false;
+//            }
+//        }
+//    }
 
 
     // TODO 已同步|待增加并发采集
-    @Scheduled(cron = "0 */1 * * * ?")
+    private volatile boolean isRunningSnmpStataus = false;
+    @Scheduled(fixedDelay = 60 * 1000) // 30秒间隔，严格串行
     public void snmpStatus() {
-        if(flag){
-            Long time = System.currentTimeMillis();
-            log.info("Snmp status start......");
+        if(flag && !isRunningSnmpStataus){
+            isRunningSnmpStataus = true;
             try {
-                 deviceManager.saveAvailableDevicesToRedis();
+                Long time = System.currentTimeMillis();
+                log.info("Snmp status start......");
+                try {
+                     deviceManager.saveAvailableDevicesToRedis();
+                } catch (Exception e) {
+                    log.error("Error occurred during SNMP", e);
+                }
+                log.info("Snmp status end......" + (System.currentTimeMillis()-time));
             } catch (Exception e) {
-                log.error("Error occurred during SNMP", e);
+                e.printStackTrace();
+            } finally {
+                isRunningSnmpStataus = false;
             }
-            log.info("Snmp status end......" + (System.currentTimeMillis()-time));
         }
     }
 
 
 
-    @Scheduled(cron = "0 */3 * * * ?")
+    private volatile boolean isRunningProbe = false;
+    @Scheduled(fixedDelay = 180_000)
     public void probe() {
-        if(false){
-            Long time = System.currentTimeMillis();
-            log.info("Probe start......");
+        if(flag && !isRunningProbe){
+            isRunningProbe = true;
             try {
-                // 解析授权码，是否开启扫描
-                if(getLicenseProbe()){
-                    probeService.scanByTerminal();
+                Long time = System.currentTimeMillis();
+                log.info("Probe start......");
+                try {
+                    // 解析授权码，是否开启扫描
+                    if(getLicenseProbe()){
+                        probeService.scanByTerminal();
+                    }
+                } catch (Exception e) {
+                    log.error("Error occurred during Probe", e);
                 }
+                log.info("Probe end......" + (System.currentTimeMillis()-time));
             } catch (Exception e) {
-                log.error("Error occurred during Probe", e);
+                e.printStackTrace();
+            } finally {
+                isRunningProbe = false;
             }
-            log.info("Probe end......" + (System.currentTimeMillis()-time));
         }
     }
 

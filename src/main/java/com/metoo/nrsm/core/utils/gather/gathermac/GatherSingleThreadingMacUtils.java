@@ -57,7 +57,7 @@ public class GatherSingleThreadingMacUtils {
             gatherMacUtils.copyGatherData(date);
 
             // 更新终端
-//            updateTerminal(date);
+            updateTerminal(date);
 
             macService.truncateTableGather();
             int count = 0;
@@ -273,9 +273,8 @@ public class GatherSingleThreadingMacUtils {
     private void updateTerminalInfo(Date date) {
         try {
             terminalService.syncTerminal(date);
-
-            // 政务外网
-//          this.terminalService.v4Tov6Terminal(date);
+//          this.terminalService.v4Tov6Terminal(date); // 政务外网
+            //
 
             // 政务外网
             // 根据vendor判断终端类型
