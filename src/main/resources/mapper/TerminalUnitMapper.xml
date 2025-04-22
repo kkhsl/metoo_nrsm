@@ -154,29 +154,29 @@
 
     <select id="selectObjAndTerminalByMap" parameterType="java.util.Map" resultMap="Unit_And_Terminals">
         SELECT
-            unit.id unit_id,
-            unit.unitName unit_name,
+        metoo_unit.id unit_id,
+        metoo_unit.unitName unit_name,
             terminal.*
         FROM
-          unit
-        JOIN metoo_terminal terminal ON unit.id = terminal.unitId
+          metoo_unit
+        JOIN metoo_terminal terminal ON metoo_unit.id = terminal.unitId
         <where>
             <choose>
                 <when test="deleteStatus != null">
-                    unit.deleteStatus = #{deleteStatus}
+                    metoo_unit.deleteStatus = #{deleteStatus}
                 </when>
                 <otherwise>
-                    unit.deleteStatus = 0
+                    metoo_unit.deleteStatus = 0
                 </otherwise>
             </choose>
             <if test="ids != null and ids.size() > 0">
-                AND unit.id in
+                AND metoo_unit.id in
                 <foreach collection="ids" index = "index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="unitId != null and unitId != ''">
-                AND unit.id = #{unitId}
+                AND metoo_unit.id = #{unitId}
             </if>
         </where>
     </select>

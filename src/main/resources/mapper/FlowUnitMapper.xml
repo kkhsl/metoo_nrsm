@@ -72,7 +72,7 @@
         ORDER BY addTime DESC
     </select>
     <select id="selectAllQuery" resultType="com.metoo.nrsm.entity.FlowUnit">
-        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random
+        SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account, hidden, random,unitId
         FROM metoo_flow_unit
         ORDER BY addTime DESC
     </select>
