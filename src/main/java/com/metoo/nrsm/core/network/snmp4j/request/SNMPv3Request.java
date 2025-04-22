@@ -331,14 +331,9 @@ public class SNMPv3Request {
         Map<String, String> portV6Map = sendGETNEXTRequest(snmpParams, SNMP_OID.PORT_IPV6);
         // 获取 SNMP 数据
         String portData = SNMPv3Request.getDevicePort(snmpParams);
-        String statusData = SNMPv3Request.getDevicePortStatus(snmpParams);
-        String portDescriptionData = SNMPv3Request.getDevicePortDescription(snmpParams);
 
         // 解析 JSON 数据
         JSONObject portJson = new JSONObject(portData);
-        JSONObject statusJson = new JSONObject(statusData);
-        JSONObject portDescriptionJson = new JSONObject(portDescriptionData);
-
         JSONArray resultArray = SNMPDataParser.parseDevicePortV6(portV6Map, portJson);
 
         return resultArray;

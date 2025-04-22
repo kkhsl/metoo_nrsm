@@ -154,12 +154,12 @@
 
     <select id="selectObjAndTerminalByMap" parameterType="java.util.Map" resultMap="Unit_And_Terminals">
         SELECT
-            unit.id unit_id,
-            unit.unitName unit_name,
+        metoo_unit.id unit_id,
+        metoo_unit.unitName unit_name,
             terminal.*
         FROM
-          metoo_unit unit
-        JOIN metoo_terminal terminal ON unit.id = terminal.unitId
+          metoo_unit
+        JOIN metoo_terminal terminal ON metoo_unit.id = terminal.unitId
         <where>
             <!-- 默认删除状态为0 -->
             unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
@@ -169,13 +169,13 @@
                 OR NULLIF(TRIM(terminal.v6ip), '') IS NOT NULL
             )
             <if test="ids != null and ids.size() > 0">
-                AND unit.id in
+                AND metoo_unit.id in
                 <foreach collection="ids" index = "index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="unitId != null and unitId != ''">
-                AND unit.id = #{unitId}
+                AND metoo_unit.id = #{unitId}
             </if>
         </where>
     </select>

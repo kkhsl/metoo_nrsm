@@ -742,9 +742,7 @@ public class GatherServiceImpl implements IGatherService {
                 return;
             }
 
-
             // 计算
-
             if(flowStatisticsList.size() > 0){
 
                 FlowStatistics obj = flowStatisticsList.get(0);

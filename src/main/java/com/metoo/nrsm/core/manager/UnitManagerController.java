@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequestMapping("/admin/unit")
 @RestController
@@ -43,6 +46,25 @@ public class UnitManagerController {
     @GetMapping("/selectAll")
     public Result selectAll(){
         Result result = this.unitService.selectAllQuery();
+        return result;
+    }
+
+    @GetMapping("/select")
+    public Result select() {
+        // 1. 获取所有单位数据
+        Result result = unitService.selectAllQuery();
+        List<Unit> allUnits = (List<Unit>) result.getData();
+        // 2. 获取已关联的 unitId
+        Set<Long> associatedUnitIds = terminalUnitMapper.selectAll().stream()
+                .map(UnitSubnet::getUnitId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        // 3. 过滤未关联的单位
+        List<Unit> filteredUnits = allUnits.stream()
+                .filter(unit -> unit.getId() != null && !associatedUnitIds.contains(unit.getId()))
+                .collect(Collectors.toList());
+        // 4. 更新结果
+        result.setData(filteredUnits);
         return result;
     }
 
