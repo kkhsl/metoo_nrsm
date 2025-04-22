@@ -371,8 +371,9 @@ public class GatherTaskScheduledUtil {
 
     // 采集流量
 //    @Scheduled(cron = "0 */3 * * * ?")
+    @Scheduled(fixedDelay = 60 * 1000) // 30秒间隔，严格串行
     public void flux() {
-        if(flag) {
+        if(true) {
             Long time = System.currentTimeMillis();
             log.info("flux Start......");
             try {
@@ -507,7 +508,8 @@ public class GatherTaskScheduledUtil {
         this.fluxDailyRateService.save(fluxDailyRate);
     }
 
-    @Scheduled(cron = "0 0/5 * * * ?")
+//    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(fixedDelay = 60_000)
     public Result getTraffic() {
         List<String> trafficResults = new ArrayList<>();
 

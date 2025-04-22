@@ -6,8 +6,11 @@
 
     <select id="selectObjDistinctV4ip"
             resultType="com.metoo.nrsm.entity.Arp">
-        select * from metoo_arp where
+      /*  select * from metoo_arp where
         id not in(select id from metoo_arp where v4ip like '192.168%')
+        group by mac having count(*) &lt;=1 order by v4ip asc*/
+
+        select * from metoo_arp
         group by mac having count(*) &lt;=1 order by v4ip asc
     </select>
 

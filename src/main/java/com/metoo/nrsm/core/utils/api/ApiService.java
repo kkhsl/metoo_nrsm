@@ -309,8 +309,6 @@ public class ApiService {
     // 超时
     public String callThirdPartyApiTT(String apiUrl, JindustryUnitRequest jindustryUnitRequest) throws Exception {
 
-        log.info("====================== 请求地址：{}", apiUrl);
-
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
 

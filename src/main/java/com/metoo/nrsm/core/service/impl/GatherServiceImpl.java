@@ -863,4 +863,35 @@ public class GatherServiceImpl implements IGatherService {
     }
 
 
+    public static void main(String[] args) {
+//        String path = Global.PYPATH + "gettraffic.py";
+//        String[] params = {ip, "v2c",
+//                community, in, out};
+//
+//        String result = pythonExecUtils.exec2(path, params);
+//        if(StringUtil.isNotEmpty(result)){
+//            return result;
+//        }
+//        return null;
+
+//            SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+//                    .host("113.240.243.196")
+//                    .version("v2c")
+//                    .community("transfar@123")
+//                    .build();
+//
+//            String traffic = SNMPv3Request.getTraffic(snmpv3Params, "1.3.6.1.2.1.31.1.1.1.6.6", "1.3.6.1.2.1.31.1.1.1.10.6");
+//            log.info("流量：{}", traffic);
+
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .host("113.240.243.196")
+                .version("v2c")
+                .community("transfar@123")
+                .build();
+        String traffic = SNMPv3Request.getDeviceName(snmpv3Params);
+
+        log.info("主机名：{}", traffic);
+
+    }
+
 }

@@ -18,8 +18,11 @@ public class SNMPDataParser {
 //    }
 
     public static String convertToJson(Map<String, String> arpResult) {
+        if(arpResult.isEmpty()){
+            return "";
+        }
         JSONObject jsonObject = new JSONObject(arpResult);
-        return  jsonObject.toString();
+        return jsonObject.toString();
     }
 
 
@@ -461,14 +464,14 @@ public class SNMPDataParser {
         Map<String, String> result = new HashMap<>(2);
         if (inData != null && !inData.getVariableBindings().isEmpty()) {
             in = inData.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("\"", "");
+            // 入口流量求和
+            result.put("in",in);
         }
         if (outData != null && !outData.getVariableBindings().isEmpty()) {
             out = outData.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("\"", "");
+            result.put("out",out);
+            // 出口流量求和
         }
-        // 入口流量求和
-        result.put("in",in);
-        // 出口流量求和
-        result.put("out",out);
         return result;
     }
 
