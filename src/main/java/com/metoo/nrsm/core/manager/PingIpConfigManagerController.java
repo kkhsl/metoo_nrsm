@@ -47,18 +47,19 @@ public class PingIpConfigManagerController {
             Integer status = instance.getStatus();
             boolean bool = status != 0;
             // 查询checkaliveip状态
-            boolean checkaliveStatus = this.pingIpConfigService.status();
+            //boolean checkaliveStatus = this.pingIpConfigService.status();
+            boolean checkaliveStatus = true;
             if (bool) {
-                if (!checkaliveStatus) {
-                    try {
-                        this.pingIpConfigService.start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+//                if (!checkaliveStatus) {
+//                    try {
+//                        this.pingIpConfigService.start();
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
                 if (checkaliveStatus) {
-                    this.pingIpConfigService.restart();
-                    this.pingIpConfigService.checkaliveip();
+//                    this.pingIpConfigService.restart();
+//                    this.pingIpConfigService.checkaliveip();
                     // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
                     // 异步执行链路检测
                     CompletableFuture.runAsync(() -> {
@@ -85,17 +86,10 @@ public class PingIpConfigManagerController {
                         // 启动定时任务
                         startScheduledTask(pingResults, pingIpConfigs);
                     });
-                } else {
-                    // 程序未启动如何提示？
                 }
             } else {
-                if (checkaliveStatus) {
-                    try {
-                        this.pingIpConfigService.stop();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                //TODO 关闭定时任务
+                return ResponseUtil.error("链路自动检测未开启！");
             }
             return ResponseUtil.ok();
         }
