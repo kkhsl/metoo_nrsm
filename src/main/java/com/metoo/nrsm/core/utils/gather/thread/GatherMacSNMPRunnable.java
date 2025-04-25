@@ -46,17 +46,17 @@ public class GatherMacSNMPRunnable implements Runnable {
         String ip = networkElement.getIp();
         try {
             long start = System.currentTimeMillis();
-            log.debug("开始采集: {}", ip);
+            log.debug("MAC开始采集: {}", ip);
 
             macManager.getMac(networkElement, date);
 
             long cost = System.currentTimeMillis() - start;
-            log.debug("采集完成: {}, 耗时: {}ms", ip, cost);
+            log.debug("MAC采集完成: {}, 耗时: {}ms", ip, cost);
         } catch (Exception e) {
-            log.error("采集设备 {} 异常: {}", ip, e.getMessage());
+            log.error("MAC采集设备 {} 异常: {}", ip, e.getMessage());
         } finally {
             latch.countDown();
-            log.trace("计数器减1, 剩余: {}", latch.getCount());
+            log.trace("MAC计数器减1, 剩余: {}", latch.getCount());
         }
     }
 }

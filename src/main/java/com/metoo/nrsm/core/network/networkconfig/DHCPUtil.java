@@ -2,10 +2,22 @@ package com.metoo.nrsm.core.network.networkconfig;
 
 import com.metoo.nrsm.core.network.networkconfig.test.*;
 import com.metoo.nrsm.core.network.networkconfig.other.*;
+import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Component
 public class DHCPUtil {
+
+
+    private final PingTest pingTest;
+    @Autowired
+    public DHCPUtil(PingTest pingTest) {
+        this.pingTest = pingTest;
+    }
+
 
     /**
      * 获取dhcp状态
@@ -78,8 +90,16 @@ public class DHCPUtil {
     }
 
     //PingTest.py
+//    public void pingSubnet(String network, int mask) {
+//        pingTest.scanSubnet(network,mask);
+//    }
+
     public static void pingSubnet(String network, int mask) {
-        PingTest.scanSubnet(network,mask);
+        PingSubnet.scanSubnet(network,mask);
+    }
+
+    public void pingSubnet2(String network, int mask) {
+        PingSubnet.scanSubnet(network,mask);
     }
 
 

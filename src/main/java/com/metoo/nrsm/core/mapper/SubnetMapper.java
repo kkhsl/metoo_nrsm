@@ -22,6 +22,8 @@ public interface SubnetMapper {
 
     List<Subnet> selectObjByMap(Map params);
 
+    List<Subnet> leafIpSubnetMapper(Map params);
+
     int save(Subnet instance);
 
     int update(Subnet instance);

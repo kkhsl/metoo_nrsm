@@ -72,7 +72,7 @@ public class GatherSingleThreadingMacSNMPUtils {
             gatherMacUtils.copyGatherData(date);
 
             // 更新终端
-            updateTerminal(date);
+//            updateTerminal(date);
             log.info("terminal end");
             macService.truncateTableGather();
             int count = 0;
@@ -87,8 +87,6 @@ public class GatherSingleThreadingMacSNMPUtils {
                     continue;
                 }
 
-                // TODO 多余，查询设备时已经查询了是否存在
-                log.info("MAC：" + networkElement.getIp() + "设备加入线程");
                 gatherDataThreadPool.execute(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
 //
 //                macManager.getMac(networkElement, date);

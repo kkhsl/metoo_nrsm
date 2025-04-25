@@ -1075,8 +1075,8 @@
         select * from metoo_terminal
         <where>
             <!-- 默认条件 -->
-            ((d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
-            or (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != ''))
+            ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
+            or (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
             <if test="mac != null and mac != ''">
                 AND mac = #{mac}
             </if>

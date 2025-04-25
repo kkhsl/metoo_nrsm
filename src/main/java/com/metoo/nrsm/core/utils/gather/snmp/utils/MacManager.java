@@ -36,7 +36,6 @@ public class MacManager {
     }
 
     private String getHostName(NetworkElement networkElement){
-        log.info("gethostname ===== {}", networkElement.getIp());
 //        String hostName = SNMPv2Request.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
         String hostName = SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement));
         return hostName;
@@ -44,13 +43,10 @@ public class MacManager {
 
     // 处理网络元素数据
     private void processNetworkElementData(NetworkElement networkElement, String hostName, Date date) {
-        log.info("getlldp ===== {}", networkElement.getIp());
         getLldpDataSNMP(networkElement, date, hostName);
 
-        log.info("getmac ====={}", networkElement.getIp());
         getMacData(networkElement, date, hostName);
 
-        log.info("getportmac ====={}", networkElement.getIp());
         getPortMacData(networkElement, date, hostName);
     }
 
@@ -84,17 +80,14 @@ public class MacManager {
 
         // 使用 CompletableFuture 进行并行处理
         CompletableFuture<Void> lldpFuture = CompletableFuture.runAsync(() -> {
-            log.info("getlldp ===== {}", networkElement.getIp());
             getLldpDataSNMP(networkElement, date, hostName);
         });
 
         CompletableFuture<Void> macFuture = CompletableFuture.runAsync(() -> {
-            log.info("getmac ===== {}", networkElement.getIp());
             getMacData(networkElement, date, hostName);
         });
 
         CompletableFuture<Void> portMacFuture = CompletableFuture.runAsync(() -> {
-            log.info("getportmac ===== {}", networkElement.getIp());
             getPortMacData(networkElement, date, hostName);
         });
 

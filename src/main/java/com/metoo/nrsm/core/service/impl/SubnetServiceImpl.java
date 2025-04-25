@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SubnetUtils;
 import com.metoo.nrsm.core.mapper.SubnetMapper;
+import com.metoo.nrsm.core.network.networkconfig.DHCPUtil;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IPortService;
 import com.metoo.nrsm.core.service.ISubnetService;
@@ -34,8 +35,8 @@ public class SubnetServiceImpl implements ISubnetService {
     private SubnetUtils subnetUtils;
     @Autowired
     private PythonExecUtils pythonExecUtils;
-    private final GatherDataThreadPool threadPool;
 
+    private final GatherDataThreadPool threadPool;
     @Autowired
     public SubnetServiceImpl(GatherDataThreadPool threadPool) {
         this.threadPool = threadPool;
@@ -69,6 +70,11 @@ public class SubnetServiceImpl implements ISubnetService {
     @Override
     public List<Subnet> selectObjByMap(Map params) {
         return this.subnetMapper.selectObjByMap(params);
+    }
+
+    @Override
+    public List<Subnet> leafIpSubnetMapper(Map params) {
+        return this.subnetMapper.leafIpSubnetMapper(params);
     }
 
     @Override
@@ -214,8 +220,40 @@ public class SubnetServiceImpl implements ISubnetService {
         return ResponseUtil.ok();
     }
 
+    @Autowired
+    private DHCPUtil dhcpUtil;
+    /**
+     *
+      String path = Global.PYPATH + "PingTest.py";
+      String[] params = {subnet.getIp(), String.valueOf(subnet.getMask())};
+      String result = PythonExecUtils.exec(path, params);
+
+     */
     @Override
     public void pingSubnet() {
+        List<Subnet> subnets = this.subnetMapper.leafIpSubnetMapper(null);
+        if(subnets.size() > 0){
+            for (Subnet subnet : subnets) {
+                if(MyStringUtils.isNonEmptyAndTrimmed(subnet.getIp())
+                        && subnet.getMask() != null){
+                    // 方式一
+//                    threadPool.execute(new Runnable() {
+//                        @Override
+//                        public void run() {// cpu爆满
+//                            SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+//                        }
+//                    });
+
+//                    方式二：
+                    SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+//                    dhcpUtil.pingSubnet(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+                }
+            }
+        }
+    }
+
+
+    public void pingSubnet2() {
         List<Subnet> subnets = this.subnetMapper.selectObjByMap(null);
         if(subnets.size() > 0){
             for (Subnet subnet : subnets) {
@@ -242,6 +280,7 @@ public class SubnetServiceImpl implements ISubnetService {
             }
         }
     }
+
 
     public Map<String, List<Object>> ipAddressCombingByDB(List<Port> ports) {
         if(ports.size() == 0){

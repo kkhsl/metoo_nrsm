@@ -20,6 +20,8 @@ public interface ISubnetService {
 
     List<Subnet> selectObjByMap(Map params);
 
+    List<Subnet> leafIpSubnetMapper(Map params);
+
     int save(Subnet instance);
 
     Result update(Subnet instance);

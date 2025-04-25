@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.utils.date;
 
 import org.junit.Test;
 import org.springframework.stereotype.Component;
+import org.threeten.bp.Duration;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -36,18 +37,6 @@ public class DateTools {
     public static String TIME_235959 = "235959";
     public static long ONEDAY_TIME = 86400000L;
 
-    // Duration.between 时间差计算工具类
-
-    public static void main(String[] args) {
-
-        // 获取当前时间
-        String currentTime = getCurrentDate(new Date(), "yyyy-MM-dd HH:mm:ss");
-        System.out.println(currentTime);
-
-    }
-
-
-
     /**
      * @param date 当前时间
      * @return
@@ -66,6 +55,44 @@ public class DateTools {
         }
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(date);
+    }
+
+    @Test
+    public void measureExecutionTimeTest(){
+        String formattedTime = measureExecutionTime((long) 1500);
+        System.out.println(formattedTime);
+    }
+
+    public static String measureExecutionTime(Long timeDifference) {
+
+        Duration duration = Duration.ofMillis(timeDifference);
+
+        // 提取分钟、秒、毫秒
+        long minutes = duration.toMinutes();       // 总分钟数
+        long seconds = duration.toSecondsPart();   // 剩余秒数（Java 9+）
+        long millis = duration.toMillisPart();     // 剩余毫秒数（Java 9+）
+
+        // 格式化输出
+        String formattedTime;
+        if (minutes > 0) {
+            formattedTime = String.format("%d 分钟 %d 秒 %d 毫秒", minutes, seconds, millis);
+        } else if (seconds > 0) {
+            formattedTime = String.format("%d 秒 %d 毫秒", seconds, millis);
+        } else {
+            formattedTime = String.format("%d 毫秒", millis);
+        }
+        return formattedTime;
+    }
+
+    @Test
+    public void getCurrentDateByChTest() throws InterruptedException {
+        Long time = System.currentTimeMillis();
+        Thread.sleep(1000);
+        long timeDifference = System.currentTimeMillis() - time;
+        Date date = new Date(timeDifference); // 这里假设time是相对于epoch的毫秒数
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = sdf.format(date);
+        System.out.println(formattedDate);
     }
 
     public static String getCurrentDateByCh(long timeStamp){
@@ -365,10 +392,14 @@ public class DateTools {
     }
 
     public static Date gatherDate(){
-        Calendar cal = Calendar.getInstance();
-        cal.clear(Calendar.SECOND);
-        cal.clear(Calendar.MILLISECOND);
-        Date date = cal.getTime();
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
+        // 清除秒和毫秒
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        Date date = calendar.getTime();
         return date;
     }
 

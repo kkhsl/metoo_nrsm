@@ -18,13 +18,20 @@ public class SNMPParamFactory {
             log.info("version is null");
             return null;
         }
+        if(networkElement.getPort() == null || "".equals(networkElement.getPort())){
+            log.info("port is null");
+            return null;
+        }
+        if(networkElement.getCommunity() == null || "".equals(networkElement.getCommunity())){
+            log.info("community is null");
+            return null;
+        }
         try {
             switch(networkElement.getVersion()) {
                 case "v1":
                     return createV1Param(networkElement.getIp(), networkElement.getPort(), networkElement.getCommunity(), 1500, 3);
                 case "v2c":
                     return createV2cParam(networkElement.getIp(), networkElement.getPort(), networkElement.getCommunity(), 1500, 3);
-
                 case "v3":
                     if (networkElement.getSecurityLevel() == null) {
                         throw new IllegalArgumentException("SNMPv3 requires security level");
@@ -327,12 +334,32 @@ public class SNMPParamFactory {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
                 .host("192.168.0.36")
-                .port(161)
                 .community("hnccsroot_read")
                 .build();
 
         JSONArray result = SNMPv3Request.getArp(snmpv3Params);
         log.info("arpV6:{}", result);
+    }
+
+
+
+    @Test
+    public void getDDL() {
+
+        NetworkElement networkElement = new NetworkElement();
+        networkElement.setIp("192.168.0.25");
+        networkElement.setVersion("v2c");
+        networkElement.setCommunity("transfar");
+        SNMPV3Params snmpv3Params = SNMPParamFactory.createSNMPParam(networkElement);
+
+        JSONArray result = SNMPv3Request.getLldp(snmpv3Params);
+        log.info("getLldp:{}", result);
+
+        result = SNMPv3Request.getMac(SNMPParamFactory.createSNMPParam(networkElement));
+        log.info("getMac:{}", result);
+
+        result = SNMPv3Request.getPortMac(SNMPParamFactory.createSNMPParam(networkElement));
+        log.info("getPortMac:{}", result);
     }
 
 }

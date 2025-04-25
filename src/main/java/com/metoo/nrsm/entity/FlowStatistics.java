@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author HKK
@@ -21,7 +22,6 @@ public class FlowStatistics extends IdEntity {
     private BigDecimal ipv6Sum;
     private BigDecimal ipv4;
     private BigDecimal ipv6;
-
 
     private BigDecimal ipv6Rate;
 }

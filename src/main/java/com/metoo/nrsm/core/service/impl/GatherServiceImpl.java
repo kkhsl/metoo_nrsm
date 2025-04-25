@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
@@ -17,6 +18,7 @@ import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
 import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
 import org.snmp4j.security.SecurityLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -646,8 +648,12 @@ public class GatherServiceImpl implements IGatherService {
                                 continue;
                             }
                             String result = gettraffic(fluxConfig.getIpv4(), fluxConfig.getVersion(), fluxConfig.getCommunity(), in, out);
+//                            Map<String, String> data = new HashMap<>(2);
+//                            data.put("in", "99364507281218");
+//                            data.put("out", "99364507281218");
+//                            String result = JSONObject.toJSONString(data);
                             if (StringUtils.isNotEmpty(result)) {
-                                Map map = JSONObject.parseObject(result, Map.class);
+                                Map map = JSON.parseObject(result, Map.class);
                                 v4_list.add(map);
                             }
                         }
@@ -655,7 +661,7 @@ public class GatherServiceImpl implements IGatherService {
                 }
 
                 if(fluxConfig.getIpv6Oid() != null && !"".equals(fluxConfig.getIpv6Oid())){
-                    List<List<String>> v6_oids = JSONObject.parseObject(fluxConfig.getIpv6Oid(), List.class);
+                    List<List<String>> v6_oids = JSON.parseObject(fluxConfig.getIpv6Oid(), List.class);
                     for (List<String> oid : v6_oids) {
 
                         if(oid.size() > 0 && oid.size() >= 2) {
@@ -665,6 +671,11 @@ public class GatherServiceImpl implements IGatherService {
                                 continue;
                             }
                             String result = gettraffic(fluxConfig.getIpv6(), fluxConfig.getVersion(), fluxConfig.getCommunity(), in, out);
+//                            Map<String, String> data = new HashMap<>(2);
+//                            data.put("in", "99364507281218");
+//                            data.put("out", "99364507281218");
+//                            String result2 = data.toString();
+//                            String result = JSONObject.toJSONString(data);
                             if (StringUtils.isNotEmpty(result)) {
                                 Map map = JSONObject.parseObject(result, Map.class);
                                 v6_list.add(map);
@@ -711,12 +722,12 @@ public class GatherServiceImpl implements IGatherService {
 //                this.flowStatisticsService.save(flowStatistics);
 //                return;
 //            }
-            if(flowStatisticsList.size() > 0){
-                Date lastMinute = DateTools.getMinDate(-1, date);
+            if(flowStatisticsList.size() > 0){// 如果获取数据时间过长，会导致这里直接return
+                Date lastMinute = DateTools.getMinDate(-5, date);
                 FlowStatistics obj = flowStatisticsList.get(0);
                 if(obj.getAddTime().getTime() != lastMinute.getTime()){
                     this.flowStatisticsService.save(flowStatistics);
-                    return;
+                    return;// 直接返回，不在计算差值
                 }
             }
 
@@ -745,29 +756,67 @@ public class GatherServiceImpl implements IGatherService {
             // 计算
             if(flowStatisticsList.size() > 0){
 
+                // 初始化默认值（避免空指针）
+                BigDecimal zero = BigDecimal.ZERO;
+                BigDecimal ipv4SumDiff = zero;
+                BigDecimal ipv4Traffic = zero;
+                BigDecimal ipv6SumDiff = zero;
+                BigDecimal ipv6Traffic = zero;
+
                 FlowStatistics obj = flowStatisticsList.get(0);
-                if(obj.getIpv4Sum() != null && obj.getIpv6Sum() != null
-                        && !obj.getIpv4Sum().equals(BigDecimal.ZERO) && !obj.getIpv6Sum().equals(BigDecimal.ZERO)
-                        && !ipv4Sum.equals(BigDecimal.ZERO) && !ipv4Sum.equals(BigDecimal.ZERO)){
+                if(obj.getIpv4Sum() != null && !obj.getIpv4Sum().equals(zero)
+                        && ipv4Sum != null && !ipv4Sum.equals(zero)){
+
+                    ipv4SumDiff = ipv4Sum.subtract(obj.getIpv4Sum());
+                    // 计算 IPv4 流量（单位 Mbps）
+                    ipv4Traffic = ipv4SumDiff.multiply(new BigDecimal(8))
+                            .divide(new BigDecimal(60 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP);
+                    flowStatistics.setIpv4(ipv4Traffic);
+
+                }
+
+                // 计算 IPv6 差值（仅当 obj.getIpv6Sum() 和 ipv6Sum 均非空且非零）
+                if (obj.getIpv6Sum() != null && !obj.getIpv6Sum().equals(zero)
+                        && ipv6Sum != null && !ipv6Sum.equals(zero)) {
+                    ipv6SumDiff = ipv6Sum.subtract(obj.getIpv6Sum());
+                    // 计算 IPv6 流量（单位 Mbps）
+                    ipv6Traffic = ipv6SumDiff.multiply(new BigDecimal(8))
+                            .divide(new BigDecimal(60 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP);
+                    flowStatistics.setIpv6(ipv6Traffic);
+                }
 
 
-                    ipv4Sum = ipv4Sum.subtract(obj.getIpv4Sum());
-                    ipv6Sum = ipv6Sum.subtract(obj.getIpv6Sum());
-                    BigDecimal in = ipv4Sum.multiply(new BigDecimal(8)).divide(new BigDecimal(60*1024*1024), 2,BigDecimal.ROUND_HALF_UP);
-                    BigDecimal out = ipv6Sum.multiply(new BigDecimal(8)).divide(new BigDecimal(60*1024*1024), 2,BigDecimal.ROUND_HALF_UP);
-                    flowStatistics.setIpv4(in);
-                    flowStatistics.setIpv6(out);
-                    if(!ipv4Sum.equals(BigDecimal.ZERO) || !ipv6Sum.equals(BigDecimal.ZERO)){
-                        // ipv6流量占比=ipv6流量/（ipv4流量+ipv6流量）
-                        ipv6Rate = out.divide(in.add(out), 2,BigDecimal.ROUND_HALF_UP);
-                    }
+                // 计算 IPv6 流量占比（仅当 IPv4 和 IPv6 流量均非零）
+                if (ipv4Traffic.compareTo(zero) != 0 && ipv6Traffic.compareTo(zero) != 0) {
+                    ipv6Rate = ipv6Traffic.divide(
+                            ipv4Traffic.add(ipv6Traffic),
+                            2, BigDecimal.ROUND_HALF_UP
+                    );
                     flowStatistics.setIpv6Rate(ipv6Rate);
                 }
+                flowStatistics.setIpv6Rate(ipv6Rate);
             }
-
-
             this.flowStatisticsService.save(flowStatistics);
         }
+    }
+
+    @Test
+    public void test(){
+        Map<String, String> data = new HashMap<>(2);
+        data.put("in", "99364507281218");
+        data.put("out", "99364507281218");
+        String result = data.toString();
+        System.out.println(result);
+
+        Map map = JSON.parseObject(result, Map.class);
+
+        Map<String, String> data2 = new HashMap<>(2);
+        data2.put("in", "99364507281218");
+        data2.put("out", "99364507281218");
+        String result2 = JSONObject.toJSONString(data2);
+        System.out.println(result2);
+
+        Map map2 = JSON.parseObject(result2, Map.class);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.network.snmp4j.request;
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
+import com.metoo.nrsm.core.utils.string.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.json.JSONArray;
@@ -240,13 +241,13 @@ public class SNMPv3Request {
     // 修改GETNEXT方法
     private static Map<String, String> sendGETNEXTRequest(SNMPV3Params params, SNMP_OID snmpOid) {
         if(params == null){
-            return null;
+            return new HashMap<>();
         }
         Map<String, String> resultMap = new HashMap<>();
         Snmp snmp = threadContext.get().snmp;
         if (snmp == null) {
             System.err.println("SNMP实例未初始化");
-            return null;
+            return new HashMap<>();
         }
 
         try {
@@ -285,7 +286,6 @@ public class SNMPv3Request {
     private static PDU processResponse(ResponseEvent event) {
         PDU response = null;
         try {
-            log.info("snmp请求地址:{}", event.getPeerAddress());
             if (event.getResponse() == null) {
                 log.info("SNMP 实例初始化失败");
             }
@@ -576,12 +576,18 @@ public class SNMPv3Request {
         String macData = SNMPv3Request.getDevicePortMac(snmpParams);
         String statusData = SNMPv3Request.getDevicePortStatus(snmpParams);
         String portData = SNMPv3Request.getDevicePort(snmpParams);
-
+        if(StringUtils.isEmpty(macData) ||
+                StringUtils.isEmpty(statusData) ||
+                StringUtils.isEmpty(portData)){
+            return new JSONArray();
+        }
 
         // 解析 JSON 数据
         JSONObject macJson = new JSONObject(macData);
         JSONObject statusJson = new JSONObject(statusData);
         JSONObject portJson = new JSONObject(portData);
+
+
 
         // 创建结果数组
         JSONArray resultArray = new JSONArray();
@@ -761,7 +767,9 @@ public class SNMPv3Request {
         // 获取 SNMP 数据
         String lldpData = SNMPv3Request.getLLDP(snmpParams);
         String lldpPortData = SNMPv3Request.getLLDPPort(snmpParams);
-
+        if(StringUtils.isEmpty(lldpData) || StringUtils.isEmpty(lldpPortData)){
+            return new JSONArray();
+        }
         // 解析 JSON 数据
         JSONObject lldpJson = new JSONObject(lldpData);
         JSONObject lldpPortJson = new JSONObject(lldpPortData);
@@ -772,7 +780,7 @@ public class SNMPv3Request {
         // 遍历 LLDP 数据
         for (String lldpKey : lldpJson.keySet()) {
             String hostname = lldpJson.getString(lldpKey); // 获取主机名
-            String remotePort = lldpPortJson.optString(lldpKey, "unknown"); // 获取对应的远程端口
+            String remotePort = lldpPortJson.optString(lldpKey, ""); // 获取对应的远程端口
 
             // 创建结果对象
             JSONObject resultObject = new JSONObject();

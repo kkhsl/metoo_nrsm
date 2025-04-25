@@ -159,10 +159,10 @@
             terminal.*
         FROM
           metoo_unit
-        JOIN metoo_terminal terminal ON metoo_unit.id = terminal.unitId
+        LEFT JOIN metoo_terminal terminal ON metoo_unit.id = terminal.unitId
         <where>
             <!-- 默认删除状态为0 -->
-            unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
+            metoo_unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
             <!-- 优化IP检查条件 -->
             AND (
                 NULLIF(TRIM(terminal.v4ip), '') IS NOT NULL

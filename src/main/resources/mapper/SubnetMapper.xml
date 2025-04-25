@@ -86,6 +86,15 @@
         </where>
     </select>
 
+    <select id="leafIpSubnetMapper" resultMap="Base_Result_Map">
+        SELECT  t1.id, INET_NTOA(t1.ip) ip, t1.mask
+        FROM metoo_subnet t1
+        LEFT JOIN metoo_subnet t2 ON t1.id = t2.parent_id
+
+        WHERE t2.ip IS NULL
+    </select>
+
+
     <insert id="save" parameterType="com.metoo.nrsm.entity.Subnet" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO metoo_subnet
         <trim prefix="(" suffix=")" suffixOverrides=",">

@@ -1,9 +1,6 @@
 package com.metoo.nrsm.core.network.networkconfig.other;
 
-import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,35 +9,63 @@ import java.net.InetAddress;
 import java.util.concurrent.*;
 
 @Slf4j
-@Component
-public class PingTest {
-
+public class PingSubnet {
     private static final int TIMEOUT_MS = 1000;
+    private static final int THREAD_POOL_SIZE = 10;
 
-    private final GatherDataThreadPool gatherDataThreadPool;
-    @Autowired
-    public PingTest(GatherDataThreadPool gatherDataThreadPool) {
-        this.gatherDataThreadPool = gatherDataThreadPool;
+    public static void main(String[] args) {
+        String ip="192.168.4.0";
+        Integer mask=22;
+        try {
+            scanSubnet(ip, mask);
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid mask format");
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 
-    public void scanSubnet(String network, int mask) {
+    /**
+     * 控制并发ip数量
+     * @param network
+     * @param mask
+     */
+    public static void scanSubnet(String network, int mask) {
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        Semaphore limiter = new Semaphore(50);
         try {
             InetAddress baseIp = InetAddress.getByName(network);
             long startIp = ipToLong(baseIp);
             long subnetSize = (long) Math.pow(2, 32 - mask);
 
+            // 使用CountDownLatch等待所有任务完成
+            CountDownLatch latch = new CountDownLatch((int)(subnetSize - 2));
+
             for (long i = 1; i < subnetSize - 1; i++) { // 排除网络地址和广播地址
+                limiter.acquire(); // 控制并发
+
                 String targetIp = longToIp(startIp + i);
-                gatherDataThreadPool.execute(new PingTask(targetIp));
+                executor.execute(() -> {
+                    try {
+                        new PingTask(targetIp).run();
+                    } finally {
+                        limiter.release();
+                        latch.countDown();
+                    }
+                });
             }
-            // 等待本次扫描的所有任务完成
-//            gatherDataThreadPool.awaitTermination(1, TimeUnit.MINUTES); // 超时保护
+
+            // 等待所有任务完成
+            latch.await();
+            executor.shutdown();
+            executor.awaitTermination(5, TimeUnit.MINUTES);
         } catch (Exception e) {
             handleNetworkError(e);
+        } finally {
+            executor.shutdownNow(); // 确保线程池被关闭
         }
     }
-
-    class PingTask implements Runnable {
+    static class PingTask implements Runnable {
         private final String ip;
 
         PingTask(String ip) {
@@ -49,18 +74,17 @@ public class PingTest {
 
         @Override
         public void run() {
-            if (Thread.currentThread().isInterrupted()) {
-                return;
-            }
             try {
                 String os = System.getProperty("os.name").toLowerCase();
                 String[] cmd = buildPingCommand(os, ip);
 
                 Process process = new ProcessBuilder(cmd).start();
                 boolean isAlive = parsePingOutput(os, process);
-                log.info("Pinging {} - {}", ip, isAlive ? "Success" : "Failed");
+
+//                log.info("Pinging {} - {}", ip, isAlive ? "Success" : "Failed");
+
             } catch (Exception e) {
-                System.err.println("Ping error: " + e.getMessage());
+                 log.info("Ping error: " + e.getMessage());
             }
         }
 

@@ -139,8 +139,9 @@ public class IndexManagerController {
     public Object nav(){
         Map map = new HashMap();
         User user = ShiroUserHolder.currentUser();
-        List<MenuVo> menuList = this.indexService.findMenu(user.getId());
-        map.put("obj", menuList);
+        map.put("obj", user != null ? this.indexService.findMenu(user.getId())
+                : Collections.emptyList());
+
         SysConfig configs = this.configService.select();
         map.put("domain", configs.getDomain());
         List<License> licenses = this.licenseService.query();

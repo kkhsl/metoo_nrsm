@@ -42,7 +42,7 @@ public class PingIpConfigManagerController {
     @PutMapping
     public Result update(@RequestBody PingIpConfig instance)  {
         boolean flag = this.pingIpConfigService.update(instance);
-        return ResponseUtil.error();
+        return ResponseUtil.ok();
     }
 
 //    @PutMapping
