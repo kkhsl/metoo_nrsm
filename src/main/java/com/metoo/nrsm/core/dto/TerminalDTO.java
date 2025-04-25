@@ -159,6 +159,7 @@ public class TerminalDTO extends PageDto<Terminal> {
 
     @ApiModelProperty("项目Id")
     private Long projectId;
+
     @ApiModelProperty("项目名")
     private String projectName;
     @ApiModelProperty("厂商ID")
@@ -179,5 +180,7 @@ public class TerminalDTO extends PageDto<Terminal> {
     private Date start_warranty_time;
     @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Date end_warranty_time;
+
+    private Long unitId;
 
 }

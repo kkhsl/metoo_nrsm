@@ -7,6 +7,7 @@ import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.TerminalDTO;
 import com.metoo.nrsm.core.manager.utils.MacUtils;
 import com.metoo.nrsm.core.mapper.TerminalMacIpv6Mapper;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
@@ -43,6 +44,9 @@ public class TerminalManagerController {
     private TerminalMacIpv6Mapper terminalMacIpv6Mapper;
     @Autowired
     private IUnitService unitService;
+
+    @Autowired
+    private UnitMapper unitMapper;
 
     @GetMapping("/vdt")
     public Result vdt(String ip){
@@ -120,6 +124,9 @@ public class TerminalManagerController {
         // 品牌
         List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
         map.put("vendor", vendors);
+
+        List<Unit> unitList = unitMapper.selectAllQuery();
+        map.put("unitList", unitList);
         // 项目
         params.clear();
         List<Project> projectList = this.projectService.selectObjByMap(params);
@@ -354,6 +361,14 @@ public class TerminalManagerController {
             Project project = this.projectService.selectObjById(instance.getProjectId());
             if(project == null){
                 return ResponseUtil.badArgument("请输入正确项目参数");
+            }
+        }
+
+        // 验证部门
+        if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
+            Unit unit = unitMapper.selectObjById(instance.getUnitId());
+            if(unit == null){
+                return ResponseUtil.badArgument("请输入正确单位/部门");
             }
         }
 
