@@ -1,6 +1,5 @@
 package com.metoo.nrsm.core.utils;
 
-import com.metoo.nrsm.core.service.impl.Dhcp6ServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 @Component
@@ -61,6 +60,7 @@ public class Global {
     }
 
     public static String unboundPath;
+    public static String dnsFilterPath;
 
     @Value("${config.unbound.path}")
     public void setUnboundPath(String unboundPath) {
@@ -68,6 +68,10 @@ public class Global {
     }
 
 
+    @Value("${config.unbound.domains_path}")
+    public void setDnsFilterPath(String dnsFilterPath) {
+        Global.dnsFilterPath = dnsFilterPath;
+    }
     public static String os_scanner;
     @Value("${os_scanner}")
     public void setOs_scanner(String os_scanner) {

@@ -1,9 +1,6 @@
 package com.metoo.nrsm.core.utils.unbound.strategy;
 
-import com.metoo.nrsm.core.utils.unbound.strategy.impl.ForwardZoneUpdateStrategy;
-import com.metoo.nrsm.core.utils.unbound.strategy.impl.IntefaceUpdateStrategy;
-import com.metoo.nrsm.core.utils.unbound.strategy.impl.LocalZoneUpdateStrategy;
-import com.metoo.nrsm.core.utils.unbound.strategy.impl.PrivateAddressUpdateStrategy;
+import com.metoo.nrsm.core.utils.unbound.strategy.impl.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,6 +17,10 @@ public class ConfigUpdater {
         strategyMap.put("local-zone", new LocalZoneUpdateStrategy());
         strategyMap.put("private-address", new PrivateAddressUpdateStrategy());
         strategyMap.put("interface", new IntefaceUpdateStrategy());
+        strategyMap.put("dns-filter", new DnsFilterUpdateStrategy());
+        strategyMap.put("dns-filter-remove", new DnsFilterRemoveStrategy());
+        strategyMap.put("dns-filter-enable", new DnsFilterStateStrategy());
+        strategyMap.put("dns-filter-disable", new DnsFilterStateStrategy());
     }
 
     public List<String> updateConfig(String configType, List<String> lines, Object configData) throws IOException {
