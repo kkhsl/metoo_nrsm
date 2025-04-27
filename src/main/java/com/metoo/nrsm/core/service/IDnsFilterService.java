@@ -15,7 +15,7 @@ public interface IDnsFilterService {
     boolean start() throws Exception;
     boolean stop() throws Exception;
     boolean status() throws Exception;
-    boolean deleteDnsFilter(Long id);
+    boolean deleteDnsFilter(String ids);
     boolean toggleDnsFilter(Long id,boolean enable);
 
 

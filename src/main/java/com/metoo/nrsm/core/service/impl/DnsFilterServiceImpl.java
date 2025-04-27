@@ -18,9 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class DnsFilterServiceImpl implements IDnsFilterService {
@@ -86,9 +84,9 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
     }
 
 
-    @Override
+/*    @Override
     @Transactional
-    public boolean deleteDnsFilter(Long id) {
+    public boolean deleteDnsFilter(String ids) {
         try {
             // 1. 获取待删除记录
             DnsFilter existing = dnsFilterMapper.selectById(id);
@@ -106,6 +104,48 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
         } catch (Exception e) {
             //log.error("删除DNS过滤配置失败 ID: {}", id, e);
             throw new RuntimeException("删除操作失败", e);
+        }
+    }*/
+
+    @Override
+    @Transactional
+    public boolean deleteDnsFilter(String ids) {
+        if (StringUtils.isBlank(ids)) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+
+        // 存储所有需要删除的域名
+        Set<String> domainsToRemove = new HashSet<>();
+        List<Long> idList = new ArrayList<>();
+
+        try {
+            // 分割ID并逐个处理
+            for (String idStr : ids.split(",")) {
+                Long id = Long.parseLong(idStr.trim());
+                DnsFilter existing = dnsFilterMapper.selectById(id);
+
+                if (existing == null) {
+                    throw new IllegalArgumentException("ID " + id + " 对应的配置不存在");
+                }
+
+                domainsToRemove.add(existing.getDomainName());
+                idList.add(id);
+            }
+
+            // 批量数据库删除
+            int deleteCount = 0;
+            for (Long id : idList) {
+                deleteCount += dnsFilterMapper.delete(id);
+            }
+
+            boolean fileSuccess = removeFromConfigFile(domainsToRemove);
+
+            return deleteCount == idList.size() && fileSuccess;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("ID格式错误", e);
+        } catch (Exception e) {
+            //log.error("批量删除失败: {}", e.getMessage());
+            throw new RuntimeException("删除操作失败: " + e.getMessage());
         }
     }
 
@@ -163,7 +203,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
     }
 
     // 配置文件删除逻辑
-    private boolean removeFromConfigFile(String domain) throws IOException {
+    private boolean removeFromConfigFile(Set<String> domain) throws IOException {
 
         boolean flag = UnboundConfUtil.deleteConfigFile(Global.dnsFilterPath,domain);
         if (!flag) {

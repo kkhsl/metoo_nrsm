@@ -58,8 +58,8 @@ public class DnsFilterManagerController {
     }
 
     @DeleteMapping("/deleteDNSFilter")
-    private Result deleteDNSFilter(@RequestParam String id) {
-        boolean flag = dnsFilterService.deleteDnsFilter(Long.parseLong(id));
+    private Result deleteDNSFilter(@RequestParam String ids) {
+        boolean flag = dnsFilterService.deleteDnsFilter(ids);
         if (flag) {
             try {
                 if (restart()) {
