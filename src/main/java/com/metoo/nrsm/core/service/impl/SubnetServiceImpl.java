@@ -6,23 +6,27 @@ import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SubnetUtils;
 import com.metoo.nrsm.core.mapper.SubnetMapper;
+import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
 import com.metoo.nrsm.core.network.networkconfig.DHCPUtil;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IPortService;
 import com.metoo.nrsm.core.service.ISubnetService;
-import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
+import com.metoo.nrsm.core.utils.gather.concurrent.GatherDataThreadPool;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Port;
 import com.metoo.nrsm.entity.Subnet;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @Transactional
 public class SubnetServiceImpl implements ISubnetService {
@@ -231,23 +235,40 @@ public class SubnetServiceImpl implements ISubnetService {
      */
     @Override
     public void pingSubnet() {
-        List<Subnet> subnets = this.subnetMapper.leafIpSubnetMapper(null);
-        if(subnets.size() > 0){
-            for (Subnet subnet : subnets) {
-                if(MyStringUtils.isNonEmptyAndTrimmed(subnet.getIp())
-                        && subnet.getMask() != null){
-                    // 方式一
-//                    threadPool.execute(new Runnable() {
-//                        @Override
-//                        public void run() {// cpu爆满
-//                            SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
-//                        }
-//                    });
+        try {
+            List<Subnet> subnets = this.subnetMapper.leafIpSubnetMapper(null);
+            if(subnets.size() > 0){
+                for (Subnet subnet : subnets) {
+                    if(MyStringUtils.isNonEmptyAndTrimmed(subnet.getIp())
+                            && subnet.getMask() != null){
+                        // 方式一
+    //                    threadPool.execute(new Runnable() {
+    //                        @Override
+    //                        public void run() {// cpu爆满
+    //                            SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+    //                        }
+    //                    });
 
-//                    方式二：
-                    SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
-//                    dhcpUtil.pingSubnet(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+    //                    方式二：
+    //                    SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+//                        SNMPv2Request.pingSubnet(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+                        SNMPv2Request.pingSubnetConcurrent(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+
+                    }
                 }
+            }
+        }  finally {
+            // 关闭线程池
+            // 等待全局线程池任务完成
+            PingThreadPool.shutdown(); // 平滑关闭
+            try {
+                if (!PingThreadPool.awaitTermination(5, TimeUnit.MINUTES)) {
+                    log.error("强制终止未完成任务");
+                    PingThreadPool.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                PingThreadPool.shutdownNow();
+                Thread.currentThread().interrupt();
             }
         }
     }

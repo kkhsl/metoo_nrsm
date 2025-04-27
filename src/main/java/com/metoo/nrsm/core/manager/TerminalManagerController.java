@@ -7,6 +7,7 @@ import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.TerminalDTO;
 import com.metoo.nrsm.core.manager.utils.MacUtils;
 import com.metoo.nrsm.core.mapper.TerminalMacIpv6Mapper;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
@@ -17,7 +18,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +44,35 @@ public class TerminalManagerController {
     private TerminalMacIpv6Mapper terminalMacIpv6Mapper;
     @Autowired
     private IUnitService unitService;
+
+    @Autowired
+    private UnitMapper unitMapper;
+
+    @GetMapping("/vdt")
+    public Result vdt(String ip){
+        if(StringUtils.isNotEmpty(ip)){
+            Map params = new HashMap();
+            params.put("deviceIp", ip);
+            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+            // 写入终端的设备名
+            if(!terminals.isEmpty()){
+                for (Terminal terminal : terminals) {
+                    params.clear();
+                    params.put("deviceUuid", terminal.getDeviceUuid());
+                    params.put("deviceTypeId", 34);
+                    List<Terminal> vmHosts = this.terminalService.selectObjByMap(params);
+                    if(!vmHosts.isEmpty()){
+                        DeviceType deviceType = this.deviceTypeService.selectObjById(34L);
+                        if(deviceType != null){
+                            terminal.setDeviceName(deviceType.getName());
+                        }
+                    }
+                }
+                return ResponseUtil.ok(terminals);
+            }
+        }
+      return ResponseUtil.ok();
+    }
 
     @PostMapping("/list")
     public Object list(@RequestBody TerminalDTO dto){
@@ -81,6 +110,7 @@ public class TerminalManagerController {
                         e.setProjectName(project.getName());
                     }
                 }
+                macUtils.terminalSetMacVendor(e);
             });
         }
         Map map = new HashMap();
@@ -92,41 +122,17 @@ public class TerminalManagerController {
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(params);
         map.put("deviceTypeList", deviceTypeList);
         // 品牌
-        List<Vendor> vendors = this.vendorService.selectConditionQuery(Collections.emptyMap());
+        List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
         map.put("vendor", vendors);
+
+        List<Unit> unitList = unitMapper.selectAllQuery();
+        map.put("unitList", unitList);
         // 项目
         params.clear();
         List<Project> projectList = this.projectService.selectObjByMap(params);
         map.put("project", projectList);
 
         return ResponseUtil.ok(new PageInfo<Terminal>(page, map));
-    }
-
-
-    @GetMapping("/vdt")
-    public Result vdt(String ip){
-        if(StringUtils.isNotEmpty(ip)){
-            Map params = new HashMap();
-            params.put("deviceIp", ip);
-            List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-            // 写入终端的设备名
-            if(!terminals.isEmpty()){
-                for (Terminal terminal : terminals) {
-                    params.clear();
-                    params.put("deviceUuid", terminal.getDeviceUuid());
-                    params.put("deviceTypeId", 34);
-                    List<Terminal> vmHosts = this.terminalService.selectObjByMap(params);
-                    if(!vmHosts.isEmpty()){
-                        DeviceType deviceType = this.deviceTypeService.selectObjById(34L);
-                        if(deviceType != null){
-                            terminal.setDeviceName(deviceType.getName());
-                        }
-                    }
-                }
-                return ResponseUtil.ok(terminals);
-            }
-        }
-        return ResponseUtil.ok();
     }
 
 //    @GetMapping("/unit")
@@ -151,20 +157,6 @@ public class TerminalManagerController {
             terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(params);
         }else{
             terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(null);
-        }
-        if(terminalUnitList.size() > 0){
-            for (TerminalUnit terminalUnit : terminalUnitList) {
-                if(terminalUnit.getTerminalList().size() > 0){
-                    for (Terminal terminal : terminalUnit.getTerminalList()) {
-                        if(terminal.getDeviceTypeId() != null){
-                            DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
-                            if(deviceType != null){
-                                terminal.setDeviceTypeName(deviceType.getName());
-                            }
-                        }
-                    }
-                }
-            }
         }
         return ResponseUtil.ok(terminalUnitList);
     }
@@ -369,6 +361,14 @@ public class TerminalManagerController {
             Project project = this.projectService.selectObjById(instance.getProjectId());
             if(project == null){
                 return ResponseUtil.badArgument("请输入正确项目参数");
+            }
+        }
+
+        // 验证部门
+        if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
+            Unit unit = unitMapper.selectObjById(instance.getUnitId());
+            if(unit == null){
+                return ResponseUtil.badArgument("请输入正确单位/部门");
             }
         }
 

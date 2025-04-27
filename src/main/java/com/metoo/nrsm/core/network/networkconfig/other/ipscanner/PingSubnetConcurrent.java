@@ -1,9 +1,9 @@
-package com.metoo.nrsm.core.network.networkconfig.other;
+package com.metoo.nrsm.core.network.networkconfig.other.ipscanner;
 
-import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
+import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
+import com.metoo.nrsm.entity.Subnet;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,35 +12,51 @@ import java.net.InetAddress;
 import java.util.concurrent.*;
 
 @Slf4j
-@Component
-public class PingTest {
+public class PingSubnetConcurrent {
+
+    public static void main(String[] args) {
+        Subnet subnet = new Subnet();
+        subnet.setIp("192.168.6.0");
+        subnet.setMask(24);
+        SNMPv2Request.pingSubnetConcurrent(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+
+    }
 
     private static final int TIMEOUT_MS = 1000;
 
-    private final GatherDataThreadPool gatherDataThreadPool;
-    @Autowired
-    public PingTest(GatherDataThreadPool gatherDataThreadPool) {
-        this.gatherDataThreadPool = gatherDataThreadPool;
-    }
-
-    public void scanSubnet(String network, int mask) {
+    /**
+     * 控制并发ip数量
+     * 直接利用线程池的队列和拒绝策略控制并发，去掉冗余的 Semaphore 和 CountDownLatch：
+     * @param ip
+     * @param mask
+     */
+    public static void scanSubnet(String ip, int mask) {
         try {
-            InetAddress baseIp = InetAddress.getByName(network);
+            InetAddress baseIp = InetAddress.getByName(ip);
             long startIp = ipToLong(baseIp);
             long subnetSize = (long) Math.pow(2, 32 - mask);
+            CountDownLatch latch = new CountDownLatch((int) (subnetSize - 2));
 
-            for (long i = 1; i < subnetSize - 1; i++) { // 排除网络地址和广播地址
+            for (long i = 1; i < subnetSize - 1; i++) {
                 String targetIp = longToIp(startIp + i);
-                gatherDataThreadPool.execute(new PingTask(targetIp));
+                PingThreadPool.execute(() -> {
+                    try {
+                        new PingTask(targetIp).run();
+                    } catch (Exception e) {
+                        System.err.println("Ping failed for " + targetIp + ": " + e.getMessage());
+                    } finally {
+                        latch.countDown(); // 确保计数减少
+                    }
+                });
             }
-            // 等待本次扫描的所有任务完成
-//            gatherDataThreadPool.awaitTermination(1, TimeUnit.MINUTES); // 超时保护
+
+            latch.await(); // 等待所有任务完成
         } catch (Exception e) {
             handleNetworkError(e);
         }
     }
 
-    class PingTask implements Runnable {
+    static class PingTask implements Runnable {
         private final String ip;
 
         PingTask(String ip) {
@@ -49,18 +65,23 @@ public class PingTest {
 
         @Override
         public void run() {
-            if (Thread.currentThread().isInterrupted()) {
-                return;
-            }
             try {
                 String os = System.getProperty("os.name").toLowerCase();
                 String[] cmd = buildPingCommand(os, ip);
 
                 Process process = new ProcessBuilder(cmd).start();
+
                 boolean isAlive = parsePingOutput(os, process);
-                log.info("Pinging {} - {}", ip, isAlive ? "Success" : "Failed");
-            } catch (Exception e) {
-                System.err.println("Ping error: " + e.getMessage());
+
+//                log.info("Pinging {} - {}", ip, isAlive ? "Success" : "Failed");
+
+            }  catch (IOException e) {
+                log.error("Ping failed for {} (IO): {}", ip, e.getMessage());
+            }/* catch (InterruptedException e) {
+                log.error("Ping interrupted for {}: {}", ip, e.getMessage());
+                Thread.currentThread().interrupt();  // 恢复中断状态
+            } */catch (Exception e) {
+                log.error("Unexpected ping error for {}: {}", ip, e.getMessage());
             }
         }
 
@@ -72,7 +93,7 @@ public class PingTest {
             }
         }
 
-        private boolean parsePingOutput(String os, Process process) throws IOException {
+        private boolean parsePingOutput(String os, Process process) {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()))) {
 
@@ -85,10 +106,15 @@ public class PingTest {
                     }
                 }
                 return process.waitFor() == 0;
+            } catch (IOException e) {
+                log.error("Ping failed for {} (IO): {}", ip, e.getMessage());
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return false;
+                log.error("Ping interrupted for {}: {}", ip, e.getMessage());
+                Thread.currentThread().interrupt();  // 恢复中断状态
+            } catch (Exception e) {
+                log.error("Unexpected ipscanner error for {}: {}", ip, e.getMessage());
             }
+            return false;
         }
     }
 

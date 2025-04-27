@@ -41,20 +41,15 @@ public class PingIpConfigManagerController {
 
     @PutMapping
     public Result update(@RequestBody PingIpConfig instance)  {
+        //PingIpConfig oldPingIpConfig = this.pingIpConfigService.selectOneObj();
         boolean flag = this.pingIpConfigService.update(instance);
-        return ResponseUtil.ok();
-    }
-
-//    @PutMapping
-//    public Result update(@RequestBody PingIpConfig instance)  {
-//        //PingIpConfig oldPingIpConfig = this.pingIpConfigService.selectOneObj();
-//        boolean flag = this.pingIpConfigService.update(instance);
-//        if (flag) {
-//            Integer status = instance.getStatus();
-//            boolean bool = status != 0;
-//            // 查询checkaliveip状态
-//            boolean checkaliveStatus = this.pingIpConfigService.status();
-//            if (bool) {
+        if (flag) {
+            Integer status = instance.getStatus();
+            boolean bool = status != 0;
+            // 查询checkaliveip状态
+            //boolean checkaliveStatus = this.pingIpConfigService.status();
+            boolean checkaliveStatus = true;
+            if (bool) {
 //                if (!checkaliveStatus) {
 //                    try {
 //                        this.pingIpConfigService.start();
@@ -62,51 +57,44 @@ public class PingIpConfigManagerController {
 //                        e.printStackTrace();
 //                    }
 //                }
-//                if (checkaliveStatus) {
+                if (checkaliveStatus) {
 //                    this.pingIpConfigService.restart();
 //                    this.pingIpConfigService.checkaliveip();
-//                    // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
-//                    // 异步执行链路检测
-//                    CompletableFuture.runAsync(() -> {
-//                        CopyOnWriteArrayList<Ping> pingResults = new CopyOnWriteArrayList<>();
-//                        CopyOnWriteArrayList<PingIpConfig> pingIpConfigs = new CopyOnWriteArrayList<>();
-//                        while (pingResults.size() < 4 || pingIpConfigs.size() < 3) {
-//                            try {
-//                                // 查询并存储记录
-//                                Ping ping1 = this.pingService.selectOneObj();
-//                                PingIpConfig pingIpConfig2 = this.pingIpConfigService.selectOneObj();
-//
-//                                // 确保只保存不重复的数据
-//                                if (!pingResults.contains(ping1)) {
-//                                    pingResults.add(ping1);
-//                                }
-//                                pingIpConfigs.add(pingIpConfig2);
-//                                // 查询之间间隔
-//                                Thread.sleep(10000);
-//                            } catch (InterruptedException e) {
-//                                e.printStackTrace();
-//                                Thread.currentThread().interrupt(); // 恢复中断状态
-//                            }
-//                        }
-//                        // 启动定时任务
-//                        startScheduledTask(pingResults, pingIpConfigs);
-//                    });
-//                } else {
-//                    // 程序未启动如何提示？
-//                }
-//            } else {
-//                if (checkaliveStatus) {
-//                    try {
-//                        this.pingIpConfigService.stop();
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//            return ResponseUtil.ok();
-//        }
-//        return ResponseUtil.error();
-//    }
+                    // 是否判断用户是否修改内容？如果未修改，也根据用户刷新页面,检查链路是否可达
+                    // 异步执行链路检测
+                    CompletableFuture.runAsync(() -> {
+                        CopyOnWriteArrayList<Ping> pingResults = new CopyOnWriteArrayList<>();
+                        CopyOnWriteArrayList<PingIpConfig> pingIpConfigs = new CopyOnWriteArrayList<>();
+                        while (pingResults.size() < 4 || pingIpConfigs.size() < 3) {
+                            try {
+                                // 查询并存储记录
+                                Ping ping1 = this.pingService.selectOneObj();
+                                PingIpConfig pingIpConfig2 = this.pingIpConfigService.selectOneObj();
+
+                                // 确保只保存不重复的数据
+                                if (!pingResults.contains(ping1)) {
+                                    pingResults.add(ping1);
+                                }
+                                pingIpConfigs.add(pingIpConfig2);
+                                // 查询之间间隔
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                                Thread.currentThread().interrupt(); // 恢复中断状态
+                            }
+                        }
+                        // 启动定时任务
+                        startScheduledTask(pingResults, pingIpConfigs);
+                    });
+                }
+            } else {
+                //TODO 关闭定时任务
+                return ResponseUtil.error("链路自动检测未开启！");
+            }
+            return ResponseUtil.ok();
+        }
+        return ResponseUtil.error();
+    }
 
     @GetMapping("/checkaliveip")
     public Result checkaliveip() {

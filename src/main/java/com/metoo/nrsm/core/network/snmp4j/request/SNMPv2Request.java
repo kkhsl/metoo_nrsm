@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.network.snmp4j.request;
 
 import com.metoo.nrsm.core.network.networkconfig.DHCPUtil;
+import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingSubnetConcurrent;
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
@@ -783,6 +784,16 @@ public class SNMPv2Request {
     public static void pingTest(String network, int mask){
         DHCPUtil.pingSubnet(network,mask);
     }
+
+    public static void pingSubnet(String network, int mask){
+        DHCPUtil.pingSubnet(network,mask);
+    }
+
+    public static void pingSubnetConcurrent(String network, int mask){
+        DHCPUtil.pingSubnetConcurrent(network,mask);
+    }
+
+
 
 
 

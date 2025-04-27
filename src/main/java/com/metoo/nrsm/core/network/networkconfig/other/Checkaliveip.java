@@ -208,8 +208,8 @@ public class Checkaliveip {
      */
     private boolean ping(String ip) throws IOException, InterruptedException {
         String[] command = System.getProperty("os.name").toLowerCase().contains("win") ?
-            new String[]{"ping", "-n", "1", ip} :
-            new String[]{"ping", "-c", "1", ip};
+            new String[]{"ipscanner", "-n", "1", ip} :
+            new String[]{"ipscanner", "-c", "1", ip};
 
         Process process = new ProcessBuilder(command).start();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {

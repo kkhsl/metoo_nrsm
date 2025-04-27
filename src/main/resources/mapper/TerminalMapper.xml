@@ -65,7 +65,9 @@
             <if test="deviceUuid != null and deviceUuid != ''">
                 AND deviceUuid = #{deviceUuid}
             </if>
-
+            <if test="unitId != null and unitId != ''">
+                AND unitId = #{unitId}
+            </if>
         </where>
         ORDER BY ISNULL(v4ip),v4ip = '', INET_ATON(v4ip) ASC
     </select>
@@ -1264,6 +1266,9 @@
             <if test="deviceTypeId != null and deviceTypeId != ''">
                 deviceTypeId,
             </if>
+            <if test="unitId != null and unitId != ''">
+                unitId,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -1403,6 +1408,9 @@
             </if>
             <if test="deviceTypeId != null and deviceTypeId != ''">
                 #{deviceTypeId},
+            </if>
+            <if test="unitId != null and unitId != ''">
+                #{unitId},
             </if>
         </trim>
     </insert>
@@ -1592,6 +1600,9 @@
             </if>
             <if test="macVendor != null and macVendor != ''">
                 macVendor = #{macVendor},
+            </if>
+            <if test="unitId != null and unitId != ''">
+                unitId = #{unitId},
             </if>
         </set>
         WHERE id = #{id}

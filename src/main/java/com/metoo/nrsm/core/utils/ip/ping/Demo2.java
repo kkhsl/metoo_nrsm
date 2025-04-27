@@ -14,15 +14,15 @@ public class Demo2 {
 
     public static void main(String[] args) {
         String host = "192.168.5.101"; // 替换为你想要ping的主机
-        String param = "ping 192.168.5.101 -t";
+        String param = "ipscanner 192.168.5.101 -t";
         ping(param);
     }
 
     public static void ping(String param){
 //        String host = "192.168.5.101"; // 替换为你想要ping的主机
-//        ProcessBuilder builder = new ProcessBuilder("ping", host, "-t"); // 修改参数以符合你的需求
+//        ProcessBuilder builder = new ProcessBuilder("ipscanner", host, "-t"); // 修改参数以符合你的需求
 
-        ProcessBuilder builder = new ProcessBuilder("ping", "192.168.5.101", "-t"); // 修改参数以符合你的需求
+        ProcessBuilder builder = new ProcessBuilder("ipscanner", "192.168.5.101", "-t"); // 修改参数以符合你的需求
 
         try {
             Process process = builder.start();

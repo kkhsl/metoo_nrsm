@@ -83,11 +83,9 @@ public class SNMPv3Request {
         }
     }
 
-
     // 修改配置目标方法（支持v3）
     private static Target configureTarget(SNMPV3Params params) {
         Address targetAddress = GenericAddress.parse("udp:" + params.getHost() + "/" + params.getPort());
-
         if (params.getVersion().equals("v3")) {
             return configureV3Target(targetAddress, params);
         }
@@ -225,19 +223,6 @@ public class SNMPv3Request {
         }
     }
 
-    // 创建PDU（支持v3的ScopedPDU）
-    private static PDU createPDU(SNMPV3Params params, String oid, int pduType) {
-        PDU pdu;
-        if (params.getVersion().equals("v3")) {
-            pdu = new ScopedPDU();
-        } else {
-            pdu = new PDU();
-        }
-        pdu.add(new VariableBinding(new OID(oid)));
-        pdu.setType(pduType);
-        return pdu;
-    }
-
     // 修改GETNEXT方法
     private static Map<String, String> sendGETNEXTRequest(SNMPV3Params params, SNMP_OID snmpOid) {
         if(params == null){
@@ -283,11 +268,24 @@ public class SNMPv3Request {
         return resultMap;
     }
 
+    // 创建PDU（支持v3的ScopedPDU）
+    private static PDU createPDU(SNMPV3Params params, String oid, int pduType) {
+        PDU pdu;
+        if (params.getVersion().equals("v3")) {
+            pdu = new ScopedPDU();
+        } else {
+            pdu = new PDU();
+        }
+        pdu.add(new VariableBinding(new OID(oid)));
+        pdu.setType(pduType);
+        return pdu;
+    }
+
     private static PDU processResponse(ResponseEvent event) {
         PDU response = null;
         try {
             if (event.getResponse() == null) {
-                log.info("SNMP 实例初始化失败");
+                log.info("SNMP 无响应");
             }
             response = event.getResponse();
             if (response == null) {
@@ -581,17 +579,12 @@ public class SNMPv3Request {
                 StringUtils.isEmpty(portData)){
             return new JSONArray();
         }
-
         // 解析 JSON 数据
         JSONObject macJson = new JSONObject(macData);
         JSONObject statusJson = new JSONObject(statusData);
         JSONObject portJson = new JSONObject(portData);
-
-
-
         // 创建结果数组
         JSONArray resultArray = new JSONArray();
-
         // 遍历 MAC 数据
         for (String portNumber : macJson.keySet()) {
             String mac = macJson.getString(portNumber);

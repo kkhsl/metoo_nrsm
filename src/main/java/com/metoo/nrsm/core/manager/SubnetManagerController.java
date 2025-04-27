@@ -1,8 +1,5 @@
 package com.metoo.nrsm.core.manager;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.RsmsDeviceUtils;
 import com.metoo.nrsm.core.service.*;
@@ -11,6 +8,7 @@ import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.net.util.SubnetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,15 +22,32 @@ public class SubnetManagerController {
     @Autowired
     private ISubnetService subnetService;
     @Autowired
-    private IPortService portService;
-    @Autowired
     private IAddressService addressService;
     @Autowired
     private Ipv4DetailService ipV4DetailService;
     @Autowired
-    private IRsmsDeviceService rsmsDeviceService;
-    @Autowired
     private RsmsDeviceUtils rsmsDeviceUtils;
+
+    // 通过网段获取主机地址的数量
+    @RequestMapping("/host/size")
+    public Object hostSize() {
+        // 获取所有子网一级
+        List<Subnet> lastSubnet = this.subnetService.leafIpSubnetMapper(Collections.emptyMap());
+        int count = 0;
+        if (lastSubnet.size() > 0) {
+            for (Subnet subnet : lastSubnet) {
+                List<String> ips = getHostAddresses(subnet.getIp() + "/" + subnet.getMask());
+                count += ips.size();
+            }
+        }
+        return ResponseUtil.ok(count);
+    }
+
+    public static List<String> getHostAddresses(String ipWithCidr) {
+        SubnetUtils utils = new SubnetUtils(ipWithCidr);
+        utils.setInclusiveHostCount(true); // 包含网络地址和广播地址
+        return Arrays.asList(utils.getInfo().getAllAddresses());
+    }
 
     @RequestMapping("/list")
     public Object list() {

@@ -237,31 +237,36 @@ public class SNMPParamFactory {
 
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v3")
-                .host("192.168.0.13")
+                .host("192.168.0.8")
                 .port(161)
                 .securityLevel(SecurityLevel.AUTH_PRIV)
                 .username("test")
-                .authProtocol("MD5")
-                .authPassword("asdf")
+                .authProtocol("SHA")
+                .authPassword("public@123")
                 .privProtocol("AES")
-                .privPassword("123456")
+                .privPassword("PUBLIC@123")
                 .build();
 
         String deviceName = SNMPv3Request.getDeviceName(snmpv3Params);
-        log.info("方式三{}", deviceName);
+        log.info("方式三：{}", deviceName);
     }
 
     @Test
     public void testSNMPv3GetTraffic(){
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("192.168.0.13")
-                .community("transfar")
+                .host("192.168.0.8")
+                .community("transfar@123")
                 .port(161)
                 .build();
 
         String traffic = SNMPv3Request.getTraffic(snmpv3Params, "1.3.6.1.2.1.31.1.1.1.6.31", "1.3.6.1.2.1.31.1.1.1.10.31");
         log.info("流量数据", traffic);
+
+        String deviceName = SNMPv3Request.getDeviceName(snmpv3Params);
+        log.info("设备名：{}", deviceName);
+
+
     }
 
     @Test
@@ -315,9 +320,21 @@ public class SNMPParamFactory {
         return "";
     }
 
+    @Test
+    public void getDevice() {
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version("v2c")
+                .host("192.168.0.6")
+                .community("transfar")
+                .port(161)
+                .build();
+
+        String result = SNMPv3Request.getDeviceName(snmpv3Params);
+        log.info("设备名:{}", result);
+    }
 
     @Test
-    public void getArpV6() {
+    public void getMac() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
                 .host("192.168.0.13")
@@ -330,13 +347,12 @@ public class SNMPParamFactory {
     }
 
     @Test
-    public void getPortTableV6() {
+    public void getArp() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
                 .host("192.168.0.36")
                 .community("hnccsroot_read")
                 .build();
-
         JSONArray result = SNMPv3Request.getArp(snmpv3Params);
         log.info("arpV6:{}", result);
     }

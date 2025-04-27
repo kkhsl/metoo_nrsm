@@ -1,4 +1,4 @@
-package com.metoo.nrsm.core.utils.gather.thread;
+package com.metoo.nrsm.core.utils.gather.concurrent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

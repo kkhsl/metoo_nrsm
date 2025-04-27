@@ -56,7 +56,6 @@ public class DeviceManager {
 
     // 获取设备名
     public String getDeviceNameByIpAndCommunityVersion(NetworkElement networkElement){
-//        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
         String result = SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement));
         return result;
     }

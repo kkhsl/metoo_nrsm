@@ -4,20 +4,16 @@ import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.service.IAddressService;
 import com.metoo.nrsm.core.service.ISubnetService;
 import com.metoo.nrsm.core.service.Ipv4DetailService;
-import com.metoo.nrsm.core.service.Ipv4Service;
-import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
+import com.metoo.nrsm.core.utils.gather.concurrent.GatherDataThreadPool;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.entity.Address;
 import com.metoo.nrsm.entity.Ipv4Detail;
 import com.metoo.nrsm.entity.Subnet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author HKK

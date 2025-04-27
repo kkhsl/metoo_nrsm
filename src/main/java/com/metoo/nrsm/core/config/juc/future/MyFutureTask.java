@@ -1,8 +1,6 @@
 package com.metoo.nrsm.core.config.juc.future;
 
-import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;

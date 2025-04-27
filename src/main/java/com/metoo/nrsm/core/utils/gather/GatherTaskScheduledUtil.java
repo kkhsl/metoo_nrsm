@@ -383,15 +383,19 @@ public class GatherTaskScheduledUtil {
      * 下一次执行时间：T=5 + 3 = 8分钟（不会在 T=3分钟 时触发新任务）。
      */
     private volatile boolean isRunningPing = false;
-    @Scheduled(fixedDelay = 300 * 1000) // 30秒间隔，严格串行
+//    @Scheduled(fixedDelay = 300 * 1000) // 30秒间隔，严格串行
+    @Scheduled(fixedDelay = 60 * 1000) // 30秒间隔，严格串行
     public void pingSubnet() {
-        log.info("PING 网段采集开始");
+        log.info("PING 网段采集开始===========================================================");
         if(flag && !isRunningPing){
             isRunningPing = true;
             try {
                 Long time = System.currentTimeMillis();
                 this.subnetService.pingSubnet();
                 log.info("PING 网段采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+
+                log.info("PING 网段采集结束===========================================================");
+
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("PING 网段采集异常: {}", e.getMessage());
@@ -406,16 +410,16 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningSnmpStataus = false;
     @Scheduled(fixedDelay = 60 * 1000) // 30秒间隔，严格串行
     public void snmpStatus() {
-        log.info("Subnet status采集开始");
-        if(flag && !isRunningSnmpStataus){
+        log.info("Snmp status采集开始");
+        if(true && !isRunningSnmpStataus){
             isRunningSnmpStataus = true;
             try {
                 Long time = System.currentTimeMillis();
                 deviceManager.saveAvailableDevicesToRedis();
-                log.info("Subnet status 网段采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                log.info("Snmp status 网段采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("Subnet status 网段采集异常: {}", e.getMessage());
+                log.error("Snmp status 网段采集异常: {}", e.getMessage());
             } finally {
                 isRunningSnmpStataus = false;
             }

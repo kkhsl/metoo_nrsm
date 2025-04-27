@@ -13,7 +13,7 @@ import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.gather.snmp.utils.MacManager;
-import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
+import com.metoo.nrsm.core.utils.gather.concurrent.GatherDataThreadPool;
 import com.metoo.nrsm.core.utils.gather.thread.GatherMacSNMPRunnable;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;

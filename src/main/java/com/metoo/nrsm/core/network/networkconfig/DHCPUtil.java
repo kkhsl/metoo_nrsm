@@ -1,8 +1,9 @@
 package com.metoo.nrsm.core.network.networkconfig;
 
+import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingSubnet;
+import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingSubnetConcurrent;
+import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingTest;
 import com.metoo.nrsm.core.network.networkconfig.test.*;
-import com.metoo.nrsm.core.network.networkconfig.other.*;
-import com.metoo.nrsm.core.utils.gather.thread.GatherDataThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -98,9 +99,8 @@ public class DHCPUtil {
         PingSubnet.scanSubnet(network,mask);
     }
 
-    public void pingSubnet2(String network, int mask) {
-        PingSubnet.scanSubnet(network,mask);
+    public static void pingSubnetConcurrent(String network, int mask) {
+        PingSubnetConcurrent.scanSubnet(network,mask);
     }
-
 
 }
