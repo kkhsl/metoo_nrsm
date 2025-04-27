@@ -229,7 +229,7 @@ public class UnboundConfUtil {
         }
     }
 
-    public static boolean deleteConfigFile(String filePath, String domain) throws IOException {
+    public static boolean deleteConfigFile(String filePath, Set<String> domain) throws IOException {
         try {
             List<String> lines = Files.readAllLines(Paths.get(filePath));
 
