@@ -8,10 +8,14 @@ import com.metoo.nrsm.core.utils.unbound.strategy.ConfigUpdater;
 import com.metoo.nrsm.core.utils.unbound.test.UnboundConfForward;
 import com.metoo.nrsm.core.utils.unbound.test.UnboundConfLocalZone;
 import com.metoo.nrsm.core.utils.unbound.test.UnboundConfPrivateAddress;
+import com.metoo.nrsm.core.vo.DnsFilterStatePayload;
+import com.metoo.nrsm.core.vo.DnsFilterUpdatePayload;
+import com.metoo.nrsm.entity.DnsFilter;
 import com.metoo.nrsm.entity.Unbound;
 import org.json.JSONArray;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -76,6 +80,53 @@ public class UnboundConfUtil {
             return false; // 解析或读取失败
         }
     }
+
+    // 修正写入逻辑
+    public static boolean writeConfigFile(String filePath, DnsFilter newConfig,String oldDomain) throws IOException {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 直接使用传入的dnsFilter对象
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            lines = configUpdater.updateConfig("dns-filter", lines, new DnsFilterUpdatePayload(newConfig, oldDomain));
+
+            // 写入文件时保留原有格式
+            Files.write(Paths.get(filePath), lines,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.CREATE);
+
+            return true;
+        } catch (IOException e) {
+            System.err.println("配置文件操作失败: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean writeConfigFile(String filePath, DnsFilter config,boolean enable) throws IOException {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 直接使用传入的dnsFilter对象
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            String operationType = enable ? "dns-filter-enable" : "dns-filter-disable";
+
+            List<String> updatedLines = configUpdater.updateConfig(
+                    operationType,
+                    lines,
+                    new DnsFilterStatePayload(config.getDomainName(),enable)
+            );
+
+            Files.write(Paths.get(filePath), updatedLines, StandardCharsets.UTF_8,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            System.err.println("配置文件操作失败: " + e.getMessage());
+            return false;
+        }
+    }
+
     public static boolean updateConfigDNSFile(String filePath, Unbound unbound) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -175,6 +226,27 @@ public class UnboundConfUtil {
         } catch (IOException e) {
             System.err.println("更新配置文件时发生错误: " + e.getMessage());
             return false; // 解析或读取失败
+        }
+    }
+
+    public static boolean deleteConfigFile(String filePath, String domain) throws IOException {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 直接使用传入的dnsFilter对象
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            lines = configUpdater.updateConfig("dns-filter-remove", lines, domain);
+
+            // 写入文件时保留原有格式
+            Files.write(Paths.get(filePath), lines,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.CREATE);
+
+            return true;
+        } catch (IOException e) {
+            System.err.println("配置文件操作失败: " + e.getMessage());
+            return false;
         }
     }
 
