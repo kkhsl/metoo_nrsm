@@ -321,10 +321,10 @@ public class SNMPParamFactory {
     }
 
     @Test
-    public void getDevice() {
+    public void getDeviceName() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("192.168.0.6")
+                .host("192.168.0.25")
                 .community("transfar")
                 .port(161)
                 .build();

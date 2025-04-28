@@ -381,6 +381,8 @@ public class GatherTaskScheduledUtil {
      * 任务结束时间：T=5分钟
      *
      * 下一次执行时间：T=5 + 3 = 8分钟（不会在 T=3分钟 时触发新任务）。
+     *
+     * 更新arp缓存
      */
     private volatile boolean isRunningPing = false;
 //    @Scheduled(fixedDelay = 300 * 1000) // 30秒间隔，严格串行

@@ -282,18 +282,15 @@ public class SNMPv3Request {
     }
 
     private static PDU processResponse(ResponseEvent event) {
+
         PDU response = null;
+
         try {
             if (event.getResponse() == null) {
-                log.info("SNMP 无响应");
-            }
-            response = event.getResponse();
-            if (response == null) {
-                log.info("无响应(超时或目标不可达)");
+                log.info("SNMP 无响应：{}", event.getPeerAddress());
             }
             if(response != null && response.getErrorStatus() != PDU.noError){
-                System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + response.getErrorStatusText());
-                log.info("无响应(超时或目标不可达) 或者SNMP 错误" + response.getErrorStatusText());
+                log.info("无响应(超时或目标不可达) 或者SNMP 错误:{}, IP地址：{}", response.getErrorStatusText(), event.getPeerAddress());
             }
         } catch (Exception e) {
             e.printStackTrace();

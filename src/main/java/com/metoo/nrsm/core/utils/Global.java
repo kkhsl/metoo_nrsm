@@ -66,8 +66,6 @@ public class Global {
     public void setUnboundPath(String unboundPath) {
         Global.unboundPath = unboundPath;
     }
-
-
     @Value("${config.unbound.domains_path}")
     public void setDnsFilterPath(String dnsFilterPath) {
         Global.dnsFilterPath = dnsFilterPath;

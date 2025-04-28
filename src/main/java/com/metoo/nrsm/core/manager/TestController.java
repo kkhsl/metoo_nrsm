@@ -1,5 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
+import com.metoo.nrsm.core.service.IDnsLogService;
+import com.metoo.nrsm.core.service.IDnsRecordService;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
@@ -8,7 +10,6 @@ import com.metoo.nrsm.core.utils.system.DiskInfo;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OperatingSystem;
 import oshi.util.Util;
 
+import javax.annotation.Resource;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.text.DecimalFormat;
@@ -42,6 +44,10 @@ public class TestController {
     private RestTemplate restTemplate;
     @Autowired
     private ITerminalService terminalService;
+    @Autowired
+    private IDnsLogService dnsLogService;
+    @Resource
+    private IDnsRecordService recordService;
 
     public static void main(String[] args) {
         String data = "{\n" +
@@ -59,6 +65,21 @@ public class TestController {
 
     }
 
+    @GetMapping("/analysisDnsLogTask")
+    public void analysisDnsLogTask(){
+        log.info("====================================解析dns日志并保存汇总数据开始执行==========================");
+        try {
+            //删除之前的临时数据
+            dnsLogService.truncateTable();
+            // 解析日志文件并入库
+            dnsLogService.parseLargeLog();
+            // 获取解析的数据并汇总入库
+            recordService.saveRecord();
+        }catch (Exception e){
+            log.error("定时任务解析dns日志并保存汇总数据出现错误：{}",e);
+        }
+        log.info("====================================解析dns日志并保存汇总数据定时任务结束==========================");
+    }
 
     @Test
     public void getArpV6() {
