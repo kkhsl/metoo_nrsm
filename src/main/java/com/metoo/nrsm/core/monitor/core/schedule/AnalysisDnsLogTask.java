@@ -36,7 +36,7 @@ public class AnalysisDnsLogTask {
             // 获取解析的数据并汇总入库
             recordService.saveRecord();
             //删除日志文件
-            dnsLogService.deleteDnsFile();
+//            dnsLogService.deleteDnsFile();
         }catch (Exception e){
             log.error("定时任务解析dns日志并保存汇总数据出现错误：{}",e);
         }

@@ -1,8 +1,11 @@
 package com.metoo.nrsm.core.network.networkconfig.other.ipscanner.scanners;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+@Slf4j
 public class ArpingScanner implements Runnable {
 
     private final String ip;
@@ -19,13 +22,13 @@ public class ArpingScanner implements Runnable {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.contains("Unicast reply")) {
-                    System.out.println("[ARPING] " + ip + " is reachable");
+                    log.info("[ARPING] {} {}", ip, " is reachable");
                     return;
                 }
             }
-            System.out.println("[ARPING] " + ip + " is unreachable");
+            log.info("[ARPING] {} {}", ip, " is unreachable");
         } catch (Exception e) {
-            System.err.println("[ARPING] Error scanning " + ip + ": " + e.getMessage());
+            log.info("[ARPING] {} {}", ip, e.getMessage());
         }
     }
 }

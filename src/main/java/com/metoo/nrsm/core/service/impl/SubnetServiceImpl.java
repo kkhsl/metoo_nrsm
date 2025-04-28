@@ -8,6 +8,7 @@ import com.metoo.nrsm.core.manager.utils.SubnetUtils;
 import com.metoo.nrsm.core.mapper.SubnetMapper;
 import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
 import com.metoo.nrsm.core.network.networkconfig.DHCPUtil;
+import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.IpScannerManager;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IPortService;
 import com.metoo.nrsm.core.service.ISubnetService;
@@ -252,8 +253,9 @@ public class SubnetServiceImpl implements ISubnetService {
     //                    方式二：
     //                    SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
 //                        SNMPv2Request.pingSubnet(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
-                        SNMPv2Request.pingSubnetConcurrent(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
-
+//                        SNMPv2Request.pingSubnetConcurrent(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+//                          IpScannerManager.scanner(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+                          IpScannerManager.scanTarget(subnet.getIp() + "/" + String.valueOf(subnet.getMask()));
                     }
                 }
             }

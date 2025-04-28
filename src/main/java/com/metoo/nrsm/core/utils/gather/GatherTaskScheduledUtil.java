@@ -413,21 +413,20 @@ public class GatherTaskScheduledUtil {
     @Scheduled(fixedDelay = 60 * 1000) // 30秒间隔，严格串行
     public void snmpStatus() {
         log.info("Snmp status采集开始");
-        if(true && !isRunningSnmpStataus){
+        if(flag && !isRunningSnmpStataus){
             isRunningSnmpStataus = true;
             try {
                 Long time = System.currentTimeMillis();
                 deviceManager.saveAvailableDevicesToRedis();
-                log.info("Snmp status 网段采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                log.info("Snmp status 采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("Snmp status 网段采集异常: {}", e.getMessage());
+                log.error("Snmp status 采集异常: {}", e.getMessage());
             } finally {
                 isRunningSnmpStataus = false;
             }
         }
     }
-
 
 
     private volatile boolean isRunningProbe = false;

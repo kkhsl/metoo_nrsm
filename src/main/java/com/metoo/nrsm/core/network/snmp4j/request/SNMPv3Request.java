@@ -295,7 +295,7 @@ public class SNMPv3Request {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return response;
+        return event.getResponse();
     }
 
 
