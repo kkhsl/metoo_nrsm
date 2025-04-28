@@ -29,11 +29,11 @@ public class LogDownloadController {
     static {
         LOG_CONFIGS.put("dhcp", new LogConfig(
                 "/var/log/dhcp",
-                Arrays.asList("dhcp.log-")
+                Arrays.asList("dhcpd.log-")
         ));
         LOG_CONFIGS.put("dhcp6", new LogConfig(
                 "/var/log/dhcp6",
-                Arrays.asList("dhcp6.log-")
+                Arrays.asList("dhcpd6.log-")
         ));
         LOG_CONFIGS.put("dns", new LogConfig(
                 "/var/log/unbound",
