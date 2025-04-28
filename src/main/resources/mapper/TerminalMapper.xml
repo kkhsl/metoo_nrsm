@@ -1196,6 +1196,9 @@
             <if test="unitId != null and unitId != ''">
                 unitId,
             </if>
+            <if test="unitName != null and unitName != ''">
+                unitName,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -1338,6 +1341,9 @@
             </if>
             <if test="unitId != null and unitId != ''">
                 #{unitId},
+            </if>
+            <if test="unitName != null and unitName != ''">
+                #{unitName},
             </if>
         </trim>
     </insert>
@@ -1530,6 +1536,9 @@
             </if>
             <if test="unitId != null and unitId != ''">
                 unitId = #{unitId},
+            </if>
+            <if test="unitName != null and unitName != ''">
+                unitName = #{unitName},
             </if>
         </set>
         WHERE id = #{id}

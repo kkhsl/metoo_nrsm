@@ -295,6 +295,7 @@ public class TerminalManagerController {
     public Object save(@RequestBody Terminal instance){
         // 验证名称是否唯一
         Map params = new HashMap();
+        Unit unit=null;
         if(instance.getId() != null && !instance.getId().equals("")){
             Terminal terminal = this.terminalService.selectObjById(instance.getId());
             if(terminal == null){
@@ -366,7 +367,7 @@ public class TerminalManagerController {
 
         // 验证部门
         if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
-            Unit unit = unitMapper.selectObjById(instance.getUnitId());
+            unit= unitMapper.selectObjById(instance.getUnitId());
             if(unit == null){
                 return ResponseUtil.badArgument("请输入正确单位/部门");
             }
@@ -390,6 +391,7 @@ public class TerminalManagerController {
         if(instance.getInterfaceName() != null && !instance.getInterfaceName().equals("")){
             instance.setIndex(instance.getInterfaceName().replace("Port", ""));
         }
+        instance.setUnitName(unit.getUnitName());
         boolean flag = this.terminalService.save(instance);
         if(flag){
             return ResponseUtil.ok();
