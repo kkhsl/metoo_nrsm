@@ -16,12 +16,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.lang.Process;
 
 @Slf4j
 @Service
 public class Checkaliveip {
+
+    // 添加控制变量
+    private final AtomicBoolean isSchedulingEnabled = new AtomicBoolean(true);
 
 
     // 数据库配置（通过连接池管理）
@@ -34,7 +37,7 @@ public class Checkaliveip {
 
     // 重试配置
     private static final int MAX_RETRIES = 3;
-    private static final long CONFIG_REFRESH_MINUTES = 10;
+    private static final long CONFIG_REFRESH_MINUTES = 1;
 
     @Autowired
     public Checkaliveip(DataSource dataSource) {
@@ -49,14 +52,21 @@ public class Checkaliveip {
         refreshMonitoringConfig(true);
     }
 
+    @Scheduled(fixedRate = 60_000)
+    public void configRefresh() {
+        if (shouldRefreshConfig()) {
+            refreshMonitoringConfig(false);
+        }
+    }
+
     /**
      * 定时监控任务（每分钟执行）
      */
     @Scheduled(fixedRate = 60_000)
     public void scheduledMonitoring() {
-        // 配置自动刷新
-        if (shouldRefreshConfig()) {
-            refreshMonitoringConfig(false);
+        if (!isSchedulingEnabled.get()) {
+            log.debug("定时任务已停用，跳过执行");
+            return;
         }
 
         // 执行监控逻辑
@@ -132,22 +142,22 @@ public class Checkaliveip {
             executeWithRetry(() -> {
                 try (Connection conn = dataSource.getConnection();
                      PreparedStatement ps = conn.prepareStatement(
-                             "SELECT v6ip1, v6ip2, v4ip1, v4ip2 FROM metoo_pingipconfig LIMIT 1")) {
-
+                             "SELECT v6ip1, v6ip2, v4ip1, v4ip2, enabled FROM metoo_pingipconfig LIMIT 1")) {
                     ResultSet rs = ps.executeQuery();
                     if (rs.next()) {
                         monitoredV6Ips.set(new String[]{rs.getString(1), rs.getString(2)});
                         monitoredV4Ips.set(new String[]{rs.getString(3), rs.getString(4)});
+                        boolean enabled = rs.getBoolean(5);
+                        isSchedulingEnabled.set(enabled);
                         lastConfigUpdate = LocalDateTime.now();
-                        log.info("监控配置已更新: IPv6={}, IPv4={}",
-                                (Object) monitoredV6Ips.get(),
-                                (Object) monitoredV4Ips.get());
+                        log.info("定时任务状态: {}", enabled ? "启用" : "停用");
                     }
                     return null;
                 }
             }, MAX_RETRIES);
         }
     }
+
 
     /**
      * 带重试机制的通用执行方法

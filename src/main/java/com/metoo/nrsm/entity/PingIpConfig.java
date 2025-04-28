@@ -37,4 +37,6 @@ public class PingIpConfig {
     private String v4ip1;
 
     private String v4ip2;
+
+    private boolean enabled;
 }
