@@ -1,6 +1,5 @@
 package com.metoo.nrsm.core.network.networkconfig.other;
 
-import com.metoo.nrsm.core.utils.string.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,8 +16,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.lang.Process;
 
@@ -55,7 +52,7 @@ public class Checkaliveip {
     /**
      * 定时监控任务（每分钟执行）
      */
-//    @Scheduled(fixedRate = 60_000)
+    @Scheduled(fixedRate = 60_000)
     public void scheduledMonitoring() {
         // 配置自动刷新
         if (shouldRefreshConfig()) {
@@ -139,32 +136,8 @@ public class Checkaliveip {
 
                     ResultSet rs = ps.executeQuery();
                     if (rs.next()) {
-                        String ipv61 = rs.getString(1);
-                        String ipv62 = rs.getString(2);
-                        if (StringUtils.isNotEmpty(ipv61) || StringUtils.isNotEmpty(ipv62)) {
-                            List<String> ips = new ArrayList<>();
-                            if (StringUtils.isNotEmpty(ipv61)) {
-                                ips.add(ipv61);
-                            }
-                            if (StringUtils.isNotEmpty(ipv62)) {
-                                ips.add(ipv62);
-                            }
-                            monitoredV6Ips.set(ips.toArray(new String[0]));  // 将非null的IP地址转换为数组并设置
-                        }
-
-                        String ipv41 = rs.getString(3);
-                        String ipv42 = rs.getString(4);
-                        if (StringUtils.isNotEmpty(ipv41) || StringUtils.isNotEmpty(ipv42)) {
-                            List<String> ips = new ArrayList<>();
-                            if (StringUtils.isNotEmpty(ipv41)) {
-                                ips.add(ipv41);
-                            }
-                            if (StringUtils.isNotEmpty(ipv42)) {
-                                ips.add(ipv42);
-                            }
-                            monitoredV4Ips.set(ips.toArray(new String[0]));  // 将非null的IP地址转换为数组并设置
-                        }
-
+                        monitoredV6Ips.set(new String[]{rs.getString(1), rs.getString(2)});
+                        monitoredV4Ips.set(new String[]{rs.getString(3), rs.getString(4)});
                         lastConfigUpdate = LocalDateTime.now();
                         log.info("监控配置已更新: IPv6={}, IPv4={}",
                                 (Object) monitoredV6Ips.get(),
@@ -195,21 +168,17 @@ public class Checkaliveip {
      * 判断是否需要刷新配置
      */
     private boolean shouldRefreshConfig() {
-        boolean flag = lastConfigUpdate == null ||
+        return lastConfigUpdate == null ||
                lastConfigUpdate.isBefore(LocalDateTime.now().minusMinutes(CONFIG_REFRESH_MINUTES));
-        return flag;
     }
 
-    public static void main(String[] args) {
-        System.out.println(LocalDateTime.now().minusMinutes(10));
-    }
     /**
      * Ping操作实现
      */
     private boolean ping(String ip) throws IOException, InterruptedException {
         String[] command = System.getProperty("os.name").toLowerCase().contains("win") ?
-            new String[]{"ipscanner", "-n", "1", ip} :
-            new String[]{"ipscanner", "-c", "1", ip};
+            new String[]{"ping", "-n", "1", ip} :
+            new String[]{"ping", "-c", "1", ip};
 
         Process process = new ProcessBuilder(command).start();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
@@ -237,5 +206,4 @@ public class Checkaliveip {
     private interface RetryableTask<T> {
         T execute() throws Exception;
     }
-
 }

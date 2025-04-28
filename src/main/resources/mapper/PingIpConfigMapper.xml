@@ -27,6 +27,9 @@
             <if test="v4ip2 != null">
                 v4ip2,
             </if>
+            <if test="enabled != null">
+                enabled,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="status != null">
@@ -43,6 +46,9 @@
             </if>
             <if test="v4ip2 != null">
                 #{v4ip2},
+            </if>
+            <if test="enabled != null">
+                #{enabled},
             </if>
         </trim>
     </insert>
@@ -64,6 +70,9 @@
             </if>
             <if test="v4ip2 != null">
                 v4ip2 = #{v4ip2},
+            </if>
+            <if test="enabled != null">
+                enabled = #{enabled},
             </if>
         </set>
         where id = #{id}

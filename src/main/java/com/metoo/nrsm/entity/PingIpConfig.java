@@ -63,4 +63,6 @@ public class PingIpConfig {
         }
     }
 
+
+    private boolean enabled;
 }

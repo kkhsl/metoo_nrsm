@@ -199,25 +199,6 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    private volatile boolean isRunningMAC = false;
-    @Scheduled(fixedDelay = 180_000)
-    public void mac() {
-        log.info("MAC采集任务开始");
-        if(flag && !isRunningMAC){
-            isRunningMAC = true;
-            try {
-                Long time = System.currentTimeMillis();
-                this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
-                log.info("MAC采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("MAC采集任务异常: {}", e.getMessage());
-            } finally {
-                isRunningMAC = false;
-            }
-        }
-    }
-
     private volatile boolean isRunningTerminal = false;
     @Scheduled(fixedDelay = 180_000)
     public void terminal() {
@@ -237,25 +218,45 @@ public class GatherTaskScheduledUtil {
         }
     }
 
+
+       private volatile boolean isRunningMAC = false;
+            @Scheduled(fixedDelay = 180_000)
+            public void mac() {
+                log.info("MAC采集任务开始");
+                if(flag && !isRunningMAC){
+                    isRunningMAC = true;
+                    try {
+                        Long time = System.currentTimeMillis();
+                        this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
+                        log.info("MAC采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.error("MAC采集任务异常: {}", e.getMessage());
+                    } finally {
+                        isRunningMAC = false;
+                    }
+                }
+            }
+
 //    @Transactional // 可以结合该注解确调度任务在事务中运行，并在异常时正确回滚事务
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
-    private volatile boolean isRunningIPV4 = false;
-    @Scheduled(fixedDelay = 180_000)
-    public void ipv4() {
-        log.info("IPV4采集任务开始");
-        if(flag && !isRunningIPV4){
-            isRunningIPV4 = true;
-            try {
-                Long time=System.currentTimeMillis();
-                gatherService.gatherIpv4Thread(DateTools.gatherDate(), new ArrayList<>());
-                log.info("IPV4采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("IPV4采集任务异常: {}", e.getMessage());
-            } finally {
-                isRunningIPV4 = false;
-            }
-        }
+            private volatile boolean isRunningIPV4 = false;
+            @Scheduled(fixedDelay = 180_000)
+            public void ipv4() {
+                log.info("IPV4采集任务开始");
+                if(flag && !isRunningIPV4){
+                    isRunningIPV4 = true;
+                    try {
+                        Long time=System.currentTimeMillis();
+                        gatherService.gatherIpv4Thread(DateTools.gatherDate(), new ArrayList<>());
+                        log.info("IPV4采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.error("IPV4采集任务异常: {}", e.getMessage());
+                    } finally {
+                        isRunningIPV4 = false;
+                    }
+                }
     }
 
     private volatile boolean isRunningIPV4Detail = false;
