@@ -65,6 +65,8 @@ public class IpScannerManager {
 
             // 判断目标类型，执行对应的扫描
             if (target.contains("/")) {
+                latch = new CountDownLatch(1);
+
                 // 如果目标是 CIDR 网段（例如：192.168.1.0/24），直接用 nmap 扫描整个网段
                 log.info("Scanning CIDR range: {}", target);
                 PingThreadPool.execute(new NmapScanner(target, latch));
@@ -89,6 +91,7 @@ public class IpScannerManager {
                     PingThreadPool.execute(new NmapScanner(ip, latch));
                 }
             } else {
+                latch = new CountDownLatch(1);
                 // 如果目标是单个 IP 地址（例如：192.168.1.1），直接扫描该 IP
                 log.info("Scanning single IP: {}", target);
                 PingThreadPool.execute(new NmapScanner(target, latch));
