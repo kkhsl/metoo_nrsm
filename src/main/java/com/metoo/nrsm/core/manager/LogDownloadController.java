@@ -4,6 +4,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -161,12 +162,16 @@ public class LogDownloadController {
     public ResponseEntity<Map<String, Object>> getAvailableDates(@PathVariable String type) {
         LogConfig config = LOG_CONFIGS.get(type.toLowerCase());
         if (config == null) {
-            return ResponseEntity.notFound().build();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Invalid log type: " + type);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
 
         Path dir = Paths.get(config.directory);
         if (!Files.isDirectory(dir)) {
-            return ResponseEntity.notFound().build();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Log directory not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
 
         // 使用有序集合自动排序
@@ -201,7 +206,9 @@ public class LogDownloadController {
         }
 
         if (dateSet.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Log not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
 
         List<String> sortedDates = dateSet.stream()
