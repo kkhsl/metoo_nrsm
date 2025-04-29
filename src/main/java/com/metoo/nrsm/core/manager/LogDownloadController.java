@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -27,7 +29,7 @@ public class LogDownloadController {
 
     private static final Map<String, LogConfig> LOG_CONFIGS = new HashMap<>();
     static {
-        LOG_CONFIGS.put("dhcp", new LogConfig(
+        /*LOG_CONFIGS.put("dhcp", new LogConfig(
                 "/var/log/dhcp",
                 Arrays.asList("dhcpd.log-")
         ));
@@ -38,8 +40,8 @@ public class LogDownloadController {
         LOG_CONFIGS.put("dns", new LogConfig(
                 "/var/log/unbound",
                 Collections.singletonList("dns.log-")
-        ));
-        /*LOG_CONFIGS.put("dhcp", new LogConfig(
+        ));*/
+        LOG_CONFIGS.put("dhcp", new LogConfig(
                 "C:\\Users\\leo\\Desktop\\dhcp",
                 Arrays.asList("dhcpd.log-")
         ));
@@ -50,7 +52,7 @@ public class LogDownloadController {
         LOG_CONFIGS.put("dns", new LogConfig(
                 "C:\\Users\\leo\\Desktop\\unbound",
                 Collections.singletonList("dns.log-")
-        ));*/
+        ));
 
     }
 
@@ -152,5 +154,65 @@ public class LogDownloadController {
             this.directory = dir;
             this.filePrefixes = prefixes;
         }
+    }
+
+
+    @GetMapping("/dates/{type}")
+    public ResponseEntity<Map<String, Object>> getAvailableDates(@PathVariable String type) {
+        LogConfig config = LOG_CONFIGS.get(type.toLowerCase());
+        if (config == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Path dir = Paths.get(config.directory);
+        if (!Files.isDirectory(dir)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 使用有序集合自动排序
+        Set<LocalDate> dateSet = new TreeSet<>();
+
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dir)) {
+            for (Path filePath : directoryStream) {
+                String fileName = filePath.getFileName().toString();
+
+                // 匹配所有前缀
+                for (String prefix : config.filePrefixes) {
+                    if (fileName.startsWith(prefix)) {
+                        String datePart = fileName.substring(prefix.length());
+
+                        // 移除压缩后缀（如果有）
+                        if (datePart.endsWith(".gz")) {
+                            datePart = datePart.substring(0, datePart.length() - 3);
+                        }
+
+                        // 解析日期
+                        try {
+                            LocalDate date = LocalDate.parse(datePart, DateTimeFormatter.ISO_LOCAL_DATE);
+                            dateSet.add(date);
+                        } catch (DateTimeParseException e) {
+                            // 忽略无效格式
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+
+        if (dateSet.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<String> sortedDates = dateSet.stream()
+                .map(date -> date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .collect(Collectors.toList());
+
+        LocalDate today = LocalDate.now();
+        if (Files.exists(Paths.get(config.directory, config.filePrefixes.get(0) + today))) {
+            sortedDates.add(today.toString());
+        }
+
+        return ResponseEntity.ok(Collections.singletonMap("dates", sortedDates));
     }
 }
