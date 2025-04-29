@@ -16,7 +16,6 @@ public class LocalZoneUpdateStrategy implements ConfigUpdateStrategy {
     @Override
     public List<String> updateConfig(List<String> lines, Object configData) throws IOException {
         List<LocalZoneDTO> localZoneConfig = (List<LocalZoneDTO>) configData;
-        // 处理 local-zone 的更新逻辑
         List<String> updatedLines = updateLines(lines, localZoneConfig);
         return updatedLines;
     }
@@ -45,17 +44,17 @@ public class LocalZoneUpdateStrategy implements ConfigUpdateStrategy {
                 String zoneName = trimmedLine.split(":")[1].trim().split(" ")[0].trim().replace("\"", "");
                 if (!validZoneNames.contains(zoneName)) {
                     skipLocalData = true;
-                    continue; // 删除该 local-zone 和 local-data 行
+                    continue;
                 } else {
                     skipLocalData = false;
                     existingZones.add(zoneName);
                     currentIndentation = indentation;
-                    updatedLines.add(line); // 保留该 local-zone
+                    updatedLines.add(line);
                 }
             } else if (skipLocalData && trimmedLine.startsWith("local-data:")) {
-                continue; // 删除对应的 local-data 行
+                continue;
             } else {
-                updatedLines.add(line); // 其他行不变
+                updatedLines.add(line);
             }
         }
 
@@ -69,15 +68,10 @@ public class LocalZoneUpdateStrategy implements ConfigUpdateStrategy {
 
             if (!existingZones.contains(zoneName)) {
                 newLocalZoneLines.add(currentIndentation + "local-zone: \"" + zoneName + "\" static");
-
-                Set<String> existingHostNames = new HashSet<>();
+                // 添加所有 local-data 条目，不基于 hostName 去重
                 for (LocalDataDTO localDataItem : zoneConfig.getLocalData()) {
-                    String hostName = localDataItem.getHostName();
-                    if (!existingHostNames.contains(hostName)) {
-                        newLocalZoneLines.add(currentIndentation + "local-data: \"" + hostName + " IN "
-                                + localDataItem.getRecordType() + " " + localDataItem.getMappedAddress() + "\"");
-                        existingHostNames.add(hostName);
-                    }
+                    newLocalZoneLines.add(currentIndentation + "local-data: \"" + localDataItem.getHostName() + " IN "
+                            + localDataItem.getRecordType() + " " + localDataItem.getMappedAddress() + "\"");
                 }
             } else {
                 updateLocalData(updatedLines, zoneName, zoneConfig.getLocalData(), currentIndentation);
@@ -102,192 +96,59 @@ public class LocalZoneUpdateStrategy implements ConfigUpdateStrategy {
     }
 
     private static void updateLocalData(List<String> updatedLines, String zoneName, List<LocalDataDTO> newLocalData, String currentIndentation) {
-        Set<String> newHostNames = new HashSet<>();
-        for (LocalDataDTO localData : newLocalData) {
-            newHostNames.add(localData.getHostName());
+        // 收集所有新数据的唯一键（host + type + address）
+        Set<String> newDataKeys = new HashSet<>();
+        for (LocalDataDTO data : newLocalData) {
+            String key = data.getHostName() + "|" + data.getRecordType() + "|" + data.getMappedAddress();
+            newDataKeys.add(key);
         }
 
-        // 遍历更新后的行，查找对应的 local-zone 和 local-data 进行更新
-        boolean zoneFound = false; // 标记是否找到 zone
+        boolean zoneFound = false;
         for (int i = 0; i < updatedLines.size(); i++) {
             String line = updatedLines.get(i).trim();
             if (line.startsWith("local-zone: \"" + zoneName + "\"")) {
                 zoneFound = true;
                 int j = i + 1;
-                boolean localDataUpdated = false; // 是否更新了 local-data
+                Set<String> existingDataKeys = new HashSet<>();
 
+                // 遍历当前 zone 下的所有 local-data 行
                 while (j < updatedLines.size()) {
                     String localDataLine = updatedLines.get(j).trim();
-
                     if (localDataLine.startsWith("local-data:")) {
-                        String hostName = localDataLine.split(":")[1].trim().split(" ")[0].trim().replace("\"", "");
+                        // 解析现有行的 host、type、address
+                        String dataPart = localDataLine.split(":")[1].trim().replace("\"", "");
+                        String[] parts = dataPart.split("\\s+");
+                        String host = parts[0];
+                        String type = parts[1];
+                        String address = parts[2];
+                        String existingKey = host + "|" + type + "|" + address;
 
-                        if (newHostNames.contains(hostName)) {
-                            // 更新现有的 local-data
-                            for (LocalDataDTO localData : newLocalData) {
-                                if (localData.getHostName().equals(hostName)) {
-                                    updatedLines.set(j, currentIndentation + "local-data: \"" + localData.getHostName() + " IN "
-                                            + localData.getRecordType() + " " + localData.getMappedAddress() + "\"");
-                                    newHostNames.remove(hostName); // 删除已更新的 hostName
-                                }
-                            }
-                        } else {
-                            // 删除无用的 local-data
+                        existingDataKeys.add(existingKey);
+
+                        // 如果当前行不在新数据中，则删除
+                        if (!newDataKeys.contains(existingKey)) {
                             updatedLines.remove(j);
-                            j--; // 删除后需要回退一步，继续检查新的行
+                        } else {
+                            // 保留并移除已处理的key
+                            newDataKeys.remove(existingKey);
+                            j++;
                         }
                     } else {
-                        // 如果遇到下一个 local-zone 或结束，就停止
                         break;
                     }
-                    j++;
                 }
 
-                // 如果当前 zone 下的 local-data 行没有包含所有新的数据，新增缺失的 local-data
-                for (LocalDataDTO localData : newLocalData) {
-                    if (newHostNames.contains(localData.getHostName())) {
-                        updatedLines.add(i + 1, currentIndentation + "local-data: \"" + localData.getHostName() + " IN "
-                                + localData.getRecordType() + " " + localData.getMappedAddress() + "\"");
-                        newHostNames.remove(localData.getHostName()); // 删除已添加的 hostName
+                // 添加剩余的新数据
+                for (LocalDataDTO data : newLocalData) {
+                    String key = data.getHostName() + "|" + data.getRecordType() + "|" + data.getMappedAddress();
+                    if (newDataKeys.contains(key)) {
+                        updatedLines.add(j, currentIndentation + "local-data: \"" + data.getHostName() + " IN "
+                                + data.getRecordType() + " " + data.getMappedAddress() + "\"");
+                        j++;
+                        newDataKeys.remove(key);
                     }
                 }
             }
         }
     }
-
-    /*public static List<String> updateLines(List<String> lines, List<LocalZoneDTO> localZoneDTOS) throws IOException {
-        // 记录有效的 zone 名称
-        Set<String> validZoneNames = new HashSet<>();
-        if (localZoneDTOS != null && !localZoneDTOS.isEmpty()) {
-            localZoneDTOS.forEach(e -> {
-                String zoneName = e.getZoneName();
-                if (StringUtil.isNotEmpty(zoneName)) {
-                    validZoneNames.add(zoneName);
-                }
-            });
-        }
-
-        // 存储更新后的行
-        List<String> updatedLines = new ArrayList<>();
-        // 记录已处理的 zones
-        Set<String> existingZones = new HashSet<>();
-        // 当前的缩进
-        String currentIndentation = "";
-        // 跳过 local-data 行的标志
-        boolean skipLocalData = false;
-
-        // 处理原文件中的每一行
-        for (String line : lines) {
-            String trimmedLine = line.trim();
-            String indentation = line.substring(0, line.indexOf(trimmedLine));
-
-            if (trimmedLine.startsWith("local-zone:") && trimmedLine.contains("\"")) {
-                String zoneName = trimmedLine.split(":")[1].trim().split(" ")[0].trim().replace("\"", "");
-                if (!validZoneNames.contains(zoneName)) {
-                    skipLocalData = true;
-                    continue; // 删除该 local-zone 和 local-data 行
-                } else {
-                    skipLocalData = false;
-                    existingZones.add(zoneName);
-                    currentIndentation = indentation;
-                    updatedLines.add(line); // 保留该 local-zone
-                }
-            } else if (skipLocalData && trimmedLine.startsWith("local-data:")) {
-                continue; // 删除对应的 local-data 行
-            } else {
-                updatedLines.add(line); // 其他行不变
-            }
-        }
-
-        // 如果没有有效的 zones，添加一个空行
-        if (existingZones.isEmpty()) {
-            updatedLines.add("");
-        }
-
-        // 新增缺失的 local-zone 和 local-data 行
-        List<String> newLocalZoneLines = new ArrayList<>();
-        for (LocalZoneDTO zoneConfig : localZoneDTOS) {
-            String zoneName = zoneConfig.getZoneName();
-
-            // 如果 zone 已经存在，则直接更新，否则新增
-            if (!existingZones.contains(zoneName)) {
-                newLocalZoneLines.add(currentIndentation + "local-zone: \"" + zoneName + "\" static");
-
-                // 遍历 local-data 配置，确保不重复插入
-                Set<String> existingHostNames = new HashSet<>();
-                for (LocalDataDTO localDataItem : zoneConfig.getLocalData()) {
-                    String hostName = localDataItem.getHostName();
-                    // 检查是否已经添加过该 hostName
-                    if (!existingHostNames.contains(hostName)) {
-                        newLocalZoneLines.add(currentIndentation + "local-data: \"" + hostName + " IN "
-                                + localDataItem.getRecordType() + " " + localDataItem.getMappedAddress() + "\"");
-                        existingHostNames.add(hostName);
-                    }
-                }
-            } else {
-                // 如果该 zone 已存在，则更新 local-data
-                updateLocalData(updatedLines, zoneName, zoneConfig.getLocalData(), currentIndentation);
-            }
-        }
-
-        // 找到 remote-control 行的位置，并在其上方插入新配置
-        int remoteControlIndex = -1;
-        for (int i = 0; i < updatedLines.size(); i++) {
-            if (updatedLines.get(i).trim().startsWith("remote-control:")) {
-                remoteControlIndex = i;
-                break;
-            }
-        }
-
-        // 插入 local-zone 和 local-data 行
-        if (remoteControlIndex != -1) {
-            updatedLines.addAll(remoteControlIndex, newLocalZoneLines);
-        } else {
-            // 如果没有找到 remote-control，则直接添加到末尾
-            updatedLines.addAll(newLocalZoneLines);
-        }
-
-        return updatedLines;
-    }
-
-    // 更新已有的 local-data 行
-    private static void updateLocalData(List<String> updatedLines, String zoneName, List<LocalDataDTO> newLocalData, String currentIndentation) {
-        Set<String> newHostNames = new HashSet<>();
-        for (LocalDataDTO localData : newLocalData) {
-            newHostNames.add(localData.getHostName());
-        }
-
-        // 遍历更新后的行，查找对应的 local-zone 和 local-data 进行更新
-        boolean zoneFound = false; // 标记是否找到 zone
-        for (int i = 0; i < updatedLines.size(); i++) {
-            String line = updatedLines.get(i).trim();
-            if (line.startsWith("local-zone: \"" + zoneName + "\"")) {
-                zoneFound = true;
-                int j = i + 1;
-                while (j < updatedLines.size()) {
-                    String localDataLine = updatedLines.get(j).trim();
-                    if (localDataLine.startsWith("local-data:")) {
-                        String hostName = localDataLine.split(":")[1].trim().split(" ")[0].trim().replace("\"", "");
-                        if (newHostNames.contains(hostName)) {
-                            // 更新该 local-data
-                            for (LocalDataDTO localData : newLocalData) {
-                                if (localData.getHostName().equals(hostName)) {
-                                    updatedLines.set(j, currentIndentation + "local-data: \"" + localData.getHostName() + " IN "
-                                            + localData.getRecordType() + " " + localData.getMappedAddress() + "\"");
-                                }
-                            }
-                        } else {
-                            // 删除无用的 local-data
-                            updatedLines.remove(j);
-                            j--; // 删除后需要回退一步，继续检查新的行
-                        }
-                    } else {
-                        break; // 找到下一个 local-zone 或结束
-                    }
-                    j++;
-                }
-            }
-
-        }
-    }*/
 }
