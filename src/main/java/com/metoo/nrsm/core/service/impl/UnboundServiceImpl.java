@@ -4,8 +4,6 @@ import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.metoo.nrsm.core.dto.LocalDataDTO;
-import com.metoo.nrsm.core.dto.LocalZoneDTO;
 import com.metoo.nrsm.core.dto.UnboundDTO;
 import com.metoo.nrsm.core.mapper.UnboundMapper;
 import com.metoo.nrsm.core.service.IUnboundService;
@@ -23,7 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
 
 @Service
 public class UnboundServiceImpl implements IUnboundService {
@@ -534,6 +535,33 @@ public class UnboundServiceImpl implements IUnboundService {
             return false;
         }
     }
+
+    public boolean radvdStatus1() throws Exception {
+        // 创建连接
+        Connection conn = new Connection(host, port);
+        // 启动连接
+        conn.connect();
+        // 验证用户密码
+        conn.authenticateWithPassword(username, password);
+        // 重启 Unbound 服务
+        Session session = conn.openSession();
+        // 检查 Unbound 服务状态
+        session = conn.openSession();
+        session.execCommand("systemctl status radvd");
+        String statusOutput = consumeInputStream(session.getStdout());
+        System.out.println("radvd 状态:\n" + statusOutput);
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
+        boolean isRunning = checkRadvdStatus(conn);
+        // 关闭连接
+        conn.close();
+        if (isRunning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     public boolean status2() throws Exception {
         // 检查 Unbound 服务状态
         ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "status", "unbound");
@@ -546,6 +574,25 @@ public class UnboundServiceImpl implements IUnboundService {
 
         // 打印状态信息
         System.out.println("Unbound 状态:\n" + statusOutput);
+
+        // 检查服务是否正在运行
+        boolean isRunning = checkUnboundStatus(statusOutput);
+
+        return isRunning;
+    }
+
+    public boolean radvdStatus2() throws Exception {
+        // 检查 Unbound 服务状态
+        ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "status", "radvd");
+        statusBuilder.redirectErrorStream(true); // 合并错误流和输出流
+        Process statusProcess = statusBuilder.start();
+
+        // 读取输出
+        String statusOutput = consumeInputStream2(statusProcess.getInputStream());
+        statusProcess.waitFor(); // 等待状态检查完成
+
+        // 打印状态信息
+        System.out.println("radvd 状态:\n" + statusOutput);
 
         // 检查服务是否正在运行
         boolean isRunning = checkUnboundStatus(statusOutput);
@@ -657,6 +704,22 @@ public class UnboundServiceImpl implements IUnboundService {
         }
     }
 
+    public boolean radvdStatus(){
+        if ("test".equals(Global.env)) {
+            try {
+                return radvdStatus1();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            try {
+                return radvdStatus2();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
 
 
     private String consumeInputStream(InputStream inputStream) throws IOException {
@@ -673,6 +736,15 @@ public class UnboundServiceImpl implements IUnboundService {
     private boolean checkUnboundStatus(Connection conn) throws Exception {
         Session session = conn.openSession();
         session.execCommand("systemctl status unbound");
+        String statusOutput = consumeInputStream(session.getStdout());
+        session.close(); // 关闭会话
+        // 判断服务状态
+        return statusOutput.contains("Active: active (running)");
+    }
+
+    private boolean checkRadvdStatus(Connection conn) throws Exception {
+        Session session = conn.openSession();
+        session.execCommand("systemctl status radvd");
         String statusOutput = consumeInputStream(session.getStdout());
         session.close(); // 关闭会话
         // 判断服务状态

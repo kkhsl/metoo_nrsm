@@ -18,6 +18,7 @@ public interface IUnboundService {
     boolean start() throws Exception;
     boolean stop() throws Exception;
     boolean status() throws Exception;
+    boolean radvdStatus() throws Exception;
 
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     boolean saveDNS(Unbound instance);
