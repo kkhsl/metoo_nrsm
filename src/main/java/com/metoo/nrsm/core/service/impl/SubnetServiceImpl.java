@@ -253,9 +253,9 @@ public class SubnetServiceImpl implements ISubnetService {
     //                    方式二：
     //                    SNMPv2Request.pingTest(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
 //                        SNMPv2Request.pingSubnet(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
-//                        SNMPv2Request.pingSubnetConcurrent(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
+                        SNMPv2Request.pingSubnetConcurrent(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
 //                          IpScannerManager.scanner(subnet.getIp(), Integer.parseInt(String.valueOf(subnet.getMask())));
-                          IpScannerManager.scanTarget(subnet.getIp() + "/" + String.valueOf(subnet.getMask()));
+//                          IpScannerManager.scanTarget(subnet.getIp() + "/" + String.valueOf(subnet.getMask()));
                     }
                 }
             }
