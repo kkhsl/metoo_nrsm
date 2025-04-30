@@ -2,7 +2,6 @@ package com.metoo.nrsm.core.manager;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,14 +57,16 @@ public class LogDownloadController {
     }
 
     @GetMapping("/download/{type}")
-    public ResponseEntity<Resource> downloadLogs(
+    public ResponseEntity<?> downloadLogs(
             @PathVariable String type,
             @RequestParam String start,
             @RequestParam(required = false) String end) throws IOException {
 
         LogConfig config = LOG_CONFIGS.get(type.toLowerCase());
         if (config == null) {
-            return ResponseEntity.badRequest().body(null);
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "config type error: " + type);
+            return ResponseEntity.badRequest().body(error);
         }
 
         LocalDate startDate = parseDate(start);
@@ -98,9 +99,11 @@ public class LogDownloadController {
         return files;
     }
 
-    private ResponseEntity<Resource> prepareResponse(List<Path> files) throws IOException {
+    private ResponseEntity<?> prepareResponse(List<Path> files) throws IOException {
         if (files.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "log or directory is null");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
 
         // 单个文件直接返回原始格式（可能是.gz或未压缩）

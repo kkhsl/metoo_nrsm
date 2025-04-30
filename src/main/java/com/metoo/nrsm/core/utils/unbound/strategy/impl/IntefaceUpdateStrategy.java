@@ -3,9 +3,9 @@ package com.metoo.nrsm.core.utils.unbound.strategy.impl;
 import com.metoo.nrsm.core.utils.unbound.strategy.ConfigUpdateStrategy;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class IntefaceUpdateStrategy implements ConfigUpdateStrategy {
 
@@ -42,7 +42,7 @@ public class IntefaceUpdateStrategy implements ConfigUpdateStrategy {
             if (isIpv6Enabled && !addedInterfaces) {
                 if (ips.size() > 0 && !line.trim().startsWith("interface:")) {
                     for (String ip : ips) {
-                        String newInterfaceLine = indentation + "interface: " + ip;
+                        String newInterfaceLine = indentation + "interface: " + "::";
                         newConfigLines.add(newInterfaceLine); // 添加新的 interface 配置
                     }
                     addedInterfaces = true; // 标记已添加过接口配置
