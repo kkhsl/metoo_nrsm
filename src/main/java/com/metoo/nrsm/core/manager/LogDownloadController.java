@@ -29,30 +29,30 @@ public class LogDownloadController {
 
     private static final Map<String, LogConfig> LOG_CONFIGS = new HashMap<>();
     static {
-        LOG_CONFIGS.put("dhcp", new LogConfig(
-                "/var/log/dhcp",
-                Arrays.asList("dhcpd.log-")
-        ));
-        LOG_CONFIGS.put("dhcp6", new LogConfig(
-                "/var/log/dhcp6",
-                Arrays.asList("dhcpd6.log-")
-        ));
-        LOG_CONFIGS.put("dns", new LogConfig(
-                "/var/log/unbound",
-                Collections.singletonList("dns.log-")
-        ));
 //        LOG_CONFIGS.put("dhcp", new LogConfig(
-//                "C:\\Users\\leo\\Desktop\\dhcp",
+//                "/var/log/dhcp",
 //                Arrays.asList("dhcpd.log-")
 //        ));
 //        LOG_CONFIGS.put("dhcp6", new LogConfig(
-//                "C:\\Users\\leo\\Desktop\\dhcp6",
+//                "/var/log/dhcp6",
 //                Arrays.asList("dhcpd6.log-")
 //        ));
 //        LOG_CONFIGS.put("dns", new LogConfig(
-//                "C:\\Users\\leo\\Desktop\\unbound",
+//                "/var/log/unbound",
 //                Collections.singletonList("dns.log-")
 //        ));
+        LOG_CONFIGS.put("dhcp", new LogConfig(
+                "C:\\Users\\leo\\Desktop\\dhcp",
+                Arrays.asList("dhcpd.log-")
+        ));
+        LOG_CONFIGS.put("dhcp6", new LogConfig(
+                "C:\\Users\\leo\\Desktop\\dhcp6",
+                Arrays.asList("dhcpd6.log-")
+        ));
+        LOG_CONFIGS.put("dns", new LogConfig(
+                "C:\\Users\\leo\\Desktop\\unbound",
+                Collections.singletonList("dns.log-")
+        ));
 
     }
 
@@ -78,17 +78,12 @@ public class LogDownloadController {
 
     private List<Path> collectLogFiles(LogConfig config, LocalDate start, LocalDate end) {
         List<Path> files = new ArrayList<>();
-        LocalDate logToday = LocalDate.now().minusDays(1); // 关键调整：当天日志对应实际日期-1
-
         LocalDate current = start;
         while (!current.isAfter(end)) {
             String dateStr = current.format(DateTimeFormatter.ISO_LOCAL_DATE);
-
             for (String prefix : config.filePrefixes) {
-                // 判断是否为"当天"日志（实际日期-1）
-                String extension = current.isEqual(logToday) ? "" : ".gz";
-                String fileName = prefix + dateStr + extension;
-
+                // 始终使用.gz扩展名
+                String fileName = prefix + dateStr + ".gz";
                 Path filePath = Paths.get(config.directory, fileName);
                 if (Files.exists(filePath)) {
                     files.add(filePath);
@@ -183,18 +178,11 @@ public class LogDownloadController {
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dir)) {
             for (Path filePath : directoryStream) {
                 String fileName = filePath.getFileName().toString();
-
-                // 匹配所有前缀
                 for (String prefix : config.filePrefixes) {
-                    if (fileName.startsWith(prefix)) {
-                        String datePart = fileName.substring(prefix.length());
-
-                        // 移除压缩后缀（如果有）
-                        if (datePart.endsWith(".gz")) {
-                            datePart = datePart.substring(0, datePart.length() - 3);
-                        }
-
-                        // 解析日期
+                    // 仅处理以.gz结尾的文件
+                    if (fileName.startsWith(prefix) && fileName.endsWith(".gz")) {
+                        // 移除前缀和.gz后缀
+                        String datePart = fileName.substring(prefix.length(), fileName.length() - 3);
                         try {
                             LocalDate date = LocalDate.parse(datePart, DateTimeFormatter.ISO_LOCAL_DATE);
                             dateSet.add(date);
@@ -217,11 +205,6 @@ public class LogDownloadController {
         List<String> sortedDates = dateSet.stream()
                 .map(date -> date.format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .collect(Collectors.toList());
-
-        LocalDate today = LocalDate.now();
-        if (Files.exists(Paths.get(config.directory, config.filePrefixes.get(0) + today))) {
-            sortedDates.add(today.toString());
-        }
 
         return ResponseEntity.ok(Collections.singletonMap("dates", sortedDates));
     }
