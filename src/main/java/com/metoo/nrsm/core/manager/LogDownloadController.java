@@ -29,30 +29,30 @@ public class LogDownloadController {
 
     private static final Map<String, LogConfig> LOG_CONFIGS = new HashMap<>();
     static {
-//        LOG_CONFIGS.put("dhcp", new LogConfig(
-//                "/var/log/dhcp",
-//                Arrays.asList("dhcpd.log-")
-//        ));
-//        LOG_CONFIGS.put("dhcp6", new LogConfig(
-//                "/var/log/dhcp6",
-//                Arrays.asList("dhcpd6.log-")
-//        ));
-//        LOG_CONFIGS.put("dns", new LogConfig(
-//                "/var/log/unbound",
-//                Collections.singletonList("dns.log-")
-//        ));
         LOG_CONFIGS.put("dhcp", new LogConfig(
-                "C:\\Users\\leo\\Desktop\\dhcp",
+                "/var/log/dhcp",
                 Arrays.asList("dhcpd.log-")
         ));
         LOG_CONFIGS.put("dhcp6", new LogConfig(
-                "C:\\Users\\leo\\Desktop\\dhcp6",
+                "/var/log/dhcp6",
                 Arrays.asList("dhcpd6.log-")
         ));
         LOG_CONFIGS.put("dns", new LogConfig(
-                "C:\\Users\\leo\\Desktop\\unbound",
+                "/var/log/unbound",
                 Collections.singletonList("dns.log-")
         ));
+//        LOG_CONFIGS.put("dhcp", new LogConfig(
+//                "C:\\Users\\leo\\Desktop\\dhcp",
+//                Arrays.asList("dhcpd.log-")
+//        ));
+//        LOG_CONFIGS.put("dhcp6", new LogConfig(
+//                "C:\\Users\\leo\\Desktop\\dhcp6",
+//                Arrays.asList("dhcpd6.log-")
+//        ));
+//        LOG_CONFIGS.put("dns", new LogConfig(
+//                "C:\\Users\\leo\\Desktop\\unbound",
+//                Collections.singletonList("dns.log-")
+//        ));
 
     }
 
