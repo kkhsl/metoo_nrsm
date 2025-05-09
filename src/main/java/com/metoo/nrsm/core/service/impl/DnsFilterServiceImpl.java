@@ -231,7 +231,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
         conn.authenticateWithPassword(username, password);
         // 重启 Unbound 服务
         Session session = conn.openSession();
-        session.execCommand("systemctl reload unbound");
+        session.execCommand("systemctl restart unbound");
         Thread.sleep(2500);
         session.close(); // 关闭会话
 
@@ -352,7 +352,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
 
     public boolean restart2() throws Exception {
         // 重启 Unbound 服务
-        ProcessBuilder restartBuilder = new ProcessBuilder("systemctl", "reload", "unbound");
+        ProcessBuilder restartBuilder = new ProcessBuilder("systemctl", "restart", "unbound");
         restartBuilder.redirectErrorStream(true); // 合并错误流和输出流
         Process restartProcess = restartBuilder.start();
         restartProcess.waitFor(); // 等待重启完成
