@@ -19,7 +19,7 @@ import java.util.Map;
 public class modifyIp {
 
     private static final String NETPLAN_PATH = "/etc/netplan/00-installer-config.yaml";
-    //private static final String NETPLAN_PATH = "C:\\Users\\leo\\Desktop\\00-installer-config.yaml";
+//    private static final String NETPLAN_PATH = "C:\\Users\\leo\\Desktop\\00-installer-config.yaml";
 
 
     /**

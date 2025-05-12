@@ -8,6 +8,7 @@ import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Interface;
+import com.metoo.nrsm.entity.Vlans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -128,6 +129,16 @@ public class InterfaceServiceImpl implements IInterfaceService {
 //                instance.getIpv6address(), instance.getGateway4(), instance.getGateway6()};
 //        String result = pythonExecUtils.exec(path, params);
         String result = SNMPv2Request.modifyIp(instance.getName(), instance.getIpv4address(), instance.getIpv6address(), instance.getGateway4(), instance.getGateway6());
+        if(result.equals("0")){
+            return true;
+        }
+        return false;
+    }
+
+
+    @Override
+    public boolean modify_vlans(String name,Vlans instance){
+        String result = SNMPv2Request.modifyVlans(name,instance.getId(),instance.getIpv4address(),instance.getIpv6address(),instance.getGateway4(),instance.getGateway6());
         if(result.equals("0")){
             return true;
         }

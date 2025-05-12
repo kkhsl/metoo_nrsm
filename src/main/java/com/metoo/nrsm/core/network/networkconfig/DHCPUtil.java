@@ -68,7 +68,7 @@ public class DHCPUtil {
     //getnetintf.py
     public static String getNetworkInterfaces() {
         try {
-            return getNetIntf.getNetworkInterfaces();
+            return getAllNetIntf.getNetworkInterfaces();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -79,6 +79,15 @@ public class DHCPUtil {
                                String gateway4, String gateway6) {
         try {
             return modifyIp.modifyIP(iface,ipv4address,ipv6address,gateway4,gateway6);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int modifyVlans(String parentInterface, String vlanId, String ipv4Address,
+                               String ipv6Address, String gateway4,String gateway6) {
+        try {
+            return modifyVlans.modifyVlanConfig(parentInterface,vlanId,ipv4Address,ipv6Address,gateway4,gateway6);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
