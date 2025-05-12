@@ -64,9 +64,10 @@
 
     <select id="selectConditionQuery" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
-        <include refid="Base_Column_List"/>
+          <include refid="Base_Column_List"/>
         FROM metoo_ne
         <where>
+            deleteStatus = COALESCE(#{deleteStatus, jdbcType=INTEGER}, 0)
             <if test="id != null">
                 AND id != #{id}
             </if>
@@ -212,6 +213,7 @@
           ip IS NOT NULL AND ip != ''
         AND version IS NOT NULL AND version != ''
         AND community IS NOT NULL AND community != ''
+        AND deleteStatus = 0
     </select>
 
     <select id="selectAccessoryByUuid" parameterType="java.lang.String" resultMap="Accessory_Ne_Map">

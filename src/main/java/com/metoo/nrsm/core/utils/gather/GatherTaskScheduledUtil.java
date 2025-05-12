@@ -86,35 +86,20 @@ public class GatherTaskScheduledUtil {
     @Scheduled(cron = "0 */5 * * * ?")
 //    @Scheduled(cron = "0 */1 * * * ?")
     public void api() {
-        Map generalLog = new LinkedHashMap();
-        generalLog.put("第一步：", "开始采集");
         if(traffic) {
             if (lock.tryLock()) {
-                generalLog.put("第二步：", "获取锁");
                 try {
                     Long time = System.currentTimeMillis();
                     log.info("FlowUnit traffic start=================================");
                     try {
 
-                        generalLog.put("第三步：", "流量推送开始");
                         apiExecUtils.exec();
-                        generalLog.put("第四步：", "流量推送结束");
                     } catch (Exception e) {
                         log.error("Error unit traffic =================================" + e.getMessage());
                     }
-                    generalLog.put("第五步：", "采集结束");
                     log.info("FlowUnit traffic end=================================" + (System.currentTimeMillis()-time));
                 } finally {
                     lock.unlock();
-                    generalLog.put("第六步：", "释放锁");
-                    try {
-                        // 推送远程日志
-                        String data = JSONObject.toJSONString(generalLog);
-                        apiService.general(data);
-                    } catch (Exception e) {
-                        log.info("FlowUnit traffic error =================================" + e.getMessage());
-                        generalLog.put("第七步：", e.getMessage());
-                    }
                 }
             }
         }

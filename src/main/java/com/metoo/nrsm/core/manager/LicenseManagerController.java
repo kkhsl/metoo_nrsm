@@ -129,7 +129,14 @@ public class LicenseManagerController {
     private void calculateLicenseDays(LicenseVo license) {
         long currentTime = DateTools.currentTimeMillis();
         license.setUseDay(DateTools.compare(currentTime, license.getStartTime()));
-        license.setSurplusDay(DateTools.compare(license.getEndTime(), currentTime));
+
+        long remainingMillis = license.getEndTime() - currentTime;
+        int surplusDay = (int) Math.ceil((double) remainingMillis / DateTools.ONEDAY_TIME);
+        surplusDay = Math.max(surplusDay, 1); // 确保最小值为1
+        license.setSurplusDay(surplusDay);
+
+//        license.setSurplusDay(DateTools.compare(license.getEndTime(), currentTime));
+
         license.setLicenseDay(DateTools.compare(license.getEndTime(), license.getStartTime()));
     }
 
