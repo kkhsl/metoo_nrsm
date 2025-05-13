@@ -21,6 +21,7 @@ import com.metoo.nrsm.core.utils.unbound.UnboundConfUtil;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Unbound;
+import com.metoo.nrsm.entity.Vlans;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -240,6 +241,56 @@ public class InterfaceManagerController {
 
         return flag ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
     }
+
+    @ApiOperation("子接口")
+    @PostMapping({"/modify/vlans"})
+    public Object modifyVlans(@RequestBody Interface instance) {
+        boolean flag=false;
+        if (StringUtil.isEmpty(instance.getName())) {
+            return ResponseUtil.badArgument ("网络接口不能为空");
+        }
+        for (Vlans vlan : instance.getVlans()) {
+            // 校验IPv4地址
+            if (StringUtils.isNotEmpty(vlan.getIpv4address()) && !Ipv4Util.verifyCidr(vlan.getIpv4address())) {
+                return ResponseUtil.badArgument("子接口IPv4地址格式错误，不符合CIDR格式");
+            }
+            // 校验IPv4网关
+            if (StringUtils.isNotEmpty(vlan.getGateway4()) && !Ipv4Util.verifyIp(vlan.getGateway4())) {
+                return ResponseUtil.badArgument("子接口IPv4网关格式错误");
+            }
+            // 校验IPv6地址
+            if (StringUtils.isNotEmpty(vlan.getIpv6address()) && !Ipv6Util.verifyCidr(vlan.getIpv6address())) {
+                return ResponseUtil.badArgument("子接口IPv6地址格式错误，不符合CIDR格式");
+            }
+            // 校验IPv6网关
+            if (StringUtils.isNotEmpty(vlan.getGateway6()) && !Ipv6Util.verifyIpv6(vlan.getGateway6())) {
+                return ResponseUtil.badArgument("子接口IPv6网关格式错误");
+            }
+            // 校验IPv4地址与网关是否匹配
+            if (StringUtils.isNotEmpty(vlan.getIpv4address()) && StringUtils.isNotEmpty(vlan.getGateway4())) {
+                boolean ipv4Match = isIPAddressMatchingGateway(vlan.getIpv4address(), vlan.getGateway4());
+                if (!ipv4Match) {
+                    return ResponseUtil.badArgument("子接口IPv4地址和网关不在同一网络");
+                }
+            }
+            // 校验IPv6地址与网关是否匹配
+            if (StringUtils.isNotEmpty(vlan.getIpv6address()) && StringUtils.isNotEmpty(vlan.getGateway6())) {
+                boolean ipv6Match = isIPAddressv6MatchingGateway(vlan.getIpv6address(), vlan.getGateway6());
+                if (!ipv6Match) {
+                    return ResponseUtil.badArgument("子接口IPv6地址和网关不在同一网络");
+                }
+            }
+            boolean i = this.interfaceService.modify_vlans(instance.getName(),vlan);
+            flag = i ? true : false;
+        }
+
+        if(flag){
+            unbound();
+        }
+
+        return flag ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
+    }
+
 
     public boolean unbound() {
         Unbound unbound = this.unboundService.selectObjByOne(Collections.EMPTY_MAP);

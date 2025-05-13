@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.network.snmp4j.request;
 
 import com.metoo.nrsm.core.network.networkconfig.DHCPUtil;
-import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingSubnetConcurrent;
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
@@ -775,6 +774,11 @@ public class SNMPv2Request {
     public static String modifyIp(String iface, String ipv4address, String ipv6address,
                                   String gateway4, String gateway6){
         return String.valueOf(DHCPUtil.modifyIp(iface,ipv4address,ipv6address,gateway4,gateway6));
+    }
+
+    public static String modifyVlans(String parentInterface, String vlanId, String ipv4Address,
+                                     String ipv6Address, String gateway4,String gateway6){
+        return String.valueOf(DHCPUtil.modifyVlans(parentInterface,vlanId,ipv4Address,ipv6Address,gateway4,gateway6));
     }
 
     public static String pingOp(String action, String service){

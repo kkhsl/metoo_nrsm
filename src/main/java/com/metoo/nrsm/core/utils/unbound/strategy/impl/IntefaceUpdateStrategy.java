@@ -42,7 +42,7 @@ public class IntefaceUpdateStrategy implements ConfigUpdateStrategy {
             if (isIpv6Enabled && !addedInterfaces) {
                 if (ips.size() > 0 && !line.trim().startsWith("interface:")) {
                     for (String ip : ips) {
-                        String newInterfaceLine = indentation + "interface: " + "::";
+                        String newInterfaceLine = indentation + "interface: " + ip;
                         newConfigLines.add(newInterfaceLine); // 添加新的 interface 配置
                     }
                     addedInterfaces = true; // 标记已添加过接口配置
