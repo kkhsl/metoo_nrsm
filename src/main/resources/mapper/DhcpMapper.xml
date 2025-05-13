@@ -241,10 +241,6 @@
         DELETE FROM metoo_dhcp where id = #{id}
     </delete>
 
-    <update id="truncateTable">
-        TRUNCATE TABLE metoo_dhcp
-    </update>
-
 
     <delete id="deleteTable">
         DELETE FROM metoo_dhcp

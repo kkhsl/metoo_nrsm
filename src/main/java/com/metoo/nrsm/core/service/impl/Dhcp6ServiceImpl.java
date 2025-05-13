@@ -137,7 +137,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
         List<Map<String, String>> dataList = new ArrayList();
         List<String> lines = null;
         try {
-            lines = reader.readDhcpdConfig(Global.env, Global.host, Global.port, Global.username, Global.password, Global.dhcp6);
+            lines = reader.readDhcpdConfig(Global.env, Global.host, Global.port, Global.username, Global.password, Global.dhcp6Leases);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -191,6 +191,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
         this.dhcp6historyService.batchInsert();
     }
 
+    @Override
     public void gather2(Date time)  {
         try {
 

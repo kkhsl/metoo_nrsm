@@ -120,5 +120,7 @@ public class NetworkElement extends IdEntity {
     private String privProtocol;
     @ApiModelProperty("加密密码")
     private String privPassword;
+    @ApiModelProperty("SNMP端口")
+    private Integer snmpPort;
 
 }

@@ -43,8 +43,6 @@ public interface IDhcpService {
 
     boolean delete(Long id);
 
-    boolean truncateTable();
-
     boolean deleteTable();
 
     String getdhcp();
@@ -56,4 +54,6 @@ public interface IDhcpService {
     String dhcpdop(String action, String type);
 
     void gather(Date time);
+
+    void gather2(Date time);
 }

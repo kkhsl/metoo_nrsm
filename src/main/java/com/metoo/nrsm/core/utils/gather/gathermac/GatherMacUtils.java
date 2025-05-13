@@ -56,13 +56,9 @@ public class GatherMacUtils {
 
     @Transactional
     public void copyGatherData(Date date){
-
         try {
-
             copyData(date);
-
             updateMacTag(date);
-
         } catch (Exception e) {
             log.error("Error method copyGatherData: {}", date, e);
         }

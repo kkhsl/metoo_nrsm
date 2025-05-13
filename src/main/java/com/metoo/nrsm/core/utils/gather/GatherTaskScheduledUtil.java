@@ -70,12 +70,9 @@ public class GatherTaskScheduledUtil {
     @Autowired
     private AesEncryptUtils aesEncryptUtils;
     @Autowired
-    private ApiService apiService;
-    @Autowired
     private DeviceManager deviceManager;
     @Autowired
     private GatherSingleThreadingMacSNMPUtils gatherSingleThreadingMacSNMPUtils;
-
     @Resource
     private TerminalUnitMapper terminalUnitMapper;
     @Resource
@@ -83,49 +80,29 @@ public class GatherTaskScheduledUtil {
 
     private final ReentrantLock lock = new ReentrantLock();
 
+    /**
+     * 任务在 00:00 启动，执行耗时 6 分钟（到 00:06）00:05 时，新任务会启动（即使前一个任务未完成）
+     * 该任务必须使用当前表达式
+     */
     @Scheduled(cron = "0 */5 * * * ?")
-//    @Scheduled(cron = "0 */1 * * * ?")
     public void api() {
         if(traffic) {
             if (lock.tryLock()) {
                 try {
                     Long time = System.currentTimeMillis();
-                    log.info("FlowUnit traffic start=================================");
+                    log.info("Unit traffic start=================================");
                     try {
-
                         apiExecUtils.exec();
                     } catch (Exception e) {
-                        log.error("Error unit traffic =================================" + e.getMessage());
+                        log.error("Unit traffic error =================================" + e.getMessage());
                     }
-                    log.info("FlowUnit traffic end=================================" + (System.currentTimeMillis()-time));
+                    log.info("Unit traffic end=================================" + (System.currentTimeMillis()-time));
                 } finally {
                     lock.unlock();
                 }
             }
         }
     }
-
-//    @Scheduled(fixedDelay = 300000)
-//    @Scheduled(cron = "0 */1 * * * ?")
-//    public void api() {
-//        if(traffic) {
-//            if (lock.tryLock()) {
-//                try {
-//                    Long time = System.currentTimeMillis();
-//                    log.info("FlowUnit traffic Start=================================");
-//                    try {
-//                        apiExecUtils.exec();
-//                    } catch (Exception e) {
-//                        log.error("Error unit traffic =================================" + e.getMessage());
-//                    }
-//                    log.info("FlowUnit traffic End=================================" + (System.currentTimeMillis()-time));
-//                } finally {
-//                    lock.unlock();
-//                }
-//            }
-//        }
-//    }
-
 
     private volatile boolean isRunningDhcp = false;
     @Scheduled(fixedDelay = 180_000)

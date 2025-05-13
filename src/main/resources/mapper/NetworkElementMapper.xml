@@ -29,6 +29,7 @@
         <result column="port_index" property="portIndex"></result>
         <result column="community" property="community"></result>
         <result column="version" property="version"></result>
+        <result column="snmpPort" property="snmpPort"></result>
     </resultMap>
 
     <resultMap id="Accessory_Ne_Map" type="com.metoo.nrsm.entity.NetworkElement">
@@ -47,7 +48,7 @@
         id, addTime,updateTime, deleteStatus, ip, v6ip, device_name, group_id, group_name,
          device_type_id, device_type_name, vendor_id, vendor_name, description, user_id, user_name,
          uuid, interface_name, interface_names, flux, connect_type, port, credential_id,
-         web_url, permit_connect, community, version, sync_device
+         web_url, permit_connect, community, version, sync_device, snmpPort
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
@@ -339,6 +340,9 @@
             <if test="privPassword != null">
                 privPassword,
             </if>
+            <if test="snmpPort != null">
+                snmpPort,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -448,6 +452,9 @@
             </if>
             <if test="privPassword != null">
                 #{privPassword},
+            </if>
+            <if test="snmpPort != null">
+                #{snmpPort},
             </if>
         </trim>
     </insert>
@@ -589,6 +596,9 @@
             </if>
             <if test="privPassword != null">
                 privPassword = #{privPassword},
+            </if>
+            <if test="snmpPort != null">
+                snmpPort = #{snmpPort},
             </if>
         </set>
         where id = #{id}

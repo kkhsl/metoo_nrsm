@@ -102,18 +102,20 @@ public class NetworkManagerControllerApi {
             Page<NetworkElement> page = this.networkElementService.selectConditionQuery(dto);
             if (page.getResult().size() > 0) {
                 for (NetworkElement networkElement : page.getResult()) {
-                    // snmp状态
-                    if(StringUtils.isEmpty(networkElement.getCommunity()) || StringUtils.isEmpty(networkElement.getVersion())){
-                        result.put(networkElement.getIp(), "3");
-                    }else{
+                    if(networkElement.getIp() != null && StringUtil.isNotEmpty(networkElement.getIp())){
+                        // snmp状态
+                        if(StringUtils.isEmpty(networkElement.getCommunity()) || StringUtils.isEmpty(networkElement.getVersion())){
+                            result.put(networkElement.getIp(), "3");
+                        }else{
 //                        String path = Global.PYPATH + "gethostname.py";
 //                        String[] params = {networkElement.getIp(), networkElement.getVersion(),
 //                                networkElement.getCommunity()};
 //                        String hostname = pythonExecUtils.exec(path, params);
-                        String hostname = deviceManager.getDeviceNameByIpAndCommunityVersion(networkElement);
-                        result.put(networkElement.getIp(), "2");
-                        if(StringUtils.isNotEmpty(hostname)){
-                            result.put(networkElement.getIp(), "1");
+                            String hostname = deviceManager.getDeviceNameByIpAndCommunityVersion(networkElement);
+                            result.put(networkElement.getIp(), "2");
+                            if(StringUtils.isNotEmpty(hostname)){
+                                result.put(networkElement.getIp(), "1");
+                            }
                         }
                     }
                 }

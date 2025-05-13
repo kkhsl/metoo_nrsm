@@ -18,7 +18,7 @@ public class SNMPParamFactory {
             log.info("version is null");
             return null;
         }
-        if(networkElement.getPort() == null || "".equals(networkElement.getPort())){
+        if(networkElement.getSnmpPort() == null || "".equals(networkElement.getSnmpPort())){
             log.info("port is null");
             return null;
         }
@@ -29,14 +29,14 @@ public class SNMPParamFactory {
         try {
             switch(networkElement.getVersion()) {
                 case "v1":
-                    return createV1Param(networkElement.getIp(), networkElement.getPort(), networkElement.getCommunity(), 1500, 3);
+                    return createV1Param(networkElement.getIp(), networkElement.getSnmpPort(), networkElement.getCommunity(), 1500, 3);
                 case "v2c":
-                    return createV2cParam(networkElement.getIp(), networkElement.getPort(), networkElement.getCommunity(), 1500, 3);
+                    return createV2cParam(networkElement.getIp(), networkElement.getSnmpPort(), networkElement.getCommunity(), 1500, 3);
                 case "v3":
                     if (networkElement.getSecurityLevel() == null) {
                         throw new IllegalArgumentException("SNMPv3 requires security level");
                     }
-                    return createV3Param(networkElement.getIp(), networkElement.getPort(), networkElement.getSecurityName(), networkElement.getAuthProtocol(), networkElement.getAuthPassword(),
+                    return createV3Param(networkElement.getIp(), networkElement.getSnmpPort(), networkElement.getSecurityName(), networkElement.getAuthProtocol(), networkElement.getAuthPassword(),
                             networkElement.getPrivProtocol(), networkElement.getPrivPassword(), 1500, 3,
                             networkElement.getSecurityLevel());
 

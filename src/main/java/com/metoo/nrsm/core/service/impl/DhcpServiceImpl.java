@@ -17,6 +17,7 @@ import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.dhcp.DhcpUtils;
 import com.metoo.nrsm.entity.Dhcp;
 import com.metoo.nrsm.entity.Internet;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanMap;
@@ -32,6 +33,7 @@ import java.util.*;
  * @version 1.0
  * @date 2024-01-16 11:14
  */
+@Slf4j
 @Service
 @Transactional
 public class DhcpServiceImpl implements IDhcpService {
@@ -40,8 +42,6 @@ public class DhcpServiceImpl implements IDhcpService {
     private DhcpMapper dhcpMapper;
     @Autowired
     private IDhcpHistoryService dhcphistoryService;
-    @Autowired
-    private PythonExecUtils pythonExecUtils;
 
     @Override
     public Dhcp selectObjById(Long id) {
@@ -111,16 +111,6 @@ public class DhcpServiceImpl implements IDhcpService {
         }
     }
 
-    @Override
-    public boolean truncateTable() {
-        try {
-            this.dhcpMapper.truncateTable();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     @Override
     public boolean deleteTable() {
@@ -174,7 +164,7 @@ public class DhcpServiceImpl implements IDhcpService {
         DhcpdConfigReader reader = new DhcpdConfigReader();
         try {
             // 示例: 开启 dev 模式读取
-            List<String> lines = reader.readDhcpdConfig(Global.env, Global.host, Global.port, Global.username, Global.password, Global.dhcp);
+            List<String> lines = reader.readDhcpdConfig(Global.env, Global.host, Global.port, Global.username, Global.password, Global.dhcpLeases);
             for (String line : lines) {
                 if (StringUtil.isNotEmpty(line)) {
                     line = line.trim();
@@ -183,15 +173,13 @@ public class DhcpServiceImpl implements IDhcpService {
                         if (key.equals("lease")) {
                             if (data != null) {
                                 dataList.add(data);
-                            }else{
-                                data = new HashMap();
                             }
+                            data = new HashMap();
                         }
                         if(data != null){
                             DhcpUtils.parseValue(key, line, data);
                         }
                     }
-
                 }
             }
         } catch (Exception e) {
@@ -220,12 +208,18 @@ public class DhcpServiceImpl implements IDhcpService {
                 dhcp.setAddTime(time);
                 BeanMap beanMap = BeanMap.create(dhcp);
                 beanMap.putAll(modifiedMap);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 this.save(dhcp);
             }
         }
         this.dhcphistoryService.batchInsert();
     }
 
+    @Override
     public void gather2(Date time) {
         try {
 
@@ -234,8 +228,7 @@ public class DhcpServiceImpl implements IDhcpService {
             InputStream inputStream = null;
 
             if (Global.env.equals("prod")) {
-//                File file = new File("/var/lib/dhcp/dhcpd.leases");
-                File file = new File(Global.dhcp);
+                File file = new File(Global.dhcpLeases);
                 inputStream = new FileInputStream(file);
             } else if ("dev".equals(Global.env)) {
                 inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd.leases");
@@ -301,10 +294,10 @@ public class DhcpServiceImpl implements IDhcpService {
     }
 
         public static void main(String[] args) {
-            String host = "192.168.6.101"; // 远程主机 IP
+            String host = "192.168.60.90"; // 远程主机 IP
             int port = 22; // SSH 端口
             String user = "root"; // 用户名
-            String password = "Metoo89745000!"; // 密码
+            String password = "Transfar@123"; // 密码
             String filePath = "/etc/dhcp/dhcpd.conf"; // 配置文件路径
 
             try {

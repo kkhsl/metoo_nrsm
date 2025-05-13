@@ -1,11 +1,13 @@
 package com.metoo.nrsm.core.manager;
 
+import com.metoo.nrsm.core.service.IDhcpService;
 import com.metoo.nrsm.core.service.IDnsLogService;
 import com.metoo.nrsm.core.service.IDnsRecordService;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.ITerminalService;
+import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.User;
@@ -48,22 +50,17 @@ public class TestController {
     private IDnsLogService dnsLogService;
     @Resource
     private IDnsRecordService recordService;
+    @Autowired
+    private IDhcpService dhcpService;
 
-    public static void main(String[] args) {
-        String data = "{\n" +
-                "  \"id\": 16,\n" +
-                "  \"deviceTypeId\": 17,\n" +
-                "  \"name\": \"q\",\n" +
-                "  \"mac\": \"00:50:79:66:68:55\",\n" +
-                "  \"departmentId\": null,\n" +
-                "  \"location\": null,\n" +
-                "  \"duty\": null,\n" +
-                "  \"v4ip\": \"123.0.0.170\"\n" +
-                "}";
-        JSONObject macJson = new JSONObject(data);
-        System.out.println(macJson);
-
+    /**
+     * 注意删除该引用jar，使用了另一个
+     */
+    @Test
+    public void getArpV6() {
+        System.out.println(JSONObject.class.getProtectionDomain().getCodeSource().getLocation());
     }
+
 
     @GetMapping("/analysisDnsLogTask")
     public void analysisDnsLogTask(){
@@ -81,9 +78,27 @@ public class TestController {
         log.info("====================================解析dns日志并保存汇总数据定时任务结束==========================");
     }
 
-    @Test
-    public void getArpV6() {
-        System.out.println(JSONObject.class.getProtectionDomain().getCodeSource().getLocation());
+
+    @GetMapping("gather/dhcp1")
+    public void gatherDHCP1(){
+        try {
+            Long time=System.currentTimeMillis();
+            dhcpService.gather(DateTools.gatherDate());
+            log.info("DHCP采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @GetMapping("gather/dhcp2")
+    public void gatherDHCP2(){
+        try {
+            Long time=System.currentTimeMillis();
+            dhcpService.gather2(DateTools.gatherDate());
+            log.info("DHCP采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @GetMapping("getDHCP")

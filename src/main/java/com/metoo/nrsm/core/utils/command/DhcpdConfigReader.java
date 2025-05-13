@@ -2,13 +2,14 @@ package com.metoo.nrsm.core.utils.command;
 
 import com.jcraft.jsch.*;
 import com.metoo.nrsm.core.utils.Global;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Slf4j
 public class DhcpdConfigReader {
 
     /**
@@ -22,7 +23,7 @@ public class DhcpdConfigReader {
     public List<String> readDhcpdConfig(String mode, String host, Integer port, String username, String password, String path) throws Exception {
         if ("dev".equalsIgnoreCase(mode)) {
             return readFromRemote(host, port, username, password, path);
-        } else if ("prob".equalsIgnoreCase(mode)) {
+        } else if (!"dev".equalsIgnoreCase(mode)) {
             return readFromLocalAfterUpload(path);
         } else {
             throw new IllegalArgumentException("Unsupported mode: " + mode);
@@ -74,12 +75,7 @@ public class DhcpdConfigReader {
     private List<String> readFromLocalAfterUpload(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         if (Files.exists(path)) {
-//            System.out.println("Content as String:");
-//            System.out.println(readFileContentAsString(Files.newInputStream(path)));
-
-//            System.out.println("Content as List:");
             List<String> lines = readFileContentAsList(Files.newInputStream(path));
-//            lines.forEach(System.out::println);
             return lines;
         } else {
             throw new FileNotFoundException("Local temp file not found: " + path);

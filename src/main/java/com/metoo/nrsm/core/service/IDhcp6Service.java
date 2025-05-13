@@ -35,4 +35,6 @@ public interface IDhcp6Service {
     boolean deleteTable();
 
     void gather(Date time);
+
+    void gather2(Date time);
 }

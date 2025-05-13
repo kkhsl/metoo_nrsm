@@ -14,9 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestScheduled {
 
-
-
-
     public static String cron;
 
     @Value("${spring.profiles.active}")

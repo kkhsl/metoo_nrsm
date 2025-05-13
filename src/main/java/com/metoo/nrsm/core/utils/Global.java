@@ -123,7 +123,6 @@ public class Global {
 
     public static String dhcp;
     public static String dhcp6;
-
     @Value("${file.dhcp}")
     public void setDhcp(String dhcp) {
         Global.dhcp = dhcp;
@@ -131,6 +130,18 @@ public class Global {
     @Value("${file.dhcp6}")
     public void setDhcp6(String dhcp6) {
         Global.dhcp6 = dhcp6;
+    }
+
+
+    public static String dhcpLeases;
+    public static String dhcp6Leases;
+    @Value("${file.dhcp.leases}")
+    public void setDhcpLease(String dhcpLeases) {
+        Global.dhcpLeases = dhcpLeases;
+    }
+    @Value("${file.dhcp6.leases}")
+    public void setDhcp6Lease(String dhcp6Leases) {
+        Global.dhcp6Leases = dhcp6Leases;
     }
 
     public static String DHCPPath;
