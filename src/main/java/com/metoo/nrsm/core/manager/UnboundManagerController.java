@@ -1,19 +1,17 @@
 package com.metoo.nrsm.core.manager;
 
-import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.Session;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.UnboundDTO;
 import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.vo.Result;
+import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Unbound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 
 
 @RequestMapping("/admin/unbound")
@@ -128,6 +126,22 @@ public class UnboundManagerController {
     @GetMapping("/restart")
     public Boolean restart() throws Exception {
         return unboundService.start();
+    }
+
+    @PostMapping("/savePort")
+    public Result savePort(@RequestBody List<Interface> instance) throws Exception {
+        boolean flag = unboundService.savePort(instance);
+        if (flag){
+            try {
+                if (restart()) {
+                    return ResponseUtil.ok();
+                }
+                return ResponseUtil.error("启动失败");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return ResponseUtil.error();
     }
 
     @GetMapping("/stop")

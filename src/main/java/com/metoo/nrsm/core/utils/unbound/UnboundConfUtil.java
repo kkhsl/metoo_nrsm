@@ -11,6 +11,7 @@ import com.metoo.nrsm.core.utils.unbound.test.UnboundConfPrivateAddress;
 import com.metoo.nrsm.core.vo.DnsFilterStatePayload;
 import com.metoo.nrsm.core.vo.DnsFilterUpdatePayload;
 import com.metoo.nrsm.entity.DnsFilter;
+import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Unbound;
 import org.json.JSONArray;
 
@@ -149,6 +150,32 @@ public class UnboundConfUtil {
         } catch (IOException e) {
             System.err.println("更新配置文件时发生错误: " + e.getMessage());
             return false; // 解析或读取失败
+        }
+    }
+
+
+    public static boolean saveConfigPortFile(String filePath, List<Interface> interfaces) throws IOException {
+        try {
+            // 读取配置文件所有行
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 创建配置更新器并指定策略类型为 "port"
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            // 调用更新逻辑（传递 interfaces 作为配置数据）
+            lines = configUpdater.updateConfig("port", lines, interfaces);
+
+            // 写入更新后的配置
+            Files.write(Paths.get(filePath),
+                    lines,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            System.err.println("配置文件操作失败: " + e.getMessage());
+            throw e; // 根据需求决定是否抛出异常
+        } catch (Exception e) {
+            System.err.println("配置更新逻辑错误: " + e.getMessage());
+            return false;
         }
     }
 

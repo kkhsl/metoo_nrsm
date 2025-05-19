@@ -9,6 +9,7 @@ import com.metoo.nrsm.core.mapper.UnboundMapper;
 import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.unbound.UnboundConfUtil;
+import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Unbound;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UnboundServiceImpl implements IUnboundService {
@@ -327,6 +325,28 @@ public class UnboundServiceImpl implements IUnboundService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
+    public boolean savePort(List<Interface> instance) {
+            try {
+                boolean flag = writeUnboundPort(instance);
+                if(flag){
+                    return true;
+                }
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return false;
+            } catch (Exception e) {
+                e.printStackTrace();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return false;
+            }
+    }
+
+
+
+
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     public boolean openAdress(Unbound instance) {
         if(instance.getId() == null || instance.getId().equals("")){
             instance.setAddTime(new Date());
@@ -378,6 +398,15 @@ public class UnboundServiceImpl implements IUnboundService {
         }
         return flag;
     }
+
+    public boolean writeUnboundPort(List<Interface> interfaces) throws Exception {
+        boolean flag = UnboundConfUtil.saveConfigPortFile(Global.unboundPath, interfaces);
+        if (!flag) {
+            throw new IOException("Failed to save Port config file");
+        }
+        return flag;
+    }
+
 
     public boolean writeUnboundAdress() throws Exception {
         Unbound unbound = this.unboundMapper.selectObjByOne(Collections.EMPTY_MAP);
@@ -658,9 +687,9 @@ public class UnboundServiceImpl implements IUnboundService {
     }
 
     public boolean start(){
-        if ("dev".equals(Global.env)) {
+        if ("test".equals(Global.env)) {
             try {
-                return restart();
+                return true;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

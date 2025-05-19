@@ -17,6 +17,7 @@ public class ConfigUpdater {
         strategyMap.put("local-zone", new LocalZoneUpdateStrategy());
         strategyMap.put("private-address", new PrivateAddressUpdateStrategy());
         strategyMap.put("interface", new IntefaceUpdateStrategy());
+        strategyMap.put("port", new PortSaveStrategy());
         strategyMap.put("dns-filter", new DnsFilterUpdateStrategy());
         strategyMap.put("dns-filter-remove", new DnsFilterRemoveStrategy());
         strategyMap.put("dns-filter-enable", new DnsFilterStateStrategy());
