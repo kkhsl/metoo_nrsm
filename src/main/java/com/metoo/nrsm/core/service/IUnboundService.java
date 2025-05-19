@@ -17,6 +17,7 @@ public interface IUnboundService {
 
     boolean save(Unbound instance);
     boolean savePort(List<Interface> instance);
+    List<String> selectPort();
     boolean open(UnboundDTO instance);
     boolean start() throws Exception;
     boolean stop() throws Exception;

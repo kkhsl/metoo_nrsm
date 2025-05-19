@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
@@ -12,9 +13,7 @@ import com.metoo.nrsm.entity.Vlans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class InterfaceServiceImpl implements IInterfaceService {
@@ -97,6 +96,22 @@ public class InterfaceServiceImpl implements IInterfaceService {
                 return 0;
             }
         }
+    }
+
+    @Override
+    public List<Interface> select() {
+        List<Interface> list = new ArrayList<>();
+        String result = SNMPv2Request.getNetworkInterfaces();
+        if(!"".equals(result)){
+            LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
+            for (String key : map.keySet()) {
+                Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
+                inteface.setName(key);
+                list.add(inteface);
+            }
+            return list;
+        }
+        return null;
     }
 
     @Override

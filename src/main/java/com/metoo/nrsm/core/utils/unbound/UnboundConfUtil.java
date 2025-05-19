@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UnboundConfUtil {
 
@@ -176,6 +177,55 @@ public class UnboundConfUtil {
         } catch (Exception e) {
             System.err.println("配置更新逻辑错误: " + e.getMessage());
             return false;
+        }
+    }
+
+    public static List<String> selectConfigPortFile(String filePath) throws IOException {
+        List<String> interfaceNames = new ArrayList<>();
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+            boolean inServerBlock = false;
+
+            for (String line : lines) {
+                // 检测 server 块开始
+                if (line.trim().startsWith("server:")) {
+                    inServerBlock = true;
+                    continue;
+                }
+
+                // 处理 server 块内内容
+                if (inServerBlock) {
+                    // 退出 server 块条件：遇到非缩进行（如顶级配置项）
+                    if (!line.startsWith("    ") && !line.startsWith("\t") && !line.trim().isEmpty()) {
+                        inServerBlock = false;
+                        continue;
+                    }
+
+                    // 提取关键行：interface 或 do-ip6
+                    if (line.trim().startsWith("interface:") || line.trim().startsWith("do-ip6:")) {
+                        // 分割注释部分
+                        String[] parts = line.split("#");
+                        if (parts.length > 1) {
+                            String comment = parts[1].trim();
+                            // 处理逗号分隔的多个接口名
+                            String[] names = comment.split(",\\s*");
+                            for (String name : names) {
+                                if (!name.isEmpty()) {
+                                    interfaceNames.add(name);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 去重后返回
+            return interfaceNames.stream()
+                    .distinct()
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            System.err.println("配置文件读取失败: " + e.getMessage());
+            throw e;
         }
     }
 

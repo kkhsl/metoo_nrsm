@@ -340,9 +340,14 @@ public class UnboundServiceImpl implements IUnboundService {
             }
     }
 
-
-
-
+    @Override
+    public List<String> selectPort() {
+        try {
+            return UnboundConfUtil.selectConfigPortFile(Global.unboundPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     @Override

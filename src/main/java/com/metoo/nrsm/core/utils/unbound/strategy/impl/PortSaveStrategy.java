@@ -13,53 +13,70 @@ public class PortSaveStrategy implements ConfigUpdateStrategy {
     public List<String> updateConfig(List<String> lines, Object configData) {
         List<Interface> interfaces = (List<Interface>) configData;
 
-        // 1. 提取有效接口
+        // 1. 分类处理接口
+        // a. 有效 IPv4 接口
         List<String> ipv4Interfaces = interfaces.stream()
                 .filter(intf -> isValidIPv4(intf.getIpv4address()))
-                .map(intf -> "        interface: " + intf.getIpv4address())
+                .map(intf -> String.format("        interface: %s  # %s",
+                        extractPureIp(intf.getIpv4address()), intf.getName()))
                 .collect(Collectors.toList());
 
+        // b. 有效 IPv6 接口
         List<String> ipv6Interfaces = interfaces.stream()
                 .filter(intf -> isValidIPv6(intf.getIpv6address()))
-                .map(intf -> "        interface: " + intf.getIpv6address())
+                .map(intf -> String.format("        interface: %s  # %s",
+                        extractPureIp(intf.getIpv6address()), intf.getName()))
                 .collect(Collectors.toList());
 
-        // 判断是否需要启用 IPv6
+        // c. 空 IP 的接口名称集合
+        List<String> emptyInterfaceNames = interfaces.stream()
+                .filter(intf ->
+                        !isValidIPv4(intf.getIpv4address()) &&
+                                !isValidIPv6(intf.getIpv6address()))
+                .map(Interface::getName)
+                .collect(Collectors.toList());
+
+        // 2. 判断是否需要启用 IPv6
         boolean hasIPv6 = !ipv6Interfaces.isEmpty();
 
-        // 2. 重构配置
+        // 3. 重构配置文件
         List<String> newLines = new ArrayList<>();
         boolean inServerBlock = false;
         boolean hasProcessedInterfaces = false;
 
         for (String line : lines) {
-            // 2.1 识别 server 块开始
             if (line.trim().startsWith("server:")) {
                 inServerBlock = true;
                 newLines.add(line);
                 continue;
             }
 
-            // 2.2 处理 server 块内部
             if (inServerBlock) {
-                // 2.2.1 跳过所有旧接口行
+                // 3.1 跳过所有旧接口行
                 if (line.trim().startsWith("interface:")) {
                     continue;
                 }
 
-                // 2.2.2 找到 do-ip6 行时插入接口
+                // 3.2 处理 do-ip6 行
                 if (line.trim().startsWith("do-ip6:")) {
-                    newLines.addAll(ipv4Interfaces);  // IPv4 在 do-ip6 前
-                    newLines.add(line);               // 保留原 do-ip6 行
-                    newLines.addAll(ipv6Interfaces);  // IPv6 在 do-ip6 后
+                    // 生成带注释的 do-ip6 行
+                    String comment = !emptyInterfaceNames.isEmpty() ?
+                            "  # " + String.join(", ", emptyInterfaceNames) : "";
+                    String newDoIp6Line = String.format("        do-ip6: %s%s",
+                            hasIPv6 ? "yes" : "no", comment);
+
+                    // 插入新配置
+                    newLines.addAll(ipv4Interfaces);  // 有效 IPv4
+                    newLines.add(newDoIp6Line);        // 带注释的 do-ip6 行
+                    newLines.addAll(ipv6Interfaces);   // 有效 IPv6
                     hasProcessedInterfaces = true;
                     continue;
                 }
 
-                // 2.2.3 识别 server 块结束（遇到非缩进行）
-                if (!line.startsWith("    ")) {
+                // 3.3 退出 server 块
+                if (!line.startsWith("        ")) {
                     inServerBlock = false;
-                    // 若未插入接口
+                    // 若未处理，在块末尾补全
                     if (!hasProcessedInterfaces) {
                         newLines.addAll(ipv4Interfaces);
                         newLines.add("        do-ip6: " + (hasIPv6 ? "yes" : "no"));
@@ -80,5 +97,10 @@ public class PortSaveStrategy implements ConfigUpdateStrategy {
 
     private boolean isValidIPv6(String ip) {
         return ip != null && !ip.trim().isEmpty();
+    }
+
+    private String extractPureIp(String ipWithMask) {
+        if (ipWithMask == null) return "";
+        return ipWithMask.split("/")[0];
     }
 }
