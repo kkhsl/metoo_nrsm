@@ -128,20 +128,8 @@ public class InterfaceManagerController {
     @ApiOperation("网络-接口列表")
     @GetMapping({"/info"})
     public Result info() {
-        List<Interface> list = new ArrayList<>();
-//        String path = "/opt/nrsm/py/getnetintf.py";
-//        String result = pythonExecUtils.exec(path);
-        String result = SNMPv2Request.getNetworkInterfaces();
-        if(!"".equals(result)){
-            LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
-            for (String key : map.keySet()) {
-                Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
-                inteface.setName(key);
-                list.add(inteface);
-            }
-            return ResponseUtil.ok(list);
-        }
-        return ResponseUtil.ok();
+        List<Interface> interfaceList = interfaceService.select();
+        return ResponseUtil.ok(interfaceList);
     }
 
     @ApiOperation("列表")
