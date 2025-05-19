@@ -68,13 +68,6 @@ public class PyExecUtils2 {
         }
     }
 
-    public static String execPy(PyCommandBuilder3 pyCommand) {
-        String result = "";
-        result = PythonScriptRunner.execPy(pyCommand.getPath(), pyCommand.toStringArray());
-        return result;
-    }
-
-
 
 
 }

@@ -138,7 +138,6 @@
             <if test="notTag != null and notTag != ''">
                 AND tag != #{notTag}
             </if>
-
             <if test="tags != null">
                 AND tag in
                 <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
@@ -168,6 +167,9 @@
             </if>
             <if test="deviceUuidAndDeviceTypeId != null and deviceUuidAndDeviceTypeId != ''">
                 OR (deviceUuid2 = #{deviceUuidAndDeviceTypeId} and deviceTypeId = 34 AND online = 1)
+            </if>
+            <if test="type != null">
+                AND `type` = #{type}
             </if>
         </where>
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
@@ -937,68 +939,91 @@
             <result column="d2_deviceType" property="deviceType"></result>
             <result column="d2_os" property="os"></result>
             <result column="d2_online" property="online"></result>
+            <result column="d2_unitId" property="unitId"></result>
+            <result column="d2_unitName" property="unitName"></result>
+            <result column="d2_name" property="name"></result>
         </collection>
     </resultMap>
 
     <select id="selectNSwitchToTopology" parameterType="java.util.Map" resultMap="NSwitch_Result_Map">
-          SELECT
-              d1.id,
-              null as deviceIp,
-              d1.deviceName,
-              d1.deviceUuid,
-              d1.deviceUuid2,
-              d1.deviceTypeId,
-              d1.v4ip, d1.v6ip,
-              d1.mac,
-              d1.vlan,
-              d1.macVendor,
-              d1.remoteDevice,
-              d1.remotePort,
-              d1.location,
-              d1.duty,
-              3 AS deviceType,
-              d1.online,
-
-              d2.id d2_id,
-              null as d2_deviceIp,
-              d2.deviceName d2_deviceName,
-              d2.deviceUuid d2_deviceUuid,
-              d2.deviceUuid2 d2_deviceUuid2,
---               17 as d2_deviceTypeId,
-              d2.deviceTypeId d2_deviceTypeId,
-              d2.v4ip d2_v4ip,
-              d2.v6ip d2_v6ip,
-              d2.mac d2_mac,
-              d2.vlan d2_vlan,
-              d2.macVendor d2_macVendor,
-              d2.remoteDevice d2_remoteDevice,
-              d2.remotePort d2_remotePort,
-              d2.location d2_location,
-              d2.duty d2_duty,
-              d2.deviceType d2_deviceType,
-              d2.os d2_os,
-              d2.online d2_online
-            FROM (
-                SELECT
-                  *
-                FROM
-                    metoo_terminal
-                WHERE
-                    deviceUuid2 = #{deviceUuid}
-                AND deviceName LIKE 'NSwitch%'
-                AND deviceTypeId NOT IN (34, 9) AND online = 1
-                GROUP BY
-                    deviceUuid
-                )d1
-            JOIN metoo_terminal d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
-            WHERE d2.deviceName LIKE 'NSwitch%' AND d2.online = 1  AND  ((d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
-            or (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != ''))
+          WITH distinct_d1 AS(
+            SELECT * FROM metoo_terminal
+            WHERE deviceUuid2 = #{deviceUuid}
+            AND deviceTypeId NOT IN(34, 9)
+            AND deviceName LIKE 'NSwitch%'
+            AND online = 1
+            GROUP BY deviceUuid2 -- 保持deviceUuid去重
+        )
+        SELECT
+            d1.id,
+            NULL AS deviceIp,
+            d1.deviceName,
+            d1.deviceUuid,
+            d1.deviceUuid2,
+            d1.deviceTypeId,
+            d1.v4ip, d1.v6ip,
+            d1.mac,
+            d1.vlan,
+            d1.macVendor,
+            d1.remoteDevice,
+            d1.remotePort,
+            d1.location,
+            d1.duty,
+            3 AS deviceType,
+            d1.online,
+            d2.id AS d2_id,
+            NULL AS d2_deviceIp,
+            d2.deviceName AS d2_deviceName,
+            d2.deviceUuid AS d2_deviceUuid,
+            d2.deviceUuid2 AS d2_deviceUuid2,
+            d2.deviceTypeId AS d2_deviceTypeId,
+            d2.v4ip AS d2_v4ip,
+            d2.v6ip AS d2_v6ip,
+            d2.mac AS d2_mac,
+            d2.vlan AS d2_vlan,
+            d2.macVendor AS d2_macVendor,
+            d2.remoteDevice AS d2_remoteDevice,
+            d2.remotePort AS d2_remotePort,
+            d2.location AS d2_location,
+            d2.duty AS d2_duty,
+            d2.deviceType AS d2_deviceType,
+            d2.os AS d2_os,
+            d2.online AS d2_online,
+            d2.unitId AS d2_unitId,
+            d2.unitName AS d2_unitName,
+            d2.name AS d2_name
+        FROM distinct_d1 d1
+        JOIN metoo_terminal d2 ON d2.deviceName = d1.deviceName
+        AND d2.id != d1.id
+        AND d2.online = 1
+        AND (
+                (d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
+                OR
+                (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != '')
+        )
     </select>
 
     <select id="selectHistoryNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
+        WITH latest_time AS (
+        SELECT `time`
+        FROM metoo_terminal_history
+        WHERE `time` &lt; #{time}
+        ORDER BY `time` DESC
+        LIMIT 1
+        ),
+        distinct_d1 AS (
+        SELECT *
+        FROM metoo_terminal_history
+        WHERE deviceUuid2 = #{deviceUuid}
+        AND deviceName LIKE 'NSwitch%'
+        AND deviceTypeId NOT IN (34, 9)
+        AND `time` = (SELECT `time` FROM latest_time)
+        GROUP BY deviceUuid2
+        )
+
         SELECT
         d1.id,
-        null as deviceIp,
+        NULL AS deviceIp,
         d1.deviceName,
         d1.deviceUuid,
         d1.deviceUuid2,
@@ -1015,61 +1040,37 @@
         d1.online,
         d1.time,
 
-        d2.id d2_id,
-        null as d2_deviceIp,
-        d2.deviceName d2_deviceName,
-        d2.deviceUuid d2_deviceUuid,
-        d2.deviceUuid2 d2_deviceUuid2,
-        --               17 as d2_deviceTypeId,
-        d2.deviceTypeId d2_deviceTypeId,
-        d2.v4ip d2_v4ip,
-        d2.v6ip d2_v6ip,
-        d2.mac d2_mac,
-        d2.vlan d2_vlan,
-        d2.macVendor d2_macVendor,
-        d2.remoteDevice d2_remoteDevice,
-        d2.remotePort d2_remotePort,
-        d2.location d2_location,
-        d2.duty d2_duty,
-        d2.deviceType d2_deviceType,
-        d2.os d2_os,
-        d2.online d2_online,
-        d2.time d2_time
-        FROM (
-        SELECT
-        *
-        FROM
-        metoo_terminal_history
-        WHERE
-        deviceUuid2 = #{deviceUuid}
-        AND deviceName LIKE 'NSwitch%'
-        AND deviceTypeId NOT IN (34, 9)
-        AND `time` = (
-        SELECT
-        `time`
-        FROM
-        metoo_terminal_history
-        WHERE
-        `time` &lt;= #{time}
-        ORDER BY `time` DESC limit 1
-        )
-        GROUP BY
-        deviceUuid
-        )d1
-        JOIN metoo_terminal_history d2 ON d2.deviceName = d1.deviceName AND d2.id != d1.id
-
-        WHERE d2.deviceName LIKE 'NSwitch%'
-
-        AND d2.time = (
-        SELECT
-        `time`
-        FROM
-        metoo_terminal_history
-        WHERE
-        `time` &lt;= #{time}
-        ORDER BY `time` DESC limit 1
-        ) AND  ((d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
-            or (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != ''))
+        d2.id AS d2_id,
+        NULL AS d2_deviceIp,
+        d2.deviceName AS d2_deviceName,
+        d2.deviceUuid AS d2_deviceUuid,
+        d2.deviceUuid2 AS d2_deviceUuid2,
+        d2.deviceTypeId AS d2_deviceTypeId,
+        d2.v4ip AS d2_v4ip,
+        d2.v6ip AS d2_v6ip,
+        d2.mac AS d2_mac,
+        d2.vlan AS d2_vlan,
+        d2.macVendor AS d2_macVendor,
+        d2.remoteDevice AS d2_remoteDevice,
+        d2.remotePort AS d2_remotePort,
+        d2.location AS d2_location,
+        d2.duty AS d2_duty,
+        d2.deviceType AS d2_deviceType,
+        d2.os AS d2_os,
+        d2.online AS d2_online,
+        d2.unitId AS d2_unitId,
+        d2.unitName AS d2_unitName,
+        d2.time AS d2_time,
+        d2.name AS d2_name
+        FROM distinct_d1 d1
+        JOIN metoo_terminal_history d2 ON d2.deviceName = d1.deviceName
+        AND d2.id != d1.id
+        AND d2.time = (SELECT `time` FROM latest_time)
+        AND (
+        (d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
+        OR
+        (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != '')
+        );
     </select>
 
 

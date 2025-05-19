@@ -71,10 +71,9 @@ public class PyExecUtils {
         }
     }
 
-    public static String execPy(PyCommandBuilder3 pyCommand) {
-        String result = "";
-        result = PythonScriptRunner.execPy(pyCommand.getPath(), pyCommand.toStringArray());
-        return result;
+    public static String execCFScanner(PyCommandBuilder3 pyCommand) {
+        ProcessExecutorCFScanner.ExecutionResult executionResult = ProcessExecutorCFScanner.executeBinary(pyCommand.getPath(), pyCommand.getName(), pyCommand.toStringArrayReomveName());
+        return executionResult.getOutput();
     }
 
 

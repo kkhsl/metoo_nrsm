@@ -53,25 +53,41 @@ public class SnmpStatusUtils {
         }
     }
 
-    // 频繁取，每分钟取，存
+    // 获取在线设备UUID
+//    public Set<String> getOnlineDevice() {
+//        Set<String> uuIds = new HashSet<>();
+//        Set<String> hash_keys = null;
+//        try {
+//            hash_keys = snmp.keys();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        if (hash_keys != null && !hash_keys.isEmpty()) {
+//            for (String hash_key : hash_keys) {
+//                Integer value = (Integer) snmp.get(hash_key);
+//                if (value == 1) {
+//                    uuIds.add(hash_key);
+//                }
+//            }
+//        }
+//        return uuIds;
+//    }
+
+    /**
+     * 获取所有在线设备UUID集合
+     * @return 返回在线设备UUID集合（不会返回null）
+     */
     public Set<String> getOnlineDevice() {
-        Set<String> uuids = new HashSet<>();
-        Set<String> hash_keys = null;
-        try {
-            hash_keys = snmp.keys();
-        } catch (Exception e) {
-            e.printStackTrace();
+        // 直接获取所有值为1的在线设备
+        Map<String, Integer> onlineDevices = snmp.getAllWithValue(1);
+
+        // 如果结果为空则返回空集合，避免NPE
+        if (onlineDevices == null || onlineDevices.isEmpty()) {
+            return Collections.emptySet();
         }
-        if (hash_keys != null && !hash_keys.isEmpty()) {
-            for (String hash_key : hash_keys) {
-                Integer value = (Integer) snmp.get(hash_key);
-                if (value == 1) {
-                    uuids.add(hash_key);
-                }
-                ;
-            }
-        }
-        return uuids;
+
+        // 直接返回keySet（已经是Set<String>）
+        return onlineDevices.keySet();
     }
 
 

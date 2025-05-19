@@ -525,9 +525,7 @@ public class MacServiceImpl implements IMacService {
         try {
             this.macMapper.deleteTable();
             this.macMapper.copyGatherDataToMac(date);
-
             return true;
-
         } catch (Exception e) {
             e.printStackTrace();
             return false;

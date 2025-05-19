@@ -127,14 +127,44 @@
     </select>
 
     <select id="selectTagToX" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
-        select * from metoo_mac mac1
+       /* select * from metoo_mac mac1
         left join
         (select * from(
                 select * from metoo_mac where tag in ('L', 'LV') group by deviceIp
             )mac3
         )mac2
         on mac1.deviceIp = mac2.deviceIp and mac1.mac != mac2.mac
-        where mac1.tag is null
+        where mac1.tag is null*/
+
+        /*优化使用EXISTS*/
+
+       /* SELECT mac1.*
+        FROM metoo_mac mac1
+        WHERE mac1.tag IS NULL
+        AND EXISTS (
+            SELECT 1
+            FROM metoo_mac mac2
+            WHERE mac1.deviceIp = mac2.deviceIp
+            AND mac1.mac != mac2.mac
+            AND mac2.tag IN ('L', 'LV')
+        );*/
+
+        /*优化使用窗口函数*/
+        WITH valid_macs AS (
+            SELECT deviceIp, mac
+            FROM (
+            SELECT deviceIp, mac, tag,
+            ROW_NUMBER() OVER(PARTITION BY deviceIp ORDER BY tag) AS rn
+            FROM metoo_mac
+            WHERE tag IN ('L', 'LV')
+            ) t WHERE rn = 1  -- 每个deviceIp只取一条记录
+        )
+        SELECT mac1.*
+        FROM metoo_mac mac1
+        JOIN valid_macs mac2 ON
+        mac1.deviceIp = mac2.deviceIp
+        AND mac1.mac != mac2.mac
+        WHERE mac1.tag IS NULL;
     </select>
 
     <select id="selectTagToU" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">

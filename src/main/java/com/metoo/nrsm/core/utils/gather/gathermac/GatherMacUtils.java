@@ -22,6 +22,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -58,7 +59,10 @@ public class GatherMacUtils {
     public void copyGatherData(Date date){
         try {
             copyData(date);
-            updateMacTag(date);
+            List<Mac> macs = this.macService.selectObjByMap(Collections.emptyMap());
+            if(!macs.isEmpty()){// 给mac条目打tag
+                updateMacTag(date);
+            }
         } catch (Exception e) {
             log.error("Error method copyGatherData: {}", date, e);
         }
@@ -67,7 +71,6 @@ public class GatherMacUtils {
     private void copyData(Date date) {
         macService.copyGatherDataToMac(date);
     }
-
 
     private void updateMacTag(Date date){
         setTagToX(); // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V

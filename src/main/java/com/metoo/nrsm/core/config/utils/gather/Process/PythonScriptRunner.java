@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -254,96 +252,48 @@ public class PythonScriptRunner {
         }
     }
 
-    public static String execPy(String scriptPath, String... args) {
+    public static String execBinary(String binaryPath, String... args) {
+        Process process = null;
         try {
-            // 构建命令行参数，包括 Python 解释器和脚本路径
-            ProcessBuilder pb = new ProcessBuilder();
-            pb.redirectErrorStream(true);
+            File binaryFile = new File(binaryPath);
+            if (!binaryFile.exists()) {
+                throw new FileNotFoundException("Binary file not found: " + binaryPath);
+            }
 
-            // 设置工作目录
-            pb.directory(new File(scriptPath));
+            // 构建命令
+            List<String> command = new ArrayList<>();
+            command.add(binaryPath);
+            command.addAll(Arrays.asList(args));
 
-            // 将参数添加到命令行参数中
-            pb.command().addAll(Arrays.asList(args));
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true); // 合并错误流和输出流
+            pb.directory(binaryFile.getParentFile()); // 设置工作目录为二进制文件所在目录
 
-            // 启动进程并等待其完成
-            Process process = pb.start();
+            process = pb.start();
 
-            // 创建 StringBuilder 来收集输出
+            // 读取输出
             StringBuilder output = new StringBuilder();
-            StringBuilder error = new StringBuilder();
-
-            // 创建线程读取标准输出流
-            Thread outputThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        output.append(line).append(System.lineSeparator());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line).append(System.lineSeparator());
                 }
-            });
-
-            // 创建线程读取标准错误流
-            Thread errorThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        error.append(line).append(System.lineSeparator());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-
-            // 启动线程
-            outputThread.start();
-            errorThread.start();
+            }
 
             // 等待进程完成
-            try {
-                int exitCode = process.waitFor();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException("Process exited with code: " + exitCode + "\nOutput: " + output);
             }
 
-
-            // 等待线程完成
-            try {
-                // 等待线程完成
-                outputThread.join();
-                errorThread.join();
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            return output.toString().trim();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Failed to execute binary: " + binaryPath, e);
+        } finally {
+            if (process != null) {
+                process.destroy();
             }
-
-
-//            log.info("==============arg 8");
-//            // 等待进程终止，并获取退出值
-//            int exitCode = Process.waitFor();
-//            System.out.println("==================Exited with code: " + exitCode);
-//
-//            log.info("==============arg 1");
-//            // 读取进程输出
-//            BufferedReader reader = new BufferedReader(
-//                    new InputStreamReader(Process.getInputStream(), StandardCharsets.UTF_8));
-//
-//            log.info("==============arg 2");
-////            String output = reader.lines().toString();
-//            String output = reader.lines().collect(Collectors.joining("\n"));
-//
-//            log.info("==============arg 3");
-//            // 关闭输入流
-//            reader.close();
-
-            // 返回执行结果
-            String cleanedOutput = output.toString().replaceAll("[\n\r]", "");
-            return cleanedOutput;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ""; // 或者抛出异常，根据需求处理
         }
     }
 

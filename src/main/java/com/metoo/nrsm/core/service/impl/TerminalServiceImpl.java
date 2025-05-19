@@ -703,9 +703,10 @@ public class TerminalServiceImpl implements ITerminalService {
 
     @Override
     public void writeTerminalType() {
-        List<Terminal> terminalList = this.terminalMapper.selectObjByMap(null);
+        Map params = new HashMap();
+        params.put("type", 0);
+        List<Terminal> terminalList = this.terminalMapper.selectObjByMap(params);
         if(terminalList.size() > 0){
-            Map params = new HashMap();
             for (Terminal terminal : terminalList) {
                 if(StringUtil.isNotEmpty(terminal.getMac())){
                     // 通过mac查找vendor
@@ -848,7 +849,6 @@ public class TerminalServiceImpl implements ITerminalService {
                         e.setDeviceTypeId(desktop.getId());
                     }
                 }
-
             }
         }
     }

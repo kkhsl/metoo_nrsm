@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 
+import java.io.IOException;
 import java.util.*;
 
 public class MyRedisManager<k,v> {
@@ -28,8 +29,6 @@ public class MyRedisManager<k,v> {
     }
 
     public v put(k k, v v) throws CacheException {
-        System.out.println("put key : " + k);
-        System.out.println("put v " + v);
         // 第二种
         getRedisTemplate().opsForHash().put(this.cacheName, k.toString(), v);
         return null;
@@ -77,8 +76,76 @@ public class MyRedisManager<k,v> {
         }
     }
 
+    public Map<String, Integer> getAllWithValue2(int targetValue) {
+        Map<String, Integer> result = new HashMap<>();
+        ScanOptions scanOptions = ScanOptions.scanOptions().count(100).build(); // 每批100条
+
+        Cursor<Map.Entry<Object, Object>> cursor = getRedisTemplate()
+                .opsForHash()
+                .scan(this.cacheName, scanOptions);
+
+        try {
+            while (cursor.hasNext()) {
+                Map.Entry<Object, Object> entry = cursor.next();
+                if (entry.getValue() instanceof Integer &&
+                        (Integer)entry.getValue() == targetValue) {
+                    result.put(entry.getKey().toString(), (Integer)entry.getValue());
+                }
+            }
+        } finally {
+            try {
+                cursor.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
 
 
+    // 性能较低
+    public Map<String, Integer> getAllWithValue(int targetValue) {
+        Map<Object, Object> entries = getRedisTemplate()
+                .opsForHash()
+                .entries(this.cacheName);
+        Map<String, Integer> result = new HashMap<>();
+        entries.forEach((k, v) -> {
+            if (v instanceof Integer && (Integer)v == targetValue) {
+                result.put(k.toString(), (Integer)v);
+            }
+        });
+        return result;
+    }
+
+
+//    public Map<String, Integer> getAllWithValue(int targetValue) {
+//        String luaScript =
+//                "local result = {} " +
+//                        "local keys = redis.call('HKEYS', KEYS[1]) " +
+//                        "for _, key in ipairs(keys) do " +
+//                        "    local value = redis.call('HGET', KEYS[1], key) " +
+//                        "    if tonumber(value) == ARGV[1] then " +
+//                        "        table.insert(result, key) " +
+//                        "        table.insert(result, value) " +
+//                        "    end " +
+//                        "end " +
+//                        "return result";
+//
+//        List<Object> results = getRedisTemplate().execute(
+//                new DefaultRedisScript<>(luaScript, List.class),
+//                Collections.singletonList(this.cacheName),
+//                String.valueOf(targetValue));
+//
+//        Map<String, Integer> resultMap = new HashMap<>();
+//        for (int i = 0; i < results.size(); i += 2) {
+//            resultMap.put(
+//                    results.get(i).toString(),
+//                    Integer.parseInt(results.get(i+1).toString()));
+//        }
+//
+//        return resultMap;
+//    }
 
     private RedisTemplate getRedisTemplate(){
         return (RedisTemplate) ApplicationContextUtils.getBean("redisTemplate");

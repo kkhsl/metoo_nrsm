@@ -39,15 +39,16 @@ public class PingSubnetConcurrent {
 
             for (long i = 1; i < subnetSize - 1; i++) {
                 String targetIp = longToIp(startIp + i);
-                PingThreadPool.execute(() -> {
-                    try {
-                        new PingTask(targetIp).run();
-                    } catch (Exception e) {
-                        System.err.println("Ping failed for " + targetIp + ": " + e.getMessage());
-                    } finally {
-                        latch.countDown(); // 确保计数减少
-                    }
-                });
+//                PingThreadPool.execute(() -> {
+//                    try {
+//                        new PingTask(targetIp).run();
+//                    } catch (Exception e) {
+//                        System.err.println("Ping failed for " + targetIp + ": " + e.getMessage());
+//                    } finally {
+//                        latch.countDown(); // 确保计数减少
+//                    }
+//                });
+                PingThreadPool.execute(new PingTask(targetIp));
             }
 
             latch.await(); // 等待所有任务完成

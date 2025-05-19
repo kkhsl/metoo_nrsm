@@ -62,51 +62,27 @@ public class GatherSingleThreadingMacSNMPUtils {
 
     // 单线程采集
     public Map gatherMac(List<NetworkElement> networkElements, Date date) {
-
+        if(networkElements.size() <= 0){
+            macService.truncateTable();
+            macService.truncateTableGather();
+            return null;
+        }
         Map logMessages = new LinkedHashMap();
-
         if (!networkElements.isEmpty()) {
-
             CountDownLatch latch = new CountDownLatch(networkElements.size());
-
-            gatherMacUtils.copyGatherData(date);
-
-            // 更新终端
-//            updateTerminal(date);
-            log.info("terminal end");
             macService.truncateTableGather();
             int count = 0;
-
-
             for (NetworkElement networkElement : networkElements) {
-
-                if(StringUtils.isBlank(networkElement.getVersion())
-                        || StringUtils.isBlank(networkElement.getCommunity())){
-                    latch.countDown();
-                    logMessages.put("MAC：" + networkElement.getIp(), "设备信息异常");
-                    continue;
-                }
-
                 gatherDataThreadPool.execute(new GatherMacSNMPRunnable(networkElement, new MacManager(), date, latch));
-//
-//                macManager.getMac(networkElement, date);
-//                latch.countDown();
-//                String hostName = getHostNameSNMP(networkElement);
-//                if (StringUtils.isNotEmpty(hostName)) {
-//                    processNetworkElementData(networkElement, hostName, date);
-//                }
                 count++;
                 logMessages.put("MAC：" + networkElement.getIp(), "采集完成");
             }
             try {
-
                 boolean completed = latch.await(10, TimeUnit.MINUTES);
                 log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
-
                 log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
-                
                 logMessages.put("MAC 采集总数", count);
-
+                gatherMacUtils.copyGatherData(date);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 log.warn("处理被中断");
@@ -368,6 +344,8 @@ public class GatherSingleThreadingMacSNMPUtils {
      * @param date
      */
     public void updateTerminal(Date date) {
+        // 增加逻辑，如果网元snmp全部不通，则直接设置终端表全部离线，或根据snmp离线设备，直接设置离线
+
         // 更新终端信息
         updateTerminalInfo(date);
 
@@ -383,7 +361,6 @@ public class GatherSingleThreadingMacSNMPUtils {
         // 同步终端到历史表
         syncTerminalToHistory();
     }
-
 
     /**
      * 更新终端信息
@@ -422,6 +399,7 @@ public class GatherSingleThreadingMacSNMPUtils {
      */
     private void updateTerminalDeviceTypeToNSwitch(){
         Map params = new HashMap();
+        params.put("type", 0);
         params.put("deviceType", 1);
         params.put("notDeviceTypeId", 36);
         params.put("online", true);
@@ -434,6 +412,7 @@ public class GatherSingleThreadingMacSNMPUtils {
         }
 
         params.clear();
+        params.put("type", 0);
         params.put("online", true);
         params.put("notDeviceTypeId", 36);
         List<Terminal> terminals = this.terminalService.selectObjByMap(params);

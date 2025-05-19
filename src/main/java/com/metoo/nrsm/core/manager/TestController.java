@@ -1,14 +1,16 @@
 package com.metoo.nrsm.core.manager;
 
-import com.metoo.nrsm.core.service.IDhcpService;
-import com.metoo.nrsm.core.service.IDnsLogService;
-import com.metoo.nrsm.core.service.IDnsRecordService;
+import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
+import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingCFScanner;
+import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
-import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.utils.date.DateTools;
+import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
+import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
+import com.metoo.nrsm.entity.Subnet;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +39,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequestMapping("/admin/test")
@@ -52,7 +56,12 @@ public class TestController {
     private IDnsRecordService recordService;
     @Autowired
     private IDhcpService dhcpService;
-
+    @Autowired
+    private IGatherService gatherService;
+    @Autowired
+    private GatherSingleThreadingMacSNMPUtils gatherSingleThreadingMacSNMPUtils;
+    @Autowired
+    private ISubnetService subnetService;
     /**
      * 注意删除该引用jar，使用了另一个
      */
@@ -61,6 +70,39 @@ public class TestController {
         System.out.println(JSONObject.class.getProtectionDomain().getCodeSource().getLocation());
     }
 
+
+    @GetMapping("cf-scanner")
+    public void cfscanner() {
+        try {
+            List<Subnet> subnets = this.subnetService.leafIpSubnetMapper(null);
+            if(subnets.size() > 0){
+                for (Subnet subnet : subnets) {
+                    if(MyStringUtils.isNonEmptyAndTrimmed(subnet.getIp())
+                            && subnet.getMask() != null){
+
+                        if(subnet.getMask() == 32){
+                            PingCFScanner.scan(subnet.getIp());
+                        }else{
+                            PingCFScanner.scan(subnet.getIp()+"/"+subnet.getMask());
+                        }
+                    }
+                }
+            }
+        }  finally {
+            // 关闭线程池
+            // 等待全局线程池任务完成
+            PingThreadPool.shutdown(); // 平滑关闭
+            try {
+                if (!PingThreadPool.awaitTermination(5, TimeUnit.MINUTES)) {
+                    log.error("强制终止未完成任务");
+                    PingThreadPool.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                PingThreadPool.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
 
     @GetMapping("/analysisDnsLogTask")
     public void analysisDnsLogTask(){
@@ -78,6 +120,26 @@ public class TestController {
         log.info("====================================解析dns日志并保存汇总数据定时任务结束==========================");
     }
 
+    @GetMapping("terminal")
+    public void terminal() {
+        try {
+            Long time = System.currentTimeMillis();
+            this.gatherSingleThreadingMacSNMPUtils.updateTerminal(DateTools.gatherDate());
+            log.info("终端采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("终端采集任务异常: {}", e.getMessage());
+        }
+    }
+
+    @GetMapping("mac")
+    public void mac() {
+        try {
+            this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @GetMapping("gather/dhcp1")
     public void gatherDHCP1(){

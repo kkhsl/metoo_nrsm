@@ -107,8 +107,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningDhcp = false;
     @Scheduled(fixedDelay = 180_000)
     public void dhcp() {
-        log.info("DHCP采集任务开始");
         if(flag && !isRunningDhcp){
+            log.info("DHCP采集任务开始");
             isRunningDhcp = true;
             try {
                 Long time=System.currentTimeMillis();
@@ -126,8 +126,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningDhcp6 = false;
     @Scheduled(fixedDelay = 180_000)
     public void dhcp6() {
-        log.info("DHCP6采集任务开始");
         if(flag && !isRunningDhcp6){
+            log.info("DHCP6采集任务开始");
             isRunningDhcp6 = true;
             try {
                 Long time=System.currentTimeMillis();
@@ -145,8 +145,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningARP = false;
     @Scheduled(fixedDelay = 180_000)
     public void arp() {
-        log.info("ARP采集任务开始");
         if(flag && !isRunningARP){
+            log.info("ARP采集任务开始");
             isRunningARP = true;
             try {
                 Long time=System.currentTimeMillis();
@@ -164,8 +164,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningTerminal = false;
     @Scheduled(fixedDelay = 180_000)
     public void terminal() {
-        log.info("终端采集任务开始");
         if(flag && !isRunningTerminal){
+            log.info("终端采集任务开始");
             isRunningTerminal = true;
             try {
                 Long time = System.currentTimeMillis();
@@ -180,33 +180,32 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-
-       private volatile boolean isRunningMAC = false;
-            @Scheduled(fixedDelay = 180_000)
-            public void mac() {
-                log.info("MAC采集任务开始");
-                if(flag && !isRunningMAC){
-                    isRunningMAC = true;
-                    try {
-                        Long time = System.currentTimeMillis();
-                        this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
-                        log.info("MAC采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        log.error("MAC采集任务异常: {}", e.getMessage());
-                    } finally {
-                        isRunningMAC = false;
-                    }
-                }
+   private volatile boolean isRunningMAC = false;
+    @Scheduled(fixedDelay = 180_000)
+    public void mac() {
+        if(flag && !isRunningMAC){
+            log.info("MAC采集任务开始");
+            isRunningMAC = true;
+            try {
+                Long time = System.currentTimeMillis();
+                this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
+                log.info("MAC采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("MAC采集任务异常: {}", e.getMessage());
+            } finally {
+                isRunningMAC = false;
             }
+        }
+    }
 
 //    @Transactional // 可以结合该注解确调度任务在事务中运行，并在异常时正确回滚事务
 //    @Scheduled(fixedRate = 60000) // 每60秒执行一次
             private volatile boolean isRunningIPV4 = false;
             @Scheduled(fixedDelay = 180_000)
             public void ipv4() {
-                log.info("IPV4采集任务开始");
                 if(flag && !isRunningIPV4){
+                    log.info("IPV4采集任务开始");
                     isRunningIPV4 = true;
                     try {
                         Long time=System.currentTimeMillis();
@@ -224,8 +223,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningIPV4Detail = false;
     @Scheduled(fixedDelay = 180_000)
     public void ipv4Detail() {
-        log.info("IPV4 detail 采集任务开始");
         if(flag && !isRunningIPV4Detail){
+            log.info("IPV4 detail 采集任务开始");
             isRunningIPV4Detail = true;
             try {
                 Long time=System.currentTimeMillis();
@@ -243,8 +242,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningPort = false;
     @Scheduled(fixedDelay = 180_000)
     public void port() {
-        log.info("IPV4 Port采集任务开始");
         if(flag && !isRunningPort){
+            log.info("IPV4 Port采集任务开始");
             isRunningPort = true;
             try {
                 Long time = System.currentTimeMillis();
@@ -264,8 +263,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningIPV6 = false;
     @Scheduled(fixedDelay = 180_000)
     public void ipv6() {
-        log.info("Ipv6采集任务开始");
         if(flag && !isRunningIPV6){
+            log.info("Ipv6采集任务开始");
             isRunningIPV6 = true;
             try {
                 Long time=System.currentTimeMillis();
@@ -283,8 +282,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningIPV6Port = false;
     @Scheduled(fixedDelay = 180_000)
     public void portIpv6() {
-        log.info("Ipv6 Port采集任务开始");
         if(flag && !isRunningIPV6Port){
+            log.info("Ipv6 Port采集任务开始");
             isRunningIPV6Port = true;
             try {
                 Long time = System.currentTimeMillis();
@@ -302,8 +301,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningIsIPV6 = false;
     @Scheduled(fixedDelay = 180_000)
     public void isIpv6() {
-        log.info("IsIpv6采集任务开始");
         if(flag && !isRunningIsIPV6){
+            log.info("IsIpv6采集任务开始");
             isRunningIsIPV6 = true;
             try {
                 Long time = System.currentTimeMillis();
@@ -322,8 +321,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningFlux = false;
     @Scheduled(cron = "0 */5 * * * ?")
     public void flux() {
-        log.info("Flux采集任务开始");
         if(flag && !isRunningFlux){
+            log.info("Flux采集任务开始");
             isRunningFlux = true;
             Long time = System.currentTimeMillis();
             try {
@@ -348,11 +347,10 @@ public class GatherTaskScheduledUtil {
      * 更新arp缓存
      */
     private volatile boolean isRunningPing = false;
-//    @Scheduled(fixedDelay = 300 * 1000) // 30秒间隔，严格串行
-    @Scheduled(fixedDelay = 60 * 1000) // 30秒间隔，严格串行
+    @Scheduled(fixedDelay = 300 * 1000) // 30秒间隔，严格串行
     public void pingSubnet() {
-        log.info("PING 网段采集开始===========================================================");
         if(flag && !isRunningPing){
+            log.info("PING 网段采集开始===========================================================");
             isRunningPing = true;
             try {
                 Long time = System.currentTimeMillis();
@@ -373,10 +371,10 @@ public class GatherTaskScheduledUtil {
 
     // TODO 已同步|待增加并发采集
     private volatile boolean isRunningSnmpStataus = false;
-    @Scheduled(fixedDelay = 60 * 1000) // 30秒间隔，严格串行
+    @Scheduled(fixedDelay = 300 * 1000) // 30秒间隔，严格串行
     public void snmpStatus() {
-        log.info("Snmp status采集开始");
         if(flag && !isRunningSnmpStataus){
+            log.info("Snmp status采集开始");
             isRunningSnmpStataus = true;
             try {
                 Long time = System.currentTimeMillis();
@@ -395,8 +393,8 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningProbe = false;
 //    @Scheduled(fixedDelay = 180_000)
     public void probe() {
-        log.info("Probe采集开始");
         if(flag && !isRunningProbe){
+            log.info("Probe采集开始");
             isRunningProbe = true;
             try {
                 Long time = System.currentTimeMillis();

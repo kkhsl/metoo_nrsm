@@ -97,6 +97,17 @@ public class Global {
         Global.encrypt_path = encrypt_path;
     }
 
+    public static String cf_scanner_path;
+    @Value("${cf_scanner.path}")
+    public void setCf_scanner_path(String cf_scanner_path) {
+        Global.cf_scanner_path = cf_scanner_path;
+    }
+    public static String cf_scanner_name;
+    @Value("${cf_scanner.name}")
+    public void setCf_scanner_name(String cf_scanner_name) {
+        Global.cf_scanner_name = cf_scanner_name;
+    }
+
 
     public static String host;
     public static int port;

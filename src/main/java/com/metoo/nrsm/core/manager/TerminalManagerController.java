@@ -370,6 +370,8 @@ public class TerminalManagerController {
             unit= unitMapper.selectObjById(instance.getUnitId());
             if(unit == null){
                 return ResponseUtil.badArgument("请输入正确单位/部门");
+            }else{
+                instance.setUnitName(unit.getUnitName());
             }
         }
 
@@ -391,7 +393,7 @@ public class TerminalManagerController {
         if(instance.getInterfaceName() != null && !instance.getInterfaceName().equals("")){
             instance.setIndex(instance.getInterfaceName().replace("Port", ""));
         }
-        instance.setUnitName(unit.getUnitName());
+
         boolean flag = this.terminalService.save(instance);
         if(flag){
             return ResponseUtil.ok();

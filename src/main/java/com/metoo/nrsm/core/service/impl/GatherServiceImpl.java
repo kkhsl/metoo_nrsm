@@ -59,8 +59,6 @@ public class GatherServiceImpl implements IGatherService {
     @Autowired
     private SnmpStatusUtils snmpStatusUtils;
     @Autowired
-    private GatherSingleThreadingMacUtils gatherSingleThreadingMacUtils;
-    @Autowired
     private GatherSingleThreadingMacSNMPUtils gatherSingleThreadingMacSNMPUtils;
     @Autowired
     private GatherMultithreadingMacUtils gatherMultithreadingMacUtils;
@@ -73,6 +71,9 @@ public class GatherServiceImpl implements IGatherService {
     @Autowired
     private GatherDataThreadPool gatherDataThreadPool;
 
+    private static String V1 = "";
+    private static String V2 = "";
+    private static String V3 = "";
 
     // 获取需要采集的设备
     public List<NetworkElement> getGatherDevice(){
@@ -92,18 +93,20 @@ public class GatherServiceImpl implements IGatherService {
         return networkElements;
     }
 
+    // 增加snmp判断
+    public void verifySnmpParam(NetworkElement networkElement){
+        if(networkElement.getVersion().equals("")){
+
+        }
+    }
+
     @Override
     public Map gatherMac(Date date, List<NetworkElement> networkElements) {
         if(networkElements.size() <= 0){
             networkElements = this.getGatherDevice();
         }
-        if(networkElements.size() > 0){
-//            Map log = gatherSingleThreadingMacUtils.gatherMac(networkElements, date);
-            Map log = gatherSingleThreadingMacSNMPUtils.gatherMac(networkElements, date);
-
-            return log;
-        }
-        return new HashMap();
+        Map log = gatherSingleThreadingMacSNMPUtils.gatherMac(networkElements, date);
+        return log;
     }
 
     @Override

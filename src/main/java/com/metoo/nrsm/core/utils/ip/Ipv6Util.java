@@ -105,6 +105,9 @@ public class Ipv6Util {
 
     private static final Pattern pattern = Pattern.compile(IPV6_CIDR_PATTERN);
 
+
+
+
     public static boolean verifyCidr(String ipv6Cidr) {
 //        String regex = "^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}/\\d{1,3}$";
 //        return ipv6Cidr.matches(regex);
