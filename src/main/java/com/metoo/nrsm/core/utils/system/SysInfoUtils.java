@@ -4,8 +4,8 @@
 //
 //import java.net.InetAddress;
 //import java.net.UnknownHostException;
-//import java.util.Map;
-//import java.util.Properties;
+//import java.utils.Map;
+//import java.utils.Properties;
 //
 //public class SysInfoUtils {
 //
