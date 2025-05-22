@@ -17,6 +17,7 @@ public interface IInterfaceService {
     List<Interface> selectObjByMap(Map params);
 
     int save(Interface instance);
+    List<Interface> select();
 
     int update(Interface instance);
 

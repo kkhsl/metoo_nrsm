@@ -1,9 +1,11 @@
 package com.metoo.nrsm.core.service;
 
 import com.metoo.nrsm.core.dto.UnboundDTO;
+import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Unbound;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IUnboundService {
@@ -14,6 +16,8 @@ public interface IUnboundService {
     Unbound selectObjByOne(Map params);
 
     boolean save(Unbound instance);
+    boolean savePort(List<Interface> instance);
+    List<String> selectPort();
     boolean open(UnboundDTO instance);
     boolean start() throws Exception;
     boolean stop() throws Exception;

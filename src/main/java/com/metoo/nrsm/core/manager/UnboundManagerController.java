@@ -1,19 +1,21 @@
 package com.metoo.nrsm.core.manager;
 
-import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.Session;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.UnboundDTO;
+import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.vo.Result;
+import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Unbound;
+import com.metoo.nrsm.entity.Vlans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 
 @RequestMapping("/admin/unbound")
@@ -22,6 +24,10 @@ public class UnboundManagerController {
 
     @Autowired
     private IUnboundService unboundService;
+
+    @Autowired
+    private IInterfaceService interfaceService;
+
     @Value("${ssh.hostname}")
     private String host;
     @Value("${ssh.port}")
@@ -30,6 +36,8 @@ public class UnboundManagerController {
     private String username;
     @Value("${ssh.password}")
     private String password;
+
+
 
     @PostMapping("/save")
     private Result add(@RequestBody UnboundDTO instance) {
@@ -128,6 +136,83 @@ public class UnboundManagerController {
     @GetMapping("/restart")
     public Boolean restart() throws Exception {
         return unboundService.start();
+    }
+
+    public List<Interface> selectPort(List<String> interfaceNames) {
+        List<Interface> allInterfaces = interfaceService.select();
+        List<Interface> result = new ArrayList<>();
+
+        for (String name : interfaceNames) {
+            // 判断是否为 VLAN 子接口（格式：父接口名.VLAN_ID）
+            if (name.contains(".")) {
+                String[] parts = name.split("\\.");
+                if (parts.length != 2) {
+                    continue; // 格式错误，跳过
+                }
+
+                String parentName = parts[0];
+                String vlanId = parts[1];
+
+                // 查找父接口
+                Optional<Interface> parentInterfaceOpt = allInterfaces.stream()
+                        .filter(intf -> parentName.equals(intf.getName()))
+                        .findFirst();
+
+                if (parentInterfaceOpt.isPresent()) {
+                    Interface parent = parentInterfaceOpt.get();
+                    // 查找匹配的 VLAN
+                    Optional<Vlans> matchedVlan = parent.getVlans().stream()
+                            .filter(vlan -> vlanId.equals(vlan.getId()))
+                            .findFirst();
+
+                    if (matchedVlan.isPresent()) {
+                        // 构建子接口信息
+                        Interface subInterface = new Interface();
+                        subInterface.setName(name); // 名称如 enp2s0f1.200
+                        subInterface.setIpv4address(matchedVlan.get().getIpv4address());
+                        subInterface.setIpv6address(matchedVlan.get().getIpv6address());
+                        result.add(subInterface);
+                    }
+                }
+            } else {
+                // 匹配物理接口
+                allInterfaces.stream()
+                        .filter(intf -> name.equals(intf.getName()))
+                        .findFirst()
+                        .ifPresent(intf -> {
+                            // 复制所需字段
+                            Interface matched = new Interface();
+                            matched.setName(intf.getName());
+                            matched.setIpv4address(intf.getIpv4address());
+                            matched.setIpv6address(intf.getIpv6address());
+                            result.add(matched);
+                        });
+            }
+        }
+        return result;
+    }
+
+    @PostMapping("/savePort")
+    public Result savePort(@RequestBody List<String> interfaceNames) throws Exception {
+        List<Interface> instance = selectPort(interfaceNames);
+        boolean flag = unboundService.savePort(instance);
+        if (flag){
+            try {
+                if (restart()) {
+                    return ResponseUtil.ok();
+                }
+                return ResponseUtil.error("启动失败");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return ResponseUtil.error();
+    }
+
+    @GetMapping("/selectPort")
+    public Result selectPort() throws Exception {
+        List<String> strings = unboundService.selectPort();
+        return ResponseUtil.ok(strings);
     }
 
     @GetMapping("/stop")
