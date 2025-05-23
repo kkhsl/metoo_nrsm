@@ -6,10 +6,14 @@ import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
+import com.metoo.nrsm.core.system.conf.network.strategy.NetplanConfigManager;
+import com.metoo.nrsm.core.system.conf.network.sync.LocalNetplanSyncService;
+import com.metoo.nrsm.core.system.conf.network.sync.WindowsSshNetplanSyncService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
+import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Subnet;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.User;
@@ -18,7 +22,6 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,6 +73,40 @@ public class TestController {
         System.out.println(JSONObject.class.getProtectionDomain().getCodeSource().getLocation());
     }
 
+
+    // interface vlans
+    public void interfaceVlans(){
+        Interface vlan200 = new Interface();
+        vlan200.setName("eno1");
+        vlan200.setVlanNum(200);
+        vlan200.setIpv4Address("192.168.6.102/24");
+        vlan200.setIpv6Address("fc00:1000:0:1::3/64");
+        vlan200.setGateway4("192.168.6.1");
+
+        try {
+            NetplanConfigManager.updateInterfaceConfig(vlan200);
+            System.out.println("VLAN 200配置更新成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // 远程执行
+    @Autowired
+    private WindowsSshNetplanSyncService remoteSyncService;
+
+    @GetMapping("/sync/network/remote")
+    public void sync(){
+        remoteSyncService.syncInterfaces();
+    }
+
+    @Autowired
+    private LocalNetplanSyncService localSyncService;
+    @GetMapping("/sync/network/local")
+    public void localSync(){
+        localSyncService.syncInterfaces();
+    }
 
     @GetMapping("cf-scanner")
     public void cfscanner() {
@@ -367,7 +404,7 @@ public class TestController {
         requestObject.setEmail("value1");
 
         // 调用 API
-        String apiUrl = "http://127.0.0.1:8960/nrsm/admin/test/api2";
+        String apiUrl = "http://127.0.0.1:8960/nrsm/admin/TestAbstrack/api2";
         String response = callApi(apiUrl, requestObject);
 
         // 处理响应

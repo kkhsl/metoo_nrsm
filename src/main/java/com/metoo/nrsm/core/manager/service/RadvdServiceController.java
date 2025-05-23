@@ -1,78 +1,46 @@
 package com.metoo.nrsm.core.manager.service;
 
+import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.system.service.exception.ServiceOperationException;
 import com.metoo.nrsm.core.system.service.manager.SmartServiceManager;
 import com.metoo.nrsm.core.system.service.model.ServiceInfo;
+import com.metoo.nrsm.core.vo.Result;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/service")
+@RequestMapping("/admin/service")
 public class RadvdServiceController {
 
-    private final String host = "192.168.6.102"; // 或者配置文件中获取
-    private final int port = 22;
-    private final String username = "root";
-    private final String password = "Metoo89745000!";
-    private final int timeout = 5000; // 超时 5 秒
+    private final static String SERVICENAME = "radvd";
 
-    private final String serviceName = "radvd";
-
-    /**
-     * 启动服务
-     */
-    @PostMapping("/start")
-    public String startService() {
+    @PostMapping("/control/{action}")
+    public Result controlService(@PathVariable String action) {
         try {
             SmartServiceManager serviceManager = new SmartServiceManager();
-            serviceManager.startService(serviceName);
-            return "服务 " + serviceName + " 启动成功";
+            ServiceInfo currentStatus = executeAction(serviceManager, "status");
+            if (("stop".equals(action) && !currentStatus.isActive()) ||
+                    ("start".equals(action) && currentStatus.isActive())) {
+                return ResponseUtil.ok(currentStatus);
+            }
+            ServiceInfo serviceInfo = executeAction(serviceManager, action);
+            return ResponseUtil.ok(serviceInfo);
         } catch (ServiceOperationException e) {
-            return "服务 " + serviceName + " 启动失败: " + e.getMessage();
+            return ResponseUtil.error("操作失败");
         }
     }
 
-    /**
-     * 停止服务
-     */
-    @PostMapping("/stop")
-    public String stopService() {
-        try {
-            SmartServiceManager serviceManager = new SmartServiceManager(
-                    host, port, username, password, timeout);
-            serviceManager.stopService(serviceName);
-            return "服务 " + serviceName + " 停止成功";
-        } catch (ServiceOperationException e) {
-            return "服务 " + serviceName + " 停止失败: " + e.getMessage();
-        }
-    }
-
-    /**
-     * 重启服务
-     */
-    @PostMapping("/restart")
-    public String restartService() {
-        try {
-            SmartServiceManager serviceManager = new SmartServiceManager(
-                    host, port, username, password, timeout);
-            serviceManager.restartService(serviceName);
-            return "服务 " + serviceName + " 重启成功";
-        } catch (ServiceOperationException e) {
-            return "服务 " + serviceName + " 重启失败: " + e.getMessage();
-        }
-    }
-
-    /**
-     * 获取服务状态
-     */
-    @GetMapping("/status")
-    public String getStatus() {
-        try {
-            SmartServiceManager serviceManager = new SmartServiceManager(
-                    host, port, username, password, timeout);
-            ServiceInfo status = serviceManager.getStatus(serviceName);
-            return "服务 " + serviceName + " 状态: " + status;
-        } catch (ServiceOperationException e) {
-            return "获取服务 " + serviceName + " 状态失败: " + e.getMessage();
+    private ServiceInfo executeAction(SmartServiceManager serviceManager, String action) throws ServiceOperationException {
+        switch (action.toLowerCase()) {
+            case "start":
+                return serviceManager.startService(SERVICENAME);
+            case "stop":
+                return serviceManager.stopService(SERVICENAME);
+            case "restart":
+                return serviceManager.restartService(SERVICENAME);
+            case "status":
+                return serviceManager.getStatus(SERVICENAME);
+            default:
+                throw new ServiceOperationException("未知操作: " + action);
         }
     }
 

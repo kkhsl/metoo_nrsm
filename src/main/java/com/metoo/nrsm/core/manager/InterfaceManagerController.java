@@ -42,10 +42,48 @@ public class InterfaceManagerController {
     @Autowired
     private IInterfaceService interfaceService;
     @Autowired
-    private PythonExecUtils pythonExecUtils;
-
-    @Autowired
     private IUnboundService unboundService;
+
+
+    @ApiOperation("列表")
+    @RequestMapping({"/list"})
+    public Result list(@RequestBody InterfaceDTO dto) {
+        Page<Interface> page = this.interfaceService.selectObjConditionQuery(dto);
+        return ResponseUtil.ok(new PageInfo<Interface>(page));
+    }
+
+    @ApiOperation("创建/更新")
+    @PostMapping({"/save"})
+    public Object save(@RequestBody Interface instance) {
+        if (instance.getParentId() != null && StringUtil.isEmpty(instance.getName())) {
+            return ResponseUtil.badArgument("名称不能为空");
+        }
+        // 校验Ipv4地址
+        if(!Ipv4Util.verifyCidr(instance.getIpv4Address())){
+            return ResponseUtil.badArgument("Ipv4格式错误，不符合CIDR格式");
+        }
+        if(!Ipv4Util.verifyIp(instance.getGateway4())){
+            return ResponseUtil.badArgument("Ipv4网关格式错误");
+        }
+        if(!Ipv6Util.verifyCidr(instance.getIpv6Address())){
+            return ResponseUtil.badArgument("Ipv6格式错误，不符合CIDR格式");
+        }
+        if(!Ipv6Util.verifyIpv6(instance.getGateway6())){
+            return ResponseUtil.badArgument("Ipv6网关格式错误");
+        }
+        boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4Address(), instance.getGateway4());
+
+        if(!ipv4){
+            return ResponseUtil.badArgument("Ipv4地址和网关不一致");
+        }
+        boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6Address(), instance.getGateway6());
+        if(!ipv6){
+            return ResponseUtil.badArgument("Ipv6地址和网关不一致");
+        }
+        int i = this.interfaceService.save(instance);
+        // 判断两次保存不一致，则修改配置，重启unbound
+        return i >= 1 ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
+    }
 
 
     @GetMapping({"/restart"})
@@ -66,8 +104,8 @@ public class InterfaceManagerController {
             for (String key : map.keySet()) {
                 Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
                 if(inteface.getIsup().equals("up")){
-                    if(Ipv6Util.verifyCidr(inteface.getIpv6address())){
-                        list.add(inteface.getIpv6address());
+                    if(Ipv6Util.verifyCidr(inteface.getIpv6Address())){
+                        list.add(inteface.getIpv6Address());
                     }
                 }
             }
@@ -89,7 +127,7 @@ public class InterfaceManagerController {
 
         try {
             String[] args = new String[] {
-                    "python", "E:\\python\\project\\djangoProject\\app01\\test.py"};
+                    "python", "E:\\python\\project\\djangoProject\\app01\\TestAbstrack.py"};
 
             Process proc = Runtime.getRuntime().exec(args);// 执行py文件
 
@@ -122,9 +160,8 @@ public class InterfaceManagerController {
             e.printStackTrace();
         }
         return ResponseUtil.ok(list);
-
-
     }
+
     @ApiOperation("网络-接口列表")
     @GetMapping({"/info"})
     public Result info() {
@@ -132,54 +169,6 @@ public class InterfaceManagerController {
         return ResponseUtil.ok(interfaceList);
     }
 
-    @ApiOperation("列表")
-    @RequestMapping({"/list"})
-    public Result list(@RequestBody InterfaceDTO dto) {
-        Page<Interface> page = this.interfaceService.selectObjConditionQuery(dto);
-        return ResponseUtil.ok(new PageInfo<Interface>(page));
-    }
-
-    @ApiOperation("创建/更新")
-    @PostMapping({"/save"})
-    public Object save(@RequestBody Interface instance) {
-        if (StringUtil.isEmpty(instance.getName())) {
-            return ResponseUtil.badArgument("名称不能为空");
-        }
-
-        // 校验Ipv4地址
-        if(!Ipv4Util.verifyCidr(instance.getIpv4address())){
-            return ResponseUtil.badArgument("Ipv4格式错误，不符合CIDR格式");
-        }
-        if(!Ipv4Util.verifyIp(instance.getGateway4())){
-            return ResponseUtil.badArgument("Ipv4网关格式错误");
-        }
-
-        if(!Ipv6Util.verifyCidr(instance.getIpv6address())){
-            return ResponseUtil.badArgument("Ipv6格式错误，不符合CIDR格式");
-        }
-
-        if(!Ipv6Util.verifyIpv6(instance.getGateway6())){
-            return ResponseUtil.badArgument("Ipv6网关格式错误");
-        }
-
-        boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4address(), instance.getGateway4());
-
-        if(!ipv4){
-            return ResponseUtil.badArgument("Ipv4地址和网关不一致");
-        }
-
-        boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6address(), instance.getGateway6());
-
-        if(!ipv6){
-            return ResponseUtil.badArgument("Ipv6地址和网关不一致");
-        }
-
-        int i = this.interfaceService.save(instance);
-
-        // 判断两次保存不一致，则修改配置，重启unbound
-
-        return i >= 1 ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
-    }
 
     @ApiOperation("编辑")
     @PostMapping({"/modify/ip"})
@@ -188,14 +177,14 @@ public class InterfaceManagerController {
             return ResponseUtil.badArgument ("网络接口不能为空");
         }
         // 校验Ipv4地址
-        if(StringUtils.isNotEmpty(instance.getIpv4address()) &&!Ipv4Util.verifyCidr(instance.getIpv4address())){
+        if(StringUtils.isNotEmpty(instance.getIpv4Address()) &&!Ipv4Util.verifyCidr(instance.getIpv4Address())){
             return ResponseUtil.badArgument("Ipv4格式错误，不符合CIDR格式");
         }
         if(StringUtils.isNotEmpty(instance.getGateway4()) && !Ipv4Util.verifyIp(instance.getGateway4())){
             return ResponseUtil.badArgument("Ipv4网关格式错误");
         }
 
-        if(StringUtils.isNotEmpty(instance.getIpv6address()) && !Ipv6Util.verifyCidr(instance.getIpv6address())){
+        if(StringUtils.isNotEmpty(instance.getIpv6Address()) && !Ipv6Util.verifyCidr(instance.getIpv6Address())){
             return ResponseUtil.badArgument("Ipv6格式错误，不符合CIDR格式");
         }
 
@@ -203,15 +192,15 @@ public class InterfaceManagerController {
             return ResponseUtil.badArgument("Ipv6网关格式错误");
         }
 
-        if(StringUtils.isNotEmpty(instance.getIpv4address()) && StringUtils.isNotEmpty(instance.getGateway4())){
-            boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4address(), instance.getGateway4());
+        if(StringUtils.isNotEmpty(instance.getIpv4Address()) && StringUtils.isNotEmpty(instance.getGateway4())){
+            boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4Address(), instance.getGateway4());
             if(!ipv4){
                 return ResponseUtil.badArgument("Ipv4地址和网关不一致");
             }
         }
 
-        if(StringUtils.isNotEmpty(instance.getIpv6address()) && StringUtils.isNotEmpty(instance.getGateway6())){
-            boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6address(), instance.getGateway6());
+        if(StringUtils.isNotEmpty(instance.getIpv6Address()) && StringUtils.isNotEmpty(instance.getGateway6())){
+            boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6Address(), instance.getGateway6());
 
             if(!ipv6){
                 return ResponseUtil.badArgument("Ipv6地址和网关不一致");
@@ -237,9 +226,10 @@ public class InterfaceManagerController {
         if (StringUtil.isEmpty(instance.getName())) {
             return ResponseUtil.badArgument ("网络接口不能为空");
         }
-        for (Vlans vlan : instance.getVlans()) {
+        // TODO Vlan改用Interface
+        for (Interface vlan : instance.getVlans()) {
             // 校验IPv4地址
-            if (StringUtils.isNotEmpty(vlan.getIpv4address()) && !Ipv4Util.verifyCidr(vlan.getIpv4address())) {
+            if (StringUtils.isNotEmpty(vlan.getIpv4Address()) && !Ipv4Util.verifyCidr(vlan.getIpv4Address())) {
                 return ResponseUtil.badArgument("子接口IPv4地址格式错误，不符合CIDR格式");
             }
             // 校验IPv4网关
@@ -247,7 +237,7 @@ public class InterfaceManagerController {
                 return ResponseUtil.badArgument("子接口IPv4网关格式错误");
             }
             // 校验IPv6地址
-            if (StringUtils.isNotEmpty(vlan.getIpv6address()) && !Ipv6Util.verifyCidr(vlan.getIpv6address())) {
+            if (StringUtils.isNotEmpty(vlan.getIpv6Address()) && !Ipv6Util.verifyCidr(vlan.getIpv6Address())) {
                 return ResponseUtil.badArgument("子接口IPv6地址格式错误，不符合CIDR格式");
             }
             // 校验IPv6网关
@@ -255,20 +245,20 @@ public class InterfaceManagerController {
                 return ResponseUtil.badArgument("子接口IPv6网关格式错误");
             }
             // 校验IPv4地址与网关是否匹配
-            if (StringUtils.isNotEmpty(vlan.getIpv4address()) && StringUtils.isNotEmpty(vlan.getGateway4())) {
-                boolean ipv4Match = isIPAddressMatchingGateway(vlan.getIpv4address(), vlan.getGateway4());
+            if (StringUtils.isNotEmpty(vlan.getIpv4Address()) && StringUtils.isNotEmpty(vlan.getGateway4())) {
+                boolean ipv4Match = isIPAddressMatchingGateway(vlan.getIpv4Address(), vlan.getGateway4());
                 if (!ipv4Match) {
                     return ResponseUtil.badArgument("子接口IPv4地址和网关不在同一网络");
                 }
             }
             // 校验IPv6地址与网关是否匹配
-            if (StringUtils.isNotEmpty(vlan.getIpv6address()) && StringUtils.isNotEmpty(vlan.getGateway6())) {
-                boolean ipv6Match = isIPAddressv6MatchingGateway(vlan.getIpv6address(), vlan.getGateway6());
+            if (StringUtils.isNotEmpty(vlan.getIpv6Address()) && StringUtils.isNotEmpty(vlan.getGateway6())) {
+                boolean ipv6Match = isIPAddressv6MatchingGateway(vlan.getIpv6Address(), vlan.getGateway6());
                 if (!ipv6Match) {
                     return ResponseUtil.badArgument("子接口IPv6地址和网关不在同一网络");
                 }
             }
-            boolean i = this.interfaceService.modify_vlans(instance.getName(),vlan);
+            boolean i = this.interfaceService.modify_vlans(instance.getName(), vlan);
             flag = i ? true : false;
         }
 
@@ -292,8 +282,8 @@ public class InterfaceManagerController {
             for (String key : map.keySet()) {
                 Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
                 if(inteface.getIsup().equals("up")){
-                    if(Ipv6Util.verifyCidr(inteface.getIpv6address())){
-                        String[] cidr = inteface.getIpv6address().split("/");
+                    if(Ipv6Util.verifyCidr(inteface.getIpv6Address())){
+                        String[] cidr = inteface.getIpv6Address().split("/");
                         list.add(cidr[0]);
                     }
                 }

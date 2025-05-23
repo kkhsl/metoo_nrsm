@@ -19,17 +19,24 @@ import java.util.List;
 @NoArgsConstructor
 public class Interface extends IdEntity {
 
-    private String name;
     private String isup;
-    private String ipv4address;
     private String ipv4netmask;
-    private String ipv6address;
     private String ipv6netmask;
     private String macaddress;
-    private String gateway4;
-    private String gateway6;
+
 
     // 子接口 列表
-    private List<Vlans> vlans; // 新增字段
+    private List<Interface> vlans; // 新增字段
+
+
+
+    private String name;        // 接口名称，例如 eth0, eth1
+    private String ipv4Address; // IPv4 地址，例如 192.168.1.1/24
+    private String ipv6Address; // IPv6 地址，例如 fc00::/64
+    private String gateway4;    // IPv4 网关，例如 192.168.1.1
+    private String gateway6;    // IPv6 网关，例如 fc00::1
+    private Long parentId;      // 父接口 ID，如果为空则表示该接口是主接口
+    private String parentName;  // 父接口 名称
+    private Integer vlanNum;    // VLAN 配置编号
 
 }

@@ -1,31 +1,51 @@
 package com.metoo.nrsm.core.manager.service;
 
+import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.system.service.exception.ServiceOperationException;
 import com.metoo.nrsm.core.system.service.manager.SmartServiceManager;
 import com.metoo.nrsm.core.system.service.model.ServiceInfo;
+import com.metoo.nrsm.core.vo.Result;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/service/windows")
 public class RadvdServiceWindowsController {
 
+    private final static String SERVICENAME = "radvd";
     private final String host = "192.168.6.102"; // 或者配置文件中获取
     private final int port = 22;
     private final String username = "root";
     private final String password = "Metoo89745000!";
     private final int timeout = 5000; // 超时 5 秒
 
-    private final static String SERVICENAME = "radvd";
-
     @PostMapping("/control/{action}")
-    public ServiceInfo controlService(@PathVariable String action) {
+    public Result controlService(@PathVariable String action) {
         try {
             SmartServiceManager serviceManager = new SmartServiceManager(host, port, username, password, timeout);
-            return executeAction(serviceManager, action);
+            ServiceInfo currentStatus = executeAction(serviceManager, "status");
+            if (("stop".equals(action) && !currentStatus.isActive()) ||
+                    ("start".equals(action) && currentStatus.isActive())) {
+                return ResponseUtil.ok(currentStatus);
+            }
+            if("status".equals(action)){
+                return ResponseUtil.ok(currentStatus);
+            }
+            ServiceInfo serviceInfo = executeAction(serviceManager, action);
+            return ResponseUtil.ok(serviceInfo);
         } catch (ServiceOperationException e) {
+            return ResponseUtil.error("操作失败");
         }
-        return null;
     }
+
+//    @PostMapping("/control/{action}")
+//    public ServiceInfo controlService(@PathVariable String action) {
+//        try {
+//            SmartServiceManager serviceManager = new SmartServiceManager(host, port, username, password, timeout);
+//            return executeAction(serviceManager, action);
+//        } catch (ServiceOperationException e) {
+//        }
+//        return null;
+//    }
 
     /**
      * 根据 action 执行相应的服务操作

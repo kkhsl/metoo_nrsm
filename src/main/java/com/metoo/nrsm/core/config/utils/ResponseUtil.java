@@ -99,9 +99,14 @@ public class ResponseUtil {
 
     public static Object notFound(){return new Result(404, "请求的资源不存在");}
 
+
     public static Object missingparameter(){return new Result(400, "缺少必填参数");}
 
     public static Object InvalidFormatException(){return new Result(400, "数据格式异常");}
+
+    public static Object updatedDataFailed() {
+        return new Result(500, "操作失败");
+    }
 
 
     public static Result noContent(){return new Result(204, "Successfully");}

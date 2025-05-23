@@ -33,7 +33,7 @@ public class SNMPCommandHandlerTest {
     public void snmpCommandHandler() throws Exception {
         // 模拟配置文件中的方法
         String vendor = "h3c";
-        String command = "test";
+        String command = "TestAbstrack";
         // 调用需要测试的方法
         SNMPCommandHandler snmpCommandHandler = new SNMPCommandHandler();
         snmpCommandHandler.handleCommand(vendor, command, "192.168.1.1", "2c", "public", "1.3.6.1.2.1.1");
@@ -43,7 +43,7 @@ public class SNMPCommandHandlerTest {
     public void testHandleCommand_H3C_Test() throws Exception {
         // 模拟配置文件中的方法
         String vendor = "h3c";
-        String command = "test";
+        String command = "TestAbstrack";
 
         // 假设 getHostname 返回 "设备 xxx 的主机名"
         when(snmpClient.getHostname(any(), any(), any(), any())).thenReturn("设备 xxx 的主机名");

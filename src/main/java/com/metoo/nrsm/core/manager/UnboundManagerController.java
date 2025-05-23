@@ -161,7 +161,8 @@ public class UnboundManagerController {
                 if (parentInterfaceOpt.isPresent()) {
                     Interface parent = parentInterfaceOpt.get();
                     // 查找匹配的 VLAN
-                    Optional<Vlans> matchedVlan = parent.getVlans().stream()
+                    //DOTO
+                    Optional<Interface> matchedVlan = parent.getVlans().stream()
                             .filter(vlan -> vlanId.equals(vlan.getId()))
                             .findFirst();
 
@@ -169,8 +170,8 @@ public class UnboundManagerController {
                         // 构建子接口信息
                         Interface subInterface = new Interface();
                         subInterface.setName(name); // 名称如 enp2s0f1.200
-                        subInterface.setIpv4address(matchedVlan.get().getIpv4address());
-                        subInterface.setIpv6address(matchedVlan.get().getIpv6address());
+                        subInterface.setIpv4Address(matchedVlan.get().getIpv4Address());
+                        subInterface.setIpv6Address(matchedVlan.get().getIpv6Address());
                         result.add(subInterface);
                     }
                 }
@@ -183,8 +184,8 @@ public class UnboundManagerController {
                             // 复制所需字段
                             Interface matched = new Interface();
                             matched.setName(intf.getName());
-                            matched.setIpv4address(intf.getIpv4address());
-                            matched.setIpv6address(intf.getIpv6address());
+                            matched.setIpv4Address(intf.getIpv4Address());
+                            matched.setIpv6Address(intf.getIpv6Address());
                             result.add(matched);
                         });
             }

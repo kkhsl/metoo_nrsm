@@ -5,6 +5,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.metoo.nrsm.core.system.service.exception.RemoteOperationException;
+import com.metoo.nrsm.core.system.service.model.CommandResult;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -17,21 +18,14 @@ import java.io.InputStreamReader;
  */
 @Slf4j
 public class SshCommandExecutor {
-    private final String host;      // 远程主机地址
-    private final int port;         // SSH端口，默认22
-    private final String username;  // SSH用户名
-    private final String password;  // SSH密码
-    private final int timeout;      // 连接超时时间(毫秒)
+    private final String host;
+    private final int port;
+    private final String username;
+    private final String password;
+    private final int timeout;
 
-    /**
-     * 构造方法
-     * @param host 远程主机地址
-     * @param port SSH端口
-     * @param username SSH用户名
-     * @param password SSH密码
-     * @param timeout 连接超时时间(毫秒)
-     */
-    public SshCommandExecutor(String host, int port, String username, String password, int timeout) {
+    public SshCommandExecutor(String host, int port, String username,
+                                      String password, int timeout) {
         this.host = host;
         this.port = port;
         this.username = username;
@@ -59,7 +53,7 @@ public class SshCommandExecutor {
             session = jsch.getSession(username, host, port);
             session.setPassword(password);
 
-            // 3. 配置SSH会话参数
+            // 3. 配置SSH会话参数 - 不检查主机密钥(生产环境应配置为检查)
             session.setConfig("StrictHostKeyChecking", "no");
 
             // 4. 连接会话
@@ -67,12 +61,12 @@ public class SshCommandExecutor {
 
             // 5. 创建执行通道
             channel = (ChannelExec) session.openChannel("exec");
-            channel.setCommand(command);  // 设置要执行的命令
-            channel.setInputStream(null); // 不发送输入
+            channel.setCommand(command);
+            channel.setInputStream(null);
 
             // 6. 获取命令输出流和错误输出流
             InputStream in = channel.getInputStream();
-            InputStream errStream = channel.getErrStream();  // 错误输出流
+            InputStream errStream = channel.getErrStream();
 
             // 7. 连接通道并执行命令
             channel.connect();
@@ -85,7 +79,7 @@ public class SshCommandExecutor {
                         output.append(line).append("\n");
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             });
 
@@ -96,7 +90,7 @@ public class SshCommandExecutor {
                         errorOutput.append(errorLine).append("\n");
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             });
 
@@ -108,19 +102,44 @@ public class SshCommandExecutor {
             outputThread.join();
             errorThread.join();
 
-            // 9. 检查命令退出状态
-            if (channel.getExitStatus() != 0) {
-                throw new RemoteOperationException(
-                        String.format("命令执行失败，退出码: %d\n错误输出: %s", channel.getExitStatus(), errorOutput.toString()));
+            // 8. 获取命令退出状态
+            int exitStatus = channel.getExitStatus();
+
+            // 9. 处理不同的命令退出状态
+            if (command.contains("systemctl status ")) {
+                /*
+                 * systemctl status 命令的特殊退出码处理:
+                 * 0: 服务正在运行
+                 * 1: 服务未运行
+                 * 2: 服务状态未知
+                 * 3: 服务已停止
+                 * 4: 服务不存在
+                 */
+                if (exitStatus == 4) {
+                    throw new RemoteOperationException("服务不存在");
+                }
+                // 其他状态码(0-3)都是正常情况，不抛出异常
+            } else {
+                // 对于非status命令，只有退出码0表示成功
+                if (exitStatus != 0) {
+                    throw new RemoteOperationException(
+                            String.format("命令执行失败，退出码: %d\n错误输出: %s",
+                                    exitStatus, errorOutput.toString()));
+                }
             }
 
             // 10. 返回命令输出
             return output.toString();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "执行失败: " + e.getMessage();
+        } catch (JSchException e) {
+            throw new RemoteOperationException("SSH连接失败: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RemoteOperationException("IO操作失败: " + e.getMessage(), e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RemoteOperationException("命令执行被中断", e);
         } finally {
+            // 11. 清理资源
             if (channel != null) {
                 channel.disconnect();
             }
@@ -128,6 +147,15 @@ public class SshCommandExecutor {
                 session.disconnect();
             }
         }
+    }
 
+    /**
+     * 执行命令并返回包含状态码的结果对象
+     */
+    public CommandResult executeCommandWithStatus(String command) throws RemoteOperationException {
+        String output = executeCommand(command);
+        // 注意：这里需要修改实现以获取退出状态码
+        // 实际实现可能需要额外逻辑来保存退出状态码
+        return new CommandResult(output, 0); // 简化示例
     }
 }

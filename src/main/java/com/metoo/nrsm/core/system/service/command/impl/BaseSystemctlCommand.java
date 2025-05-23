@@ -10,8 +10,11 @@ import java.io.IOException;
  * systemctl命令的基类
  * 封装了执行systemctl命令的通用逻辑
  */
+// TODO 这里为什么使用抽象类
 public abstract class BaseSystemctlCommand implements ServiceCommand {
+
     protected final String serviceName;  // 服务名称
+
     protected final ServiceInfoParser parser;  // 输出解析器
 
     public BaseSystemctlCommand(String serviceName) {

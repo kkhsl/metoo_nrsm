@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.network.networkconfig.other;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,9 @@ import java.lang.Process;
 @Service
 public class Checkaliveip {
 
+
+    @Value("${task.switch.checkip.is-open}")
+    private boolean flag;
 
     // 数据库配置（通过连接池管理）
     private final DataSource dataSource;
@@ -52,8 +56,12 @@ public class Checkaliveip {
     /**
      * 定时监控任务（每分钟执行）
      */
-//    @Scheduled(fixedRate = 60_000)
+    @Scheduled(fixedRate = 60_000)
     public void scheduledMonitoring() {
+
+        if(!flag){
+            return;
+        }
         // 配置自动刷新
         if (shouldRefreshConfig()) {
             refreshMonitoringConfig(false);

@@ -387,7 +387,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
     }
 
     public boolean start() {
-        if ("test".equals(Global.env)) {
+        if ("TestAbstrack".equals(Global.env)) {
             try {
                 return restart();
             } catch (Exception e) {
@@ -403,7 +403,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
     }
 
     public boolean stop() {
-        if ("test".equals(Global.env)) {
+        if ("TestAbstrack".equals(Global.env)) {
             try {
                 return stop1();
             } catch (Exception e) {
@@ -419,7 +419,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
     }
 
     public boolean status() {
-        if ("test".equals(Global.env)) {
+        if ("TestAbstrack".equals(Global.env)) {
             try {
                 return status1();
             } catch (Exception e) {

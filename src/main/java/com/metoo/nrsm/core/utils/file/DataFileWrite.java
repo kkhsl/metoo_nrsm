@@ -14,7 +14,7 @@ public class DataFileWrite {
 
     public static void main(String[] args) {
         // 要写入的字符串数据
-        String data = "test";
+        String data = "TestAbstrack";
 
 
 //        String uploadDir = Paths.get("").toAbsolutePath().toString() + File.separator + "files" + File.separator + System.currentTimeMillis();

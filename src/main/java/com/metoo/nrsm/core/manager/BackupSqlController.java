@@ -325,7 +325,7 @@ public class BackupSqlController {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
 
             // 将输入重定向到文件
-            processBuilder.redirectInput(new File("C:\\Users\\Administrator\\Desktop\\backup\\db\\test\\metoo_nrsm_local.sql"));
+            processBuilder.redirectInput(new File("C:\\Users\\Administrator\\Desktop\\backup\\db\\TestAbstrack\\metoo_nrsm_local.sql"));
 
             // 启动进程
             Process process = processBuilder.start();
@@ -718,7 +718,7 @@ public class BackupSqlController {
 //        sb.append(" "+ "metoo_nrsm_local");
 //
 //        sb.append(" <");
-//        sb.append(" C:\\Users\\Administrator\\Desktop\\backup\\db\\test\\metoo_nrsm_local.sql");
+//        sb.append(" C:\\Users\\Administrator\\Desktop\\backup\\db\\TestAbstrack\\metoo_nrsm_local.sql");
 //        return sb.toString();
 //    }
     public String recoverWindows(String dbPath, String dbName){
