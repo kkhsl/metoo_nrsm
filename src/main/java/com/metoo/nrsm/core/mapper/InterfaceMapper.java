@@ -13,6 +13,8 @@ public interface InterfaceMapper {
 
     Interface selectObjById(Long id);
 
+    List<Interface> selectAll();
+
     List<Interface> selectObjByParentId(Long parentId);
 
     Interface selectObjByName(String name);

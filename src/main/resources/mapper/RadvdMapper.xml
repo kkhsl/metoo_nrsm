@@ -5,7 +5,7 @@
 
     <!-- 公共字段 -->
     <sql id="Base_Column_List">
-        id, addTime, name, interfaceId, ipv6Prefix
+        id, addTime, name, interfaceId, ipv6Prefix, interfaceParentId
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Radvd">
@@ -22,6 +22,15 @@
        <where>
            <if test="name != null and name != ''">
                AND name = #{name}
+           </if>
+           <if test="interfaceId != null">
+               AND interfaceId = #{interfaceId}
+           </if>
+           <if test="interfaceParentId != null">
+               AND interfaceParentId = #{interfaceParentId}
+           </if>
+           <if test="excludeId != null">
+               AND id != #{excludeId}
            </if>
        </where>
     </select>
@@ -58,6 +67,9 @@
             <if test="ipv6Prefix != null and ipv6Prefix != ''">
                 ipv6Prefix,
             </if>
+            <if test="interfaceParentId != null">
+                interfaceParentId,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -71,6 +83,9 @@
             </if>
             <if test="ipv6Prefix != null and ipv6Prefix != ''">
                 #{ipv6Prefix},
+            </if>
+            <if test="interfaceParentId != null">
+                #{interfaceParentId},
             </if>
         </trim>
     </insert>
@@ -89,6 +104,9 @@
             </if>
             <if test="ipv6Prefix != null and ipv6Prefix != ''">
                 ipv6Prefix = #{ipv6Prefix},
+            </if>
+            <if test="interfaceParentId != null">
+                interfaceParentId = #{interfaceParentId},
             </if>
         </set>
         where id = #{id}

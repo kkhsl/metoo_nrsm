@@ -17,6 +17,8 @@ public class Radvd extends IdEntity {
     private Long interfaceId;
     @ApiModelProperty("接口名称")
     private String interfaceName;
+    @ApiModelProperty("主接口Id")
+    private Long interfaceParentId;
     @ApiModelProperty("ipv6前缀")
     private String ipv6Prefix;
 

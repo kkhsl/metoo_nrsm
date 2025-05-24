@@ -42,6 +42,55 @@
         WHERE name = #{name}
     </select>
 
+    <select id="selectAll" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Interface">
+      WITH RECURSIVE interface_tree AS (
+        -- 基础查询：获取所有主接口（parentId 为 null 的接口）
+        SELECT
+            id,
+            name,
+            ipv4Address,
+            ipv6Address,
+            gateway4,
+            gateway6,
+            parentId,
+            vlanNum,
+            1 AS level,
+            CAST(name AS CHAR(255)) AS path
+        FROM metoo_interface
+        WHERE parentId IS NULL
+
+        UNION ALL
+
+        -- 递归查询：获取子接口
+        SELECT
+            ni.id,
+            ni.name,
+            ni.ipv4Address,
+            ni.ipv6Address,
+            ni.gateway4,
+            ni.gateway6,
+            ni.parentId,
+            ni.vlanNum,
+            it.level + 1,
+            CONCAT(it.path, ' > ', ni.name) AS path
+        FROM metoo_interface ni
+        JOIN interface_tree it ON ni.parentId = it.id
+    )
+    SELECT
+        id,
+        name,
+        ipv4Address,
+        ipv6Address,
+        gateway4,
+        gateway6,
+        parentId,
+        vlanNum,
+        level,
+        path
+    FROM interface_tree
+    ORDER BY path;
+    </select>
+
     <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.InterfaceDTO" resultType="com.metoo.nrsm.entity.Interface">
 --         SELECT
 --         t1.id, t1.name, t1.ipv4Address, t1.ipv6Address, t1.gateway4, t1.gateway6, t1.vlanNum, t1.parentId,
@@ -89,11 +138,23 @@
             <if test="vlanNum != null">
                 AND vlanNum = #{vlanNum}
             </if>
+            <if test="gateway4 != null and gateway4 != ''">
+                AND gateway4 = #{gateway4}
+            </if>
+            <if test="gateway6 != null and gateway6 != ''">
+                AND gateway6 = #{gateway6}
+            </if>
             <if test="excludeId != null">
                 AND id != #{excludeId}
             </if>
             <if test="parentIdNull != null and parentIdNull">
                 AND parentId IS NULL
+            </if>
+            <if test="gateway4NotNull != null and gateway4NotNull">
+                AND gateway4 IS NOT NULL
+            </if>
+            <if test="gateway6NotNull != null and gateway6NotNull">
+                AND gateway6 IS NOT NULL
             </if>
         </where>
     </select>

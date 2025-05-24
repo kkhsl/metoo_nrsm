@@ -6,7 +6,11 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.RadvdDTO;
 import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.service.IRadvdService;
+import com.metoo.nrsm.core.system.service.exception.ServiceOperationException;
+import com.metoo.nrsm.core.system.service.manager.SmartServiceManager;
+import com.metoo.nrsm.core.system.service.model.ServiceInfo;
 import com.metoo.nrsm.core.utils.query.PageInfo;
+import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.NetworkElement;
 import com.metoo.nrsm.entity.Radvd;
@@ -69,12 +73,67 @@ public class RadvdManagerController {
     public Object add(@RequestBody Radvd radvd) {
         // 基本参数验证
         if (radvd.getName() == null || radvd.getName().trim().isEmpty()) {
-            return ResponseUtil.badArgument("名称不能为空");
+            return ResponseUtil.badArgument("名称不能为空！");
+        }else{
+            Map params = new HashMap();
+            params.put("name", radvd.getName());
+            params.put("excludeId", radvd.getId());
+            if (radvdService.selectObjByMap(params).size() >= 1) {
+                return ResponseUtil.badArgument("·" + radvd.getName() + "' 已经存在！");
+            }
+
+        }
+        // 校验端口
+        // 如果用户同时选择了一个接口的主接口和子接口，返回错误信息，让用户重新填写
+        Interface instance = this.interfaceService.selectObjById(radvd.getInterfaceId());
+        if(instance == null){
+            return ResponseUtil.badArgument("请选择接口！");
+        }else{
+            radvd.setInterfaceParentId(instance.getParentId());
+            Result result = verifyInterface(radvd.getInterfaceId(), instance.getParentId(), radvd.getId());
+            if(result != null){
+               return result;
+            }
         }
         if (this.radvdService.save(radvd)) {
+
+            try {
+                // 重启应用
+                SmartServiceManager serviceManager = new SmartServiceManager();
+                serviceManager.restartService("radvd");
+            } catch (ServiceOperationException e) {
+                e.printStackTrace();
+            }
             return ResponseUtil.ok();
         }
         return ResponseUtil.updatedDataFailed();
+    }
+
+
+    public Result verifyInterface(Long interfaceId, Long interfaceParentId, Long id){
+        Map params = new HashMap();
+        // 如果主接口Id不为空，查询是否存在主接口
+        if(interfaceParentId != null){
+            params.clear();
+            params.put("interfaceId", interfaceParentId);
+            params.put("excludeId", id);
+            List<Radvd> radvds = this.radvdService.selectObjByMap(params);
+            // 如果主接口已存在，则不允许子接口选择
+            if(radvds.size() > 0){
+                return ResponseUtil.badArgument("不能同时选择主接口和它的子接口！");
+            }
+        }else{
+            // 如果选择的是主接口，查询是否存在子接口
+            params.clear();
+            params.put("interfaceParentId", interfaceId);
+            params.put("excludeId", id);
+            List<Radvd> radvds = this.radvdService.selectObjByMap(params);
+            // 如果子接口已存在，则不允许主接口选择
+            if(radvds.size() > 0){
+                return ResponseUtil.badArgument("不能同时选择主接口和它的子接口！");
+            }
+        }
+        return null;
     }
 
     /**

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public class Interface extends IdEntity {
 
 
     // 子接口 列表
-    private List<Interface> vlans; // 新增字段
+    private List<Interface> vlans = new ArrayList<>(); // 新增字段
 
 
 
@@ -38,5 +39,10 @@ public class Interface extends IdEntity {
     private Long parentId;      // 父接口 ID，如果为空则表示该接口是主接口
     private String parentName;  // 父接口 名称
     private Integer vlanNum;    // VLAN 配置编号
+
+    // 用于构建树形结构的方法
+    public void addChild(Interface child) {
+        this.vlans.add(child);
+    }
 
 }

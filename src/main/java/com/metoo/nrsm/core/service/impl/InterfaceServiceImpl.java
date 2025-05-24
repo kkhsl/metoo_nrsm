@@ -1,6 +1,8 @@
 package com.metoo.nrsm.core.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
@@ -12,6 +14,7 @@ import com.metoo.nrsm.core.system.conf.network.strategy.NetplanConfigManager;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Vlans;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +24,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class InterfaceServiceImpl implements IInterfaceService {
 
     @Autowired
     private InterfaceMapper interfaceMapper;
-    @Autowired
-    private PythonExecUtils pythonExecUtils;
+    private final ObjectMapper objectMapper;
 
     @Override
     public Interface selectObjById(Long id) {
@@ -81,6 +84,52 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public List<Interface> selectObjByMap(Map params) {
         return this.interfaceMapper.selectObjByMap(params);
+    }
+
+    @Override
+    public List<Interface> selectAll() {
+        try {
+            return getInterfaceTreeJson(this.interfaceMapper.selectAll());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+//    public String getInterfaceTreeJson(List<Interface> interfaceList) throws JsonProcessingException {
+//        List<Interface> tree = buildTree(interfaceList);
+//        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
+//    }
+
+    public List<Interface> getInterfaceTreeJson(List<Interface> interfaceList) throws JsonProcessingException {
+        List<Interface> tree = buildTree(interfaceList);
+        return tree;
+    }
+
+    private List<Interface> buildTree(List<Interface> interfaces) {
+        // 按parentId分组
+        Map<Long, List<Interface>> groupedByParent = interfaces.stream()
+                .filter(i -> i.getParentId() != null)
+                .collect(Collectors.groupingBy(Interface::getParentId));
+
+        // 获取所有根节点
+        List<Interface> roots = interfaces.stream()
+                .filter(i -> i.getParentId() == null)
+                .collect(Collectors.toList());
+
+        // 递归构建树
+        roots.forEach(root -> buildChildren(root, groupedByParent));
+        return roots;
+    }
+
+    private void buildChildren(Interface parent, Map<Long, List<Interface>> groupedByParent) {
+        List<Interface> children = groupedByParent.get(parent.getId());
+        if (children != null) {
+            children.forEach(child -> {
+                parent.addChild(child);
+                buildChildren(child, groupedByParent);
+            });
+        }
     }
 
 //    @Override
