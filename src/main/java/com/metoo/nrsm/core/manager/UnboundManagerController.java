@@ -7,7 +7,6 @@ import com.metoo.nrsm.core.service.IUnboundService;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Unbound;
-import com.metoo.nrsm.entity.Vlans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 
 @RequestMapping("/admin/unbound")
@@ -140,57 +138,60 @@ public class UnboundManagerController {
 
 
     public List<Interface> selectPort(List<String> interfaceNames) {
-        List<Interface> allInterfaces = interfaceService.select();
+        List<Interface> allInterfaces = interfaceService.selectAll();
         List<Interface> result = new ArrayList<>();
 
-        for (String name : interfaceNames) {
-            // 判断是否为 VLAN 子接口（格式：父接口名.VLAN_ID）
-            if (name.contains(".")) {
-                String[] parts = name.split("\\.");
-                if (parts.length != 2) {
-                    continue; // 格式错误，跳过
-                }
+        for (String inputName : interfaceNames) {
+            Interface output = new Interface();
+            output.setName(inputName);
+            output.setIpv4Address(null);
+            output.setIpv6Address(null);
 
-                String parentName = parts[0];
-                String vlanId = parts[1];
+            try {
+                if (inputName.contains(".")) {
+                    String[] parts = inputName.split("\\.");
+                    if (parts.length == 2) {
+                        String parentName = parts[0];
+                        int vlanNum = Integer.parseInt(parts[1]);
 
-                // 查找父接口
-                Optional<Interface> parentInterfaceOpt = allInterfaces.stream()
-                        .filter(intf -> parentName.equals(intf.getName()))
-                        .findFirst();
+                        // 查找父接口时添加空集合保护
+                        allInterfaces.stream()
+                                .filter(p -> parentName.equals(p.getName()))
+                                .findFirst()
+                                .ifPresent(parent -> {
+                                    // 处理可能为null的vlans列表
+                                    List<Interface> vlans = parent.getVlans() != null ?
+                                            parent.getVlans() :
+                                            Collections.emptyList();
 
-                if (parentInterfaceOpt.isPresent()) {
-                    Interface parent = parentInterfaceOpt.get();
-                    // 查找匹配的 VLAN
-                    //DOTO
-                    Optional<Interface> matchedVlan = parent.getVlans().stream()
-                            .filter(vlan -> vlanId.equals(vlan.getId()))
-                            .findFirst();
-
-                    if (matchedVlan.isPresent()) {
-                        // 构建子接口信息
-                        Interface subInterface = new Interface();
-                        subInterface.setName(name); // 名称如 enp2s0f1.200
-                        subInterface.setIpv4Address(matchedVlan.get().getIpv4Address());
-                        subInterface.setIpv6Address(matchedVlan.get().getIpv6Address());
-                        result.add(subInterface);
+                                    vlans.stream()
+                                            .filter(v -> v.getVlanNum() != null && v.getVlanNum() == vlanNum)
+                                            .findFirst()
+                                            .ifPresent(vlan -> {
+                                                output.setIpv4Address(vlan.getIpv4Address());
+                                                output.setIpv6Address(vlan.getIpv6Address());
+                                            });
+                                });
                     }
+                } else {
+                    // 主接口查询添加空指针保护
+                    allInterfaces.stream()
+                            .filter(m -> inputName.equals(m.getName()))
+                            .findFirst()
+                            .ifPresent(main -> {
+                                output.setIpv4Address(main.getIpv4Address());
+                                output.setIpv6Address(main.getIpv6Address());
+                            });
                 }
-            } else {
-                // 匹配物理接口
-                allInterfaces.stream()
-                        .filter(intf -> name.equals(intf.getName()))
-                        .findFirst()
-                        .ifPresent(intf -> {
-                            // 复制所需字段
-                            Interface matched = new Interface();
-                            matched.setName(intf.getName());
-                            matched.setIpv4Address(intf.getIpv4Address());
-                            matched.setIpv6Address(intf.getIpv6Address());
-                            result.add(matched);
-                        });
+            } catch (NumberFormatException e) {
+                // 记录日志：无效的VLAN编号格式
+            } catch (Exception e) {
+                // 记录系统异常日志
             }
+
+            result.add(output);
         }
+
         return result;
     }
 
