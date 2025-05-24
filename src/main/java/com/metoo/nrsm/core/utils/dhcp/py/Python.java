@@ -18,7 +18,7 @@ public class Python {
             //第二个为python脚本所在位置，后面的为所传参数（得是字符串类型）
 
             String[] args1 = new String[] {
-                    "python", "E:\\python\\project\\djangoProject\\app01\\test.py"};
+                    "python", "E:\\python\\project\\djangoProject\\app01\\TestAbstrack.py"};
 
             // 创建新的字符串数组，长度为array1.length + array2.length
             String[] mergedArray = new String[args1.length + args.length];
@@ -41,7 +41,7 @@ public class Python {
 
 
 //            String[] args1 = new String[] {
-//                    "python", "E:\\python\\project\\djangoProject\\app01\\test.py"};
+//                    "python", "E:\\python\\project\\djangoProject\\app01\\TestAbstrack.py"};
 //            Process proc2 = Runtime.getRuntime().exec("\\n");// 执行回车
 //            proc2.waitFor();
 

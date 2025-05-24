@@ -16,23 +16,23 @@ public class PortSaveStrategy implements ConfigUpdateStrategy {
         // 1. 分类处理接口
         // a. 有效 IPv4 接口
         List<String> ipv4Interfaces = interfaces.stream()
-                .filter(intf -> isValidIPv4(intf.getIpv4address()))
+                .filter(intf -> isValidIPv4(intf.getIpv4Address()))
                 .map(intf -> String.format("        interface: %s  # %s",
-                        extractPureIp(intf.getIpv4address()), intf.getName()))
+                        extractPureIp(intf.getIpv4Address()), intf.getName()))
                 .collect(Collectors.toList());
 
         // b. 有效 IPv6 接口
         List<String> ipv6Interfaces = interfaces.stream()
-                .filter(intf -> isValidIPv6(intf.getIpv6address()))
+                .filter(intf -> isValidIPv6(intf.getIpv6Address()))
                 .map(intf -> String.format("        interface: %s  # %s",
-                        extractPureIp(intf.getIpv6address()), intf.getName()))
+                        extractPureIp(intf.getIpv6Address()), intf.getName()))
                 .collect(Collectors.toList());
 
         // c. 空 IP 的接口名称集合
         List<String> emptyInterfaceNames = interfaces.stream()
                 .filter(intf ->
-                        !isValidIPv4(intf.getIpv4address()) &&
-                                !isValidIPv6(intf.getIpv6address()))
+                        !isValidIPv4(intf.getIpv4Address()) &&
+                                !isValidIPv6(intf.getIpv6Address()))
                 .map(Interface::getName)
                 .collect(Collectors.toList());
 

@@ -30,7 +30,7 @@ public class PoiUtil {
     public static void main(String[] args) {
         List<NetworkElement> networkElements = new ArrayList<NetworkElement>();
         NetworkElement networkElement = new NetworkElement();
-        networkElement.setDeviceName("test");
+        networkElement.setDeviceName("TestAbstrack");
         networkElement.setIp("1.1.1.1");
         networkElement.setVendorName("vendor");
         networkElement.setDeviceTypeName("deviceType");
@@ -95,7 +95,7 @@ public class PoiUtil {
         FileOutputStream fos = null;
         try {
 
-            fos = new FileOutputStream("C:\\Users\\46075\\Desktop\\metoo\\ExcelIO\\test\\" + "设备信息.xls");
+            fos = new FileOutputStream("C:\\Users\\46075\\Desktop\\metoo\\ExcelIO\\TestAbstrack\\" + "设备信息.xls");
             //输出
             try {
 //                response.setContentType("application/octet-stream");

@@ -1594,7 +1594,7 @@
                 <if test="item.v6ip3 != null and item.v6ip3 != ''">
                     v6ip3 = #{item.v6ip3},
                 </if>
-                <!--<if test="item.macVendor != null and item.macVendor != ''">-->
+                <!--<if TestAbstrack="item.macVendor != null and item.macVendor != ''">-->
                     <!--macVendor = #{item.macVendor},-->
                 <!--</if>-->
                 <if test="item.remotePort != null and item.remotePort != ''">

@@ -16,7 +16,7 @@ public class CollectionsUtil {
      * @param isdesc 指定升序 降序
      * @author HKK
      * @date 2022/08/22
-     * @return java.util.Map<java.lang.String, java.lang.Integer>
+     * @return java.utils.Map<java.lang.String, java.lang.Integer>
      */
     public static Map<String, Integer> mapSortByVaslue(Map<String, Integer> param, boolean isdesc){
         Preconditions.checkNotNull(param);

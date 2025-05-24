@@ -131,12 +131,12 @@ public class AddressPoolpv6FixedManagerController {
     @Test
     public void write() {
         AddressPoolV6FixedVO addressPoolFixedVO_1 = new AddressPoolV6FixedVO();
-        addressPoolFixedVO_1.setHost("test-1");
+        addressPoolFixedVO_1.setHost("TestAbstrack-1");
         addressPoolFixedVO_1.setHost_identifier_option_dhcp6_client_id("00:01:00:01:4a:1f:ba:e3:60:b9:1f:01:23:45");
         addressPoolFixedVO_1.setFixed_address6("2001:db8:0:1::127");
 
         AddressPoolV6FixedVO addressPoolFixedVO_2 = new AddressPoolV6FixedVO();
-        addressPoolFixedVO_2.setHost("test-2");
+        addressPoolFixedVO_2.setHost("TestAbstrack-2");
         addressPoolFixedVO_2.setHost_identifier_option_dhcp6_client_id("00:01:00:01:4a:1f:ba:e3:60:b9:1f:01:23:45");
         addressPoolFixedVO_2.setFixed_address6("2001:db8:0:1::127");
 

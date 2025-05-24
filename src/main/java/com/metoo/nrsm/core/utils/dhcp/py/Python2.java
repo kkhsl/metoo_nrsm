@@ -41,7 +41,7 @@ public class Python2 {
 //                    "python", "C:\\Users\\Administrator\\Desktop\\q\\getarp.py"};
 
             String[] args1 = new String[] {
-                    "python", "E:\\python\\project\\djangoProject\\app01\\test.py"};
+                    "python", "E:\\python\\project\\djangoProject\\app01\\TestAbstrack.py"};
 //            String[] args1 = new String[] {
 //                    "python3", "/opt/nrsm/py/getnetintf.py"};
 

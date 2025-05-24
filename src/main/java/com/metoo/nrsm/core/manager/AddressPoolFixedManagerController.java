@@ -114,12 +114,12 @@ public class AddressPoolFixedManagerController {
     @Test
     public void write() {
         AddressPoolFixedVO addressPoolFixedVO_1 = new AddressPoolFixedVO();
-        addressPoolFixedVO_1.setHost("test-1");
+        addressPoolFixedVO_1.setHost("TestAbstrack-1");
         addressPoolFixedVO_1.setHardware_ethernet("58:20:59:8b:f4:94");
         addressPoolFixedVO_1.setFixed_address("192.168.5.5");
 
         AddressPoolFixedVO addressPoolFixedVO_2 = new AddressPoolFixedVO();
-        addressPoolFixedVO_2.setHost("test-2");
+        addressPoolFixedVO_2.setHost("TestAbstrack-2");
         addressPoolFixedVO_2.setHardware_ethernet("58:20:59:8b:f4:94");
         addressPoolFixedVO_2.setFixed_address("192.168.5.5");
 

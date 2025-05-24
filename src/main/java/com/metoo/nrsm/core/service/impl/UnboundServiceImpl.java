@@ -739,7 +739,7 @@ public class UnboundServiceImpl implements IUnboundService {
     }
 
     public boolean radvdStatus(){
-        if ("test".equals(Global.env)) {
+        if ("TestAbstrack".equals(Global.env)) {
             try {
                 return radvdStatus1();
             } catch (Exception e) {

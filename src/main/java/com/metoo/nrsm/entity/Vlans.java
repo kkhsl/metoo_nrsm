@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class Vlans {
+
     // VLAN ID
     private String id;
 

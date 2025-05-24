@@ -167,7 +167,7 @@ public class DhcpManagerController {
     }
 
 //   @GetMapping("/dhcp")
-//    public void test(){
+//    public void TestAbstrack(){
 //        // 通过ClassLoader读取resources下的文件
 //        InputStream inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd.leases");
 //        if (inputStream != null) {

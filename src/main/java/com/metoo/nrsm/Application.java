@@ -20,4 +20,6 @@ public class Application {
         System.out.println("===应用启动耗时："+(System.currentTimeMillis()-time)+"===");
     }
 
+
+
 }

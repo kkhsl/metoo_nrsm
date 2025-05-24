@@ -148,8 +148,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseBody
     public Object HttpMessageNotReadableException(HttpMessageNotReadableException e){
-        System.out.println(e.getMessage());
-        return ResponseUtil.notFound();
+        log.info("全局异常捕获：{}", e.getMessage());
+        // 如果嵌套的异常是 InvalidFormatException（数据格式无效），提供更具体的错误信息
+        if (e.getCause() instanceof InvalidFormatException) {
+
+//            InvalidFormatException invalidFormatException = (InvalidFormatException) e.getCause();
+//            String path = invalidFormatException.getPathReference();  // 错误字段路径 com.metoo.nrsm.entity.Interface[\"vlanNum\"]
+//            String value = invalidFormatException.getValue().toString();  // 错误值 'test'
+
+            InvalidFormatException cause = (InvalidFormatException) e.getCause();
+
+            String fieldName = cause.getPath().get(0).getFieldName();  // 获取字段名
+
+//            String message = String.format("请求参数格式错误，字段 '%s' 期望为类型 %s，但收到无效值", fieldName, cause.getTargetType().getSimpleName());
+
+            String message = String.format("请求参数格式错误，字段 '%s' 期望为 '%s' 类型，但收到无效值", fieldName, "数字");
+
+            return ResponseUtil.badArgument(message);
+        }
+        // 如果无法捕获到更具体的异常信息，返回通用的错误信息
+        return ResponseUtil.badArgument("请求参数格式错误");
     }
 
 //    @ExceptionHandler(value = MissingServletRequestParameterException.class)
