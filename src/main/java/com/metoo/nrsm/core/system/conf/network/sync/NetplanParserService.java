@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +33,17 @@ public class NetplanParserService {
             Interface intf = createInterfaceFromConfig(entry.getKey(),
                     (Map<String, Object>) entry.getValue(),
                     null);
-            interfaceMap.put(intf.getName(), intf);
-            interfaces.add(intf);
+            try {
+                // 获取网络主接口的实时状态
+                NetworkInterface netIntf = NetworkInterface.getByName(intf.getName());
+                boolean isUp = netIntf.isUp(); // 接口是否启用
+                intf.setIsup(isUp ? "up" : "dowm"); // 假设 Interface 类有 setIsUp 方法
+                interfaceMap.put(intf.getName(), intf);
+                interfaces.add(intf);
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
+
         }
 
         // 2. 解析VLAN接口(此时可以引用已解析的主接口)

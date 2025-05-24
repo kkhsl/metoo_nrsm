@@ -102,7 +102,7 @@
 --         WHERE t1.parentId is null
 
         SELECT
-        t1.id, t1.name, t1.ipv4Address, t1.ipv6Address, t1.gateway4, t1.gateway6, t1.vlanNum, t1.parentId
+        t1.id, t1.name, t1.ipv4Address, t1.ipv6Address, t1.gateway4, t1.gateway6, t1.vlanNum, t1.parentId, t1.isup
         FROM
         metoo_interface t1
         WHERE t1.parentId IS NULL
@@ -116,7 +116,7 @@
 
     <select id="selectParentInterfaces" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Interface">
         SELECT
-        t2.id, t2.name, t2.ipv4Address, t2.ipv6Address, t2.gateway4, t2.gateway6, t2.vlanNum, t2.parentId
+        t2.id, t2.name, t2.ipv4Address, t2.ipv6Address, t2.gateway4, t2.gateway6, t2.vlanNum, t2.parentId, t2.isup
         FROM
         metoo_interface t2
         WHERE t2.parentId IN
@@ -144,17 +144,23 @@
             <if test="gateway6 != null and gateway6 != ''">
                 AND gateway6 = #{gateway6}
             </if>
+            <if test="ipv4NetworkSegment != null and ipv4NetworkSegment != ''">
+                AND ipv4NetworkSegment = #{ipv4NetworkSegment}
+            </if>
+            <if test="ipv6NetworkSegment != null and ipv6NetworkSegment != ''">
+                AND ipv6NetworkSegment = #{ipv6NetworkSegment}
+            </if>
             <if test="excludeId != null">
                 AND id != #{excludeId}
             </if>
             <if test="parentIdNull != null and parentIdNull">
-                AND parentId IS NULL
+                AND parentId IS NULL and parentId != ''
             </if>
             <if test="gateway4NotNull != null and gateway4NotNull">
-                AND gateway4 IS NOT NULL
+                AND gateway4 IS NOT NULL and gateway4 != ''
             </if>
             <if test="gateway6NotNull != null and gateway6NotNull">
-                AND gateway6 IS NOT NULL
+                AND gateway6 IS NOT NULL and gateway6 != ''
             </if>
         </where>
     </select>
@@ -195,6 +201,12 @@
             <if test="gateway6 != null">
                 gateway6,
             </if>
+            <if test="ipv4NetworkSegment != null and ipv4NetworkSegment != ''">
+                ipv4NetworkSegment,
+            </if>
+            <if test="ipv6NetworkSegment != null and ipv6NetworkSegment != ''">
+                ipv6NetworkSegment,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">
@@ -229,6 +241,12 @@
             </if>
             <if test="gateway6 != null">
                 #{gateway6},
+            </if>
+            <if test="ipv4NetworkSegment != null and ipv4NetworkSegment != ''">
+                #{ipv4NetworkSegment},
+            </if>
+            <if test="ipv6NetworkSegment != null and ipv6NetworkSegment != ''">
+                #{ipv6NetworkSegment},
             </if>
         </trim>
     </insert>
@@ -268,6 +286,12 @@
             </if>
             <if test="gateway6 != null">
                 gateway6 = #{gateway6},
+            </if>
+            <if test="ipv4NetworkSegment != null and ipv4NetworkSegment != ''">
+                ipv4NetworkSegment = #{ipv4NetworkSegment},
+            </if>
+            <if test="ipv6NetworkSegment != null and ipv6NetworkSegment != ''">
+                ipv6NetworkSegment = #{ipv6NetworkSegment},
             </if>
         </set>
         where id = #{id}

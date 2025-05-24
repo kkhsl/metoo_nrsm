@@ -61,10 +61,41 @@ public class CIDRUtils {
         return target.compareTo(start) >= 0 && target.compareTo(end) <= 0;
     }
 
+    /**
+     * 计算 IPv4 的网段（网络地址）
+     * @param cidr 如 "192.168.1.10/24"
+     * @return 网段，如 "192.168.1.0/24"
+     */
+    public static String getIPv4NetworkSegment(String cidr) throws UnknownHostException {
+        String[] parts = cidr.split("/");
+        String ip = parts[0];
+        int prefixLength = Integer.parseInt(parts[1]);
+
+        // 将 IP 转为字节数组
+        byte[] ipBytes = InetAddress.getByName(ip).getAddress();
+        int mask = 0xFFFFFFFF << (32 - prefixLength);
+
+        // 计算网络地址
+        ipBytes[0] &= (mask >> 24) & 0xFF;
+        ipBytes[1] &= (mask >> 16) & 0xFF;
+        ipBytes[2] &= (mask >> 8) & 0xFF;
+        ipBytes[3] &= mask & 0xFF;
+
+        // 返回网段
+        String networkAddress = InetAddress.getByAddress(ipBytes).getHostAddress();
+        return networkAddress + "/" + prefixLength;
+    }
+
+
     public static void main(String[] args) throws UnknownHostException {
         CIDRUtils cidrUtils = new CIDRUtils("2001:db8::/32");
 
         String testIp = "2001:db8::1";
         System.out.println("Is IP " + testIp + " in range? " + cidrUtils.isInRange(testIp));
+
+
+        String cidr = "192.168.1.10/24";
+        String networkSegment = getIPv4NetworkSegment(cidr);
+        System.out.println("IPv4 网段: " + networkSegment); // 输出: 192.168.1.0/24
     }
 }

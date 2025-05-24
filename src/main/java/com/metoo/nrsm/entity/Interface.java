@@ -40,6 +40,12 @@ public class Interface extends IdEntity {
     private String parentName;  // 父接口 名称
     private Integer vlanNum;    // VLAN 配置编号
 
+
+    private String ipv4NetworkSegment;  // 存储 IPv4 网段，如 "192.168.6.0/24"
+    private String ipv6NetworkSegment;  // 存储 IPv6 网段，如 "fc00:1000:0:1::/64"
+
+
+
     // 用于构建树形结构的方法
     public void addChild(Interface child) {
         this.vlans.add(child);

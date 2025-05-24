@@ -90,6 +90,22 @@ public class EnhancementInterfaceManagerController {
         if((instance.getIpv4Address() != null && StringUtil.isNotEmpty(instance.getIpv4Address()))
                 && !Ipv4Util.verifyCidr(instance.getIpv4Address())){
             return ResponseUtil.badArgument("IPv4格式错误，不符合CIDR格式");
+        }else{
+            // 计算网段
+            try {
+                String ipv4NetworkSegment = CIDRUtils.getIPv4NetworkSegment(instance.getIpv4Address());
+                // 验证网段是否已经存在
+                params.clear();
+                params.put("ipv4NetworkSegment", ipv4NetworkSegment);
+                params.put("excludeId", instance.getId());
+                if (interfaceService.selectObjByMap(params).size() >= 1) {
+                    return ResponseUtil.badArgument("其他接口已配置同网段IP地址，"+instance.getIpv4Address()+"请更换IP地址");
+                }else{
+                    instance.setIpv4NetworkSegment(ipv4NetworkSegment);
+                }
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
         }
 //        if(instance.getGateway4() == null || StringUtil.isEmpty(instance.getGateway4())){
 //            return ResponseUtil.badArgument("IPv4网关不能为空");
@@ -112,6 +128,21 @@ public class EnhancementInterfaceManagerController {
         if((instance.getIpv6Address() != null && StringUtil.isNotEmpty(instance.getIpv6Address()))){
             if(!Ipv6Util.verifyCidr(instance.getIpv6Address())){
                 return ResponseUtil.badArgument("IPv6格式错误，不符合CIDR格式");
+            }else{
+                try {
+                    String ipv6NetworkSegment = Ipv6CIDRUtils.getIPv6NetworkSegment(instance.getIpv6Address());
+                    // 验证网段是否已经存在
+                    params.clear();
+                    params.put("ipv6NetworkSegment", ipv6NetworkSegment);
+                    params.put("excludeId", instance.getId());
+                    if (interfaceService.selectObjByMap(params).size() >= 1) {
+                        return ResponseUtil.badArgument("其他接口已配置同网段IP地址，"+instance.getIpv6Address()+" 请更换IP地址");
+                    }else{
+                        instance.setIpv6NetworkSegment(ipv6NetworkSegment);
+                    }
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
             }
         }
 //        if(instance.getGateway6() == null || StringUtil.isEmpty(instance.getGateway6())){

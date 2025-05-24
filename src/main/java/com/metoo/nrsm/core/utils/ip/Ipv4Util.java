@@ -295,9 +295,9 @@ public class Ipv4Util {
 
     @Test
     public void test2(){
-        String ip = "192.168.5.191";
+        String ip = "192.168.5.102";
         String mask = "24";
-        System.out.println(getNetwork(ip, "255.255.0.0"));
+        System.out.println(getNetwork(ip, "255.255.255.0"));
     }
 
     /**
