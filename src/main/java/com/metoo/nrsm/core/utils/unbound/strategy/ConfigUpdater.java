@@ -22,6 +22,8 @@ public class ConfigUpdater {
         strategyMap.put("dns-filter-remove", new DnsFilterRemoveStrategy());
         strategyMap.put("dns-filter-enable", new DnsFilterStateStrategy());
         strategyMap.put("dns-filter-disable", new DnsFilterStateStrategy());
+        strategyMap.put("chrony-time", new ChronyTimeStateStrategy());
+        strategyMap.put("ntp", new NtpStateStrategy());
     }
 
     public List<String> updateConfig(String configType, List<String> lines, Object configData) throws IOException {

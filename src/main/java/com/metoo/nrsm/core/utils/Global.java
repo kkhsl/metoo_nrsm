@@ -61,6 +61,7 @@ public class Global {
 
     public static String unboundPath;
     public static String dnsFilterPath;
+    public static String chronyPath;
 
     @Value("${config.unbound.path}")
     public void setUnboundPath(String unboundPath) {
@@ -69,6 +70,10 @@ public class Global {
     @Value("${config.unbound.domains_path}")
     public void setDnsFilterPath(String dnsFilterPath) {
         Global.dnsFilterPath = dnsFilterPath;
+    }
+    @Value("${config.ntp.chrony}")
+    public void setChronyPath(String chronyPath) {
+        Global.chronyPath = chronyPath;
     }
     public static String os_scanner;
     @Value("${os_scanner}")
