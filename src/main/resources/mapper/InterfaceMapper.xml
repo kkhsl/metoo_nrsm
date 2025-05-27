@@ -154,7 +154,7 @@
                 AND id != #{excludeId}
             </if>
             <if test="parentIdNull != null and parentIdNull">
-                AND parentId IS NULL and parentId != ''
+                AND (parentId IS NULL or parentId = '')
             </if>
             <if test="gateway4NotNull != null and gateway4NotNull">
                 AND gateway4 IS NOT NULL and gateway4 != ''
@@ -171,22 +171,22 @@
             <if test="name != null and name != ''">
                 name,
             </if>
-            <if test="isup != null">
+            <if test="isup != ''">
                 isup,
             </if>
-            <if test="ipv4Address != null">
+            <if test="ipv4Address != ''">
                 ipv4Address,
             </if>
-            <if test="ipv4netmask != null">
+            <if test="ipv4netmask != ''">
                 ipv4netmask,
             </if>
-            <if test="ipv6Address != null">
+            <if test="ipv6Address != ''">
                 ipv6Address,
             </if>
-            <if test="ipv6netmask != null">
+            <if test="ipv6netmask != ''">
                 ipv6netmask,
             </if>
-            <if test="macaddress != null">
+            <if test="macaddress != ''">
                 macaddress,
             </if>
             <if test="parentId != null">
@@ -195,16 +195,16 @@
             <if test="vlanNum != null">
                 vlanNum,
             </if>
-            <if test="gateway4 != null">
+            <if test="gateway4 != ''">
                 gateway4,
             </if>
-            <if test="gateway6 != null">
+            <if test="gateway6 != ''">
                 gateway6,
             </if>
-            <if test="ipv4NetworkSegment != null and ipv4NetworkSegment != ''">
+            <if test="ipv4NetworkSegment != ''">
                 ipv4NetworkSegment,
             </if>
-            <if test="ipv6NetworkSegment != null and ipv6NetworkSegment != ''">
+            <if test="ipv6NetworkSegment != ''">
                 ipv6NetworkSegment,
             </if>
         </trim>
@@ -212,22 +212,22 @@
             <if test="name != null and name != ''">
                 #{name},
             </if>
-            <if test="isup != null">
+            <if test="isup != ''">
                 #{isup},
             </if>
-            <if test="ipv4Address != null">
+            <if test="ipv4Address != ''">
                 #{ipv4Address},
             </if>
-            <if test="ipv4netmask != null">
+            <if test="ipv4netmask != ''">
                 #{ipv4netmask},
             </if>
-            <if test="ipv6Address != null">
+            <if test="ipv6Address != ''">
                 #{ipv6Address},
             </if>
-            <if test="ipv6netmask != null">
+            <if test="ipv6netmask != ''">
                 #{ipv6netmask},
             </if>
-            <if test="macaddress != null">
+            <if test="macaddress != ''">
                 #{macaddress},
             </if>
             <if test="parentId != null">
@@ -236,16 +236,16 @@
             <if test="vlanNum != null">
                 #{vlanNum},
             </if>
-            <if test="gateway4 != null">
+            <if test="gateway4 != ''">
                 #{gateway4},
             </if>
-            <if test="gateway6 != null">
+            <if test="gateway6 != ''">
                 #{gateway6},
             </if>
-            <if test="ipv4NetworkSegment != null and ipv4NetworkSegment != ''">
+            <if test="ipv4NetworkSegment != ''">
                 #{ipv4NetworkSegment},
             </if>
-            <if test="ipv6NetworkSegment != null and ipv6NetworkSegment != ''">
+            <if test="ipv6NetworkSegment != ''">
                 #{ipv6NetworkSegment},
             </if>
         </trim>
@@ -281,16 +281,16 @@
             <if test="vlanNum != null">
                 vlanNum = #{vlanNum},
             </if>
-            <if test="gateway4 != null">
+            <if test="gateway4 != ''">
                 gateway4 = #{gateway4},
             </if>
-            <if test="gateway6 != null">
+            <if test="gateway6 != ''">
                 gateway6 = #{gateway6},
             </if>
-            <if test="ipv4NetworkSegment != null and ipv4NetworkSegment != ''">
+            <if test="ipv4NetworkSegment != ''">
                 ipv4NetworkSegment = #{ipv4NetworkSegment},
             </if>
-            <if test="ipv6NetworkSegment != null and ipv6NetworkSegment != ''">
+            <if test="ipv6NetworkSegment != ''">
                 ipv6NetworkSegment = #{ipv6NetworkSegment},
             </if>
         </set>

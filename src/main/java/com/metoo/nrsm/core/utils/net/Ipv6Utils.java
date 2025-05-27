@@ -1,14 +1,11 @@
 package com.metoo.nrsm.core.utils.net;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 public class Ipv6Utils {
-
-
-
-
 
     private static final Pattern IPV6_PATTERN = Pattern.compile(
             "([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)|" +
@@ -90,11 +87,61 @@ public class Ipv6Utils {
         }
     }
 
+    /**
+     * 检查字符串是否为有效的IPv6网段
+     * @param input 要检查的字符串
+     * @return true如果是有效的IPv6网段，否则false
+     */
+    public static boolean isIPv6Network(String input) {
+        if (input == null || !input.contains("/")) {
+            return false;
+        }
+
+        String[] parts = input.split("/");
+        if (parts.length != 2) {
+            return false;
+        }
+
+        try {
+            // 验证IP部分
+            Inet6Address address = (Inet6Address) InetAddress.getByName(parts[0]);
+
+            // 验证前缀长度
+            int prefixLength = Integer.parseInt(parts[1]);
+            if (prefixLength < 0 || prefixLength > 128) {
+                return false;
+            }
+
+            return true;
+        } catch (UnknownHostException e) {
+            return false;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public static void main(String[] args) {
         String ipAddress = "240E:381:119:C400:C9C:FDFF:FEC3:769F";
         String cidr = "240E:381:119:C400::/64";
 
         boolean isInCidr = isIPv6InCIDR(ipAddress, cidr);
         System.out.println(ipAddress + " 在 " + cidr + " 范围内: " + isInCidr);
+
+
+        ///////////////////////////////////////////////////////////////////////
+
+
+        // 校验ipv6是否为网段
+        String input1 = "fc00:1000:0:100::0/64";
+        String input2 = "fc00:1000:0:100::1/64";
+        String input3 = "2001:db8::1";
+        String input4 = "invalid::network";
+
+        System.out.println(input1 + " - " + (isIPv6Network(input1) ? "是IPv6网段" : "不是IPv6网段"));
+        System.out.println(input2 + " - " + (isIPv6Network(input2) ? "是IPv6网段" : "不是IPv6网段"));
+        System.out.println(input3 + " - " + (isIPv6Network(input3) ? "是IPv6网段" : "不是IPv6网段"));
+        System.out.println(input4 + " - " + (isIPv6Network(input4) ? "是IPv6网段" : "不是IPv6网段"));
+
+
     }
 }

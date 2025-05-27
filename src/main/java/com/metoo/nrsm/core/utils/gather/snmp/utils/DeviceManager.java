@@ -60,15 +60,4 @@ public class DeviceManager {
         return result;
     }
 
-    @Test
-    public void test(){
-        SNMPV3Params v2c = new SNMPV3Params.Builder()
-                .version("v3")
-                .host("192.168.6.1")
-                .port(161)
-                .community("public@123")
-                .build();
-
-    }
-
 }

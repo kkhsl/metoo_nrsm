@@ -4,11 +4,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.dto.RadvdDTO;
 import com.metoo.nrsm.core.mapper.RadvdMapper;
+import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.service.IRadvdService;
 import com.metoo.nrsm.core.system.conf.radvd.service.AbstractRadvdService;
 import com.metoo.nrsm.core.system.conf.radvd.service.LinuxRadvdService;
 import com.metoo.nrsm.core.system.conf.radvd.service.WindowsRadvdService;
+import com.metoo.nrsm.entity.Interface;
 import com.metoo.nrsm.entity.Radvd;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,8 @@ public class RadvdServiceImpl implements IRadvdService {
 
     @Resource
     private RadvdMapper radvdMapper;
+    @Autowired
+    private IInterfaceService interfaceService;
 
     private final Lock lock = new ReentrantLock(); // 用于配置文件操作的锁
 
@@ -126,6 +131,17 @@ public class RadvdServiceImpl implements IRadvdService {
     // 更新配置文件内容
     private void updateRadvdConfFile() {
         List<Radvd> radvdList = this.radvdMapper.selectObjByMap(Collections.emptyMap());
+        if(radvdList.size() > 0){
+            for (Radvd radvd : radvdList) {
+                Interface instance = this.interfaceService.selectObjById(radvd.getInterfaceId());
+                if(instance != null){
+                    radvd.setInterfaceName(instance.getName());
+                }
+                if(instance.getParentId() != null){
+                    radvd.setInterfaceName(instance.getName()+"."+instance.getVlanNum());
+                }
+            }
+        }
         // 根据平台选择对应的服务实现
         AbstractRadvdService service;
         if (isLinux()) {

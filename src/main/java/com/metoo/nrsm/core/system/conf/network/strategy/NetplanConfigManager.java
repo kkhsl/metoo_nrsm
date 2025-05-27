@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.system.conf.network.strategy;
 
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.entity.Interface;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -122,11 +123,11 @@ public class NetplanConfigManager {
             }
 
             // 添加网关
-            if (iface.getGateway4() != null) {
+            if (iface.getGateway4() != null && StringUtil.isNotEmpty(iface.getGateway4())) {
                 ifaceConfig.put("gateway4", iface.getGateway4());
             }
             // 添加IPv6网关
-            if (iface.getGateway6() != null) {
+            if (iface.getGateway6() != null && StringUtil.isNotEmpty(iface.getGateway6())) {
                 ifaceConfig.put("gateway6", iface.getGateway6());
             }
         }
@@ -144,6 +145,21 @@ public class NetplanConfigManager {
         if (vlans == null) {
             vlans = new LinkedHashMap<>();
             network.put("vlans", vlans);
+        }
+
+        // 1. 首先确保主接口的DHCP被禁用（如果VLAN配置了静态IP）
+        if ((iface.getIpv4Address() != null || iface.getIpv6Address() != null) &&
+                iface.getParentName() != null) {
+
+            Map<String, Object> ethernets = (Map<String, Object>) network.get("ethernets");
+            if (ethernets != null) {
+                Map<String, Object> parentConfig = (Map<String, Object>) ethernets.get(iface.getParentName());
+                if (parentConfig != null) {
+                    // 禁用主接口的DHCP
+                    parentConfig.put("dhcp4", false);
+                    parentConfig.put("dhcp6", false);
+                }
+            }
         }
 
         // 创建或更新VLAN配置
@@ -167,7 +183,7 @@ public class NetplanConfigManager {
         List<Map<String, String>> routes = new ArrayList<>();
 
         // IPv4网关
-        if (iface.getGateway4() != null) {
+        if (iface.getGateway4() != null && StringUtil.isNotEmpty(iface.getGateway4())) {
             Map<String, String> ipv4Route = new LinkedHashMap<>();
             ipv4Route.put("to", "0.0.0.0/0");
             ipv4Route.put("via", iface.getGateway4());
@@ -175,7 +191,7 @@ public class NetplanConfigManager {
         }
 
         // IPv6网关
-        if (iface.getGateway6() != null) {
+        if (iface.getGateway6() != null && StringUtil.isNotEmpty(iface.getGateway6())) {
             Map<String, String> ipv6Route = new LinkedHashMap<>();
             ipv6Route.put("to", "::/0");
             ipv6Route.put("via", iface.getGateway6());

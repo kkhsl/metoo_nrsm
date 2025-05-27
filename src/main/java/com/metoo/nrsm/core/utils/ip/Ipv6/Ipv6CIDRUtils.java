@@ -1,4 +1,6 @@
-package com.metoo.nrsm.core.utils.ip;
+package com.metoo.nrsm.core.utils.ip.Ipv6;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigInteger;
 import java.net.Inet6Address;
@@ -10,6 +12,7 @@ import java.net.UnknownHostException;
  * @version 1.0
  * @date 2024-06-13 9:41
  */
+@Slf4j
 public class Ipv6CIDRUtils {
 
     private final InetAddress inetAddress;
@@ -107,6 +110,14 @@ public class Ipv6CIDRUtils {
         return networkAddress + "/" + prefixLength;
     }
 
+    public static boolean verifyCIDR(String cidr){
+        String error = IPv6Validator.validateIPv6Format(cidr);
+        log.info("错误信息：{}", error);
+        if(error == null){
+            return true;
+        }
+        return false;
+    }
 
     public static void main(String[] args) throws UnknownHostException {
         Ipv6CIDRUtils ipv6CIDRUtils = new Ipv6CIDRUtils("2001:db8::/32");

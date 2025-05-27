@@ -216,14 +216,23 @@ public class InterfaceServiceImpl implements IInterfaceService {
 
             // 获取子接口网络接口的实时状态
             if(mastInterface != null){
-                NetworkInterface netIntf = NetworkInterface.getByName(instance.getName() + "." + instance.getVlanNum());
-                boolean isUp = netIntf.isUp(); // 接口是否启用
-                instance.setIsup(isUp ? "up" : "dowm"); // 假设 Interface 类有 setIsUp 方法
                 instance.setParentName(mastInterface.getName());
+                NetworkInterface netIntf = NetworkInterface.getByName(instance.getName() + "." + instance.getVlanNum());
+                if(netIntf != null){
+                    boolean isUp = netIntf.isUp(); // 接口是否启用
+                    instance.setIsup(isUp ? "up" : "dowm"); // 假设 Interface 类有 setIsUp 方法
+                }else{
+                    instance.setIsup("dowm");
+                }
             }else{
                 NetworkInterface netIntf = NetworkInterface.getByName(instance.getName());
-                boolean isUp = netIntf.isUp(); // 接口是否启用
-                instance.setIsup(isUp ? "up" : "dowm"); // 假设 Interface 类有 setIsUp 方法
+                if(netIntf != null){
+                    boolean isUp = netIntf.isUp(); // 接口是否启用
+                    instance.setIsup(isUp ? "up" : "dowm"); // 假设 Interface 类有 setIsUp 方法
+                }else{
+                    instance.setIsup("dowm");
+                }
+
             }
             // 清空主接口数据，并更新配置文件
             NetplanConfigManager.updateInterfaceConfig(instance);

@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.AddressPoolIpv6DTO;
 import com.metoo.nrsm.core.service.IAddressPoolIpv6Service;
 import com.metoo.nrsm.core.service.ISysConfigService;
+import com.metoo.nrsm.core.utils.net.Ipv6Utils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.utils.ip.Ipv6.TransIPv6;
 import com.metoo.nrsm.core.utils.ip.Ipv6Util;
@@ -83,13 +84,17 @@ public class AddressPoolIpv6ManagerController {
         }else{
             String subnet = instance.getSubnetAddresses().split("/")[0];
             if(!Ipv6Util.verifyIpv6(subnet)){
-                return ResponseUtil.badArgument("子网地址格式错误");
+                return ResponseUtil.badArgument("子网地址格式错误，必须包含IP和掩码");
             }
             String mask = instance.getSubnetAddresses().split("/")[1];
             String fillIpv6 = TransIPv6.getFullIPv6(subnet);
             boolean isValid = Ipv6Util.verifyCidr(fillIpv6 + "/" + mask);
             if(!isValid){
                 return ResponseUtil.badArgument("错误的CIDR格式");
+            }
+            boolean isIpv6Network = Ipv6Utils.isIPv6Network(instance.getSubnetAddresses());
+            if(!isIpv6Network){
+                return ResponseUtil.badArgument("无效的IPv6网段格式");
             }
             params.clear();
             params.put("addressPoolIpv6Id", instance.getId());

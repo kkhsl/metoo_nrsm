@@ -1,36 +1,23 @@
 
 package com.metoo.nrsm.core.manager;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.InterfaceDTO;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IInterfaceService;
-import com.metoo.nrsm.core.service.IUnboundService;
-import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.ip.CIDRUtils;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
-import com.metoo.nrsm.core.utils.ip.Ipv6CIDRUtils;
+import com.metoo.nrsm.core.utils.ip.Ipv6.Ipv6CIDRUtils;
 import com.metoo.nrsm.core.utils.ip.Ipv6Util;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
-import com.metoo.nrsm.core.utils.unbound.RestartUnboundUtils;
-import com.metoo.nrsm.core.utils.unbound.UnboundConfUtil;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Interface;
-import com.metoo.nrsm.entity.Unbound;
-import com.metoo.nrsm.entity.Vlans;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.*;
 
@@ -87,10 +74,10 @@ public class EnhancementInterfaceManagerController {
 //        if(instance.getIpv4Address() == null || StringUtil.isEmpty(instance.getIpv4Address())){
 //            return ResponseUtil.badArgument("IPv4地址不能为空");
 //        }
-        if((instance.getIpv4Address() != null && StringUtil.isNotEmpty(instance.getIpv4Address()))
-                && !Ipv4Util.verifyCidr(instance.getIpv4Address())){
-            return ResponseUtil.badArgument("IPv4格式错误，不符合CIDR格式");
-        }else{
+        if((instance.getIpv4Address() != null && StringUtil.isNotEmpty(instance.getIpv4Address()))){
+            if(!Ipv4Util.verifyCidr(instance.getIpv4Address())){
+                return ResponseUtil.badArgument("IPv4格式错误，不符合CIDR格式");
+            }
             // 计算网段
             try {
                 String ipv4NetworkSegment = CIDRUtils.getIPv4NetworkSegment(instance.getIpv4Address());
@@ -106,6 +93,8 @@ public class EnhancementInterfaceManagerController {
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
+        }else{
+            instance.setIpv4NetworkSegment(null);
         }
 //        if(instance.getGateway4() == null || StringUtil.isEmpty(instance.getGateway4())){
 //            return ResponseUtil.badArgument("IPv4网关不能为空");
@@ -128,22 +117,23 @@ public class EnhancementInterfaceManagerController {
         if((instance.getIpv6Address() != null && StringUtil.isNotEmpty(instance.getIpv6Address()))){
             if(!Ipv6Util.verifyCidr(instance.getIpv6Address())){
                 return ResponseUtil.badArgument("IPv6格式错误，不符合CIDR格式");
-            }else{
-                try {
-                    String ipv6NetworkSegment = Ipv6CIDRUtils.getIPv6NetworkSegment(instance.getIpv6Address());
-                    // 验证网段是否已经存在
-                    params.clear();
-                    params.put("ipv6NetworkSegment", ipv6NetworkSegment);
-                    params.put("excludeId", instance.getId());
-                    if (interfaceService.selectObjByMap(params).size() >= 1) {
-                        return ResponseUtil.badArgument("其他接口已配置同网段IP地址，"+instance.getIpv6Address()+" 请更换IP地址");
-                    }else{
-                        instance.setIpv6NetworkSegment(ipv6NetworkSegment);
-                    }
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
             }
+            try {
+                String ipv6NetworkSegment = Ipv6CIDRUtils.getIPv6NetworkSegment(instance.getIpv6Address());
+                // 验证网段是否已经存在
+                params.clear();
+                params.put("ipv6NetworkSegment", ipv6NetworkSegment);
+                params.put("excludeId", instance.getId());
+                if (interfaceService.selectObjByMap(params).size() >= 1) {
+                    return ResponseUtil.badArgument("其他接口已配置同网段IP地址，"+instance.getIpv6Address()+" 请更换IP地址");
+                }else{
+                    instance.setIpv6NetworkSegment(ipv6NetworkSegment);
+                }
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }else{
+            instance.setIpv6NetworkSegment(null);
         }
 //        if(instance.getGateway6() == null || StringUtil.isEmpty(instance.getGateway6())){
 //            return ResponseUtil.badArgument("IPv6网关不能为空");
