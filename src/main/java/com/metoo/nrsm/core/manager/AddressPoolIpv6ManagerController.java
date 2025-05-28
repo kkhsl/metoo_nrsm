@@ -148,7 +148,7 @@ public class AddressPoolIpv6ManagerController {
             // 格式拆分校验
             String[] parts = subnetAddress.split("/", 2);
             if (parts.length != 2) {
-                return ResponseUtil.badArgument("子网地址格式错误，必须为 IPv6网络地址/掩码");
+                return ResponseUtil.badArgument("子网地址格式错误，必须为IPv6地址网段/掩码");
             }
             String subnet = parts[0];
             String maskStr = parts[1];
@@ -174,7 +174,7 @@ public class AddressPoolIpv6ManagerController {
 
             // 必须为网络地址（主机位全0）
             if (!Ipv6Util.isNetworkAddress(fullIPv6, mask)) {
-                return ResponseUtil.badArgument("子网地址必须为网络地址（主机位全0）");
+                return ResponseUtil.badArgument("子网地址必须为IPv6地址网段（主机位全0）");
             }
 
             // 检查子网地址重复性

@@ -11,6 +11,8 @@ public interface INtpService {
     boolean saveNtp(List<String> instance);
     boolean restart() throws Exception;
     boolean env() throws Exception;
+    boolean status() throws Exception;
+
 
 
     Map<String, List<String>> select();

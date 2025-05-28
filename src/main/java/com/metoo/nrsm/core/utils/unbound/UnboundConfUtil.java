@@ -274,9 +274,12 @@ public class UnboundConfUtil {
         List<String> lines = Files.readAllLines(Paths.get(filePath));
         Map<String, List<String>> configMap = new HashMap<>();
 
-        // 初始化池地址和允许的IP段列表
+        // 初始化池地址、允许的IP段和状态
         configMap.put("pool", new ArrayList<>());
         configMap.put("allow", new ArrayList<>());
+        configMap.put("status2", new ArrayList<>()); // 新增状态字段
+
+        boolean hasUncommentedAllow = false; // 标记是否存在未注释的 allow
 
         for (String line : lines) {
             String trimmedLine = line.trim();
@@ -284,7 +287,7 @@ public class UnboundConfUtil {
                 continue; // 跳过注释和空行
             }
 
-            // 提取 NTP 池地址（格式：pool <address> ...）
+            // 提取 NTP 池地址
             if (trimmedLine.startsWith("pool ")) {
                 String[] parts = trimmedLine.split("\\s+");
                 if (parts.length >= 2) {
@@ -292,14 +295,18 @@ public class UnboundConfUtil {
                 }
             }
 
-            // 提取 allow 后的 IP 段（格式：allow <network> ...）
+            // 提取 allow 后的 IP 段并检测是否未注释
             if (trimmedLine.startsWith("allow ")) {
                 String[] parts = trimmedLine.split("\\s+");
                 if (parts.length >= 2) {
                     configMap.get("allow").add(parts[1]);
                 }
+                hasUncommentedAllow = true; // 存在未注释的 allow 行
             }
         }
+
+        // 设置状态：true 表示存在未注释的 allow，false 表示无
+        configMap.get("status2").add(String.valueOf(hasUncommentedAllow));
 
         return configMap;
     }

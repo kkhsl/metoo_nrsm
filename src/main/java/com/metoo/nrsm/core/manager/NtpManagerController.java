@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,8 @@ public class NtpManagerController {
     @GetMapping("/select")
     public Result selectTime() throws Exception {
         Map<String, List<String>> map = ntpService.select();
+        boolean status1 = ntpService.status();
+        map.put("status1", Collections.singletonList(String.valueOf(status1)));
         return ResponseUtil.ok(map);
     }
 
@@ -47,9 +50,9 @@ public class NtpManagerController {
             }
         }else {
             if (open){
-                return ResponseUtil.ok("关闭失败");
+                return ResponseUtil.error("关闭失败");
             }else {
-                return ResponseUtil.error("关闭成功");
+                return ResponseUtil.ok("关闭成功");
             }
         }
     }

@@ -239,7 +239,7 @@ public class NtpServiceImpl implements INtpService {
         restartProcess.waitFor(); // 等待重启完成
 
         // 检查 chrony 服务状态
-        ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "start", "chrony");
+        ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "status", "chrony");
         statusBuilder.redirectErrorStream(true); // 合并错误流和输出流
         Process statusProcess = statusBuilder.start();
 
@@ -323,6 +323,68 @@ public class NtpServiceImpl implements INtpService {
         session.close(); // 关闭会话
 
         // 检查 chrony 服务状态
+        boolean isRunning = checkChronyStatus(conn);
+        // 关闭连接
+        conn.close();
+        if (isRunning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean status(){
+        if ("test".equals(Global.env)) {
+            try {
+                return status2();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            try {
+                return status1();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public boolean status1() throws Exception {
+        // 检查 Unbound 服务状态
+        ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "status", "chrony");
+        statusBuilder.redirectErrorStream(true); // 合并错误流和输出流
+        Process statusProcess = statusBuilder.start();
+
+        // 读取输出
+        String statusOutput = consumeInputStream(statusProcess.getInputStream());
+        statusProcess.waitFor(); // 等待状态检查完成
+
+        // 打印状态信息
+        System.out.println("chrony 状态:\n" + statusOutput);
+
+        // 检查服务是否正在运行
+        boolean isRunning = checkChronyStatus(statusOutput);
+
+        return isRunning;
+    }
+
+    public boolean status2() throws Exception {
+        // 创建连接
+        Connection conn = new Connection(host, port);
+        // 启动连接
+        conn.connect();
+        // 验证用户密码
+        conn.authenticateWithPassword(username, password);
+        // 重启 Unbound 服务
+        Session session = conn.openSession();
+        // 检查 Unbound 服务状态
+        session = conn.openSession();
+        session.execCommand("systemctl status chrony");
+        String statusOutput = consumeInputStream(session.getStdout());
+        System.out.println("chrony 状态:\n" + statusOutput);
+        session.close(); // 关闭会话
+
+        // 检查 Unbound 服务状态
         boolean isRunning = checkChronyStatus(conn);
         // 关闭连接
         conn.close();
