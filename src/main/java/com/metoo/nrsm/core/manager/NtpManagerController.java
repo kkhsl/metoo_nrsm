@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +38,13 @@ public class NtpManagerController {
     public Result selectTime() throws Exception {
         Map<String, List<String>> map = ntpService.select();
         boolean status1 = ntpService.status();
+        // 获取当前服务器时间（指定时区，例如：上海时区）
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
+        // 定义时间格式（例如：yyyy-MM-dd HH:mm:ss）
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedTime = now.format(formatter);
+        // 将时间添加到 Map 中
+        map.put("time", Collections.singletonList(formattedTime));
         map.put("status1", Collections.singletonList(String.valueOf(status1)));
         return ResponseUtil.ok(map);
     }
