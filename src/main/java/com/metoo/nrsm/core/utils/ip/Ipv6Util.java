@@ -60,30 +60,6 @@ public class Ipv6Util {
         return false;
     }
 
-    public static boolean verifyIpv62(String ipv6Address) throws RuntimeException {
-
-        Pattern ipv6Pattern = Pattern.compile(
-                "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|" +
-                        "([0-9a-fA-F]{1,4}:){1,7}:|" +
-                        "([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|" +
-                        "([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|" +
-                        "([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|" +
-                        "([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|" +
-                        "([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|" +
-                        "[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|" +
-                        ":((:[0-9a-fA-F]{1,4}){1,7}|:)|" +
-                        "fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|" +
-                        "::(ffff(:0{1,4}){0,1}:){0,1}" +
-                        "(([0-9]{1,3}\\.){3,3}[0-9]{1,3})|" +
-                        "([0-9a-fA-F]{1,4}:){1,4}:" +
-                        "([0-9]{1,3}\\.){3,3}[0-9]{1,3})");
-        Matcher matcher = ipv6Pattern.matcher(ipv6Address);
-        if (matcher.matches()) {
-            return true;
-        }
-        return false;
-    }
-
     private static final String IPV6_CIDR_PATTERN =
             "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|" +  // Full IPv6 address
                     "([0-9a-fA-F]{1,4}:){1,7}:|" +               // Abbreviated form with ::
@@ -176,6 +152,66 @@ public class Ipv6Util {
         return mask.toString().replaceAll("(^|:)(0+)", "$1").replaceAll("(:0{1,4}){2,}", "::");
     }
 
+
+
+
+    private static byte[] applyMask(byte[] ipBytes, int mask) {
+        byte[] masked = new byte[16];
+        System.arraycopy(ipBytes, 0, masked, 0, 16);
+
+        int bitsToClear = 128 - mask;
+        for (int i = 15; i >= 0 && bitsToClear > 0; i--) {
+            int clear = Math.min(bitsToClear, 8);
+            masked[i] &= (0xFF << (8 - clear));
+            bitsToClear -= clear;
+        }
+        return masked;
+    }
+
+    private static byte[] ipv6ToBytes(String ipv6) {
+        try {
+            return Inet6Address.getByName(ipv6).getAddress();
+        } catch (UnknownHostException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 校验是否为合法IPv6网络地址（主机位全0）
+     * @param fullIPv6 完整格式IPv6地址（如 20010db8000000000000000000000000）
+     * @param mask 掩码位数
+     * @return 是否满足网络地址规则
+     */
+    public static boolean isNetworkAddress(String fullIPv6, int mask) {
+        // Step1: 转换为128位二进制字符串
+        String binaryStr = ipv6ToBinary(fullIPv6);
+        if (binaryStr == null || binaryStr.length() != 128) return false;
+
+        // Step2: 应用掩码（主机位置0）
+        String networkPart = binaryStr.substring(0, mask);
+        String hostPart = binaryStr.substring(mask).replaceAll("[01]", "0");
+        String expectedBinary = networkPart + hostPart;
+
+        // Step3: 对比处理后的二进制是否与原地址一致
+        return binaryStr.equals(expectedBinary);
+    }
+
+    /**
+     * 将完整IPv6地址转为128位二进制字符串
+     * （示例：20010db8000000000000000000000000 → 0010000000000001...）
+     */
+    private static String ipv6ToBinary(String fullIPv6) {
+        try {
+            byte[] bytes = Inet6Address.getByName(fullIPv6).getAddress();
+            StringBuilder binaryStr = new StringBuilder();
+            for (byte b : bytes) {
+                binaryStr.append(String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0'));
+            }
+            return binaryStr.toString();
+        } catch (UnknownHostException e) {
+            return null;
+        }
+    }
 
 
 }
