@@ -21,6 +21,8 @@ public interface IDeviceTypeService {
 
     List<DeviceType> selectObjByMap(Map params);
 
+    List<DeviceType> getDeviceTypeWithVendors();
+
     List<DeviceType> selectCountByLeftJoin();
 
     List<DeviceType> selectDeviceTypeAndTerminalByJoin();

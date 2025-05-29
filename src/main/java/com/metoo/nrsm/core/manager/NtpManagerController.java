@@ -81,6 +81,17 @@ public class NtpManagerController {
         }
     }
 
+
+    @GetMapping("/synchronous")
+    public Result synchronous() throws Exception {
+        boolean flag = ntpService.synchronous();
+        if (flag){
+            return ResponseUtil.ok("同步成功");
+        }else {
+            return ResponseUtil.ok("同步失败");
+        }
+    }
+
     @GetMapping("/openNtp")
     public Result startNtp(Boolean flag) throws Exception {
         boolean open = ntpService.openNtp(flag);

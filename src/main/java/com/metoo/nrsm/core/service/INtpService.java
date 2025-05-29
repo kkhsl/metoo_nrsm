@@ -8,6 +8,7 @@ public interface INtpService {
     boolean open(Boolean instance);
     boolean openNtp(Boolean instance);
     boolean saveTime(String instance);
+    boolean synchronous() throws Exception;
     boolean saveNtp(List<String> instance);
     boolean restart() throws Exception;
     boolean env() throws Exception;

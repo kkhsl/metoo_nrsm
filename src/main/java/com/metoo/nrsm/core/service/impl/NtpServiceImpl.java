@@ -110,6 +110,8 @@ public class NtpServiceImpl implements INtpService {
         }
     }
 
+
+
     @Override
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     public boolean saveNtp(List<String> instance) {
@@ -161,6 +163,22 @@ public class NtpServiceImpl implements INtpService {
         }
     }
 
+    @Override
+    public boolean env() throws Exception {
+        if ("test".equals(Global.env)) {
+            try {
+                return restart1();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            try {
+                return restart();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     public boolean restart() throws Exception {
         // 重启 chrony 服务
@@ -181,23 +199,6 @@ public class NtpServiceImpl implements INtpService {
         boolean isRunning = checkChronyStatus(statusOutput);
 
         return isRunning;
-    }
-
-    @Override
-    public boolean env() throws Exception {
-        if ("test".equals(Global.env)) {
-            try {
-                return restart1();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }else{
-            try {
-                return restart();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     public boolean restart1() throws Exception {
@@ -229,7 +230,6 @@ public class NtpServiceImpl implements INtpService {
             return false;
         }
     }
-
 
     public boolean start() throws Exception {
         // 启动 chrony 服务
@@ -393,6 +393,20 @@ public class NtpServiceImpl implements INtpService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean synchronous() throws Exception {
+        // 同步
+        try {
+            ProcessBuilder statusBuilder = new ProcessBuilder("chronyc", "makestep");
+            statusBuilder.redirectErrorStream(true); // 合并错误流和输出流
+            Process statusProcess = statusBuilder.start();
+            statusProcess.waitFor(); // 等待完成
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
     private boolean checkChronyStatus(Connection conn) throws Exception {

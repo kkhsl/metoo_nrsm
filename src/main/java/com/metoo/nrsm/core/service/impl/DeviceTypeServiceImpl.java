@@ -5,21 +5,21 @@ import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.DeviceTypeDTO;
 import com.metoo.nrsm.core.mapper.DeviceTypeMapper;
+import com.metoo.nrsm.core.mapper.VendorMapper;
 import com.metoo.nrsm.core.service.IDeviceTypeService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.file.UploadFileUtil;
 import com.metoo.nrsm.core.vo.DeviceTypeVO;
 import com.metoo.nrsm.entity.DeviceType;
+import com.metoo.nrsm.entity.Vendor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import javax.annotation.Resource;
+import java.util.*;
 
 
 @Service
@@ -30,6 +30,9 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
     private DeviceTypeMapper deviceTypeMapper;
     @Autowired
     private UploadFileUtil uploadFileUtil;
+
+    @Resource
+    private VendorMapper vendorMapper;
 
     @Override
     public DeviceType selectObjById(Long id) {
@@ -57,6 +60,23 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
     public List<DeviceType> selectObjByMap(Map params) {
         return this.deviceTypeMapper.selectObjByMap(params);
     }
+
+    @Override
+    public List<DeviceType> getDeviceTypeWithVendors() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("diff", 0);
+        params.put("orderBy", "sequence");
+        params.put("orderType", "DESC");
+        List<DeviceType> deviceTypes = deviceTypeMapper.selectObjByMap(params);
+
+        // 为每个设备类型查询关联的品牌（带顺序）
+        deviceTypes.forEach(deviceType -> {
+            List<Vendor> vendors = vendorMapper.selectByDeviceType(deviceType.getId());
+            deviceType.setVendors(vendors);
+        });
+        return deviceTypes;
+    }
+
 
     @Override
     public List<DeviceType> selectCountByLeftJoin() {

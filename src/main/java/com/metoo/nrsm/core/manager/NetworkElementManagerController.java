@@ -132,7 +132,9 @@ public class NetworkElementManagerController {
         parmas.put("orderBy", "sequence");
         parmas.put("orderType", "DESC");
         List<DeviceType> deviceTypeList = this.deviceTypeService.selectObjByMap(parmas);
-        map.put("device", deviceTypeList); // 凭据列表
+        List<DeviceType> deviceTypeWithVendors = deviceTypeService.getDeviceTypeWithVendors();
+        map.put("device", deviceTypeList);
+        map.put("deviceTypeWithVendors", deviceTypeWithVendors);
         List<Credential> credentials = this.credentialService.getAll();
         map.put("credential", credentials);
         return ResponseUtil.ok(map);
@@ -144,7 +146,8 @@ public class NetworkElementManagerController {
             return  ResponseUtil.badArgument();
         }
         Map map = new HashMap();
-
+        List<DeviceType> deviceTypeWithVendors = deviceTypeService.getDeviceTypeWithVendors();
+        map.put("deviceTypeWithVendors", deviceTypeWithVendors);  //设备类型关联品牌关系
         // 厂商
         List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
         map.put("vendor", vendors);

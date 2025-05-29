@@ -1,10 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
-import com.metoo.nrsm.entity.DnsRecord;
-import com.metoo.nrsm.entity.DnsTempLog;
 import com.metoo.nrsm.entity.Vendor;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -19,5 +16,7 @@ public interface VendorMapper {
     List<Vendor> selectObjByMap(Map params);
 
     List<Vendor> selectConditionQuery(Map params);
+
+    List<Vendor> selectByDeviceType(Long id);
 
 }
