@@ -6,11 +6,10 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.AddressPoolIpv6DTO;
 import com.metoo.nrsm.core.service.IAddressPoolIpv6Service;
 import com.metoo.nrsm.core.service.ISysConfigService;
-import com.metoo.nrsm.core.utils.net.Ipv6Utils;
-import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.utils.ip.Ipv6.TransIPv6;
 import com.metoo.nrsm.core.utils.ip.Ipv6Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
+import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.AddressPool;
 import com.metoo.nrsm.entity.AddressPoolIpv6;
@@ -64,7 +63,7 @@ public class AddressPoolIpv6ManagerController {
         return ResponseUtil.ok(new PageInfo<AddressPool>(page));
     }
 
-    @ApiOperation("创建/更新")
+    /*@ApiOperation("创建/更新")
     @PostMapping({"/save"})
     public Object save(@RequestBody AddressPoolIpv6 instance) {
         Map params = new HashMap();
@@ -124,7 +123,92 @@ public class AddressPoolIpv6ManagerController {
         }
         int i = this.addressPoolIpv6Service.save(instance);
         return i >= 1 ? ResponseUtil.ok() : ResponseUtil.error();
+    }*/
+    @ApiOperation("创建/更新")
+    @PostMapping("/save")
+    public Object save(@RequestBody AddressPoolIpv6 instance) {
+        Map<String, Object> params = new HashMap<>();
+        if (StringUtil.isEmpty(instance.getName())) {
+            return ResponseUtil.badArgument("名称不能为空");
+        } else {
+            params.clear();
+            params.put("addressPoolIpv6Id", instance.getId());
+            params.put("name", instance.getName());
+            List<AddressPoolIpv6> addressPools = addressPoolIpv6Service.selectObjByMap(params);
+            if (!addressPools.isEmpty()) {
+                return ResponseUtil.badArgument("名称不能重复");
+            }
+        }
+
+        if (StringUtil.isEmpty(instance.getSubnetAddresses())) {
+            return ResponseUtil.badArgument("子网地址不能为空");
+        } else {
+            String subnetAddress = instance.getSubnetAddresses();
+
+            // 格式拆分校验
+            String[] parts = subnetAddress.split("/", 2);
+            if (parts.length != 2) {
+                return ResponseUtil.badArgument("子网地址格式错误，必须为IPv6地址网段/掩码");
+            }
+            String subnet = parts[0];
+            String maskStr = parts[1];
+
+            // 掩码有效性校验
+            int mask;
+            try {
+                mask = Integer.parseInt(maskStr);
+            } catch (NumberFormatException e) {
+                return ResponseUtil.badArgument("掩码必须为整数");
+            }
+            if (mask < 1 || mask > 128) {
+                return ResponseUtil.badArgument("掩码值需在 1-128 之间");
+            }
+
+            // IPv6地址基础格式校验
+            if (!Ipv6Util.verifyIpv6(subnet)) {
+                return ResponseUtil.badArgument("子网地址包含非法IPv6字符");
+            }
+
+            // 补全为完整格式（如 :: -> 0000:0000:0000:0000）
+            String fullIPv6 = TransIPv6.getFullIPv6(subnet);
+
+            // 必须为网络地址（主机位全0）
+            if (!Ipv6Util.isNetworkAddress(fullIPv6, mask)) {
+                return ResponseUtil.badArgument("子网地址必须为IPv6地址网段（主机位全0）");
+            }
+
+            // 检查子网地址重复性
+            params.clear();
+            params.put("addressPoolIpv6Id", instance.getId());
+            params.put("subnetAddresses", instance.getSubnetAddresses());
+            List<AddressPoolIpv6> addressPoolIpv6s = addressPoolIpv6Service.selectObjByMap(params);
+            if (!addressPoolIpv6s.isEmpty()) {
+                return ResponseUtil.badArgument("子网地址重复");
+            }
+        }
+
+        if (StringUtil.isNotEmpty(instance.getDNS())) {
+            try {
+                List<String> dnsList = MyStringUtils.str2list(instance.getDNS());
+                int index = 1;
+                for (String dns : dnsList) {
+                    if (!Ipv6Util.verifyIpv6(dns)) {
+                        return ResponseUtil.badArgument("第" + index + "行DNS格式错误");
+                    }
+                    index++;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseUtil.error("DNS解析失败");
+            }
+        }
+
+        int result = addressPoolIpv6Service.save(instance);
+        return result >= 1 ? ResponseUtil.ok() : ResponseUtil.error();
     }
+
+
+
 
     @DeleteMapping({"/delete"})
     public Object delete(String ids) {

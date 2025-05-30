@@ -180,6 +180,139 @@ public class UnboundConfUtil {
         }
     }
 
+    public static boolean saveChronyConfigFile(String filePath, String instance) throws IOException {
+        try {
+            // 读取配置文件所有行
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 创建配置更新器并指定策略类型为 "chrony"
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            // 调用更新逻辑（传递 interfaces 作为配置数据）
+            lines = configUpdater.updateConfig("chrony-time", lines, instance);
+
+            // 写入更新后的配置
+            Files.write(Paths.get(filePath),
+                    lines,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            System.err.println("配置文件操作失败: " + e.getMessage());
+            throw e; // 根据需求决定是否抛出异常
+        } catch (Exception e) {
+            System.err.println("配置更新逻辑错误: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean saveNtpConfigFile(String filePath, List<String> instance) throws IOException {
+        try {
+            // 读取配置文件所有行
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+
+            // 创建配置更新器并指定策略类型为 "ntp"
+            ConfigUpdater configUpdater = new ConfigUpdater();
+            // 调用更新逻辑
+            lines = configUpdater.updateConfig("ntp", lines, instance);
+
+            // 写入更新后的配置
+            Files.write(Paths.get(filePath),
+                    lines,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            System.err.println("配置文件操作失败: " + e.getMessage());
+            throw e; // 根据需求决定是否抛出异常
+        } catch (Exception e) {
+            System.err.println("配置更新逻辑错误: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean openNtpConfigFile(String filePath, Boolean instance) throws IOException {
+        try {
+            // 读取配置文件所有行
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+            List<String> modifiedLines = new ArrayList<>();
+
+            for (String line : lines) {
+                String trimmed = line.trim();
+                if (instance) {
+                    // 当 instance=true 时：取消注释以 #allow 开头的行
+                    if (trimmed.startsWith("#allow ")) {
+                        modifiedLines.add(line.replaceFirst("#", "")); // 去掉第一个 # 符号
+                    } else {
+                        modifiedLines.add(line);
+                    }
+                } else {
+                    // 当 instance=false 时：注释所有未注释的 allow 行
+                    if (trimmed.startsWith("allow ")) {
+                        modifiedLines.add(line.replaceFirst("allow", "#allow"));
+                    } else {
+                        modifiedLines.add(line);
+                    }
+                }
+            }
+
+            // 写入修改后的配置
+            Files.write(
+                    Paths.get(filePath),
+                    modifiedLines,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+            );
+            return true;
+        } catch (IOException e) {
+            System.err.println("操作配置文件失败: " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    public static Map<String, List<String>> selectChronyConfigFile(String filePath) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(filePath));
+        Map<String, List<String>> configMap = new HashMap<>();
+
+        // 初始化池地址、允许的IP段和状态
+        configMap.put("pool", new ArrayList<>());
+        configMap.put("allow", new ArrayList<>());
+        configMap.put("status2", new ArrayList<>()); // 新增状态字段
+
+        boolean hasUncommentedAllow = false; // 标记是否存在未注释的 allow
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+            if (trimmedLine.isEmpty() || trimmedLine.startsWith("#")) {
+                continue; // 跳过注释和空行
+            }
+
+            // 提取 NTP 池地址
+            if (trimmedLine.startsWith("pool ")) {
+                String[] parts = trimmedLine.split("\\s+");
+                if (parts.length >= 2) {
+                    configMap.get("pool").add(parts[1]);
+                }
+            }
+
+            // 提取 allow 后的 IP 段并检测是否未注释
+            if (trimmedLine.startsWith("allow ")) {
+                String[] parts = trimmedLine.split("\\s+");
+                if (parts.length >= 2) {
+                    configMap.get("allow").add(parts[1]);
+                }
+                hasUncommentedAllow = true; // 存在未注释的 allow 行
+            }
+        }
+
+        // 设置状态：true 表示存在未注释的 allow，false 表示无
+        configMap.get("status2").add(String.valueOf(hasUncommentedAllow));
+
+        return configMap;
+    }
+
+
+
     public static List<String> selectConfigPortFile(String filePath) throws IOException {
         List<String> interfaceNames = new ArrayList<>();
         try {

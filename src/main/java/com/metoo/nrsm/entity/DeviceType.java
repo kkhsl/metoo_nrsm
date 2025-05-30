@@ -28,8 +28,11 @@ public class DeviceType extends IdEntity {
 
     private String uuid;// 可用作自定义图片名称
 
+    private List<Vendor> vendors=new ArrayList<>();
+
 
 
     private List<NetworkElement> networkElementList = new ArrayList<>();
     private List<Terminal> terminalList = new ArrayList<>();
+
 }

@@ -46,4 +46,13 @@
         ORDER BY `index` ASC
     </select>
 
+
+    <select id="selectByDeviceType" resultMap="Base_Result_Map">
+        SELECT v.*
+        FROM metoo_vendor v
+                 JOIN device_type_vendor dtv ON v.id = dtv.vendor_id
+        WHERE dtv.device_type_id = #{deviceTypeId}
+        ORDER BY dtv.sequence ASC
+    </select>
+
 </mapper>
