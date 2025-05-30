@@ -65,11 +65,11 @@ public class ApiExecUtils {
         }
 
         // 监管平台（信产）
-//        try {
-//            this.apiUtils.partyApi(unitVos);
-//        } catch (Exception e) {
-//            log.error("Error calling party API", e);
-//        }
+        try {
+            this.apiUtils.partyApi(unitVos);
+        } catch (Exception e) {
+            log.error("Error calling party API", e);
+        }
 
 //        callThirdPartyApiTWithRetry(unitVos);
 

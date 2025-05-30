@@ -474,7 +474,7 @@
         FROM
             metoo_mac mac
         WHERE
-            tag in('DT', 'VDT')
+            tag in('DT', 'VDT', 'RT')
         ) mac
 
         join
@@ -650,7 +650,7 @@
         FROM
             metoo_mac mac
         WHERE
-            tag in('DT', 'VDT')
+            tag in('DT', 'VDT', 'RT')
             ) mac
         LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
         WHERE
@@ -810,11 +810,11 @@
                 FROM
                     metoo_mac mac
                 WHERE
-                    tag in('DT', 'VDT')
+                    tag in('DT', 'VDT', 'RT')
             ) mac
         right join
           metoo_terminal terminal
-        on
+        ong
           terminal.mac = mac.mac/* and terminal.port = mac.port*/
         where mac.mac is null
 

@@ -27,7 +27,8 @@ public class UnitVO {
     private String broadband_Account;
 
 
-    public UnitVO(String unitName, String department, String area, String city, String date, String time, String vfourFlow, String vsixFlow, String broadband_Account) {
+    public UnitVO(String unitName, String department, String area, String city, String date, String time,
+                  String vfourFlow, String vsixFlow, String broadband_Account) {
         this.unitName = unitName;
         this.department = department;
         this.area = area;
