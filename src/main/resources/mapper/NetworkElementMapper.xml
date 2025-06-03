@@ -343,6 +343,12 @@
             <if test="snmpPort != null">
                 snmpPort,
             </if>
+            <if test="portSSH != null">
+                portSSH,
+            </if>
+            <if test="portTelnet != null">
+                portTelnet,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -455,6 +461,12 @@
             </if>
             <if test="snmpPort != null">
                 #{snmpPort},
+            </if>
+            <if test="portSSH != null">
+                #{portSSH},
+            </if>
+            <if test="portTelnet != null">
+                #{portTelnet},
             </if>
         </trim>
     </insert>
@@ -599,6 +611,12 @@
             </if>
             <if test="snmpPort != null">
                 snmpPort = #{snmpPort},
+            </if>
+            <if test="portSSH != null">
+                portSSH = #{portSSH},
+            </if>
+            <if test="portTelnet != null">
+                portTelnet = #{portTelnet},
             </if>
         </set>
         where id = #{id}

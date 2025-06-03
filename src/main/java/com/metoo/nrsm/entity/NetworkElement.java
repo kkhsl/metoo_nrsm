@@ -58,6 +58,10 @@ public class NetworkElement extends IdEntity {
     private Integer connectType;
     @ApiModelProperty("端口 22")
     private Integer port;
+    @ApiModelProperty("ssh端口 22")
+    private Integer portSSH;
+    @ApiModelProperty("端口 23")
+    private Integer portTelnet;
     @ApiModelProperty("凭据Id")
     private Long credentialId;
     @ApiModelProperty("凭据名称")
