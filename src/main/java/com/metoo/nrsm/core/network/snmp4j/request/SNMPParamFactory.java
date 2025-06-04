@@ -350,11 +350,11 @@ public class SNMPParamFactory {
     public void getArp() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("192.168.0.36")
-                .community("hnccsroot_read")
+                .host("192.168.4.1")
+                .community("transfar@123")
                 .build();
         JSONArray result = SNMPv3Request.getArp(snmpv3Params);
-        log.info("arpV6:{}", result);
+        log.info("arp:{}", result);
     }
 
 
