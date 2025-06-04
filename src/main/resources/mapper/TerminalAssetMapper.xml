@@ -179,6 +179,8 @@
                             metoo_dhcp dhcp
                         WHERE
                             dhcp.lease = mac.v4ip
+												AND dhcp.binding_state = 'active'
+
                     ),
                     0
                 ) AS v4ipDynamic,
@@ -193,6 +195,7 @@
                         metoo_dhcp dhcp
                     WHERE
                         dhcp.lease = mac.v4ip1
+										AND dhcp.binding_state = 'active'
                 ),
                 0
             ) AS v4ip1Dynamic,
@@ -207,6 +210,7 @@
                     metoo_dhcp dhcp
                 WHERE
                     dhcp.lease = mac.v4ip2
+								AND dhcp.binding_state = 'active'
             ),
             0
         ) AS v4ip2Dynamic,
@@ -221,6 +225,7 @@
                     metoo_dhcp dhcp
                 WHERE
                     dhcp.lease = mac.v4ip3
+								AND dhcp.binding_state = 'active'
             ),
             0
         ) AS v4ip3Dynamic,
@@ -235,6 +240,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ipDynamic,
@@ -249,6 +255,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip1
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip1Dynamic,
@@ -263,6 +270,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip2
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip2Dynamic,
@@ -277,6 +285,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip3
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip3Dynamic,
@@ -301,7 +310,7 @@
 
         join
 
-        metoo_terminal_asset terminal on terminal.mac = mac.mac
+        metoo_terminal terminal on terminal.mac = mac.mac
          and terminal.port = mac.port
     </select>
 
@@ -322,6 +331,7 @@
                             metoo_dhcp dhcp
                         WHERE
                             dhcp.lease = mac.v4ip
+								AND dhcp.binding_state = 'active'
                     ),
                     0
                 ) AS v4ipDynamic,
@@ -336,6 +346,7 @@
                         metoo_dhcp dhcp
                     WHERE
                         dhcp.lease = mac.v4ip1
+								AND dhcp.binding_state = 'active'
                 ),
                 0
             ) AS v4ip1Dynamic,
@@ -350,6 +361,7 @@
                     metoo_dhcp dhcp
                 WHERE
                     dhcp.lease = mac.v4ip2
+								AND dhcp.binding_state = 'active'
             ),
             0
         ) AS v4ip2Dynamic,
@@ -364,6 +376,7 @@
                     metoo_dhcp dhcp
                 WHERE
                     dhcp.lease = mac.v4ip3
+								AND dhcp.binding_state = 'active'
             ),
             0
         ) AS v4ip3Dynamic,
@@ -378,6 +391,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ipDynamic,
@@ -392,6 +406,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip1
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip1Dynamic,
@@ -406,6 +421,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip2
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip2Dynamic,
@@ -420,6 +436,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip3
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip3Dynamic,
@@ -442,7 +459,7 @@
         WHERE
             tag = 'DT'
             ) mac
-        LEFT JOIN metoo_terminal_asset terminal ON terminal.mac = mac.mac
+        LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
         WHERE
             terminal.mac IS NULL
     </select>
@@ -464,6 +481,7 @@
                             metoo_dhcp dhcp
                         WHERE
                             dhcp.lease = mac.v4ip
+								AND dhcp.binding_state = 'active'
                     ),
                     0
                 ) AS v4ipDynamic,
@@ -478,6 +496,7 @@
                         metoo_dhcp dhcp
                     WHERE
                         dhcp.lease = mac.v4ip1
+									AND dhcp.binding_state = 'active'
                 ),
                 0
             ) AS v4ip1Dynamic,
@@ -492,6 +511,7 @@
                     metoo_dhcp dhcp
                 WHERE
                     dhcp.lease = mac.v4ip2
+								AND dhcp.binding_state = 'active'
             ),
             0
         ) AS v4ip2Dynamic,
@@ -506,6 +526,7 @@
                     metoo_dhcp dhcp
                 WHERE
                     dhcp.lease = mac.v4ip3
+								AND dhcp.binding_state = 'active'
             ),
             0
         ) AS v4ip3Dynamic,
@@ -520,6 +541,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ipDynamic,
@@ -534,6 +556,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip1
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip1Dynamic,
@@ -548,6 +571,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip2
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip2Dynamic,
@@ -562,6 +586,7 @@
                     metoo_dhcp6 dhcp6
                 WHERE
                     dhcp6.iaaddr = mac.v6ip3
+								AND dhcp6.binding_state = 'active'
             ),
             0
         ) AS v6ip3Dynamic,
@@ -587,7 +612,7 @@
 
         right join
 
-        metoo_terminal_asset terminal on terminal.mac = mac.mac
+        metoo_terminal terminal on terminal.mac = mac.mac
         where mac.mac is null
     </select>
 

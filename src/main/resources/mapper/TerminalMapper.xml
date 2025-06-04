@@ -814,7 +814,7 @@
             ) mac
         right join
           metoo_terminal terminal
-        ong
+        on
           terminal.mac = mac.mac/* and terminal.port = mac.port*/
         where mac.mac is null
 
