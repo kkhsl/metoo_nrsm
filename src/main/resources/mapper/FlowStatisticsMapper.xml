@@ -4,6 +4,36 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.FlowStatisticsMapper">
 
+    <!-- 结果映射 -->
+    <resultMap id="flowSummaryMap" type="com.metoo.nrsm.entity.FlowSummary">
+        <result property="createTime" column="createTime"/>
+        <result property="ipv4TotalGb" column="ipv4TotalGb" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="ipv6TotalGb" column="ipv6TotalGb" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="ipv6Percentage" column="ipv6Percentage" javaType="java.lang.Double" jdbcType="DOUBLE"/>
+    </resultMap>
+
+    <select id="getFlowSummary" parameterType="map" resultMap="flowSummaryMap">
+        SELECT
+        create_time AS createTime,
+        (SUM(CASE WHEN is_ipv6 = 0 THEN in_delta ELSE 0 END) +
+        SUM(CASE WHEN is_ipv6 = 0 THEN out_delta ELSE 0 END)) / 1073741824 AS ipv4TotalGb,
+
+        (SUM(CASE WHEN is_ipv6 = 1 THEN in_delta ELSE 0 END) +
+        SUM(CASE WHEN is_ipv6 = 1 THEN out_delta ELSE 0 END)) / 1073741824 AS ipv6TotalGb,
+
+        COALESCE(
+        100.0 * SUM(CASE WHEN is_ipv6 = 1 THEN in_delta + out_delta ELSE 0 END) /
+        NULLIF(SUM(in_delta + out_delta), 0),
+        0
+        ) AS ipv6Percentage
+        FROM port_traffic_data
+        WHERE create_time >= #{startTime}
+        AND create_time <![CDATA[ <= ]]> #{endTime}
+        GROUP BY create_time
+        ORDER BY create_time
+    </select>
+
+
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.FlowStatistics">
         select * from metoo_flux_statistics

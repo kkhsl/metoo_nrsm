@@ -4,7 +4,6 @@ package com.metoo.nrsm.core.network.snmp4j.example;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
 
 import java.io.IOException;
 
@@ -65,15 +64,15 @@ public class SnmpV3Example {
 //        v3Params1.validate();
 
         // 调整
-        SNMPV3Params v2c = new SNMPV3Params.Builder()
+        SNMPV3Params snmpParams = new SNMPV3Params.Builder()
                 .version("v2c")
                 .host("192.168.0.1")
                 .port(161)
                 .community("transfar@123")
                 .build();
 
-        JSONArray result = SNMPv3Request.getMac(v2c);
-        System.out.println(result.toString());
+        String traffic = SNMPv3Request.getDevicePort(snmpParams);
+        System.out.println(traffic);
 
 /*
         // v3带认证加密的请求

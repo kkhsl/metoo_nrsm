@@ -117,13 +117,6 @@ public class DateTools {
         return cal.getTime();
     }
 
-    /**
-     *
-     * @param timestamp 时间戳
-     * @param format 时间格式
-     * @return
-     */
-
 
    // 字符串转时间戳
     public static long strToLong(String data, String format){
@@ -426,6 +419,18 @@ public class DateTools {
         cal.set(Calendar.MILLISECOND, 0);
         Date endOfDay = cal.getTime();
         return endOfDay;
+    }
+
+
+    // 获取指定日期的结束时间
+    public static Date getEndOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar.getTime();
     }
 
     @Test

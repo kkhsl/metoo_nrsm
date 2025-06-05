@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.service;
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.dto.NetworkElementDto;
 import com.metoo.nrsm.entity.FlowStatistics;
+import com.metoo.nrsm.entity.FlowSummary;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,9 @@ import java.util.Map;
 public interface IFlowStatisticsService {
 
     Page<FlowStatistics> selectObjConditionQuery(NetworkElementDto instance);
+
+
+    List<FlowSummary> getFlowSummary(Map<String, Object> params);
 
     List<FlowStatistics> selectObjByMap(Map params);
 
