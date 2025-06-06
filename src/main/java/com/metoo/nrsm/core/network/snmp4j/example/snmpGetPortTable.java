@@ -9,9 +9,9 @@ public class snmpGetPortTable {
 
     public static void main(String[] args) throws JsonProcessingException {
 
-        String host = "192.168.0.1";  // 目标设备地址
+        String host = "192.168.6.1";  // 目标设备地址
         String version = "v2c";       // SNMP 版本
-        String community = "transfar@123";  // SNMP 社区字符串
+        String community = "public@123";  // SNMP 社区字符串
         SNMPParams snmpParams = new SNMPParams(host, version, community);
         // 处理数据并返回结果
         JSONArray result = SNMPv2Request.getPortTableV6(snmpParams);

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.PortTrafficDataMapper">
+
+    <resultMap id="PortTrafficDataMap" type="com.metoo.nrsm.entity.PortTrafficData">
+        <id property="id" column="id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="deviceName" column="device_name"/>
+        <result property="ipAddress" column="ip_address"/>
+        <result property="portIndex" column="port_index"/>
+        <result property="portName" column="port_name"/>
+        <result property="isIpv6" column="is_ipv6"/>
+        <result property="timestamp" column="timestamp"/>
+        <result property="inBytes" column="in_bytes"/>
+        <result property="outBytes" column="out_bytes"/>
+        <result property="inDelta" column="in_delta"/>
+        <result property="outDelta" column="out_delta"/>
+    </resultMap>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO port_traffic_data (
+        create_time, update_time, device_id, device_name, ip_address,
+        port_index, port_name, is_ipv6, timestamp, in_bytes,
+        out_bytes, in_delta, out_delta
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.createTime},
+            #{item.updateTime},
+            #{item.deviceId},
+            #{item.deviceName},
+            #{item.ipAddress},
+            #{item.portIndex},
+            #{item.portName},
+            #{item.isIpv6},
+            #{item.timestamp},
+            #{item.inBytes},
+            #{item.outBytes},
+            #{item.inDelta},
+            #{item.outDelta}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findByDeviceAndPortAndTime" resultMap="PortTrafficDataMap">
+        SELECT *
+        FROM port_traffic_data
+        WHERE device_id = #{deviceId}
+          AND ip_address = #{ipAddress}
+          AND port_index = #{portIndex}
+          AND ip_address = #{ipAddress}
+          AND is_ipv6 = #{isIpv6}
+          AND timestamp >= #{minTimestamp}
+        ORDER BY timestamp DESC
+    </select>
+
+    <select id="findLastByDeviceAndPort" resultMap="PortTrafficDataMap">
+        SELECT *
+        FROM port_traffic_data
+        WHERE device_id = #{deviceId}
+          AND ip_address = #{ipAddress}
+          AND port_index = #{portIndex}
+          AND ip_address = #{ipAddress}
+          AND is_ipv6 = #{isIpv6}
+        ORDER BY timestamp DESC
+        LIMIT 1
+    </select>
+
+    <delete id="deleteByTimestampBefore">
+        DELETE FROM port_traffic_data
+        WHERE timestamp &lt; #{timestamp}
+    </delete>
+
+</mapper>

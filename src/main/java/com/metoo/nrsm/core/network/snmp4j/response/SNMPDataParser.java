@@ -89,34 +89,34 @@ public class SNMPDataParser {
         for (Map.Entry<String, String> entry : arpV6Map.entrySet()) {
             String oid = entry.getKey();
             String mac = entry.getValue();
-            String ipSegment = oid.replace("1.3.6.1.2.1.55.1.12.1.2.", "");
 
-            // 分割 OID 剩余部分
-            String[] parts = ipSegment.split("\\.");
+            // 1. 直接分割整个 OID
+            String[] oidParts = oid.split("\\.");
 
-            if (parts.length < 16) {
-                // 处理异常：OID 字段不足，无法解析 IPv6
+            // 2. 验证 OID 长度
+            if (oidParts.length < 16) {
                 System.err.println("Invalid OID format: " + oid);
                 continue;
             }
 
-            String[] ipv6Parts = new String[16];
-            int startIndex = parts.length - 16;  // 从后往前取16位
-            System.arraycopy(parts, startIndex, ipv6Parts, 0, 16);
-
-            // **转换 IPv6 地址格式**
+            // 3. 提取最后16个字段（IPv6地址）
             StringBuilder rawIPv6 = new StringBuilder();
-            for (int i = 0; i < 16; i += 2) {
-                int part1 = Integer.parseInt(ipv6Parts[i]);
-                int part2 = Integer.parseInt(ipv6Parts[i + 1]);
+            int startIndex = oidParts.length - 16; // 最后16个字段的位置
+
+            // 4. 转换每两个字段为一个 IPv6 段
+            for (int i = startIndex; i < oidParts.length; i += 2) {
+                int part1 = Integer.parseInt(oidParts[i]);
+                int part2 = Integer.parseInt(oidParts[i + 1]);
                 rawIPv6.append(String.format("%02x%02x", part1, part2));
-                if (i < 14) rawIPv6.append(":");
+                if (i < oidParts.length - 2) {
+                    rawIPv6.append(":");
+                }
             }
 
-            // 压缩 IPv6 地址
+            // 5. 压缩 IPv6 地址
             String compressedIPv6 = compressIPv6(rawIPv6.toString());
 
-            // 处理 MAC 地址
+            // 6. 处理 MAC 地址
             if (mac.isEmpty()) {
                 System.err.println("Warning: Missing MAC for IPv6: " + compressedIPv6);
                 mac = "UNKNOWN";
@@ -135,36 +135,35 @@ public class SNMPDataParser {
             String oid = entry.getKey();
             String rawMac = entry.getValue();
 
-            // 1. 提取索引和IPv6地址部分
-            String ipSegment = oid.replace("1.3.6.1.2.1.55.1.12.1.2.", "");
-            String[] parts = ipSegment.split("\\.");
+            // 1. 直接分割整个 OID
+            String[] oidParts = oid.split("\\.");
 
-            // 2. 验证OID结构
-            if (parts.length < 16) {
-                // 处理异常：OID 字段不足，无法解析 IPv6
+            // 2. 验证 OID 长度（需要足够的字段）
+            if (oidParts.length < 17) { // 17 = 前缀部分 + 16字节
                 System.err.println("Invalid OID format: " + oid);
                 continue;
             }
 
-            // 3. 提取索引和端口
-            String index = parts[0];
-            String port = portJson.optString(index, "N/A");
+            // 3. 提取设备索引（IPv6地址前的数字）
+            String deviceIndex = oidParts[oidParts.length - 17]; // 从后往前第17个部分
 
-            // 4. 构建IPv6地址
+            // 4. 从最后16个字段提取 IPv6 地址
             StringBuilder ipv6Builder = new StringBuilder();
-            for (int i=1; i<parts.length; i+=2) { // 跳过索引
-                int high = Integer.parseInt(parts[i]);
-                int low = Integer.parseInt(parts[i+1]);
+            int startIndex = oidParts.length - 16;
+            for (int i = startIndex; i < oidParts.length; i += 2) {
+                int high = Integer.parseInt(oidParts[i]);
+                int low = Integer.parseInt(oidParts[i + 1]);
                 ipv6Builder.append(String.format("%02x%02x", high, low));
-                if (i < parts.length-2) ipv6Builder.append(":");
+                if (i < oidParts.length - 2) {
+                    ipv6Builder.append(":");
+                }
             }
             String ip = compressIPv6(ipv6Builder.toString());
 
-            // 5. 过滤链路本地地址
-            if (ip.startsWith("fe80:")) continue;
+            // 5. 获取端口信息
+            String port = portJson.optString(deviceIndex, "N/A");
 
-
-            // 7. 构建结果对象
+            // 6. 构建结果对象（保留所有地址）
             JSONObject entry1 = new JSONObject();
             entry1.put("ip", ip);
             entry1.put("mac", rawMac.toUpperCase());
@@ -206,40 +205,41 @@ public class SNMPDataParser {
         }
         return result;
     }
+
     public static Map<String, String> parseDevicePortV6(Map<String, String> arpV6Map) {
         Map<String, String> portV6Result = new HashMap<>();
 
         for (Map.Entry<String, String> entry : arpV6Map.entrySet()) {
             String oid = entry.getKey();
             String port = entry.getValue();
-            String ipSegment = oid.replace("1.3.6.1.2.1.55.1.8.1.2.", "");
 
-            // 分割 OID 剩余部分
-            String[] parts = ipSegment.split("\\.");
+            // 1. 直接分割整个 OID
+            String[] oidParts = oid.split("\\.");
 
-            if (parts.length < 16) {
-                // 处理异常：OID 字段不足，无法解析 IPv6
+            // 2. 验证 OID 长度
+            if (oidParts.length < 16) {
                 System.err.println("Invalid OID format: " + oid);
                 continue;
             }
 
-            String[] ipv6Parts = new String[16];
-            int startIndex = parts.length - 16;  // 从后往前取16位
-            System.arraycopy(parts, startIndex, ipv6Parts, 0, 16);
-
-            // **转换 IPv6 地址格式**
+            // 3. 提取最后16个字段（IPv6地址）
             StringBuilder rawIPv6 = new StringBuilder();
-            for (int i = 0; i < 16; i += 2) {
-                int part1 = Integer.parseInt(ipv6Parts[i]);
-                int part2 = Integer.parseInt(ipv6Parts[i + 1]);
+            int startIndex = oidParts.length - 16; // 最后16个字段的起始位置
+
+            // 4. 转换每两个字段为一个 IPv6 段
+            for (int i = startIndex; i < oidParts.length; i += 2) {
+                int part1 = Integer.parseInt(oidParts[i]);
+                int part2 = Integer.parseInt(oidParts[i + 1]);
                 rawIPv6.append(String.format("%02x%02x", part1, part2));
-                if (i < 14) rawIPv6.append(":");
+                if (i < oidParts.length - 2) {
+                    rawIPv6.append(":");
+                }
             }
 
-            // 压缩 IPv6 地址
+            // 5. 压缩 IPv6 地址
             String compressedIPv6 = compressIPv6(rawIPv6.toString());
 
-            // **存入结果映射**
+            // 6. 存入结果映射
             portV6Result.put(compressedIPv6, port);
         }
 
@@ -254,57 +254,44 @@ public class SNMPDataParser {
             String oid = entry.getKey();
             String rawValue = entry.getValue(); // 格式应为 "INTEGER: 64"
 
-            // 1. 提取索引和IPv6地址部分
-            String ipSegment = oid.replace("1.3.6.1.2.1.55.1.8.1.2.", "");
-            String[] parts = ipSegment.split("\\.");
-
-            // 2. 验证OID结构
-            if (parts.length < 16) {
-                // 处理异常：OID 字段不足，无法解析 IPv6
+            // 1. 提取OID末尾的16个数字部分（IPv6地址的16个字节）
+            String[] oidParts = oid.split("\\.");
+            if (oidParts.length < 17) {
                 System.err.println("Invalid OID format: " + oid);
                 continue;
             }
 
-            // 3. 提取索引
-            String index = parts[0];
-
-            // 4. 获取端口信息
-            String port = portJson.optString(index, "N/A");
-
-            // 5. 解析掩码长度（前缀）
-            String prefixLength = rawValue.replaceAll("\\D+", ""); // 提取数字部分
-
-            // 6. 构建IPv6地址
+            // 2. 提取最后16个字节（索引长度-16到末尾）
+            int startIndex = oidParts.length - 16;
             StringBuilder ipv6Builder = new StringBuilder();
-            for (int i = 1; i < 17; i += 2) { // 处理16字节（索引后的16个元素）
-                int high = Integer.parseInt(parts[i]);
-                int low = Integer.parseInt(parts[i + 1]);
+            for (int i = startIndex; i < oidParts.length; i += 2) {
+                int high = Integer.parseInt(oidParts[i]);
+                int low = Integer.parseInt(oidParts[i + 1]);
                 ipv6Builder.append(String.format("%02x%02x", high, low));
-                if (i < 15) ipv6Builder.append(":"); // 共8段，最后不加冒号
+                if (i < oidParts.length - 2) {
+                    ipv6Builder.append(":");
+                }
             }
+
+            // 3. 获取设备索引（OID中IPv6之前的数字）
+            String deviceIndex = oidParts[oidParts.length - 17];
+
+            // 4. 获取端口信息和前缀长度
+            String port = portJson.optString(deviceIndex, "N/A");
+            String prefixLength = rawValue.replaceAll("\\D+", "");
+
+            // 5. 构建完整IPv6地址（压缩格式）
             String ip = compressIPv6(ipv6Builder.toString());
 
-            // 7. 过滤链路本地地址
-            if (ip.startsWith("fe80:")) continue;
-
-            // 8. 构建结果对象
+            // 6. 创建结果对象（保留所有地址）
             JSONObject entryObj = new JSONObject();
             entryObj.put("port", port);
-            entryObj.put("ipv6", ip+"/"+prefixLength);
+            entryObj.put("ipv6", ip + "/" + prefixLength);
 
             resultArray.put(entryObj);
         }
-
         return resultArray;
     }
-
-
-
-
-
-
-
-
     public static Map<String, String> parseDevicePortMask(Map<String, String> portIpMap) {
         Map<String, String> result = new HashMap<>();
 

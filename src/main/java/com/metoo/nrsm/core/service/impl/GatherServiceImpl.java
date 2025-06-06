@@ -7,14 +7,12 @@ import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.concurrent.GatherDataThreadPool;
+import com.metoo.nrsm.core.utils.gather.gathermac.GatherMultithreadingMacUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
+import com.metoo.nrsm.core.utils.gather.thread.*;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
-import com.metoo.nrsm.core.utils.gather.gathermac.GatherMultithreadingMacUtils;
-import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacUtils;
-import com.metoo.nrsm.core.utils.gather.thread.*;
 import com.metoo.nrsm.core.wsapi.utils.SnmpStatusUtils;
 import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -624,7 +621,7 @@ public class GatherServiceImpl implements IGatherService {
     @Override
     public void gatherFlux(Date date) {
         log.info("flux runing...");
-        List<FluxConfig> fluxConfigs = this.fluxConfigService.selectObjByMap(null);
+        /*List<FluxConfig> fluxConfigs = this.fluxConfigService.selectObjByMap(null);
 
         if (fluxConfigs.size() > 0) {
 
@@ -800,7 +797,7 @@ public class GatherServiceImpl implements IGatherService {
                 flowStatistics.setIpv6Rate(ipv6Rate);
             }
             this.flowStatisticsService.save(flowStatistics);
-        }
+        }*/
     }
 
     @Test
