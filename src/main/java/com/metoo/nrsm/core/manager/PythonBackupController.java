@@ -22,7 +22,7 @@ import java.util.*;
 @Slf4j
 @RequestMapping("/admin/configuration")
 @RestController
-public class PythonGatheController {
+public class PythonBackupController {
 
     @Autowired
     private PythonExecUtils pythonExecUtils;
