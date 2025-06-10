@@ -17,6 +17,7 @@ import java.util.List;
 public class DeviceType extends IdEntity {
 
     private String name;
+    private String nameEn;
     private Integer count;
     private Integer onlineCount;
     private Integer online;

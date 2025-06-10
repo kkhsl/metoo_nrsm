@@ -228,6 +228,21 @@
         ORDER BY a.addTime DESC
     </select>
 
+    <select id="selectConditionByIpsQuery" resultMap="Base_Result_Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM metoo_ne
+        <where>
+            deleteStatus = 0 and display=false  <!-- 确保只查询未删除的设备 -->
+            <if test="list != null and list.size() > 0">
+                AND ip IN
+                <foreach collection="list" item="ip" open="(" separator="," close=")">
+                    #{ip}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
     <insert id="save" parameterType="com.metoo.nrsm.entity.NetworkElement" useGeneratedKeys="true"
             keyProperty="id">
         INSERT INTO metoo_ne

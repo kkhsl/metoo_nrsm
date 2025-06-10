@@ -16,6 +16,8 @@ import java.util.Set;
 @NoArgsConstructor
 public class CredentialDTO extends PageDto<Credential> {
 
+    private Long id;
+
     @ApiModelProperty("凭据Uuid")
     private String uuid;
     @ApiModelProperty("凭据名")

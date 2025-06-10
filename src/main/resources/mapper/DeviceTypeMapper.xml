@@ -7,6 +7,7 @@
         <result column="addTime" property="addTime"></result>
         <result column="deleteStatus" property="deleteStatus"></result>
         <result column="name" property="name"></result>
+        <result column="name_en" property="nameEn"></result>
         <result column="count" property="count"></result>
         <result column="type" property="type"></result>
         <collection property="networkElementList" javaType="list"
@@ -66,7 +67,7 @@
 	 ) count
     </sql>
 
-    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.DeviceType">
+    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Join_Result_Map">
         SELECT * FROM metoo_device_type
         where id = #{id}
     </select>

@@ -46,6 +46,12 @@ public class NetworkElementServiceImpl implements INetworkElementService {
 }
 
     @Override
+    public List<NetworkElement> selectConditionByIpQuery(List<String> instance) {
+        return this.networkElementMapper.selectConditionByIpsQuery(instance);
+    }
+
+
+    @Override
     public List<NetworkElement> selectObjByMap(Map params) {
         if (params == null) {
             params = new HashMap<>();

@@ -40,9 +40,16 @@ public class Global {
 
     public static String PYPATH;
 
+    public static String BKPATH;
+
     @Value("${PYPATH}")
     public void setUrl(String PYPATH) {
         Global.PYPATH = PYPATH;
+    }
+
+    @Value("${BKPATH}")
+    public void setBKPATH(String BKPATH) {
+        Global.BKPATH = BKPATH;
     }
 
     public static String py_name;
