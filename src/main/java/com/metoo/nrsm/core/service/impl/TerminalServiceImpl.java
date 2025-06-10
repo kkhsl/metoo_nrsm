@@ -693,17 +693,17 @@ public class TerminalServiceImpl implements ITerminalService {
         }
         List<String> macList = new ArrayList<>();
         for (Terminal terminal : terminalList) {
-            if((StringUtil.isNotEmpty(terminal.getV6ip()) && terminal.getV6ip().toLowerCase().startsWith("fe80"))
-                    || StringUtil.isNotEmpty(terminal.getV6ip1()) && terminal.getV6ip1().toLowerCase().startsWith("fe80")
-                    || StringUtil.isNotEmpty(terminal.getV6ip2()) && terminal.getV6ip2().toLowerCase().startsWith("fe80")
-                    || StringUtil.isNotEmpty(terminal.getV6ip3()) && terminal.getV6ip3().toLowerCase().startsWith("fe80")){
+            if((StringUtil.isNotEmpty(terminal.getV6ip()) && !terminal.getV6ip().toLowerCase().startsWith("fe80"))
+                    || StringUtil.isNotEmpty(terminal.getV6ip1()) && !terminal.getV6ip1().toLowerCase().startsWith("fe80")
+                    || StringUtil.isNotEmpty(terminal.getV6ip2()) && !terminal.getV6ip2().toLowerCase().startsWith("fe80")
+                    || StringUtil.isNotEmpty(terminal.getV6ip3()) && !terminal.getV6ip3().toLowerCase().startsWith("fe80")){
                 processTerminalMac(terminal, macList);
             }
         }
         if (!macList.isEmpty()) {
-            List<TerminalMacIpv6> terminalMacIpv6s = terminalMacIpv6Mapper.findAllExcludingMacs(macList);
-            if(!terminalMacIpv6s.isEmpty()){
-                terminalMacIpv6s.forEach(mac -> terminalMacIpv6Mapper.updateMac(mac.getMac(), 0));
+            List<TerminalMacIpv6> excludingTerminalMacIpv6s = terminalMacIpv6Mapper.findAllExcludingMacs(macList);
+            if(!excludingTerminalMacIpv6s.isEmpty()){
+                excludingTerminalMacIpv6s.forEach(mac -> terminalMacIpv6Mapper.updateMac(mac.getMac(), 0));
             }
         }
     }
@@ -718,6 +718,9 @@ public class TerminalServiceImpl implements ITerminalService {
                 log.error("Failed to insert MAC address: {}", terminal.getMac(), e);
             }
         }else{
+            if (terminalMacIpv6.getIsIPv6() == 0) {
+                terminalMacIpv6Mapper.updateMac(terminalMacIpv6.getMac(), 1);
+            }
             macList.add(terminalMacIpv6.getMac());
         }
     }

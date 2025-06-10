@@ -37,8 +37,6 @@ public class NetworkElement extends IdEntity {
     private String filter;
     private String interfaceName;
     private Integer portIndex;
-    private Integer portSSH;
-    private Integer portTelnet;
     private Long groupId;
     private String groupName;
     private Long deviceTypeId;

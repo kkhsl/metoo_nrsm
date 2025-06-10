@@ -2,7 +2,9 @@ package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.service.ITerminalDiagnosisService;
+import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.vo.Result;
+import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.TerminalDiagnosis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +17,16 @@ public class TerminalDiagnosisController {
 
     @Autowired
     private ITerminalDiagnosisService terminalDiagnosisService;
+    @Autowired
+    private ITerminalService terminalService;
 
     @GetMapping
-    public Result diagnosis(){
-        TerminalDiagnosis terminalDiagnosis = terminalDiagnosisService.selectObjByType(1);
-        return ResponseUtil.ok(terminalDiagnosis);
+    public Result diagnosis(String terminalId){
+        Terminal terminal = this.terminalService.selectObjById(Long.parseLong(terminalId));
+        if(terminal != null){
+            TerminalDiagnosis terminalDiagnosis = terminalDiagnosisService.selectObjByType(terminal.getConfig());
+            return ResponseUtil.ok(terminalDiagnosis);
+        }
+       return ResponseUtil.ok();
     }
 }

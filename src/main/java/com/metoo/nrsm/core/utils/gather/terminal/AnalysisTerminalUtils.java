@@ -10,6 +10,7 @@ import com.metoo.nrsm.entity.Port;
 import com.metoo.nrsm.entity.PortIpv6;
 import com.metoo.nrsm.entity.Terminal;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -215,10 +216,11 @@ public class AnalysisTerminalUtils {
             String cidr = portNetwork.get(port);
             for (Terminal terminal : portTerminalMap.get(port)) {
                 if(withMask){
-                    if((StringUtil.isNotEmpty(terminal.getV6ip()) && terminal.getV6ip().toLowerCase().startsWith("fe80"))
-                            || StringUtil.isNotEmpty(terminal.getV6ip1()) && terminal.getV6ip1().toLowerCase().startsWith("fe80")
-                            || StringUtil.isNotEmpty(terminal.getV6ip2()) && terminal.getV6ip2().toLowerCase().startsWith("fe80")
-                            || StringUtil.isNotEmpty(terminal.getV6ip3()) && terminal.getV6ip3().toLowerCase().startsWith("fe80")){
+                    boolean hasFe80Ip = isFe80(terminal.getV6ip()) ||
+                            isFe80(terminal.getV6ip1()) ||
+                            isFe80(terminal.getV6ip2()) ||
+                            isFe80(terminal.getV6ip3());
+                    if(!hasFe80Ip){
                         terminal.setConfig(2);
                         terminal.setPortName(port);
                         terminal.setPortSubne(cidr);
@@ -234,6 +236,7 @@ public class AnalysisTerminalUtils {
         }
         log.info("...");
     }
+
 
     /**
      * 根据IPv4地址和子网掩码计算网络地址（CIDR格式，如 "192.168.1.0/24"）
@@ -289,6 +292,27 @@ public class AnalysisTerminalUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(getNetwork("192.168.6.249/255.255.255.0"));
+        Terminal terminal = new Terminal();
+        // 只要有一个IP是fe80开头，就返回1
+        boolean hasFe80Ip = isFe80(terminal.getV6ip()) ||
+                isFe80(terminal.getV6ip1()) ||
+                isFe80(terminal.getV6ip2()) ||
+                isFe80(terminal.getV6ip3());
+        // 逻辑判断
+        if (hasFe80Ip) {
+            System.out.println(1); // 有fe80开头IP → 不符合
+        } else {
+            System.out.println(2); // 全部IP都不是fe80 → 符合
+        }
+        System.out.println(isFe80(""));
+    }
+
+    /**
+     * 判断IP是否是fe80开头（非null且非空）
+     */
+    private static boolean isFe80(String ip) {
+        return ip != null &&
+                !ip.isEmpty() &&  // 替换了StringUtil.isEmpty()
+                ip.toLowerCase().startsWith("fe80");
     }
 }
