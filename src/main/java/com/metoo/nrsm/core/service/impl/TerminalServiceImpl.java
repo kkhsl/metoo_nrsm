@@ -15,7 +15,9 @@ import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.ip.Ipv6.IPv6SubnetCheck;
 import com.metoo.nrsm.core.utils.ip.ipv4.IpSubnetMap;
 import com.metoo.nrsm.core.utils.ip.ipv4.Ipv6SubnetMap;
+import com.metoo.nrsm.core.utils.net.Ipv6Utils;
 import com.metoo.nrsm.entity.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.UnknownHostException;
 import java.util.*;
 
+@Slf4j
 @Service
 @Transactional
 public class TerminalServiceImpl implements ITerminalService {
@@ -60,7 +63,7 @@ public class TerminalServiceImpl implements ITerminalService {
 
     @Override
     public Terminal selectObjById(Long id) {
-        return this.terminalMapper.selectObjById(id);
+        return terminalMapper.selectObjById(id);
     }
 
     @Override
@@ -69,74 +72,74 @@ public class TerminalServiceImpl implements ITerminalService {
             instance = new TerminalDTO();
         }
         Page<Terminal> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
-        this.terminalMapper.selectObjByConditionQuery(instance);
+        terminalMapper.selectObjByConditionQuery(instance);
         return page;
     }
 
     @Override
     public List<Terminal> selectObjByMap(Map params) {
-        return this.terminalMapper.selectObjByMap(params);
+        return terminalMapper.selectObjByMap(params);
     }
 
     @Override
     public List<Terminal> selectObjToProbe(Map params) {
-        return this.terminalMapper.selectObjToProbe(params);
+        return terminalMapper.selectObjToProbe(params);
     }
 
     @Override
     public List<Terminal> selectObjHistoryByMap(Map params) {
-        return this.terminalMapper.selectObjHistoryByMap(params);
+        return terminalMapper.selectObjHistoryByMap(params);
     }
 
     @Override
     public List<Terminal> selectPartitionTerminal(Map params) {
-        return this.terminalMapper.selectPartitionTerminal(params);
+        return terminalMapper.selectPartitionTerminal(params);
     }
 
     @Override
     public List<Terminal> selectPartitionTerminalHistory(Map params) {
-        return this.terminalMapper.selectPartitionTerminalHistory(params);
+        return terminalMapper.selectPartitionTerminalHistory(params);
     }
 
     @Override
     public List<Terminal> selectDeviceIpByNSwitch() {
-        return this.terminalMapper.selectDeviceIpByNSwitch();
+        return terminalMapper.selectDeviceIpByNSwitch();
     }
 
     @Override
     public List<Terminal> selectObjByNeIp() {
-        return this.terminalMapper.selectObjByNeIp();
+        return terminalMapper.selectObjByNeIp();
     }
 
     @Override
     public List<Terminal> selectVMHost() {
-        return this.terminalMapper.selectVMHost();
+        return terminalMapper.selectVMHost();
     }
 
     @Override
     public List<Terminal> selectNSwitchToTopology(Map params) {
-        return this.terminalMapper.selectNSwitchToTopology(params);
+        return terminalMapper.selectNSwitchToTopology(params);
     }
 
     @Override
     public List<Terminal> selectHistoryNSwitchToTopology(Map params) {
-        return this.terminalMapper.selectHistoryNSwitchToTopology(params);
+        return terminalMapper.selectHistoryNSwitchToTopology(params);
     }
 
     @Override
     public List<Terminal> selectCustomPartitionByMap(Map params) {
-        return this.terminalMapper.selectCustomPartitionByMap(params);
+        return terminalMapper.selectCustomPartitionByMap(params);
     }
 
     @Override
     public List<Terminal> selectCustomPartitionHistoryByMap(Map params) {
-        return this.terminalMapper.selectCustomPartitionHistoryByMap(params);
+        return terminalMapper.selectCustomPartitionHistoryByMap(params);
     }
 
     @Override
     public boolean updateVMHostDeviceType() {
         try {
-            this.terminalMapper.updateVMHostDeviceType();
+            terminalMapper.updateVMHostDeviceType();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,7 +150,7 @@ public class TerminalServiceImpl implements ITerminalService {
     @Override
     public boolean updateVMDeviceType() {
         try {
-            this.terminalMapper.updateVMDeviceType();
+            terminalMapper.updateVMDeviceType();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -159,7 +162,7 @@ public class TerminalServiceImpl implements ITerminalService {
     @Override
     public boolean updateVMDeviceIp() {
         try {
-            this.terminalMapper.updateVMDeviceIp();
+            terminalMapper.updateVMDeviceIp();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,13 +175,13 @@ public class TerminalServiceImpl implements ITerminalService {
         Map params = new HashMap();
         params.put("v4ipIsNull", "v4ipIsNull");
         params.put("deviceType", 0);
-        List<Terminal> TerminalList = this.terminalMapper.selectObjByMap(params);
+        List<Terminal> TerminalList = terminalMapper.selectObjByMap(params);
         if(!TerminalList.isEmpty()){
             for (Terminal terminal : TerminalList) {
                 String vendor = VerifyMacVendorUtils.toDevice(terminal.getMacVendor());
                 if(StringUtil.isNotEmpty(vendor)){
                     terminal.setDeviceType(1);
-                    this.terminalMapper.update(terminal);
+                    terminalMapper.update(terminal);
                 }
             }
 
@@ -201,7 +204,7 @@ public class TerminalServiceImpl implements ITerminalService {
                 }
             }
             try {
-                this.terminalMapper.save(instance);
+                terminalMapper.save(instance);
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -216,7 +219,7 @@ public class TerminalServiceImpl implements ITerminalService {
                         instance.setType(1);
                     }
                 }
-                this.terminalMapper.update(instance);
+                terminalMapper.update(instance);
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -229,7 +232,7 @@ public class TerminalServiceImpl implements ITerminalService {
     public boolean update(Terminal instance) {
         try {
             instance.setUpdateTime(new Date());
-            this.terminalMapper.update(instance);
+            terminalMapper.update(instance);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -239,13 +242,13 @@ public class TerminalServiceImpl implements ITerminalService {
 
     @Override
     public int delete(Long id) {
-        return this.terminalMapper.delete(id);
+        return terminalMapper.delete(id);
     }
 
     @Override
     public boolean deleteObjByType(Integer type) {
         try {
-            this.terminalMapper.deleteObjByType(type);
+            terminalMapper.deleteObjByType(type);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -256,7 +259,7 @@ public class TerminalServiceImpl implements ITerminalService {
     @Override
     public boolean batchSave(List<Terminal> instance) {
         try {
-            this.terminalMapper.batchSave(instance);
+            terminalMapper.batchSave(instance);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -267,7 +270,7 @@ public class TerminalServiceImpl implements ITerminalService {
     @Override
     public boolean batchUpdate(List<Terminal> instance) {
         try {
-            this.terminalMapper.batchUpdate(instance);
+            terminalMapper.batchUpdate(instance);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -277,45 +280,45 @@ public class TerminalServiceImpl implements ITerminalService {
 
     @Override
     public void syncTerminal(Date date) {
-        DeviceType deviceTypeDesktop = this.deviceTypeService.selectObjByType(14);// 台式电脑
-        DeviceType deviceTypeOther = this.deviceTypeService.selectObjByType(27);// 其他
+        DeviceType deviceTypeDesktop = deviceTypeService.selectObjByType(14);// 台式电脑
+        DeviceType deviceTypeOther = deviceTypeService.selectObjByType(27);// 其他
 
         // 求交集，更新为终端在线
-        List<Terminal> inner = this.terminalMapper.selectObjIntersection();
+        List<Terminal> inner = terminalMapper.selectObjIntersection();
         if (inner.size() > 0) {
             inner.stream().forEach(e -> {
                 e.setOnline(true);
-                this.setDeviceToTerminal(e, date, deviceTypeDesktop, deviceTypeOther);
+                setDeviceToTerminal(e, date, deviceTypeDesktop, deviceTypeOther);
             });
         }
 
         // 求差集
         try {
-            List<Terminal> left = this.terminalMapper.selectObjLeftdifference();
+            List<Terminal> left = terminalMapper.selectObjLeftdifference();
             if (left.size() > 0) {
                 left.stream().forEach(e -> {
                     e.setAddTime(date);
                     e.setOnline(true);
                     e.setType(0);
                     e.setUuid(UUID.randomUUID().toString());
-                    this.setDeviceToTerminal(e, date, deviceTypeDesktop, deviceTypeOther);
+                    setDeviceToTerminal(e, date, deviceTypeDesktop, deviceTypeOther);
 
                 });
             }
             // 批量插入
             if (left.size() > 0) {
-                this.terminalMapper.batchSave(left);
+                terminalMapper.batchSave(left);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
 
-        List<Terminal> right = this.terminalMapper.selectObjRightdifference();
+        List<Terminal> right = terminalMapper.selectObjRightdifference();
         if (right.size() > 0) {
             right.stream().forEach(e -> {
                 e.setOnline(false);
-                this.setDeviceToTerminal(e, date, deviceTypeDesktop, deviceTypeOther);
+                setDeviceToTerminal(e, date, deviceTypeDesktop, deviceTypeOther);
             });
             inner.addAll(right);
         }
@@ -323,16 +326,16 @@ public class TerminalServiceImpl implements ITerminalService {
         // 批量更新
         if (inner != null && !inner.isEmpty()) {
 //            for (Terminal terminal : inner) {
-//                this.terminalMapper.update(terminal);
+//                terminalMapper.update(terminal);
 //            }
-            this.terminalMapper.batchUpdate(inner);
+            terminalMapper.batchUpdate(inner);
         }
 
-        List<Terminal> neTerminalList = this.terminalMapper.selectObjByNeIp();
+        List<Terminal> neTerminalList = terminalMapper.selectObjByNeIp();
         if(!neTerminalList.isEmpty()){
             for (Terminal terminal : neTerminalList) {
                 try {
-                    this.terminalMapper.update(terminal);
+                    terminalMapper.update(terminal);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -340,11 +343,11 @@ public class TerminalServiceImpl implements ITerminalService {
         }
 
 //        // 删除没有Ip地址的终端
-//        List<Terminal> terminals = this.terminalMapper.selectV4ipIsNullAndV6ipIsNull();
+//        List<Terminal> terminals = terminalMapper.selectV4ipIsNullAndV6ipIsNull();
 //        if(terminals.size() > 0){
 //            for (Terminal terminal : terminals) {
 //                try {
-//                    this.terminalMapper.delete(terminal.getId());
+//                    terminalMapper.delete(terminal.getId());
 //                } catch (Exception e) {
 //                    e.printStackTrace();
 //                }
@@ -360,16 +363,16 @@ public class TerminalServiceImpl implements ITerminalService {
 //    @Override
 //    public void v4Tov6Terminal(Date date) {
 //
-//        DeviceType deviceType1 = this.deviceTypeService.selectObjByType(14);
-//        DeviceType deviceType2 = this.deviceTypeService.selectObjByType(27);
+//        DeviceType deviceType1 = deviceTypeService.selectObjByType(14);
+//        DeviceType deviceType2 = deviceTypeService.selectObjByType(27);
 //
-//        List<Terminal> terminals = this.terminalMapper.selectObjByMap(null);
+//        List<Terminal> terminals = terminalMapper.selectObjByMap(null);
 //        if(terminals.size() > 0){
 //            for (Terminal terminal : terminals) {
-//                this.terminalMapper.delete(terminal.getId());
+//                terminalMapper.delete(terminal.getId());
 //            }
 //        }
-//        List<Arp> arps = this.arpService.selectObjDistinctV4ip();
+//        List<Arp> arps = arpService.selectObjDistinctV4ip();
 //        if(arps.size() > 0){
 //            for (Arp arp : arps) {
 //                Terminal terminal = new Terminal();
@@ -383,8 +386,8 @@ public class TerminalServiceImpl implements ITerminalService {
 //                terminal.setDeviceIp(arp.getDeviceIp());
 //                terminal.setUuid(UUID.randomUUID().toString());
 //                terminal.setOnline(true);
-//                this.setDevice(terminal, date, deviceType1, deviceType2);
-//                this.terminalMapper.save(terminal);
+//                setDevice(terminal, date, deviceType1, deviceType2);
+//                terminalMapper.save(terminal);
 //            }
 //        }
 //    }
@@ -392,10 +395,10 @@ public class TerminalServiceImpl implements ITerminalService {
     @Override
     public void v4Tov6Terminal(Date date) {
 
-        DeviceType desktop = this.deviceTypeService.selectObjByType(14);
-        DeviceType other = this.deviceTypeService.selectObjByType(27);
+        DeviceType desktop = deviceTypeService.selectObjByType(14);
+        DeviceType other = deviceTypeService.selectObjByType(27);
 
-        List<Arp> arps = this.arpService.selectObjDistinctV4ip();
+        List<Arp> arps = arpService.selectObjDistinctV4ip();
         List<Terminal> arpTerminal = new ArrayList<>();
         if(arps.size() > 0){
             for (Arp arp : arps) {
@@ -415,19 +418,19 @@ public class TerminalServiceImpl implements ITerminalService {
             }
         }
 
-        List<Terminal> terminals = this.terminalMapper.selectObjByMap(null);
+        List<Terminal> terminals = terminalMapper.selectObjByMap(null);
         if(arpTerminal.size() > 0){
             if(terminals.size() <= 0){
                 for (Terminal terminal : arpTerminal) {
-                    this.setDeviceToTerminal(terminal, date, desktop, other);
-                    this.terminalMapper.save(terminal);
+                    setDeviceToTerminal(terminal, date, desktop, other);
+                    terminalMapper.save(terminal);
                 }
             }else{
                 List<Terminal> insertList = TerminalUtils.different(arpTerminal, terminals);
                 if(insertList.size() > 0){
                     for (Terminal terminal : insertList) {
-                        this.setDeviceToTerminal(terminal, date, desktop, other);
-                        this.terminalMapper.save(terminal);
+                        setDeviceToTerminal(terminal, date, desktop, other);
+                        terminalMapper.save(terminal);
                     }
                 }
 
@@ -436,8 +439,8 @@ public class TerminalServiceImpl implements ITerminalService {
                     for (Terminal terminal : updateList) {
                         if(terminal.getOnline()){
                             terminal.setOnline(false);
-//                            this.setDevice(terminal, date, deviceType1, deviceType2);
-                            this.terminalMapper.update(terminal);
+//                            setDevice(terminal, date, deviceType1, deviceType2);
+                            terminalMapper.update(terminal);
                         }
                     }
                 }
@@ -448,8 +451,8 @@ public class TerminalServiceImpl implements ITerminalService {
                         if(!terminal.getOnline()){
                             terminal.setOnline(true);
                         }
-                        this.setDeviceToTerminal(terminal, date, desktop, other);
-                        this.terminalMapper.update(terminal);
+                        setDeviceToTerminal(terminal, date, desktop, other);
+                        terminalMapper.update(terminal);
                     }
                 }
             }
@@ -458,7 +461,7 @@ public class TerminalServiceImpl implements ITerminalService {
                 // 排除相同mac地址arp，并判断type是否为修改过终端类型的终端
                 for (Terminal terminal : terminals) {
                     terminal.setOnline(false);
-                    this.terminalMapper.update(terminal);
+                    terminalMapper.update(terminal);
                 }
             }
         }
@@ -470,7 +473,7 @@ public class TerminalServiceImpl implements ITerminalService {
 
         List<TerminalUnitSubnet> ipv4Subnet = terminalUnitSubnetService.selectObjByMap(null);
 
-        List<TerminalUnit> terminalUnitList = this.terminalUnitService.selectObjByMap(null);
+        List<TerminalUnit> terminalUnitList = terminalUnitService.selectObjByMap(null);
 
         if(ipv4Subnet.size() > 0 && terminalUnitList.size() > 0){
 
@@ -495,18 +498,18 @@ public class TerminalServiceImpl implements ITerminalService {
 
             Map params = new HashMap();
             params.put("online", false);
-            List<Terminal> onlineTerminal = this.terminalMapper.selectObjByMap(params);
+            List<Terminal> onlineTerminal = terminalMapper.selectObjByMap(params);
             if(onlineTerminal.size() > 0){
                 for (Terminal terminal : onlineTerminal) {
                     if(StringUtil.isNotEmpty(terminal.getV4ip())){
                         terminal.setUnitId(null);
-                        this.terminalMapper.update(terminal);
+                        terminalMapper.update(terminal);
                     }
                 }
             }
 
             if(map.size() > 0){
-                List<Terminal> terminalList = this.terminalMapper.selectObjByMap(null);
+                List<Terminal> terminalList = terminalMapper.selectObjByMap(null);
                 if(terminalList.size() > 0){
                     for (Terminal terminal : terminalList) {
                         String ip = terminal.getV4ip();
@@ -518,7 +521,7 @@ public class TerminalServiceImpl implements ITerminalService {
                             if(result != null){
                                 if(terminal.getUnitId() == null ||
                                         !"".equals(terminal.getUnitId())){
-                                    TerminalUnit terminalUnit = this.terminalUnitService.selectObjById(result);
+                                    TerminalUnit terminalUnit = terminalUnitService.selectObjById(result);
                                     if(terminalUnit != null){
                                         terminal.setUnitId(result);
                                         terminal.setUnitName(terminalUnit.getName());
@@ -526,12 +529,12 @@ public class TerminalServiceImpl implements ITerminalService {
                                         terminal.setUnitId(null);
                                         terminal.setUnitName(null);
                                     }
-                                    this.terminalMapper.update(terminal);
+                                    terminalMapper.update(terminal);
                                 }
                             }else{
                                 terminal.setUnitId(null);
                                 terminal.setUnitName(null);
-                                this.terminalMapper.update(terminal);
+                                terminalMapper.update(terminal);
                             }
                         } catch (UnknownHostException e) {
                             e.printStackTrace();
@@ -547,7 +550,7 @@ public class TerminalServiceImpl implements ITerminalService {
 
         List<TerminalUnitSubnetV6> ipv6Subnet = terminalUnitSubnetV6Service.selectObjByMap(null);
 
-        List<TerminalUnit> terminalUnitList = this.terminalUnitService.selectObjByMap(null);
+        List<TerminalUnit> terminalUnitList = terminalUnitService.selectObjByMap(null);
 
         if(ipv6Subnet.size() > 0 && terminalUnitList.size() > 0){
 
@@ -572,18 +575,18 @@ public class TerminalServiceImpl implements ITerminalService {
 
             Map params = new HashMap();
             params.put("online", false);
-            List<Terminal> onlineTerminal = this.terminalMapper.selectObjByMap(params);
+            List<Terminal> onlineTerminal = terminalMapper.selectObjByMap(params);
             if(onlineTerminal.size() > 0){
                 for (Terminal terminal : onlineTerminal) {
                     if(StringUtil.isEmpty(terminal.getV4ip()) && StringUtil.isNotEmpty(terminal.getV6ip())){
                         terminal.setUnitId(null);
-                        this.terminalMapper.update(terminal);
+                        terminalMapper.update(terminal);
                     }
                 }
             }
 
             if(map.size() > 0){
-                List<Terminal> terminalList = this.terminalMapper.selectObjByMap(null);
+                List<Terminal> terminalList = terminalMapper.selectObjByMap(null);
                 if(terminalList.size() > 0){
                     for (Terminal terminal : terminalList) {
                         String ip = terminal.getV6ip();
@@ -593,7 +596,7 @@ public class TerminalServiceImpl implements ITerminalService {
                                 if(result != null){
                                     if(terminal.getUnitId() == null ||
                                             !"".equals(terminal.getUnitId())){
-                                        TerminalUnit terminalUnit = this.terminalUnitService.selectObjById(result);
+                                        TerminalUnit terminalUnit = terminalUnitService.selectObjById(result);
                                         if(terminalUnit != null){
                                             terminal.setUnitId(result);
                                             terminal.setUnitName(terminalUnit.getName());
@@ -601,12 +604,12 @@ public class TerminalServiceImpl implements ITerminalService {
                                             terminal.setUnitId(null);
                                             terminal.setUnitName(null);
                                         }
-                                        this.terminalMapper.update(terminal);
+                                        terminalMapper.update(terminal);
                                     }
                                 }else{
                                     terminal.setUnitId(null);
                                     terminal.setUnitName(null);
-                                    this.terminalMapper.update(terminal);
+                                    terminalMapper.update(terminal);
                                 }
                             } catch (UnknownHostException e) {
                                 e.printStackTrace();
@@ -624,22 +627,19 @@ public class TerminalServiceImpl implements ITerminalService {
         List<UnitSubnet> unitSubnetList = unitSubnetService.selectObjAll();
         Map params = new HashMap();
         params.put("online", false);
-        List<Terminal> onlineTerminal = this.terminalMapper.selectObjByMap(params);
+        List<Terminal> onlineTerminal = terminalMapper.selectObjByMap(params);
         if(onlineTerminal.size() > 0){
             for (Terminal terminal : onlineTerminal) {
-//                if(StringUtil.isEmpty(terminal.getV4ip()) && StringUtil.isEmpty(terminal.getV6ip())){
-//
-//                }
                 if(terminal.getUnitId() != null){
                     terminal.setUnitId(null);
-                    this.terminalMapper.update(terminal);
+                    terminalMapper.update(terminal);
                 }
             }
         }
 
         if(!unitSubnetList.isEmpty()){
 
-            List<Terminal> terminalList = this.terminalMapper.selectObjByMap(null);
+            List<Terminal> terminalList = terminalMapper.selectObjByMap(null);
             if(!terminalList.isEmpty()){
                 outerLoop: for (Terminal terminal : terminalList) {
                     if(StringUtils.isEmpty(terminal.getV4ip()) && StringUtils.isEmpty(terminal.getV6ip()) && terminal.getUnitId() != null){
@@ -655,7 +655,7 @@ public class TerminalServiceImpl implements ITerminalService {
                                         boolean flag = IpSubnetMap.isIpInSubnet(terminal.getV4ip(), subnet);
                                         if(flag){
                                             terminal.setUnitId(unitSubnet.getUnitId());
-                                            this.terminalMapper.update(terminal);
+                                            terminalMapper.update(terminal);
                                             continue outerLoop; // 跳出外层循环
                                         }
                                     } catch (UnknownHostException e) {
@@ -673,7 +673,7 @@ public class TerminalServiceImpl implements ITerminalService {
                                     if(flag){
                                         terminal.setUnitId(unitSubnet.getUnitId());
                                         terminal.setUnitName(unitSubnet.getName());
-                                        this.terminalMapper.update(terminal);
+                                        terminalMapper.update(terminal);
                                         continue outerLoop; // 跳出外层循环
                                     }
                                 }
@@ -682,22 +682,43 @@ public class TerminalServiceImpl implements ITerminalService {
                     }
                 }
             }
-
         }
     }
 
     @Override
     public void dualStackTerminal() {
-        List<Terminal> terminalList = this.terminalMapper.selectObjByMap(null);
-        if(terminalList.size() > 0){
-            for (Terminal terminal : terminalList) {
-                if(StringUtil.isNotEmpty(terminal.getV6ip())){
-                    TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Mapper.getMacByMacAddress(terminal.getMac());
-                    if(terminalMacIpv6 == null){
-                        this.terminalMacIpv6Mapper.insertMac(terminal.getMac(), 1);
-                    }
-                }
+        List<Terminal> terminalList = terminalMapper.selectObjByMap(Collections.emptyMap());
+        if (terminalList.isEmpty()) {
+            return;
+        }
+        List<String> macList = new ArrayList<>();
+        for (Terminal terminal : terminalList) {
+            if((StringUtil.isNotEmpty(terminal.getV6ip()) && terminal.getV6ip().toLowerCase().startsWith("fe80"))
+                    || StringUtil.isNotEmpty(terminal.getV6ip1()) && terminal.getV6ip1().toLowerCase().startsWith("fe80")
+                    || StringUtil.isNotEmpty(terminal.getV6ip2()) && terminal.getV6ip2().toLowerCase().startsWith("fe80")
+                    || StringUtil.isNotEmpty(terminal.getV6ip3()) && terminal.getV6ip3().toLowerCase().startsWith("fe80")){
+                processTerminalMac(terminal, macList);
             }
+        }
+        if (!macList.isEmpty()) {
+            List<TerminalMacIpv6> terminalMacIpv6s = terminalMacIpv6Mapper.findAllExcludingMacs(macList);
+            if(!terminalMacIpv6s.isEmpty()){
+                terminalMacIpv6s.forEach(mac -> terminalMacIpv6Mapper.updateMac(mac.getMac(), 0));
+            }
+        }
+    }
+
+    private void processTerminalMac(Terminal terminal, List<String> macList) {
+        TerminalMacIpv6 terminalMacIpv6 = terminalMacIpv6Mapper.getMacByMacAddress(terminal.getMac());
+        if (terminalMacIpv6 == null) {
+            try {
+                terminalMacIpv6Mapper.insertMac(terminal.getMac(), 1);
+                macList.add(terminal.getMac());
+            } catch (Exception e) {
+                log.error("Failed to insert MAC address: {}", terminal.getMac(), e);
+            }
+        }else{
+            macList.add(terminalMacIpv6.getMac());
         }
     }
 
@@ -705,7 +726,7 @@ public class TerminalServiceImpl implements ITerminalService {
     public void writeTerminalType() {
         Map params = new HashMap();
         params.put("type", 0);
-        List<Terminal> terminalList = this.terminalMapper.selectObjByMap(params);
+        List<Terminal> terminalList = terminalMapper.selectObjByMap(params);
         if(terminalList.size() > 0){
             for (Terminal terminal : terminalList) {
                 if(StringUtil.isNotEmpty(terminal.getMac())){
@@ -714,19 +735,19 @@ public class TerminalServiceImpl implements ITerminalService {
                         String mac = MacUtils.getMac(terminal.getMac());
                         params.clear();
                         params.put("mac", mac);
-                        List<MacVendor> macVendors = this.macVendorMapper.selectObjByMap(params);
+                        List<MacVendor> macVendors = macVendorMapper.selectObjByMap(params);
                         if(macVendors.size() > 0){
                             MacVendor macVendor = macVendors.get(0);
                             // 查询设备类型
                             if(StringUtils.isNotEmpty(macVendor.getVendor())){
                                 // 查询termial_mac_vendor 写入设备类型
-                                TerminalMacVendor terminalMacVendor = this.terminalMacVendorMapper.selectByVendor(macVendor.getVendor());
+                                TerminalMacVendor terminalMacVendor = terminalMacVendorMapper.selectByVendor(macVendor.getVendor());
                                 if(terminalMacVendor != null){
                                     if(terminal.getType() == null || terminal.getType() != 1){
-                                        DeviceType deviceType = this.deviceTypeService.selectObjById(terminalMacVendor.getTerminalTypeId());
+                                        DeviceType deviceType = deviceTypeService.selectObjById(terminalMacVendor.getTerminalTypeId());
                                         if(deviceType != null){
                                             terminal.setDeviceTypeId(deviceType.getId());
-                                            this.terminalMapper.update(terminal);
+                                            terminalMapper.update(terminal);
                                         }
                                     }
                                 }
@@ -745,12 +766,12 @@ public class TerminalServiceImpl implements ITerminalService {
         String vendor = "VMware, Inc.";
         Map params = new HashMap();
         params.put("macVendor", vendor);
-        List<Terminal> terminals = this.terminalMapper.selectObjByMap(params);
+        List<Terminal> terminals = terminalMapper.selectObjByMap(params);
         if(!terminals.isEmpty()){
             terminals.forEach(e -> {
                 try {
                     e.setDeviceTypeId(9L);
-                    this.terminalMapper.update(e);
+                    terminalMapper.update(e);
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -772,7 +793,7 @@ public class TerminalServiceImpl implements ITerminalService {
         if (StringUtils.isNotEmpty(e.getDeviceIp())) {
             params.clear();
             params.put("ip", e.getDeviceIp());
-            List<NetworkElement> nes = this.networkElementService.selectObjByMap(params);
+            List<NetworkElement> nes = networkElementService.selectObjByMap(params);
             if (nes.size() > 0) {
                 NetworkElement ne = nes.get(0);
                 e.setDeviceUuid(ne.getUuid());
@@ -782,7 +803,7 @@ public class TerminalServiceImpl implements ITerminalService {
             params.clear();
             params.put("deviceName", e.getDeviceName());
             params.put("deleteStatus", 1);
-            List<NetworkElement> NSwitch_nes = this.networkElementService.selectObjByMap(params);
+            List<NetworkElement> NSwitch_nes = networkElementService.selectObjByMap(params);
             if (NSwitch_nes.size() > 0) {
                 NetworkElement ne = NSwitch_nes.get(0);
                 e.setDeviceUuid(ne.getUuid());
@@ -797,7 +818,7 @@ public class TerminalServiceImpl implements ITerminalService {
             params.clear();
             params.put("deviceName", e.getDeviceName());
             params.put("type", 3);
-            List<NetworkElement> ap_nes = this.networkElementService.selectObjByMap(params);
+            List<NetworkElement> ap_nes = networkElementService.selectObjByMap(params);
             if (ap_nes.size() > 0) {
                 NetworkElement ne = ap_nes.get(0);
                 e.setDeviceUuid(ne.getUuid());
@@ -809,14 +830,14 @@ public class TerminalServiceImpl implements ITerminalService {
         if (StringUtils.isNotEmpty(e.getRemoteDeviceIp())) {
             params.clear();
             params.put("ip", e.getRemoteDeviceIp());
-            List<NetworkElement> nes2 = this.networkElementService.selectObjByMap(params);
+            List<NetworkElement> nes2 = networkElementService.selectObjByMap(params);
             if (nes2.size() > 0) {
                 NetworkElement ne = nes2.get(0);
                 e.setRemoteDeviceUuid(ne.getUuid());
             }
         }
         // 判断设备在线/离线、设备uuid/port、根据端口up/down
-        this.verifyTerminalOnlineOfOffline(e.getDeviceUuid(), e.getPort(), e);
+        verifyTerminalOnlineOfOffline(e.getDeviceUuid(), e.getPort(), e);
 
         if (e.getOnline()) {
 //            if (e.getType() == null || e.getType() == 0) {
@@ -867,7 +888,7 @@ public class TerminalServiceImpl implements ITerminalService {
         if (StringUtils.isNotBlank(deviceUuid) && StringUtils.isNotBlank(port)) {
             params.put("port", port);
             params.put("deviceUuid", deviceUuid);
-            List<Port> ports = this.portService.selectObjByMap(params);
+            List<Port> ports = portService.selectObjByMap(params);
             if (ports.size() > 0) {
                 Port port1 = ports.get(0);
                 if(port1 != null){
@@ -879,7 +900,7 @@ public class TerminalServiceImpl implements ITerminalService {
                     }
                 }
             }
-//            List<PortIpv6> portIpv6s = this.portIpv6Service.selectObjByMap(params);
+//            List<PortIpv6> portIpv6s = portIpv6Service.selectObjByMap(params);
 //            if (portIpv6s.size() > 0) {
 //                PortIpv6 portIpv6 = ports.get(0);
 //                if(portIpv6 != null){
@@ -897,14 +918,13 @@ public class TerminalServiceImpl implements ITerminalService {
     // 优化：对比上次采集结果，如果没有变化则不记录
     @Override
     public void syncTerminalToTerminalHistory() {
-        this.terminalMapper.copyTerminalToTerminalHistory();
+        terminalMapper.copyTerminalToTerminalHistory();
     }
 
     @Override
     public Map<String, Integer> terminalCount() {
-        return this.terminalMapper.terminalCount();
+        return terminalMapper.terminalCount();
     }
 
-    ;
 }
 

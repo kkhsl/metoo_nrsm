@@ -106,7 +106,8 @@
             addTime,
             port,
             ipv6,
-            deviceUuid
+            deviceUuid,
+            ipv6_local
           )
         VALUES
         <foreach collection ="list" item="item" separator ="," >
@@ -114,7 +115,8 @@
                 #{item.addTime},
                 #{item.port},
                 #{item.ipv6},
-                #{item.deviceUuid}
+                #{item.deviceUuid},
+                #{item.ipv6_local}
             )
         </foreach>
     </insert>

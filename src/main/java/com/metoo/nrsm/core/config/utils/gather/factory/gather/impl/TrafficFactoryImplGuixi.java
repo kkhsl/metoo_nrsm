@@ -27,10 +27,8 @@ public class TrafficFactoryImplGuixi implements Gather {
     }
 
     public void executeMethod() {
-        log.info("Traffic start=========");
         IFlowUnitService flowUnitService = (IFlowUnitService)ApplicationContextUtils.getBean("flowUnitServiceImpl");
         IGatewayService gatewayService = (IGatewayService)ApplicationContextUtils.getBean("gatewayServiceImpl");
-        PyExecUtils pyExecUtils = (PyExecUtils)ApplicationContextUtils.getBean("pyExecUtils");
         List<Gateway> list = gatewayService.selectObjByMap((Map)null);
         if (list.size() > 0) {
             Iterator var5 = list.iterator();
@@ -41,16 +39,13 @@ public class TrafficFactoryImplGuixi implements Gather {
                 params.put("hidden", false);
                 params.put("gatewayId", gateway.getId());
                 List<FlowUnit> units = flowUnitService.selectObjByMap(params);
-                Iterator var9 = units.iterator();
-
-                while(var9.hasNext()) {
-                    FlowUnit unit = (FlowUnit)var9.next();
+                Iterator iterator = units.iterator();
+                while(iterator.hasNext()) {
+                    FlowUnit unit = (FlowUnit)iterator.next();
                     this.insertTraffic(unit);
                     flowUnitService.update(unit);
                 }
             }
-
-            log.info("Traffic end =========");
         }
 
     }

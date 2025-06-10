@@ -14,6 +14,7 @@ import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.gather.snmp.utils.MacManager;
 import com.metoo.nrsm.core.utils.gather.concurrent.GatherDataThreadPool;
+import com.metoo.nrsm.core.utils.gather.terminal.AnalysisTerminalUtils;
 import com.metoo.nrsm.core.utils.gather.thread.GatherMacSNMPRunnable;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
@@ -54,6 +55,8 @@ public class GatherSingleThreadingMacSNMPUtils {
     private PythonExecUtils pythonExecUtils;
     @Autowired
     private MacManager macManager;
+    @Autowired
+    private AnalysisTerminalUtils analysisTerminal;
 
     @Autowired
     private GatherDataThreadPool gatherDataThreadPool;
@@ -360,6 +363,9 @@ public class GatherSingleThreadingMacSNMPUtils {
 
         // 同步终端到历史表
         syncTerminalToHistory();
+
+        // 终端诊断
+        analysisTerminal.analyze(); // 调用 AnalysisTerminal 的方法
     }
 
     /**

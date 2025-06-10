@@ -38,8 +38,6 @@ public class NetworkManagerControllerApi {
     @Autowired
     private RedisResponseUtils redisResponseUtils;
     @Autowired
-    private PythonExecUtils pythonExecUtils;
-    @Autowired
     private DeviceManager deviceManager;
 
     /**

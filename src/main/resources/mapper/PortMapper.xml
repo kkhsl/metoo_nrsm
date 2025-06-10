@@ -36,8 +36,8 @@
             <if test="NotIp != null and NotIp != ''">
                 AND ip != #{NotIp}
             </if>
-            <if test="ipIsNotNull != null and ipIsNotNull != ''">
-                AND ip != ''
+            <if test="ipIsNotNull != null and ipIsNotNull">
+                AND ip is not null AND ip != ''
             </if>
             <if test="mask != null and mask != ''">
                 AND mask = #{mask}
@@ -45,8 +45,17 @@
             <if test="port != null and port != ''">
                 AND port = #{port}
             </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
             <if test="deviceUuid != null and deviceUuid != ''">
                 AND deviceUuid = #{deviceUuid}
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
+            <if test="ipIsNotNull != null and ipIsNotNull">
+                AND ip IS NOT NULL and ip != ''
             </if>
         </where>
         ORDER BY ip IS NULL,INET_ATON(ip) ASC

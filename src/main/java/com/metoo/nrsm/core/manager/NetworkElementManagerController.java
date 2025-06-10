@@ -6,6 +6,8 @@ import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.NetworkElementDto;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.file.DownLoadFileUtil;
@@ -193,18 +195,27 @@ public class NetworkElementManagerController {
             NetworkElement networkElement = this.networkElementService.selectObjByUuid(uuid);
             if(networkElement != null){
                 String result = null;
-                try {
-                    String path = Global.PYPATH + "getuptime.py";
-                    String[] params = {networkElement.getIp(), networkElement.getVersion(),
-                            networkElement.getCommunity()};
-                    result = pythonExecUtils.exec(path, params);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    String path = Global.PYPATH + "getuptime.py";
+//                    String[] params = {networkElement.getIp(), networkElement.getVersion(),
+//                            networkElement.getCommunity()};
+//                    result = pythonExecUtils.exec(path, params);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
                 if(StringUtil.isNotEmpty(result)){
                     String timeticks = uptime(Long.parseLong(result));
                     networkElement.setTimeticks(timeticks);
                 }
+
+                SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                        .version("v2c")
+                        .host("192.168.6.1")
+                        .community("public@123")
+                        .port(161)
+                        .build();
+                String timeticks = SNMPv3Request.getDeviceUpdateTime(snmpv3Params);
+                networkElement.setTimeticks(timeticks);
                 List<Port> ports = this.portService.selectObjByDeviceUuid(uuid);
 
                 networkElement.setPorts(ports);

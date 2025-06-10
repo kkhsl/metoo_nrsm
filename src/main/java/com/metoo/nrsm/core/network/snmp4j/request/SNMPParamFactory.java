@@ -270,6 +270,18 @@ public class SNMPParamFactory {
     }
 
     @Test
+    public void getUpTime(){
+        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                .version("v2c")
+                .host("192.168.6.1")
+                .community("public@123")
+                .port(161)
+                .build();
+        String upTime = SNMPv3Request.getDeviceUpdateTime(snmpv3Params);
+        log.info("启动时间：{}", upTime);
+    }
+
+    @Test
     public void testSNMPv3GetTrafficPY(){
         String path = "/opt/nrsm/py/gettraffic.py";
         String[] params = {"113.240.243.196", "v2c",

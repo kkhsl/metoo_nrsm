@@ -556,8 +556,6 @@ public class GatherServiceImpl implements IGatherService {
 
         if(networkElements.size() > 0) {
 
-            this.portIpv6Service.copyGatherData();
-
             this.portIpv6Service.truncateTableGather();
 
             CountDownLatch latch = new CountDownLatch(networkElements.size());
@@ -574,6 +572,9 @@ public class GatherServiceImpl implements IGatherService {
             try {
 
                 boolean completed = latch.await(10, TimeUnit.MINUTES);
+
+                this.portIpv6Service.copyGatherData();
+
                 log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
 
                 log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());

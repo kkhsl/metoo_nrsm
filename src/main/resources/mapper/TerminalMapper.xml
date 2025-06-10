@@ -120,11 +120,17 @@
             <if test="tag != null and tag != ''">
                 AND tag = #{tag}
             </if>
+            <if test="online != null">
+                AND online = #{online}
+            </if>
             <if test="tagIsNull != null and tagIsNull != ''">
                 AND tag is null
             </if>
             <if test="v4ipIsNull != null and v4ipIsNull != ''">
                 AND v4ip IS NULL
+            </if>
+            <if test="v4IPIsNotNull != null and v4IPIsNotNull">
+                AND v4ip IS NOT NULL AND v4ip != ''
             </if>
             <if test="deviceType != null">
                 AND deviceType = #{deviceType}
@@ -158,9 +164,6 @@
             </if>
             <if test="terminalId != null">
                 AND `id` != #{terminalId}
-            </if>
-            <if test="online != null">
-                AND online = #{online}
             </if>
             <if test="deviceUuid2 != null and deviceUuid2 != ''">
                 OR deviceUuid2 = #{deviceUuid2}
@@ -907,7 +910,13 @@
         <result column="deviceUuid2" property="deviceUuid2"></result>
         <result column="deviceTypeId" property="deviceTypeId"></result>
         <result column="v4ip" property="v4ip"></result>
+        <result column="v4ip1" property="v4ip1"></result>
+        <result column="v4ip2" property="v4ip2"></result>
+        <result column="v4ip3" property="v4ip3"></result>
         <result column="v6ip" property="v6ip"></result>
+        <result column="v6ip1" property="v6ip1"></result>
+        <result column="v6ip2" property="v6ip2"></result>
+        <result column="v6ip3" property="v6ip3"></result>
         <result column="mac" property="mac"></result>
         <result column="vlan" property="vlan"></result>
         <result column="macVendor" property="macVendor"></result>
@@ -928,7 +937,13 @@
             <result column="d2_deviceUuid2" property="deviceUuid2"></result>
             <result column="d2_deviceTypeId" property="deviceTypeId"></result>
             <result column="d2_v4ip" property="v4ip"></result>
+            <result column="d2_v4ip1" property="v4ip1"></result>
+            <result column="d2_v4ip2" property="v4ip2"></result>
+            <result column="d2_v4ip3" property="v4ip3"></result>
             <result column="d2_v6ip" property="v6ip"></result>
+            <result column="d2_v6ip1" property="v6ip1"></result>
+            <result column="d2_v6ip2" property="v6ip2"></result>
+            <result column="d2_v6ip3" property="v6ip3"></result>
             <result column="d2_mac" property="mac"></result>
             <result column="d2_vlan" property="vlan"></result>
             <result column="d2_macVendor" property="macVendor"></result>
@@ -961,7 +976,14 @@
             d1.deviceUuid,
             d1.deviceUuid2,
             d1.deviceTypeId,
-            d1.v4ip, d1.v6ip,
+            d1.v4ip,
+            d1.v4ip1,
+            d1.v4ip2,
+            d1.v4ip3,
+            d1.v6ip,
+            d1.v6ip1,
+            d1.v6ip2,
+            d1.v6ip3,
             d1.mac,
             d1.vlan,
             d1.macVendor,
@@ -978,7 +1000,13 @@
             d2.deviceUuid2 AS d2_deviceUuid2,
             d2.deviceTypeId AS d2_deviceTypeId,
             d2.v4ip AS d2_v4ip,
+            d2.v4ip1 AS d2_v4ip1,
+            d2.v4ip2 AS d2_v4ip2,
+            d2.v4ip3 AS d2_v4ip3,
             d2.v6ip AS d2_v6ip,
+            d2.v6ip1 AS d2_v6ip1,
+            d2.v6ip2 AS d2_v6ip2,
+            d2.v6ip3 AS d2_v6ip3,
             d2.mac AS d2_mac,
             d2.vlan AS d2_vlan,
             d2.macVendor AS d2_macVendor,
@@ -1028,7 +1056,14 @@
         d1.deviceUuid,
         d1.deviceUuid2,
         d1.deviceTypeId,
-        d1.v4ip, d1.v6ip,
+        d1.v4ip,
+        d1.v4ip1,
+        d1.v4ip2,
+        d1.v4ip3,
+        d1.v6ip,
+        d1.v6ip1,
+        d1.v6ip2,
+        d1.v6ip3,
         d1.mac,
         d1.vlan,
         d1.macVendor,
@@ -1047,7 +1082,13 @@
         d2.deviceUuid2 AS d2_deviceUuid2,
         d2.deviceTypeId AS d2_deviceTypeId,
         d2.v4ip AS d2_v4ip,
+        d2.v4ip1 AS d2_v4ip1,
+        d2.v4ip2 AS d2_v4ip2,
+        d2.v4ip3 AS d2_v4ip3,
         d2.v6ip AS d2_v6ip,
+        d2.v6ip1 AS d2_v6ip1,
+        d2.v6ip2 AS d2_v6ip2,
+        d2.v6ip3 AS d2_v6ip3,
         d2.mac AS d2_mac,
         d2.vlan AS d2_vlan,
         d2.macVendor AS d2_macVendor,
@@ -1613,6 +1654,15 @@
             </if>
             <if test="unitName != null and unitName != ''">
                 unitName = #{unitName},
+            </if>
+            <if test="config != null">
+                config = #{config},
+            </if>
+            <if test="portName != null and portName != ''">
+                portName = #{portName},
+            </if>
+            <if test="portSubne != null and portSubne != ''">
+                portSubne = #{portSubne},
             </if>
         </set>
         WHERE id = #{id}

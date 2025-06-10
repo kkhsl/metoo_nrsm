@@ -203,6 +203,10 @@ public class Terminal extends IdEntity {
 
     private List<Terminal> terminalList = new ArrayList<>();
 
+    // 配置状态
+    private Integer config;
+    private String portName;
+    private String portSubne;
 
 
 }

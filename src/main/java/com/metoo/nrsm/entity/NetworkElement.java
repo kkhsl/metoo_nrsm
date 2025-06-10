@@ -96,6 +96,7 @@ public class NetworkElement extends IdEntity {
     @ExcelImport("SNMP版本 version1: 0  version2c：1 version3：3")
     private String version;
 
+    @ApiModelProperty("启动时间")
     private String timeticks;
 
     @ApiModelProperty("默认：0 批量导入：2 ac：3")

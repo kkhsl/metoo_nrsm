@@ -23,4 +23,9 @@ public class IdEntity implements Serializable{
     private Date updateTime;
     private Integer deleteStatus;// 删除状态
 
+    public IdEntity(Long id, Date addTime, Integer deleteStatus) {
+        this.id = id;
+        this.addTime = addTime;
+        this.deleteStatus = deleteStatus;
+    }
 }

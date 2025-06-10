@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ApiService {
 
 
-//        private final static String URL = "http://175.6.37.154:10000/api/general/log/data/{data}";
+//        private final static String URL = "http://175.6.37.154:10000/api/general/log/data/{data}"; // 操作日志
 
     private final static String URL = "http://175.6.37.154:10000/api/nrsm/traffic/data/{data}";
 
