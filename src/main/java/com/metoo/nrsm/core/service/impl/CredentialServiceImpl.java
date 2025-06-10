@@ -143,4 +143,12 @@ public class CredentialServiceImpl implements ICredentialService {
         this.credentialMaaper.selectConditionQuery(dto);
         return page;
     }
+    @Override
+    public List<Credential> selectObjByIdQuery(CredentialDTO dto) {
+        if(dto == null){
+            dto = new CredentialDTO();
+        }
+        return this.credentialMaaper.selectConditionQuery(dto);
+    }
+
 }

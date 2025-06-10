@@ -2,8 +2,6 @@ package com.metoo.nrsm.entity;
 
 import com.metoo.nrsm.core.config.annotation.excel.ExcelImport;
 import com.metoo.nrsm.core.domain.IdEntity;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,6 +37,8 @@ public class NetworkElement extends IdEntity {
     private String filter;
     private String interfaceName;
     private Integer portIndex;
+    private Integer portSSH;
+    private Integer portTelnet;
     private Long groupId;
     private String groupName;
     private Long deviceTypeId;

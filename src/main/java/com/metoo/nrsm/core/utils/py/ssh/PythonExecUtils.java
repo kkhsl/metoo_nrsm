@@ -1,6 +1,5 @@
 package com.metoo.nrsm.core.utils.py.ssh;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.utils.Global;
 import lombok.extern.slf4j.Slf4j;
@@ -9,9 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author HKK
@@ -98,7 +100,7 @@ public class PythonExecUtils implements InitializingBean {
     }
 
     public String exec(String path, String[] params) {
-        String py_version = Global.py_name;;
+        String py_version = Global.py_name;
         if("dev".equals(Global.env)){
             return sshExecutor.exec(path, params);
         }
@@ -151,6 +153,61 @@ public class PythonExecUtils implements InitializingBean {
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+
+    public String execPy(String path, String[] params) {
+        String py_version = Global.py_name;
+        if("dev".equals(Global.env)){
+            return sshExecutor.exec(path, params);
+        }
+
+        // 指定需要进入的目录
+        String workingDirectory = Global.BKPATH;
+
+        StringBuilder sb = new StringBuilder();
+        try {
+            // 构建基础命令
+            List<String> command = new ArrayList<>();
+            command.add(py_version);
+            command.add("-W");
+            command.add("ignor");
+            command.add(path);
+
+            // 添加参数（过滤空值）
+            if (params != null) {
+                for (String param : params) {
+                    if (param != null) {
+                        command.add(param);
+                    }
+                }
+            }
+
+            // 创建ProcessBuilder并设置工作目录
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.directory(new File(workingDirectory)); // 设置工作目录
+            pb.redirectErrorStream(true); // 合并错误流到输出流
+
+            Process proc = pb.start();
+
+            // 读取输出
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                sb.append(line).append("\n"); // 保留换行符
+            }
+            in.close();
+
+            int exitCode = proc.waitFor();
+            if (exitCode != 0) {
+                sb.append("Process exited with code: ").append(exitCode);
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            sb.append("Error: ").append(e.getMessage());
         }
         return sb.toString();
     }

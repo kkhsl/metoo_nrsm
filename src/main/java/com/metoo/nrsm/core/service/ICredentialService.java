@@ -29,6 +29,7 @@ public interface ICredentialService {
     List<Credential> getAll();
 
     Page<Credential> selectObjByConditionQuery(CredentialDTO dto);
+    List<Credential> selectObjByIdQuery(CredentialDTO dto);
 
 
 }
