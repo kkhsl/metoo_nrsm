@@ -8,7 +8,9 @@ import com.metoo.nrsm.core.dto.InterfaceDTO;
 import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.utils.ip.CIDRUtils;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
+import com.metoo.nrsm.core.utils.ip.Ipv6.CIDRContainsCheck;
 import com.metoo.nrsm.core.utils.ip.Ipv6.Ipv6CIDRUtils;
+import com.metoo.nrsm.core.utils.ip.Ipv6.Ipv6Utils;
 import com.metoo.nrsm.core.utils.ip.Ipv6Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
@@ -47,9 +49,8 @@ public class EnhancementInterfaceManagerController {
     @PostMapping({"/save"})
     public Object save(@RequestBody Interface instance) {
         Map params = new HashMap();
-        // 1.如果更新的是主接口
+        // 1.如果更新的是主接口, 检查主接口下是否存在子接口，如果存在则不允许,报错
         if(instance.getParentId() == null){
-            // 检查主接口下是否存在子接口，如果存在则不允许,报错
             List<Interface> interfaces = this.interfaceService.selectObjByParentId(instance.getId());
             if(interfaces.size() > 0){
                 return ResponseUtil.badArgument("当前接口存在子接口，请先删除子接口在进行主接口配置");
@@ -78,10 +79,10 @@ public class EnhancementInterfaceManagerController {
             if(!Ipv4Util.verifyCidr(instance.getIpv4Address())){
                 return ResponseUtil.badArgument("IPv4格式错误，不符合CIDR格式");
             }
-            // 计算网段
+            // 计算网段，验证网段是否已经存在
             try {
                 String ipv4NetworkSegment = CIDRUtils.getIPv4NetworkSegment(instance.getIpv4Address());
-                // 验证网段是否已经存在
+
                 params.clear();
                 params.put("ipv4NetworkSegment", ipv4NetworkSegment);
                 params.put("excludeId", instance.getId());
@@ -92,6 +93,18 @@ public class EnhancementInterfaceManagerController {
                 }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
+            }
+            // 验证ip地址与已存在ip地址是否存在包含关系
+            params.clear();
+            params.put("ipv4AddressNOTNULL", true);
+            List<Interface> interfaceList = this.interfaceService.selectObjByMap(params);
+            if(interfaceList.size() >= 1){
+                for (Interface anInterface : interfaceList) {
+                    boolean flag = CIDRContainsCheck.checkCIDRInclusion(anInterface.getIpv4Address(), instance.getIpv4Address());
+                    if(flag){
+                        return ResponseUtil.badArgument("其他接口已配置包含当前IP地址，" + instance.getIpv4Address()+"请更换IP地址");
+                    }
+                }
             }
         }else{
             instance.setIpv4NetworkSegment(null);
@@ -132,6 +145,19 @@ public class EnhancementInterfaceManagerController {
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
+
+            // 验证ip地址与已存在ip地址是否存在包含关系
+            params.clear();
+            params.put("ipv6AddressNOTNULL", true);
+            List<Interface> interfaceList = this.interfaceService.selectObjByMap(params);
+            if(interfaceList.size() >= 1){
+                for (Interface anInterface : interfaceList) {
+                    boolean flag = CIDRContainsCheck.checkCIDRInclusion(anInterface.getIpv6Address(), instance.getIpv6Address());
+                    if(flag){
+                        return ResponseUtil.badArgument("其他接口已配置包含当前IP地址，" + instance.getIpv4Address()+"请更换IP地址");
+                    }
+                }
+            }
         }else{
             instance.setIpv6NetworkSegment(null);
         }
@@ -170,6 +196,7 @@ public class EnhancementInterfaceManagerController {
 
         // 判断两次保存不一致，则修改配置，重启unbound
         return i >= 1 ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
+//        return null;
     }
 
     @DeleteMapping({"/delete"})

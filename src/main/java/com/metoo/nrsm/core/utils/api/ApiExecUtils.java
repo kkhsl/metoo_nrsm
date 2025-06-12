@@ -65,11 +65,11 @@ public class ApiExecUtils {
         }
 
         // 监管平台（信产）
-//        try {
-//            this.apiUtils.partyApi(unitVos);
-//        } catch (Exception e) {
-//            log.error("Error calling party API", e);
-//        }
+        try {
+            this.apiUtils.partyApi(unitVos);
+        } catch (Exception e) {
+            log.error("Error calling party API", e);
+        }
 
 //        callThirdPartyApiTWithRetry(unitVos);
 
@@ -104,7 +104,7 @@ public class ApiExecUtils {
         List<UnitVO> unitVos = getUnitVos(time, currentTimestamp);
 
         if (unitVos.isEmpty()) {
-            log.info("No units found to Process.");
+            log.info("未找到单位数据");
             return;
         }
 

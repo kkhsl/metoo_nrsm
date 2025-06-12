@@ -1,6 +1,8 @@
 package com.metoo.nrsm.entity;
 
 import com.metoo.nrsm.core.domain.IdEntity;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +22,9 @@ public class PortIpv6 extends IdEntity {
     private String port;
 
     private String ipv6;
+
+    @ApiModelProperty("是否为本地链路地址")
+    private boolean ipv6_local;
 
     private String deviceUuid;
 

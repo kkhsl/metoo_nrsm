@@ -52,7 +52,6 @@
         WHERE device_id = #{deviceId}
           AND ip_address = #{ipAddress}
           AND port_index = #{portIndex}
-          AND ip_address = #{ipAddress}
           AND is_ipv6 = #{isIpv6}
           AND timestamp >= #{minTimestamp}
         ORDER BY timestamp DESC

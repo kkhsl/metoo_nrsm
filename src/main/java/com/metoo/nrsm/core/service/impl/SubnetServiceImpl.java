@@ -136,7 +136,7 @@ public class SubnetServiceImpl implements ISubnetService {
         this.deleteTable();
 
         Map params = new HashMap();
-        params.put("ipIsNotNull", "is not null");
+        params.put("ipIsNotNull", true);
         params.put("NotIp", "127.0.0.1");
         List<Port> ports = this.portService.selectObjByMap(params);
         Map<String, List<Object>> map = this.ipAddressCombingByDB(ports);

@@ -1,5 +1,7 @@
 package com.metoo.nrsm.core.network.snmp4j.network;
 
+import com.github.pagehelper.util.StringUtil;
+
 import java.io.IOException;
 import java.net.*;
 
@@ -42,6 +44,7 @@ public class NetworkUtils {
     }
 
     public static void main(String[] args) {
+
 //        // 192.168.6.1
 //        System.out.println("192.168.6.1 主机是否可达：" + isHostNameReachable("192.168.6.1"));
 //        // 192.168.6.1

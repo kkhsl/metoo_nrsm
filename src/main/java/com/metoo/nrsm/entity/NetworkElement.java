@@ -37,8 +37,6 @@ public class NetworkElement extends IdEntity {
     private String filter;
     private String interfaceName;
     private Integer portIndex;
-    private Integer portSSH;
-    private Integer portTelnet;
     private Long groupId;
     private String groupName;
     private Long deviceTypeId;
@@ -58,6 +56,10 @@ public class NetworkElement extends IdEntity {
     private Integer connectType;
     @ApiModelProperty("端口 22")
     private Integer port;
+    @ApiModelProperty("ssh端口 22")
+    private Integer portSSH;
+    @ApiModelProperty("端口 23")
+    private Integer portTelnet;
     @ApiModelProperty("凭据Id")
     private Long credentialId;
     @ApiModelProperty("凭据名称")
@@ -92,6 +94,7 @@ public class NetworkElement extends IdEntity {
     @ExcelImport("SNMP版本 version1: 0  version2c：1 version3：3")
     private String version;
 
+    @ApiModelProperty("启动时间")
     private String timeticks;
 
     @ApiModelProperty("默认：0 批量导入：2 ac：3")

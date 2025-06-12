@@ -5,6 +5,7 @@ import com.metoo.nrsm.core.service.IApService;
 import com.metoo.nrsm.core.wsapi.utils.NoticeWebsocketResp;
 import com.metoo.nrsm.core.wsapi.utils.RedisResponseUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -67,4 +68,5 @@ public class AcManagerControllerApi {
         rep.setNoticeStatus(0);
         return rep;
     }
+
 }

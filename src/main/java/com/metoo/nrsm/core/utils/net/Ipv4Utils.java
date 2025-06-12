@@ -202,6 +202,10 @@ public class Ipv4Utils {
         return null;
     }
 
+    @Test
+    public void test(){
+        System.out.println(getNetworkAddress("192.168.6.2", 24));
+    }
     /**
      * 获取网络地址
      * @param ip

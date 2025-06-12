@@ -130,6 +130,7 @@ public class TerminalManagerControllerApi {
     }
 
     public void completeTerminal(Terminal terminal){
+
         DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
         if(deviceType != null){
             terminal.setDeviceTypeName(deviceType.getName());
@@ -143,11 +144,24 @@ public class TerminalManagerControllerApi {
         }
         if(StringUtil.isNotEmpty(terminal.getMac())){
             TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-            if(terminalMacIpv6 != null){
+            if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
                 terminal.setIsIpv6(1);
             }else{
                 terminal.setIsIpv6(0);
             }
+        }
+
+        if(terminal.getV6ip() != null && terminal.getV6ip().toLowerCase().startsWith("fe80")){
+            terminal.setV6ip(null);
+        }
+        if(terminal.getV6ip1() != null && terminal.getV6ip1().toLowerCase().startsWith("fe80")){
+            terminal.setV6ip1(null);
+        }
+        if(terminal.getV6ip2() != null && terminal.getV6ip2().toLowerCase().startsWith("fe80")){
+            terminal.setV6ip2(null);
+        }
+        if(terminal.getV6ip3() != null && terminal.getV6ip3().toLowerCase().startsWith("fe80")){
+            terminal.setV6ip3(null);
         }
     }
     /*
@@ -180,7 +194,7 @@ public class TerminalManagerControllerApi {
                                 }
                                 if(StringUtil.isNotEmpty(terminal.getMac())){
                                     TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                                    if(terminalMacIpv6 != null){
+                                    if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
                                         terminal.setIsIpv6(1);
                                     }else{
                                         terminal.setIsIpv6(0);
@@ -212,7 +226,7 @@ public class TerminalManagerControllerApi {
 
                                 if(StringUtil.isNotEmpty(terminal.getMac())){
                                     TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                                    if(terminalMacIpv6 != null){
+                                    if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
                                         terminal.setIsIpv6(1);
                                     }else{
                                         terminal.setIsIpv6(0);
@@ -298,7 +312,7 @@ public class TerminalManagerControllerApi {
 
                                 if(StringUtil.isNotEmpty(terminal.getMac())){
                                     TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                                    if(terminalMacIpv6 != null){
+                                    if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
                                         terminal.setIsIpv6(1);
                                         if(terminal.getDeviceTypeId() != null && terminal.getDeviceTypeId() != 24 && terminal.getDeviceTypeId() != 10) {
                                             v6_number += 1;
@@ -351,7 +365,7 @@ public class TerminalManagerControllerApi {
 
                                 if (StringUtil.isNotEmpty(terminal.getMac())) {
                                     TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                                    if (terminalMacIpv6 != null) {
+                                    if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
                                         terminal.setIsIpv6(1);
                                         v6_number += 1;
                                     } else {

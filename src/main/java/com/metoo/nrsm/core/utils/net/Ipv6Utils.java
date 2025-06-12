@@ -1,11 +1,15 @@
 package com.metoo.nrsm.core.utils.net;
 
+import com.github.pagehelper.util.StringUtil;
+
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 public class Ipv6Utils {
+
+    private Ipv6Utils() {} // 防止实例化
 
     private static final Pattern IPV6_PATTERN = Pattern.compile(
             "([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)|" +
@@ -120,6 +124,13 @@ public class Ipv6Utils {
         }
     }
 
+    private static final Pattern LINK_LOCAL_IPV6 = Pattern.compile("^fe80[0-9a-f:]*$");
+
+    public static boolean isLinkLocalIPv6(String ipv6) {
+        if (StringUtil.isEmpty(ipv6)) return false;
+        return LINK_LOCAL_IPV6.matcher(ipv6.toLowerCase()).find();
+    }
+
     public static void main(String[] args) {
         String ipAddress = "240E:381:119:C400:C9C:FDFF:FEC3:769F";
         String cidr = "240E:381:119:C400::/64";
@@ -141,7 +152,6 @@ public class Ipv6Utils {
         System.out.println(input2 + " - " + (isIPv6Network(input2) ? "是IPv6网段" : "不是IPv6网段"));
         System.out.println(input3 + " - " + (isIPv6Network(input3) ? "是IPv6网段" : "不是IPv6网段"));
         System.out.println(input4 + " - " + (isIPv6Network(input4) ? "是IPv6网段" : "不是IPv6网段"));
-
 
     }
 }

@@ -58,6 +58,9 @@ public class GatherPortIpv6SNMPRunnable implements Runnable{
                 ports.forEach(e -> {
                     e.setDeviceUuid(networkElement.getUuid());
                     e.setAddTime(date);
+                    if(e.getIpv6().toLowerCase().startsWith("fe80")){
+                        e.setIpv6_local(true);
+                    }
                 });
                 PortIpv6ServiceImpl portService = (PortIpv6ServiceImpl) ApplicationContextUtils.getBean("portIpv6ServiceImpl");
                 portService.batchSaveGather(ports);

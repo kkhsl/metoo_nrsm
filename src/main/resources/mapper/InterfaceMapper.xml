@@ -162,6 +162,12 @@
             <if test="gateway6NotNull != null and gateway6NotNull">
                 AND gateway6 IS NOT NULL and gateway6 != ''
             </if>
+            <if test="ipv4AddressNOTNULL != null and ipv4AddressNOTNULL">
+                AND (ipv4Address IS NOT NULL and ipv4Address != '')
+            </if>
+            <if test="ipv6AddressNOTNULL != null and ipv6AddressNOTNULL">
+                AND (ipv6Address IS NOT NULL and ipv6Address != '')
+            </if>
         </where>
     </select>
 

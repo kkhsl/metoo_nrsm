@@ -7,6 +7,11 @@
               RollingFileAppender：日志磁盘文件大小达到指定尺寸时产生一个新的文件；-->
 <!--Configuration后面Status用于设置Log4j2自身内部的信息，可以不设置，当设置为trace时，可以看到Log4j2内部各种详细输出-->
 <configuration status="info">
+
+    <settings>
+        <setting name="logImpl" value="LOG4J"/>
+    </settings>
+    
     <!--全局通用属性-->
     <properties>
 
