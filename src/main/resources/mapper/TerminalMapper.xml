@@ -1664,6 +1664,9 @@
             <if test="portSubne != null and portSubne != ''">
                 portSubne = #{portSubne},
             </if>
+            <if test="portAddress != null and portAddress != ''">
+                portAddress = #{portAddress},
+            </if>
         </set>
         WHERE id = #{id}
     </update>

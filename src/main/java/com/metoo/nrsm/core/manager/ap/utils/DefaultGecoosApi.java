@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.manager.ap.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -15,6 +16,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -28,7 +33,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2024-05-14 14:44
  */
-
+@Slf4j
 public class DefaultGecoosApi implements GecoosApi {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultGecoosApi.class);
@@ -96,13 +101,18 @@ public class DefaultGecoosApi implements GecoosApi {
                 String responseBody = EntityUtils.toString(entity);
                 JSONObject jsonObject = JSONObject.parseObject(responseBody);
                 return jsonObject;
-            }else{
-                throw new IOException("Post request failed. Status code: " + response.getStatusLine().getStatusCode());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("call exception!", e);
+        } catch (ResourceAccessException e) {
+            log.error("网络连接问题: {}", e.getMessage());
+        } catch (HttpServerErrorException | HttpClientErrorException e) {
+            log.error("HTTP 错误响应: 状态码 - {}", e.getStatusCode());
+            log.error("请求失败: {}", e.getMessage());
+        } catch (RestClientException e) {
+            log.error("请求失败: {}", e.getMessage());
+        } catch (Exception e) {
+            log.info("其他异常： {}", e.getMessage());
         }
+        return new JSONObject();
     }
 
     @Override
@@ -117,8 +127,6 @@ public class DefaultGecoosApi implements GecoosApi {
         HttpGet getRequest = new HttpGet(url);
 
         getRequest.setHeader("sysauth", getToken());
-
-
         HttpResponse response = null;
         try {
             response = httpClient.execute(getRequest);
@@ -127,13 +135,18 @@ public class DefaultGecoosApi implements GecoosApi {
                 String responseBody = EntityUtils.toString(entity);
                 JSONObject jsonObject = JSONObject.parseObject(responseBody);
                 return jsonObject;
-            } else {
-                throw new IOException("GET request failed. Status code: " + response.getStatusLine().getStatusCode());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("call exception!", e);
+        } catch (ResourceAccessException e) {
+            log.error("网络连接问题: {}", e.getMessage());
+        } catch (HttpServerErrorException | HttpClientErrorException e) {
+            log.error("HTTP 错误响应: 状态码 - {}", e.getStatusCode());
+            log.error("请求失败: {}", e.getMessage());
+        } catch (RestClientException e) {
+            log.error("请求失败: {}", e.getMessage());
+        } catch (Exception e) {
+            log.info("其他异常： {}", e.getMessage());
         }
+        return new JSONObject();
     }
 
     public static String buildUrl(String baseUrl, Map<String, Object> params) throws URISyntaxException {

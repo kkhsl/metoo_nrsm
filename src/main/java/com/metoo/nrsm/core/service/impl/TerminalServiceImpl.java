@@ -705,6 +705,11 @@ public class TerminalServiceImpl implements ITerminalService {
             if(!excludingTerminalMacIpv6s.isEmpty()){
                 excludingTerminalMacIpv6s.forEach(mac -> terminalMacIpv6Mapper.updateMac(mac.getMac(), 0));
             }
+        }else{
+            List<TerminalMacIpv6> excludingTerminalMacIpv6s = terminalMacIpv6Mapper.getAllMacs();
+            if(!excludingTerminalMacIpv6s.isEmpty()){
+                excludingTerminalMacIpv6s.forEach(mac -> terminalMacIpv6Mapper.updateMac(mac.getMac(), 0));
+            }
         }
     }
 

@@ -90,27 +90,39 @@ public class TerminalManagerController {
         Page<Terminal> page = this.terminalService.selectObjByConditionQuery(dto);
 
         if(page.size() > 0){
-            page.getResult().stream().forEach(e ->{
-                if(e.getDeviceTypeId() != null && !e.getDeviceTypeId().equals("")){
-                    DeviceType deviceType = this.deviceTypeService.selectObjById(e.getDeviceTypeId());
+            page.getResult().stream().forEach(terminal ->{
+                if(terminal.getV6ip() != null && terminal.getV6ip().toLowerCase().startsWith("fe80")){
+                    terminal.setV6ip(null);
+                }
+                if(terminal.getV6ip1() != null && terminal.getV6ip1().toLowerCase().startsWith("fe80")){
+                    terminal.setV6ip1(null);
+                }
+                if(terminal.getV6ip2() != null && terminal.getV6ip2().toLowerCase().startsWith("fe80")){
+                    terminal.setV6ip2(null);
+                }
+                if(terminal.getV6ip3() != null && terminal.getV6ip3().toLowerCase().startsWith("fe80")){
+                    terminal.setV6ip3(null);
+                }
+                if(terminal.getDeviceTypeId() != null && !terminal.getDeviceTypeId().equals("")){
+                    DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
                     if(deviceType != null){
-                        e.setDeviceTypeName(deviceType.getName());
+                        terminal.setDeviceTypeName(deviceType.getName());
                     }
                 }
-                if(e.getVendorId() != null && !e.getVendorId().equals("")){
-                    Vendor vendor = this.vendorService.selectObjById(e.getVendorId());
+                if(terminal.getVendorId() != null && !terminal.getVendorId().equals("")){
+                    Vendor vendor = this.vendorService.selectObjById(terminal.getVendorId());
                     if(vendor != null){
-                        e.setVendorName(vendor.getName());
+                        terminal.setVendorName(vendor.getName());
                     }
                 }
 
-                if(e.getProjectId() != null && !e.getProjectId().equals("")){
-                    Project project = this.projectService.selectObjById(e.getProjectId());
+                if(terminal.getProjectId() != null && !terminal.getProjectId().equals("")){
+                    Project project = this.projectService.selectObjById(terminal.getProjectId());
                     if(project != null){
-                        e.setProjectName(project.getName());
+                        terminal.setProjectName(project.getName());
                     }
                 }
-                macUtils.terminalSetMacVendor(e);
+                macUtils.terminalSetMacVendor(terminal);
             });
         }
         Map map = new HashMap();

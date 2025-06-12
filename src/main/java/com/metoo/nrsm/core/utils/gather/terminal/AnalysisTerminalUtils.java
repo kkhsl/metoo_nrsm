@@ -60,9 +60,9 @@ public class AnalysisTerminalUtils {
         if(portList.isEmpty()){
             return;
         }
-
+        Map<String, String> portNetworkMap = new HashMap();
         // 第二步，遍历端口列表，获取ip地址对应主机位|网段
-        Map<String, String> portNetwork = new HashMap();
+        Map<String, String> portHostMap = new HashMap();
         for (Port port : portList) {
             String ipv4 = port.getIp();
             String mask = port.getMask();
@@ -70,7 +70,7 @@ public class AnalysisTerminalUtils {
                 continue;
             }
             String cidr = ipv4+"/"+mask;
-            portNetwork.put(port.getPort(), cidr);
+            portHostMap.put(port.getPort(), cidr);
         }
 
         // 第三步，查询终端查询ipv4不为空（只取ipv4，不考虑多个ipv4地址情况）
@@ -90,11 +90,12 @@ public class AnalysisTerminalUtils {
                 continue;
             }
             // 检查终端IP是否属于某个端口网段(如果出现多个同网段设备，会导致接口选择错误)
-            for (Map.Entry<String, String> entry : portNetwork.entrySet()) {
+            for (Map.Entry<String, String> entry : portHostMap.entrySet()) {
                 String portName = entry.getKey(); // 例如 "eth0"
                 String cidr = entry.getValue(); // 例如 "192.168.1.0/24"
                 try {
                     String network = getNetwork(cidr);
+                    portNetworkMap.put(portName, network);
                     if (isInNetwork(terminalIp, network)) {
                         // 如果属于该网段，添加到 portTerminalMap
                         portTerminalMap.computeIfAbsent(portName, k -> new ArrayList<>()).add(terminal);
@@ -106,8 +107,8 @@ public class AnalysisTerminalUtils {
             }
         }
 
-        List<String> portsWithV6Port = new ArrayList<>(); // 网段所有终端无IPv6地址
-        List<String> portsWithoutV6Port = new ArrayList<>(); // 网段部分终端无IPv6地址
+        List<String> portsWithV6Port = new ArrayList<>();// 网段部分终端无IPv6地址
+        List<String> portsWithoutV6Port = new ArrayList<>();  // 网段所有终端无IPv6地址
         // 遍历端口map，查看端口下
         for (Map.Entry<String, List<Terminal>> entry : portTerminalMap.entrySet()) {
             String portName = entry.getKey();       // 例如 "eth0"
@@ -132,56 +133,44 @@ public class AnalysisTerminalUtils {
 
         // 遍历端口列表
         for (String port : portsWithoutV6Port) {
+
+            boolean isv6 = true;
+            boolean isfe80 = false;
+
             // 查询v6端口列表
             params.clear();
             params.put("port", port);
             List<PortIpv6> portIpv6List = this.portIpv6Service.selectObjByMap(params);
             if(portIpv6List.isEmpty()){
-                continue;
-            }
-
-            // 是否存在FE80开头v6地址
-            boolean withV6FE80 = false;
-            boolean withoutV6FE80 = false;
-
-            for (PortIpv6 portIpv6 : portIpv6List) {
-                if(portIpv6.getIpv6() != null && !portIpv6.getIpv6().isEmpty()){
-                    if(portIpv6.getIpv6().toLowerCase().startsWith("fe80")){
-                        withV6FE80 = true;
-                        continue;
+                isv6 = false;
+                isfe80 = true;
+            }else{
+                isv6 = false;
+                for (PortIpv6 portIpv6 : portIpv6List) {
+                    boolean hasFe80Ip = isFe80(portIpv6.getIpv6());
+                    if(hasFe80Ip){
+                        isfe80 = true;
                     }
-                    withoutV6FE80 = true;
+                    if(isNoFe80(portIpv6.getIpv6())){
+                        isv6 = true;
+                    }
                 }
             }
-
-//            // 有全局IPv6地址，无本地链路地址;
-//            if(withoutV6FE80 && !withV6FE80){
-//                // 则提示本地链路地址配置问题，给出对应品牌交换机的正确配置
-//                // 默认为0，既有全局ipv6又有本地链路地址
-//            }
-//
-//            // 无全局IPv6地址
-//            if(!withoutV6FE80){
-//                // 则提示端口未配置IPv6，给出相关正确配置
-//                for (Terminal terminal : portTerminalMap.get(port)) {
-//                    terminal.setConfig(1);
-//                }
-//            }
 
             // 获取端口名，获取网段
-            String cidr = portNetwork.get(port);
-
+            String portNetwork = portNetworkMap.get(port);
+            String portHost = portHostMap.get(port);
             for (Terminal terminal : portTerminalMap.get(port)) {
-                if(withoutV6FE80 && !withV6FE80){
-                    terminal.setConfig(2);
-                }else if(!withoutV6FE80){
+                if(!isv6){
                     terminal.setConfig(1);
+                }else if(isv6 && !isfe80){
+                    terminal.setConfig(4);
                 }
-                terminal.setPortSubne(cidr);
+                terminal.setPortSubne(portNetwork);
                 terminal.setPortName(port);
+                terminal.setPortAddress(portHost);
                 this.terminalService.update(terminal);
             }
-
         }
 
 
@@ -213,7 +202,8 @@ public class AnalysisTerminalUtils {
                 }
             }
 
-            String cidr = portNetwork.get(port);
+            String portNetwork = portNetworkMap.get(port);
+            String portHost = portHostMap.get(port);
             for (Terminal terminal : portTerminalMap.get(port)) {
                 if(withMask){
                     boolean hasFe80Ip = isFe80(terminal.getV6ip()) ||
@@ -222,16 +212,14 @@ public class AnalysisTerminalUtils {
                             isFe80(terminal.getV6ip3());
                     if(!hasFe80Ip){
                         terminal.setConfig(2);
-                        terminal.setPortName(port);
-                        terminal.setPortSubne(cidr);
-                        this.terminalService.update(terminal);
                     }
                 }else if(withoutMask){
                     terminal.setConfig(3);
-                    terminal.setPortName(port);
-                    terminal.setPortSubne(cidr);
-                    this.terminalService.update(terminal);
                 }
+                terminal.setPortName(port);
+                terminal.setPortSubne(portNetwork);
+                terminal.setPortAddress(portHost);
+                this.terminalService.update(terminal);
             }
         }
         log.info("...");
@@ -293,18 +281,32 @@ public class AnalysisTerminalUtils {
 
     public static void main(String[] args) {
         Terminal terminal = new Terminal();
+
+
         // 只要有一个IP是fe80开头，就返回1
-        boolean hasFe80Ip = isFe80(terminal.getV6ip()) ||
-                isFe80(terminal.getV6ip1()) ||
-                isFe80(terminal.getV6ip2()) ||
-                isFe80(terminal.getV6ip3());
-        // 逻辑判断
-        if (hasFe80Ip) {
-            System.out.println(1); // 有fe80开头IP → 不符合
+//        boolean hasFe80Ip = isFe80(terminal.getV6ip()) ||
+//                isFe80(terminal.getV6ip1()) ||
+//                isFe80(terminal.getV6ip2()) ||
+//                isFe80(terminal.getV6ip3());
+//        // 逻辑判断
+//        if (hasFe80Ip) {
+//            System.out.println(1); // 有fe80开头IP → 不符合
+//        } else {
+//            System.out.println(2); // 全部IP都不是fe80 → 符合
+//        }
+//        System.out.println(isFe80(""));
+//
+
+        boolean hasV6 = isNoFe80(terminal.getV6ip()) ||
+                isNoFe80(terminal.getV6ip1()) ||
+                isNoFe80(terminal.getV6ip2()) ||
+                isNoFe80(terminal.getV6ip3());
+
+        if (hasV6) {
+            System.out.println(4);
         } else {
-            System.out.println(2); // 全部IP都不是fe80 → 符合
+            System.out.println(1);
         }
-        System.out.println(isFe80(""));
     }
 
     /**
@@ -314,5 +316,11 @@ public class AnalysisTerminalUtils {
         return ip != null &&
                 !ip.isEmpty() &&  // 替换了StringUtil.isEmpty()
                 ip.toLowerCase().startsWith("fe80");
+    }
+
+    private static boolean isNoFe80(String ip) {
+        return ip != null &&
+                !ip.isEmpty() &&
+                !ip.toLowerCase().startsWith("fe80");
     }
 }

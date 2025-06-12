@@ -25,6 +25,15 @@ public class TerminalDiagnosisController {
         Terminal terminal = this.terminalService.selectObjById(Long.parseLong(terminalId));
         if(terminal != null){
             TerminalDiagnosis terminalDiagnosis = terminalDiagnosisService.selectObjByType(terminal.getConfig());
+
+            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv4}", terminal.getV4ip() != null ? terminal.getV4ip() : ""));
+            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv4_subnet}", terminal.getPortSubne() != null ? terminal.getPortSubne() : ""));
+
+            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv6}", terminal.getV6ip() != null && !terminal.getV6ip().toLowerCase().startsWith("fe80") ? terminal.getV6ip() : ""));
+            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Interface}", terminal.getPortName() != null ? terminal.getPortName() : ""));
+            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Vendor}", terminal.getVendor() != null ? terminal.getVendor() : ""));
+            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replaceAll("\\r?\\n", "<br/>"));
+
             return ResponseUtil.ok(terminalDiagnosis);
         }
        return ResponseUtil.ok();
