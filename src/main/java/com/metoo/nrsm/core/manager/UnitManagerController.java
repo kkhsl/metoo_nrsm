@@ -108,17 +108,13 @@ public class UnitManagerController {
                 errors.add("单位ID " + id + " 存在关联用户禁止删除!");
             }
 
-            // 检查关联子网
-            List<UnitSubnet> unitSubnets = terminalUnitMapper.selectByUnitId(id);
-            if (!unitSubnets.isEmpty()) {
-                errors.add("单位ID " + id + " 存在关联网段禁止删除!");
-            }
-
             // 检查关联流量单位
             List<FlowUnit> flowUnits = flowUnitService.selectByUnitId(id);
             if (!flowUnits.isEmpty()) {
                 errors.add("单位ID " + id + " 存在关联流量单位禁止删除!");
             }
+
+            // 没有错误则添加待删除列表
             if (errors.isEmpty()) {
                 unitsToDelete.add(unit);
             }
@@ -128,8 +124,19 @@ public class UnitManagerController {
             return ResponseUtil.badArgument(String.join("; ", errors));
         }
 
-        // 执行逻辑删除
+        // 逐个删除单位对应的网段条目
         for (Unit unit : unitsToDelete) {
+            Long unitId = unit.getId();
+
+            // 获取该单位的所有网段条目
+            List<UnitSubnet> subnets = terminalUnitMapper.selectByUnitId(unitId);
+
+            // 逐个删除每个网段条目
+            for (UnitSubnet subnet : subnets) {
+                terminalUnitMapper.deleteById(subnet.getId()); // 通过ID删除
+            }
+
+            // 执行单位逻辑删除
             unit.setDeleteStatus(1);
             unitService.update(unit);
         }
