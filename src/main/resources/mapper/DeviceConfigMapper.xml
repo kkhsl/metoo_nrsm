@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.DeviceConfigMapper">
+
+    <insert id="insertDeviceConfig" parameterType="com.metoo.nrsm.entity.DeviceConfig">
+        INSERT INTO metoo_device_config (
+            name, time, type, content
+        )
+        VALUES (
+                   #{name}, #{time}, #{type}, #{content}
+               )
+    </insert>
+
+    <select id="countByName" resultType="Integer">
+        SELECT COUNT(*)
+        FROM metoo_device_config
+        WHERE name = #{name}
+    </select>
+
+    <select id="selectAll" resultType="com.metoo.nrsm.entity.DeviceConfig">
+        SELECT
+        id, name, time, type, content
+        FROM metoo_device_config
+        <where>
+            <if test="name != null">
+                name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+        </where>
+        ORDER BY time DESC
+    </select>
+
+    <insert id="batchInsertDeviceConfigs">
+        INSERT INTO metoo_device_config (
+        name, time, type, content
+        )
+        VALUES
+        <foreach collection="list" item="config" separator=",">
+            (#{config.name}, #{config.time}, #{config.type}, #{config.content})
+        </foreach>
+    </insert>
+
+    <!-- 根据ID列表查询备份记录 -->
+    <select id="selectByIds" resultType="com.metoo.nrsm.entity.DeviceConfig">
+        SELECT
+        id, name, time, type, content
+        FROM metoo_device_config
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 根据ID列表删除备份记录 -->
+    <delete id="deleteByIds">
+        DELETE FROM metoo_device_config
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <!-- 根据ID查询备份记录 -->
+    <select id="selectById" resultType="com.metoo.nrsm.entity.DeviceConfig">
+        SELECT
+            id, name, time, type, content
+        FROM metoo_device_config
+        WHERE id = #{id}
+    </select>
+
+</mapper>

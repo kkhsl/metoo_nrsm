@@ -1,11 +1,11 @@
 package com.metoo.nrsm.core.manager;
 
+import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.CredentialDTO;
-import com.metoo.nrsm.core.service.ICredentialService;
-import com.metoo.nrsm.core.service.IDeviceTypeService;
-import com.metoo.nrsm.core.service.INetworkElementService;
-import com.metoo.nrsm.core.service.IVendorService;
+import com.metoo.nrsm.core.dto.DeviceConfigDTO;
+import com.metoo.nrsm.core.mapper.DeviceConfigMapper;
+import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.vo.Result;
@@ -17,7 +17,15 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequestMapping("/admin/configuration")
@@ -38,6 +46,139 @@ public class PythonBackupController {
 
     @Autowired
     private IDeviceTypeService deviceTypeService;
+
+    @Autowired
+    private IDeviceConfigService deviceConfigService;
+
+    @Autowired
+    private DeviceConfigMapper deviceConfigMapper;
+
+
+    @GetMapping("/select")
+    private Result list(String ip) {
+        DeviceConfigDTO instance=new DeviceConfigDTO();
+        if (ip!=null){
+            instance.setName(ip);
+        }
+        Page<DeviceConfig> page = deviceConfigService.selectAll(instance);
+        if (page!=null){
+            return ResponseUtil.ok(page);
+        }else {
+            return ResponseUtil.ok("该设备无备份配置");
+        }
+    }
+
+
+    @DeleteMapping("/delete")
+    public Result deleteBackups(@RequestParam String ids) {
+        try {
+            // 将逗号分隔的ID列表转为Long类型集合
+            List<Long> idList = Arrays.stream(ids.split(","))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+
+            // 获取要删除的备份配置信息
+            List<DeviceConfig> configs = deviceConfigMapper.selectByIds(idList);
+
+            // 删除数据库记录
+            int deletedCount = deviceConfigMapper.deleteByIds(idList);
+
+            // 删除对应的备份文件
+            int filesDeleted = deleteBackupFiles(configs);
+
+            if (deletedCount==filesDeleted){
+                return ResponseUtil.ok("删除成功");
+            }else {
+                return ResponseUtil.error("删除失败");
+            }
+        } catch (Exception e) {
+            log.error("Failed to delete backups", e);
+            return ResponseUtil.fail("Failed to delete backups: " + e.getMessage());
+        }
+    }
+
+
+    @GetMapping("/comparison")
+    public Result getConfigurationsForComparison(
+            @RequestParam Long id1,
+            @RequestParam Long id2) {
+
+        try {
+            // 查询第一条配置
+            DeviceConfig config1 = deviceConfigMapper.selectById(id1);
+            if (config1 == null) {
+                return ResponseUtil.fail("Configuration with ID " + id1 + " not found");
+            }
+
+            // 查询第二条配置
+            DeviceConfig config2 = deviceConfigMapper.selectById(id2);
+            if (config2 == null) {
+                return ResponseUtil.fail("Configuration with ID " + id2 + " not found");
+            }
+
+            // 构建返回数据
+            Map<String, Object> result = new HashMap<>();
+            result.put("config1", mapConfig(config1));
+            result.put("config2", mapConfig(config2));
+
+            return ResponseUtil.ok(result);
+
+        } catch (Exception e) {
+            log.error("Failed to get configurations for comparison", e);
+            return ResponseUtil.fail("Failed to get configurations: " + e.getMessage());
+        }
+    }
+
+    private Map<String, Object> mapConfig(DeviceConfig config) {
+        Map<String, Object> configMap = new HashMap<>();
+//        configMap.put("id", config.getId());
+        configMap.put("name", config.getName());
+        configMap.put("time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(config.getTime()));
+//        configMap.put("type", getBackupTypeName(config.getType()));
+        configMap.put("content", config.getContent());
+        return configMap;
+    }
+
+/*    private String getBackupTypeName(Integer type) {
+        if (type == null) return "Unknown";
+        switch (type) {
+            case 1: return "Manual Backup";
+            case 2: return "Auto Backup";
+            default: return "Unknown Type (" + type + ")";
+        }
+    }*/
+
+
+    /**
+     * 删除备份文件
+     */
+    private int deleteBackupFiles(List<DeviceConfig> configs) {
+        String backupStoragePath = Global.backupStoragePath;
+        File backupDir = new File(backupStoragePath);
+        int filesDeleted = 0;
+
+        for (DeviceConfig config : configs) {
+            // 构建文件名 (name.cfg)
+            String fileName = config.getName() + ".cfg";
+            File file = new File(backupDir, fileName);
+
+            try {
+                if (file.exists() && file.delete()) {
+                    filesDeleted++;
+                    log.info("Deleted backup file: {}", file.getAbsolutePath());
+                } else if (!file.exists()) {
+                    log.warn("Backup file not found: {}", file.getAbsolutePath());
+                } else {
+                    log.error("Failed to delete backup file: {}", file.getAbsolutePath());
+                }
+            } catch (SecurityException e) {
+                log.error("Security exception when deleting file {}: {}", file.getAbsolutePath(), e.getMessage());
+            }
+        }
+
+        return filesDeleted;
+    }
+
 
 
     /*
@@ -121,12 +262,114 @@ public class PythonBackupController {
             BackupResult result = parseBackupResult(execResult);
             result.setDeviceIp(device.getIp());
 
+            // 如果备份成功，处理备份文件
+            if (result.isSuccess()) {
+                try {
+                    saveBackupToDatabase(device);
+                } catch (Exception e) {
+                    log.error("Backup file save failed for {}: {}", device.getIp(), e.getMessage(), e);
+                    result.setMessage(result.getMessage() +
+                            " But failed to save to database: " + e.getMessage());
+                }
+            }
+
             return result;
 
         } catch (Exception e) {
             log.error("Backup failed for device {}: {}", device.getIp(), e.getMessage(), e);
             return BackupResult.error(device.getIp(), "Backup exception: " + e.getMessage());
         }
+    }
+
+    /**
+     * 保存备份文件到数据库
+     */
+    private void saveBackupToDatabase(NetworkElement device) throws Exception {
+        String backupStoragePath = Global.backupStoragePath;
+        File backupDir = new File(backupStoragePath);
+
+        // 正则表达式匹配文件名
+        String pattern = device.getIp() + "_\\d{4}[-:]\\d{2}[-:]\\d{2}[-_:]\\d{2}[-:]\\d{2}[-:]\\d{2}\\.cfg";
+        Pattern fileNamePattern = Pattern.compile(pattern);
+
+        // 查找最新备份文件
+        File latestFile = null;
+        long lastModified = Long.MIN_VALUE;
+
+        if (backupDir.exists() && backupDir.isDirectory()) {
+            File[] files = backupDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile() && fileNamePattern.matcher(file.getName()).matches()) {
+                        if (file.lastModified() > lastModified) {
+                            lastModified = file.lastModified();
+                            latestFile = file;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (latestFile == null) {
+            throw new FileNotFoundException("No backup file found for " + device.getIp());
+        }
+
+        // 解析文件名和备份时间
+        String fileName = latestFile.getName();
+        String filePrefix = fileName.substring(0, fileName.lastIndexOf('.'));
+
+        // 从文件名中提取时间字符串
+        String timePart = filePrefix.substring(filePrefix.indexOf('_') + 1);
+
+        // 处理多种可能的时间分隔符（-或:）
+        String normalizedTime = timePart
+                .replace("_", " ")  // 替换下划线为空格
+                .replaceAll("[-:]", "-");  // 统一分隔符为短横线
+
+        // 创建多个日期格式尝试
+        SimpleDateFormat[] possibleFormats = {
+                new SimpleDateFormat("yyyy-MM-dd HH-mm-ss"),
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
+                new SimpleDateFormat("yyyy:MM:dd HH:mm:ss")
+        };
+
+        Date backupTime = null;
+        Exception lastException = null;
+
+        // 尝试多种日期格式解析
+        for (SimpleDateFormat format : possibleFormats) {
+            try {
+                backupTime = format.parse(normalizedTime);
+                break; // 解析成功则退出循环
+            } catch (ParseException e) {
+                lastException = e;
+            }
+        }
+
+        // 如果所有格式都失败，抛出异常
+        if (backupTime == null) {
+            throw new ParseException("Could not parse date: " + normalizedTime, 0);
+        }
+
+        // 创建标准日期格式用于显示
+        SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        // 读取文件内容
+        String content = new String(Files.readAllBytes(latestFile.toPath()), StandardCharsets.UTF_8);
+
+        // 创建配置对象
+        DeviceConfig config = new DeviceConfig();
+        config.setName(filePrefix);
+        config.setTime(backupTime);
+        config.setType(1); // 1 表示备份类型
+        config.setContent(content);
+
+        // 保存到数据库
+        deviceConfigMapper.insertDeviceConfig(config);
+
+        log.info("Backup file saved to database for {}: {}", device.getIp(), filePrefix);
+        log.debug("Saved config: name={}, time={}, size={} bytes",
+                filePrefix, dbDateFormat.format(backupTime), content.length());
     }
 
     /**
@@ -266,4 +509,6 @@ public class PythonBackupController {
             return error(message).setDeviceIp(deviceIp);
         }
     }
+
+
 }
