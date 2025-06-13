@@ -207,6 +207,7 @@ public class Terminal extends IdEntity {
     private Integer config;
     private String portName;
     private String portSubne;
+    private String portIpv6Subnet;
     private String portAddress;
 
 

@@ -51,7 +51,21 @@ public class AnalysisTerminalUtils {
 
     //根据终端ipv4地址，分析网段对应端口的ipv6情况
     public void analyze(){
+
+        // 清空所有在线终端分析标记以及数据
         Map params = new HashMap();
+        params.put("online", true);
+        List<Terminal> onlineTerminalList = this.terminalService.selectObjByMap(params);
+        if(!onlineTerminalList.isEmpty()){
+            for (Terminal terminal : onlineTerminalList) {
+                terminal.setConfig(0);
+                terminal.setPortName(null);
+                terminal.setPortSubne(null);
+                terminal.setPortAddress(null);
+                terminal.setPortIpv6Subnet(null);
+                this.terminalService.update(terminal);
+            }
+        }
         // 第一步，获取status：2的ipv4 port数据
         params.clear();
         params.put("status", 1);
@@ -137,6 +151,8 @@ public class AnalysisTerminalUtils {
             boolean isv6 = true;
             boolean isfe80 = false;
 
+            String ipv6Subnet = "";
+
             // 查询v6端口列表
             params.clear();
             params.put("port", port);
@@ -153,6 +169,7 @@ public class AnalysisTerminalUtils {
                     }
                     if(isNoFe80(portIpv6.getIpv6())){
                         isv6 = true;
+                        ipv6Subnet = portIpv6.getIpv6();
                     }
                 }
             }
@@ -164,6 +181,7 @@ public class AnalysisTerminalUtils {
                 if(!isv6){
                     terminal.setConfig(1);
                 }else if(isv6 && !isfe80){
+                    terminal.setPortIpv6Subnet(ipv6Subnet);
                     terminal.setConfig(4);
                 }
                 terminal.setPortSubne(portNetwork);
@@ -187,8 +205,12 @@ public class AnalysisTerminalUtils {
             // 是否存在FE80开头v6地址
             boolean withMask = false;
             boolean withoutMask = false;
+            String ipv6Subnet = "";
 
             for (PortIpv6 portIpv6 : portIpv6List) {
+                if(!portIpv6.isIpv6_local()){
+                    ipv6Subnet = portIpv6.getIpv6();
+                }
                 if(portIpv6.getIpv6() != null && !portIpv6.getIpv6().isEmpty()){
                     if(portIpv6.getIpv6().contains("/")){
                         String ipv6 = portIpv6.getIpv6().split("/")[0];
@@ -216,6 +238,7 @@ public class AnalysisTerminalUtils {
                 }else if(withoutMask){
                     terminal.setConfig(3);
                 }
+                terminal.setPortIpv6Subnet(ipv6Subnet);
                 terminal.setPortName(port);
                 terminal.setPortSubne(portNetwork);
                 terminal.setPortAddress(portHost);
