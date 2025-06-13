@@ -41,6 +41,7 @@ public class Global {
     public static String PYPATH;
 
     public static String BKPATH;
+    public static String backupStoragePath;
 
     @Value("${PYPATH}")
     public void setUrl(String PYPATH) {
@@ -50,6 +51,10 @@ public class Global {
     @Value("${BKPATH}")
     public void setBKPATH(String BKPATH) {
         Global.BKPATH = BKPATH;
+    }
+   @Value("${backupStoragePath}")
+    public void setBackupStoragePath(String backupStoragePath) {
+        Global.backupStoragePath = backupStoragePath;
     }
 
     public static String py_name;
