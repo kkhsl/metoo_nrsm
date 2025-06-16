@@ -409,8 +409,9 @@ public class TerminalManagerController {
         boolean flag = this.terminalService.save(instance);
         if(flag){
             return ResponseUtil.ok();
+        }else {
+            return ResponseUtil.error();
         }
-        return ResponseUtil.error();
     }
 
     @GetMapping("/count")
