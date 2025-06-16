@@ -1655,7 +1655,9 @@
             <if test="unitName != null and unitName != ''">
                 unitName = #{unitName},
             </if>
-            config = #{config},
+            <if test="config != null and config != ''">
+                config = #{config},
+            </if>
             portName = #{portName},
             portSubne = #{portSubne},
             portAddress = #{portAddress},
