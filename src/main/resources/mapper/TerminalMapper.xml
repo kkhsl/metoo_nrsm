@@ -1655,18 +1655,11 @@
             <if test="unitName != null and unitName != ''">
                 unitName = #{unitName},
             </if>
-            <if test="config != null">
-                config = #{config},
-            </if>
-            <if test="portName != null and portName != ''">
-                portName = #{portName},
-            </if>
-            <if test="portSubne != null and portSubne != ''">
-                portSubne = #{portSubne},
-            </if>
-            <if test="portAddress != null and portAddress != ''">
-                portAddress = #{portAddress},
-            </if>
+            config = #{config},
+            portName = #{portName},
+            portSubne = #{portSubne},
+            portAddress = #{portAddress},
+            portIpv6Subnet = #{portIpv6Subnet}
         </set>
         WHERE id = #{id}
     </update>
