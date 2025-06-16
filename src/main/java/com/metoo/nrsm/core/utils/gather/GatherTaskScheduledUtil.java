@@ -391,7 +391,7 @@ public class GatherTaskScheduledUtil {
 
 
     private volatile boolean isRunningProbe = false;
-//    @Scheduled(fixedDelay = 180_000)
+    @Scheduled(fixedDelay = 180_000)
     public void probe() {
         if(flag && !isRunningProbe){
             log.info("Probe采集开始");
