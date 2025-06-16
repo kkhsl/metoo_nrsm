@@ -6,8 +6,4 @@ import org.springframework.stereotype.Component;
 
 public class AnalysisTerminalTest {
 
-    public static void main(String[] args) {
-
-    }
-
 }

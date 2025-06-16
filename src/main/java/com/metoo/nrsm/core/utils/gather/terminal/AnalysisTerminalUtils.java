@@ -1,11 +1,13 @@
 package com.metoo.nrsm.core.utils.gather.terminal;
 
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.service.IPingService;
 import com.metoo.nrsm.core.service.IPortIpv6Service;
 import com.metoo.nrsm.core.service.IPortService;
 import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.net.Ipv4Utils;
+import com.metoo.nrsm.entity.Ping;
 import com.metoo.nrsm.entity.Port;
 import com.metoo.nrsm.entity.PortIpv6;
 import com.metoo.nrsm.entity.Terminal;
@@ -42,11 +44,13 @@ public class AnalysisTerminalUtils {
     private final IPortService portService;
     private final IPortIpv6Service portIpv6Service;
     private final ITerminalService terminalService;
+    private final IPingService pingService;
 
-    public AnalysisTerminalUtils(IPortService portService, IPortIpv6Service portIpv6Service, ITerminalService terminalService) {
+    public AnalysisTerminalUtils(IPortService portService, IPortIpv6Service portIpv6Service, ITerminalService terminalService, IPingService pingService) {
         this.portService = portService;
         this.portIpv6Service = portIpv6Service;
         this.terminalService = terminalService;
+        this.pingService = pingService;
     }
 
     //根据终端ipv4地址，分析网段对应端口的ipv6情况
@@ -233,7 +237,18 @@ public class AnalysisTerminalUtils {
                             isFe80(terminal.getV6ip2()) ||
                             isFe80(terminal.getV6ip3());
                     if(!hasFe80Ip){
+                        // 没有本地链路地址：则是终端未开启ipv6
                         terminal.setConfig(2);
+                    }else{
+                        // 有本地链路地址
+                        // 出口IPv6是否通
+                        Ping ping = this.pingService.selectOneObj();
+                        System.out.println(Boolean.valueOf(ping.getV6isok()));
+                        if(ping != null && ping.getV6isok().equals("0")){
+                            terminal.setConfig(4);
+                        }else{
+                            // 暂无建议
+                        }
                     }
                 }else if(withoutMask){
                     terminal.setConfig(3);
