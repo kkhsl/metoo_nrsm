@@ -191,8 +191,6 @@ public class Terminal extends IdEntity {
     private String scan_os_famify;
     private String scan_os_gen;
     private String scan_application_protocol;
-
-
     @ApiModelProperty("操作系统 windows，linux，android，apple，vmware")
     private String os;
     @ApiModelProperty("port + protocol")

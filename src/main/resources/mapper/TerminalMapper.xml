@@ -957,6 +957,13 @@
             <result column="d2_unitId" property="unitId"></result>
             <result column="d2_unitName" property="unitName"></result>
             <result column="d2_name" property="name"></result>
+            <result column="d2_scan_port_number" property="scan_port_number"></result>
+            <result column="d2_scan_vendor" property="scan_vendor"></result>
+            <result column="d2_scan_os_famify" property="scan_os_famify"></result>
+            <result column="d2_scan_os_gen" property="scan_os_gen"></result>
+            <result column="d2_scan_application_protocol" property="scan_application_protocol"></result>
+            <result column="d2_combined_port_protocol" property="combined_port_protocol"></result>
+            <result column="d2_combined_vendor_gen_family" property="combined_vendor_gen_family"></result>
         </collection>
     </resultMap>
 
@@ -1019,7 +1026,14 @@
             d2.online AS d2_online,
             d2.unitId AS d2_unitId,
             d2.unitName AS d2_unitName,
-            d2.name AS d2_name
+            d2.name AS d2_name,
+            d2.scan_port_number AS d2_scan_port_number,
+            d2.scan_vendor AS d2_scan_vendor,
+            d2.scan_os_famify AS d2_scan_os_famify,
+            d2.scan_os_gen AS d2_scan_os_gen,
+            d2.scan_application_protocol AS d2_scan_application_protocol,
+            d2.combined_port_protocol AS d2_combined_port_protocol,
+            d2.combined_vendor_gen_family AS d2_combined_vendor_gen_family
         FROM distinct_d1 d1
         JOIN metoo_terminal d2 ON d2.deviceName = d1.deviceName
         AND d2.id != d1.id
@@ -1102,7 +1116,14 @@
         d2.unitId AS d2_unitId,
         d2.unitName AS d2_unitName,
         d2.time AS d2_time,
-        d2.name AS d2_name
+        d2.name AS d2_name,
+        d2.scan_port_number AS d2_scan_port_number,
+        d2.scan_vendor AS d2_scan_vendor,
+        d2.scan_os_famify AS d2_scan_os_famify,
+        d2.scan_os_gen AS d2_scan_os_gen,
+        d2.scan_application_protocol AS d2_scan_application_protocol,
+        d2.combined_port_protocol AS d2_combined_port_protocol,
+        d2.combined_vendor_gen_family AS d2_combined_vendor_gen_family
         FROM distinct_d1 d1
         JOIN metoo_terminal_history d2 ON d2.deviceName = d1.deviceName
         AND d2.id != d1.id

@@ -30,7 +30,7 @@ public class ApiExecUtils {
             Gather gather = factory.getGather(Global.TRAFFIC);
             gather.executeMethod();
         } catch (Exception e) {
-            log.error("Error executing Gather task", e); // 提供更多的错误信息
+            log.error("流量采集失败：{}", e.getMessage()); // 提供更多的错误信息
         }
     }
 
@@ -61,19 +61,16 @@ public class ApiExecUtils {
         try {
             this.apiUtils.monitorApi(unitVos);
         } catch (Exception e) {
-            log.error("Error calling monitor API", e);
+            log.error("推送监控平台失败：{}", e.getMessage());
         }
 
         // 监管平台（信产）
         try {
             this.apiUtils.partyApi(unitVos);
         } catch (Exception e) {
-            log.error("Error calling party API", e);
+            log.error("推送监管平台失败：{}", e.getMessage());
         }
-
 //        callThirdPartyApiTWithRetry(unitVos);
-
-
     }
 
     public String callThirdPartyApiTWithRetry(List<UnitVO> unitVos) {
@@ -107,9 +104,6 @@ public class ApiExecUtils {
             log.info("未找到单位数据");
             return;
         }
-
-        log.info("FlowUnit list: {}", JSONObject.toJSONString(unitVos));
-
         callApi(unitVos);
     }
 

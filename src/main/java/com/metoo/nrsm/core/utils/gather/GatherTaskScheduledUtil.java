@@ -90,13 +90,11 @@ public class GatherTaskScheduledUtil {
             if (lock.tryLock()) {
                 try {
                     Long time = System.currentTimeMillis();
-                    log.info("Unit traffic start=================================");
-                    try {
-                        apiExecUtils.exec();
-                    } catch (Exception e) {
-                        log.error("Unit traffic error =================================" + e.getMessage());
-                    }
-                    log.info("Unit traffic end=================================" + (System.currentTimeMillis()-time));
+                    log.info("流量推送开始：{}", time);
+                    apiExecUtils.exec();
+                    log.info("流量推送结束：{}", (System.currentTimeMillis()-time));
+                } catch (Exception e) {
+                    log.error("流量推送失败：{}", e.getMessage());
                 } finally {
                     lock.unlock();
                 }
