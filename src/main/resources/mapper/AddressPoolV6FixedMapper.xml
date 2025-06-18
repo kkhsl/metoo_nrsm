@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.AddressPoolV6FixedMapper">
+
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.AddressPoolV6Fixed">
+        <id column="id" property="id"></id>
+        <result column="host" property="host"></result>
+        <result column="host_identifier_option_dhcp6_client_id" property="host_identifier_option_dhcp6_client_id"></result>
+        <result column="fixed_address6" property="fixed_address6"></result>
+
+    </resultMap>
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool_fixed_ipv6
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolV6FixedDTO" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool_fixed_ipv6
+        <if test = "orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test = "orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
+
+    <select id="selectObjToVOByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.core.vo.AddressPoolV6FixedVO">
+        SELECT *
+        FROM metoo_address_pool_fixed_ipv6
+        <where>
+            <if test="mask != null and subnet != null">
+                and INET_ATON(fixed_address6) &amp; INET_ATON(#{mask}) = INET_ATON(#{subnet}) &amp; INET_ATON(#{mask})
+            </if>
+        </where>
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_address_pool_fixed_ipv6
+        <where>
+            <if test="addressPoolIpv6FixedId != null and addressPoolIpv6FixedId != ''">
+                AND id != #{addressPoolIpv6FixedId}
+            </if>
+            <if test="host != null and host != ''">
+                AND host = #{host}
+            </if>
+            <if test="fixed_address6 != null and fixed_address6 != ''">
+                AND fixed_address6 = #{fixed_address6}
+            </if>
+            <if test="host_identifier_option_dhcp6_client_id != null and host_identifier_option_dhcp6_client_id != ''">
+                AND host_identifier_option_dhcp6_client_id = #{host_identifier_option_dhcp6_client_id}
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.AddressPoolV6Fixed" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO metoo_address_pool_fixed_ipv6
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="host != null and host != ''">
+                host,
+            </if>
+            <if test="host_identifier_option_dhcp6_client_id != null and host_identifier_option_dhcp6_client_id != ''">
+                host_identifier_option_dhcp6_client_id,
+            </if>
+            <if test="fixed_address6 != null and fixed_address6 != ''">
+                fixed_address6,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="host != null and host != ''">
+                #{host},
+            </if>
+            <if test="host_identifier_option_dhcp6_client_id != null and host_identifier_option_dhcp6_client_id != ''">
+                #{host_identifier_option_dhcp6_client_id},
+            </if>
+            <if test="fixed_address6 != null and fixed_address6 != ''">
+                #{fixed_address6},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.AddressPoolV6Fixed">
+        UPDATE metoo_address_pool_fixed_ipv6
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="host != null">
+                host = #{host},
+            </if>
+            <if test="host_identifier_option_dhcp6_client_id != null">
+                host_identifier_option_dhcp6_client_id = #{host_identifier_option_dhcp6_client_id},
+            </if>
+            <if test="fixed_address6 != null">
+                fixed_address6 = #{fixed_address6},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from metoo_address_pool_fixed_ipv6 where id = #{id}
+    </delete>
+
+</mapper>

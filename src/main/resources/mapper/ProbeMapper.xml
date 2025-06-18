@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.ProbeMapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Probe">
+        SELECT *
+        FROM metoo_probe
+        <where>
+            <if test="ip_addr != null and ip_addr != ''">
+                AND ip_addr = #{ip_addr}
+            </if>
+            <if test="ipv6 != null and ipv6 != ''">
+                AND ipv6 = #{ipv6}
+            </if>
+            <if test="port_num != null and port_num != ''">
+                AND port_num = #{port_num}
+            </if>
+            <if test="ttlGt != null and ttlGt != ''">
+                AND ttl &gt; #{ttlGt}
+            </if>
+            <if test="IpvIsNotNull != null and IpvIsNotNull.trim() != ''">
+                AND ip_addr IS NOT NULL
+            </if>
+        </where>
+    </select>
+
+    <select id="selectObjDistinctByIp" resultType="java.lang.String">
+        SELECT DISTINCT ip_addr FROM metoo_probe_bck
+    </select>
+
+    <select id="mergeProbesByIp" resultType="com.metoo.nrsm.entity.Probe">
+       SELECT
+        ip_addr,
+				reliability,
+        GROUP_CONCAT(
+					CONCAT(
+
+						IF (
+						port_num IS NOT NULL
+						AND port_num > 0,
+						port_num,
+						''
+						),
+
+						'/',
+
+						IF (
+						application_protocol IS NOT NULL
+						AND application_protocol != '',
+						application_protocol,
+						''
+						)
+					)
+					ORDER BY
+					port_num SEPARATOR ', '
+        ) AS combined,
+--         TRIM(BOTH ':' FROM CONCAT(
+--         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, '') ORDER BY vendor SEPARATOR ',')),
+--         ':',
+--         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_gen IS NOT NULL AND os_gen != ''AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_gen, '') ORDER BY os_gen SEPARATOR ',')),
+--         ':',
+--         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_family IS NOT NULL AND os_family != ''AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '') ORDER BY os_family SEPARATOR ','))
+--         ))AS aa,
+        GROUP_CONCAT(DISTINCT ttl SEPARATOR ',') as combined_ttl,
+
+						GROUP_CONCAT(DISTINCT
+
+							CONCAT(
+									if(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, ''), ':',
+									if(os_gen IS NOT NULL AND os_gen != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_gen, ''), ':',
+									if(os_family IS NOT NULL AND os_family != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '')
+								)
+				 ORDER BY port_num SEPARATOR ',')
+				 as combined_os,
+				TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(mac_vendor IS NOT NULL AND mac_vendor != '', mac_vendor, '') ORDER BY mac_vendor SEPARATOR ','))
+        AS combined_vendor,
+				TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(application_protocol IS NOT NULL AND application_protocol != '', application_protocol, '') ORDER BY application_protocol SEPARATOR ','))
+        AS combined_application_protocol
+        FROM
+        metoo_probe_bck
+        WHERE
+        port_num IS NOT NULL
+        AND port_num > 0
+        GROUP BY
+        ip_addr
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.nrsm.entity.Probe">
+        INSERT INTO metoo_probe
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="ip_addr != null and ip_addr != ''">
+                ip_addr,
+            </if>
+            <if test="port_num != null and port_num != ''">
+                port_num,
+            </if>
+            <if test="mac_addr != null and mac_addr != ''">
+                mac_addr,
+            </if>
+            <if test="vendor != null and vendor != ''">
+                vendor,
+            </if>
+            <if test="os_family != null and os_family != ''">
+                os_family,
+            </if>
+            <if test="os_gen != null and os_gen != ''">
+                os_gen,
+            </if>
+            <if test="os_cpe != null and os_cpe != ''">
+                os_cpe,
+            </if>
+            <if test="scan_time != null and scan_time != ''">
+                scan_time,
+            </if>
+            <if test="update_time != null and update_time != ''">
+                update_time,
+            </if>
+            <if test="communicate_protocol != null and communicate_protocol != ''">
+                communicate_protocol,
+            </if>
+            <if test="application_protocol != null and application_protocol != ''">
+                application_protocol,
+            </if>
+            <if test="service_output != null and service_output != ''">
+                service_output,
+            </if>
+            <if test="port_service_cpe != null and port_service_cpe != ''">
+                port_service_cpe,
+            </if>
+            <if test="port_service_product != null and port_service_product != ''">
+                port_service_product,
+            </if>
+            <if test="port_service_version != null and port_service_version != ''">
+                port_service_version,
+            </if>
+            <if test="port_service_vendor != null and port_service_vendor != ''">
+                port_service_vendor,
+            </if>
+            <if test="device_type != null and device_type != ''">
+                device_type,
+            </if>
+            <if test="title != null and title != ''">
+                title,
+            </if>
+            <if test="response != null and response != ''">
+                response,
+            </if>
+            <if test="fingerId != null and fingerId != ''">
+                fingerId,
+            </if>
+            <if test="ttl != null and ttl != ''">
+                ttl,
+            </if>
+            <if test="reliability != null and reliability != ''">
+                reliability,
+            </if>
+            <if test="fingerIdOsScan != null and fingerIdOsScan != ''">
+                fingerIdOsScan,
+            </if>
+            <if test="ipv6 != null and ipv6 != ''">
+                ipv6,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="mac_vendor != null and mac_vendor != ''">
+                mac_vendor,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="ip_addr != null and ip_addr != ''">
+                #{ip_addr},
+            </if>
+            <if test="port_num != null and port_num != ''">
+                #{port_num},
+            </if>
+            <if test="mac_addr != null and mac_addr != ''">
+                #{mac_addr},
+            </if>
+            <if test="vendor != null and vendor != ''">
+                #{vendor},
+            </if>
+            <if test="os_family != null and os_family != ''">
+                #{os_family},
+            </if>
+            <if test="os_gen != null and os_gen != ''">
+                #{os_gen},
+            </if>
+            <if test="os_cpe != null and os_cpe != ''">
+                #{os_cpe},
+            </if>
+            <if test="scan_time != null and scan_time != ''">
+                #{scan_time},
+            </if>
+            <if test="update_time != null and update_time != ''">
+                #{update_time},
+            </if>
+            <if test="communicate_protocol != null and communicate_protocol != ''">
+                #{communicate_protocol},
+            </if>
+            <if test="application_protocol != null and application_protocol != ''">
+                #{application_protocol},
+            </if>
+            <if test="service_output != null and service_output != ''">
+                #{service_output},
+            </if>
+            <if test="port_service_cpe != null and port_service_cpe != ''">
+                #{port_service_cpe},
+            </if>
+            <if test="port_service_product != null and port_service_product != ''">
+                #{port_service_product},
+            </if>
+            <if test="port_service_version != null and port_service_version != ''">
+                #{port_service_version},
+            </if>
+            <if test="port_service_vendor != null and port_service_vendor != ''">
+                #{port_service_vendor},
+            </if>
+            <if test="device_type != null and device_type != ''">
+                #{device_type},
+            </if>
+            <if test="title != null and title != ''">
+                #{title},
+            </if>
+            <if test="response != null and response != ''">
+                #{response},
+            </if>
+            <if test="fingerId != null and fingerId != ''">
+                #{fingerId},
+            </if>
+            <if test="ttl != null and ttl != ''">
+                #{ttl},
+            </if>
+            <if test="reliability != null and reliability != ''">
+                #{reliability},
+            </if>
+            <if test="fingerIdOsScan != null and fingerIdOsScan != ''">
+                #{fingerIdOsScan},
+            </if>
+            <if test="ipv6 != null and ipv6 != ''">
+                #{ipv6},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="mac_vendor != null and mac_vendor != ''">
+                #{mac_vendor},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Probe">
+        UPDATE metoo_probe
+        <set>
+            <if test="ip_addr != null and ip_addr != ''">
+                ip_addr = #{ip_addr},
+            </if>
+            <if test="port_num != null and port_num != ''">
+                port_num =  #{port_num},
+            </if>
+            <if test="mac_addr != null and mac_addr != ''">
+                mac_addr =  #{mac_addr},
+            </if>
+            <if test="vendor != null and vendor != ''">
+                vendor =  #{vendor},
+            </if>
+            <if test="os_family != null and os_family != ''">
+                os_family =  #{os_family},
+            </if>
+            <if test="os_gen != null and os_gen != ''">
+                os_gen =  #{os_gen},
+            </if>
+            <if test="os_cpe != null and os_cpe != ''">
+                os_cpe =  #{os_cpe},
+            </if>
+            <if test="scan_time != null and scan_time != ''">
+                scan_time =   #{scan_time},
+            </if>
+            <if test="update_time != null and update_time != ''">
+                update_time =  #{update_time},
+            </if>
+            <if test="communicate_protocol != null and communicate_protocol != ''">
+                communicate_protocol =  #{communicate_protocol},
+            </if>
+            <if test="application_protocol != null and application_protocol != ''">
+                application_protocol =   #{application_protocol},
+            </if>
+            <if test="service_output != null and service_output != ''">
+                service_output =   #{service_output},
+            </if>
+            <if test="port_service_cpe != null and port_service_cpe != ''">
+                port_service_cpe =  #{port_service_cpe},
+            </if>
+            <if test="port_service_product != null and port_service_product != ''">
+                port_service_product =   #{port_service_product},
+            </if>
+            <if test="port_service_version != null and port_service_version != ''">
+                port_service_version =  #{port_service_version},
+            </if>
+            <if test="port_service_vendor != null and port_service_vendor != ''">
+                port_service_vendor =  #{port_service_vendor},
+            </if>
+            <if test="device_type != null and device_type != ''">
+                device_type =  #{device_type},
+            </if>
+            <if test="title != null and title != ''">
+                title =  #{title},
+            </if>
+            <if test="response != null and response != ''">
+                response =   #{response},
+            </if>
+            <if test="fingerId != null and fingerId != ''">
+                fingerId =  #{fingerId},
+            </if>
+            <if test="ttl != null and ttl != ''">
+                ttl =  #{ttl},
+            </if>
+            <if test="reliability != null and reliability != ''">
+                reliability = #{reliability},
+            </if>
+            <if test="fingerIdOsScan != null and fingerIdOsScan != ''">
+                fingerIdOsScan = #{fingerIdOsScan},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from metoo_probe where id = #{id}
+    </delete>
+
+    <delete id="deleteTable">
+        delete from metoo_probe
+    </delete>
+
+    <delete id="deleteTableBack">
+        delete from metoo_probe_bck
+    </delete>
+
+    <insert id="copyToBck">
+         INSERT INTO metoo_probe_bck SELECT * FROM metoo_probe
+    </insert>
+
+</mapper>

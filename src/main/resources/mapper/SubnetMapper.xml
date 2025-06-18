@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.SubnetMapper">
+
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.Subnet">
+        <id column="id" property="id"></id>
+        <result column="ip" property="ip"></result>
+        <result column="mask" property="mask"></result>
+        <result column="vlan" property="vlan"></result>
+        <result column="threshold" property="threshold"></result>
+        <result column="parent_id" property="parentId"></result>
+        <result column="parent_ip" property="parentIp"></result>
+        <result column="description" property="description"></result>
+        <result column="vlan_id" property="vlanId"></result>
+        <result column="vlan_name" property="vlanName"></result>
+        <result column="description" property="description"></result>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, ip, mask, parent_id, parent_ip, vlan, threshold, description, vlan_id, vlan_name, description
+    </sql>
+
+    <sql id="Inet_Column_List">
+        id, INET_NTOA(ip) ip, mask, parent_id, INET_NTOA(parent_ip) parent_ip, vlan,
+          threshold, description, vlan_id, vlan_name, description
+    </sql>
+
+    <select id="selectSubnetByParentId" parameterType="java.lang.Long" resultMap="Base_Result_Map">
+        SELECT <include refid="Inet_Column_List" />
+        FROM metoo_subnet
+        <where>
+            <if test="parentId != null and parentId != ''">
+                  parent_id = #{parentId}
+            </if>
+            <if test="parentId == null">
+                parent_id IS NULL
+            </if>
+        </where>
+        ORDER BY ip + 0 ASC
+    </select>
+
+    <select id="selectSubnetByParentIp" parameterType="java.lang.Long" resultMap="Base_Result_Map">
+        SELECT <include refid="Inet_Column_List" />
+        FROM metoo_subnet
+        <where>
+            <if test="parentIp!= null and parentIp != ''">
+                parent_ip = #{parentIp}
+            </if>
+            <if test="parentIp == null">
+                parent_ip IS NULL
+            </if>
+        </where>
+        ORDER BY ip + 0 ASC
+    </select>
+
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
+        SELECT <include refid="Inet_Column_List" />
+        FROM metoo_subnet
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjByIp" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_subnet
+        WHERE ip = #{ip}
+    </select>
+
+    <select id="selectObjByIpAndMask" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_subnet
+        WHERE ip = #{ip} and mask = #{mask}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
+        SELECT <include refid="Inet_Column_List" />
+        FROM metoo_subnet
+        <where>
+            <if test="ip != null and ip != ''">
+                and ip = #{ip}
+            </if>
+            <if test="mask != null and mask != ''">
+                and mask = #{mask}
+            </if>
+        </where>
+    </select>
+
+    <select id="leafIpSubnetMapper" resultMap="Base_Result_Map">
+        SELECT  t1.id, INET_NTOA(t1.ip) ip, t1.mask
+        FROM metoo_subnet t1
+        LEFT JOIN metoo_subnet t2 ON t1.id = t2.parent_id
+
+        WHERE t2.ip IS NULL
+    </select>
+
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Subnet" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO metoo_subnet
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="mask != null and mask != ''">
+                mask,
+            </if>
+            <if test="vlan != null and vlan != ''">
+                vlan,
+            </if>
+            <if test="threshold != null and threshold != ''">
+                threshold,
+            </if>
+            <if test="parentIp != null and parentIp != ''">
+                parent_ip,
+            </if>
+            <if test="parentId != null and parentId != ''">
+                parent_id,
+            </if>
+            <if test="description != null and description != ''">
+                description,
+            </if>
+            <if test="vlanId != null and vlanId != ''">
+                vlan_id,
+            </if>
+            <if test="vlanName != null and vlanName != ''">
+                vlan_name,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="mask != null and mask != ''">
+                #{mask},
+            </if>
+            <if test="vlan != null and vlan != ''">
+                #{vlan},
+            </if>
+            <if test="threshold != null and threshold != ''">
+                #{threshold},
+            </if>
+            <if test="parentIp != null and parentIp != ''">
+                #{parentIp},
+            </if>
+            <if test="parentId != null and parentId != ''">
+                #{parentId},
+            </if>
+            <if test="description != null and description != ''">
+                #{description},
+            </if>
+            <if test="vlanId != null and vlanId != ''">
+                #{vlanId},
+            </if>
+            <if test="vlanName != null and vlanName != ''">
+                #{vlanName},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Subnet">
+        UPDATE metoo_subnet
+        <set>
+            <if test="vlan != null and vlan != ''">
+                vlan = #{vlan},
+            </if>
+            <if test="threshold != null and threshold != ''">
+                threshold = #{threshold},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="vlanId != null and vlanId != ''">
+                vlan_id = #{vlanId},
+            </if>
+            <if test="vlanName != null and vlanName != ''">
+                vlan_name = #{vlanName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from metoo_subnet where id = #{id}
+    </delete>
+
+    <delete id="deleteTable">
+        delete from metoo_subnet
+    </delete>
+
+</mapper>

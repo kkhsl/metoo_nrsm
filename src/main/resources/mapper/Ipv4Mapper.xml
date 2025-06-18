@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.Ipv4Mapper">
+
+    <resultMap id="joinSelectObjAndIpv6_Result" type="com.metoo.nrsm.entity.Ipv4">
+        <id column="v4id" property="id"></id>
+        <result column="v4ip" property="v4ip"></result>
+        <result column="mac" property="mac"></result>
+        <result column="port" property="port"></result>
+        <result column="deviceIp" property="deviceIp"></result>
+        <result column="deviceName" property="deviceName"></result>
+        <result column="macVendor" property="macVendor"></result>
+        <collection property="ipv6List" ofType="com.metoo.nrsm.entity.Ipv6">
+            <id column="v6id" property="id"></id>
+            <result column="v6ip" property="ip"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectDuplicatesObjByMap" resultType="com.metoo.nrsm.entity.Ipv4">
+          SELECT
+           *
+        FROM
+            metoo_ipv4_duplicates
+    </select>
+
+    <select id="joinSelectObjAndIpv6" resultMap="joinSelectObjAndIpv6_Result">
+          SELECT
+            metoo_ipv4.id v4id,
+            metoo_ipv4.ip v4ip,
+            metoo_ipv4.mac,
+            metoo_ipv4.port,
+            metoo_ipv4.deviceIp,
+            metoo_ipv4.deviceName,
+            metoo_ipv6.id v6id,
+            metoo_ipv6.ip v6ip,
+            metoo_mac_vendor.vendor macVendor
+        FROM
+            metoo_ipv4
+        JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
+        AND metoo_ipv4.port = metoo_ipv6.port
+        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(metoo_ipv4.mac, 1, 8);
+    </select>
+
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Ipv4">
+        INSERT INTO metoo_ipv4
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                deviceIp,
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                deviceName,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                #{deviceIp},
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                #{deviceName},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="saveGather" parameterType="com.metoo.nrsm.entity.Ipv4">
+        INSERT INTO metoo_ipv4_gather
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                deviceIp,
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                deviceName,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                #{deviceIp},
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                #{deviceName},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="batchSaveGather" parameterType="java.util.List">
+        INSERT INTO metoo_ipv4_gather (
+            addTime,
+            ip,
+            mac,
+            port,
+            deviceIp,
+            deviceName
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.addTime},
+                #{item.ip},
+                #{item.mac},
+                #{item.port},
+                #{item.deviceIp},
+                #{item.deviceName}
+            )
+        </foreach>
+    </insert>
+
+    <update id="removeDuplicates" statementType="CALLABLE">
+        {call metoo_ipv4_remove_duplicates()}
+    </update>
+
+    <update id="truncateTable">
+        TRUNCATE TABLE metoo_ipv4
+    </update>
+
+    <delete id="deleteTable">
+        delete from metoo_ipv4
+    </delete>
+
+    <update id="truncateTableGather">
+        TRUNCATE TABLE metoo_ipv4_gather
+    </update>
+
+    <insert id="copyGatherToIpv4">
+        INSERT INTO metoo_ipv4 SELECT * FROM metoo_ipv4_gather
+    </insert>
+
+</mapper>

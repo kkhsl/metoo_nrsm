@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.TrafficDataMapper">
+
+
+    <resultMap id="TrafficDataResultMap" type="com.metoo.nrsm.entity.TrafficData">
+        <id column="id" property="id" />
+        <result column="addTime" property="addTime" />
+        <result column="ipv4_input_rate" property="ipv4InputRate" />
+        <result column="ipv4_output_rate" property="ipv4OutputRate" />
+        <result column="ipv6_input_rate" property="ipv6InputRate" />
+        <result column="ipv6_output_rate" property="ipv6OutputRate" />
+        <result column="vlan_id" property="vlanId" />
+    </resultMap>
+
+    <insert id="insertTrafficData" parameterType="com.metoo.nrsm.entity.TrafficData">
+        INSERT INTO trafficdata (addTime, ipv4_input_rate, ipv4_output_rate, ipv6_input_rate, ipv6_output_rate, vlan_id)
+        VALUES (#{addTime}, #{ipv4InputRate}, #{ipv4OutputRate}, #{ipv6InputRate}, #{ipv6OutputRate}, #{vlanId})
+    </insert>
+</mapper>

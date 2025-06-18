@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.TerminalUnitSubnetV6Mapper">
+
+    <select id="selectObjById" parameterType="Long" resultType="com.metoo.nrsm.entity.TerminalUnitSubnetV6">
+        SELECT * FROM metoo_terminal_unit_subnet_v6
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.TerminalUnitSubnetV6">
+        SELECT * FROM metoo_terminal_unit_subnet_v6
+    </select>
+
+</mapper>

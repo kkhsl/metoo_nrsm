@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.InterfaceMapper">
+
+    <resultMap id="InterfaceResultMap" type="com.metoo.nrsm.entity.Interface">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="ipv4Address" column="ipv4Address"/>
+        <result property="ipv6Address" column="ipv6Address"/>
+        <result property="gateway4" column="gateway4"/>
+        <result property="gateway6" column="gateway6"/>
+        <result property="vlanNum" column="vlanNum"/>
+        <result property="parentId" column="parentId"/>
+        <collection property="vlans" ofType="com.metoo.nrsm.entity.Interface">
+            <id property="id" column="t2_id"/>
+            <result property="name" column="t2_name"/>
+            <result property="ipv4Address" column="t2_ipv4Address"/>
+            <result property="ipv6Address" column="t2_ipv6Address"/>
+            <result property="gateway4" column="t2_gateway4"/>
+            <result property="gateway6" column="t2_gateway6"/>
+            <result property="vlanNum" column="t2_vlanNum"/>
+            <result property="parentId" column="t2_parentId"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Interface">
+        SELECT *
+        FROM metoo_interface
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjByParentId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Interface">
+        SELECT *
+        FROM metoo_interface
+        WHERE parentId = #{parentId}
+    </select>
+
+    <select id="selectObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Interface">
+        SELECT *
+        FROM metoo_interface
+        WHERE name = #{name}
+    </select>
+
+    <select id="selectAll" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Interface">
+      WITH RECURSIVE interface_tree AS (
+        -- 基础查询：获取所有主接口（parentId 为 null 的接口）
+        SELECT
+            id,
+            name,
+            ipv4Address,
+            ipv6Address,
+            gateway4,
+            gateway6,
+            parentId,
+            vlanNum,
+            1 AS level,
+            CAST(name AS CHAR(255)) AS path
+        FROM metoo_interface
+        WHERE parentId IS NULL
+
+        UNION ALL
+
+        -- 递归查询：获取子接口
+        SELECT
+            ni.id,
+            ni.name,
+            ni.ipv4Address,
+            ni.ipv6Address,
+            ni.gateway4,
+            ni.gateway6,
+            ni.parentId,
+            ni.vlanNum,
+            it.level + 1,
+            CONCAT(it.path, ' > ', ni.name) AS path
+        FROM metoo_interface ni
+        JOIN interface_tree it ON ni.parentId = it.id
+    )
+    SELECT
+        id,
+        name,
+        ipv4Address,
+        ipv6Address,
+        gateway4,
+        gateway6,
+        parentId,
+        vlanNum,
+        level,
+        path
+    FROM interface_tree
+    ORDER BY path;
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.InterfaceDTO" resultType="com.metoo.nrsm.entity.Interface">
+--         SELECT
+--         t1.id, t1.name, t1.ipv4Address, t1.ipv6Address, t1.gateway4, t1.gateway6, t1.vlanNum, t1.parentId,
+--         t2.id t2_id, t2.name t2_name, t2.ipv4Address t2_ipv4Address, t2.ipv6Address t2_ipv6Address,
+--         t2.gateway4 t2_gateway4, t2.gateway6 t2_gateway6, t2.vlanNum t2_vlanNum, t2.parentId t2_parentId
+--         FROM
+--         metoo_interface t1
+--         LEFT JOIN metoo_interface t2 ON t1.id = t2.parentId
+--         WHERE t1.parentId is null
+
+        SELECT
+        t1.id, t1.name, t1.ipv4Address, t1.ipv6Address, t1.gateway4, t1.gateway6, t1.vlanNum, t1.parentId, t1.isup
+        FROM
+        metoo_interface t1
+        WHERE t1.parentId IS NULL
+        <if test = "orderBy != null and orderBy != ''">
+            ORDER BY t1.${orderBy}
+        </if>
+        <if test = "orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
+
+    <select id="selectParentInterfaces" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Interface">
+        SELECT
+        t2.id, t2.name, t2.ipv4Address, t2.ipv6Address, t2.gateway4, t2.gateway6, t2.vlanNum, t2.parentId, t2.isup
+        FROM
+        metoo_interface t2
+        WHERE t2.parentId IN
+        <foreach collection="parentIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Interface">
+        SELECT *
+        FROM metoo_interface
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND name = #{name}
+            </if>
+            <if test="vlanNum != null">
+                AND vlanNum = #{vlanNum}
+            </if>
+            <if test="gateway4 != null and gateway4 != ''">
+                AND gateway4 = #{gateway4}
+            </if>
+            <if test="gateway6 != null and gateway6 != ''">
+                AND gateway6 = #{gateway6}
+            </if>
+            <if test="ipv4NetworkSegment != null and ipv4NetworkSegment != ''">
+                AND ipv4NetworkSegment = #{ipv4NetworkSegment}
+            </if>
+            <if test="ipv6NetworkSegment != null and ipv6NetworkSegment != ''">
+                AND ipv6NetworkSegment = #{ipv6NetworkSegment}
+            </if>
+            <if test="excludeId != null">
+                AND id != #{excludeId}
+            </if>
+            <if test="parentIdNull != null and parentIdNull">
+                AND (parentId IS NULL or parentId = '')
+            </if>
+            <if test="gateway4NotNull != null and gateway4NotNull">
+                AND gateway4 IS NOT NULL and gateway4 != ''
+            </if>
+            <if test="gateway6NotNull != null and gateway6NotNull">
+                AND gateway6 IS NOT NULL and gateway6 != ''
+            </if>
+            <if test="ipv4AddressNOTNULL != null and ipv4AddressNOTNULL">
+                AND (ipv4Address IS NOT NULL and ipv4Address != '')
+            </if>
+            <if test="ipv6AddressNOTNULL != null and ipv6AddressNOTNULL">
+                AND (ipv6Address IS NOT NULL and ipv6Address != '')
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Interface" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO metoo_interface
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="isup != ''">
+                isup,
+            </if>
+            <if test="ipv4Address != ''">
+                ipv4Address,
+            </if>
+            <if test="ipv4netmask != ''">
+                ipv4netmask,
+            </if>
+            <if test="ipv6Address != ''">
+                ipv6Address,
+            </if>
+            <if test="ipv6netmask != ''">
+                ipv6netmask,
+            </if>
+            <if test="macaddress != ''">
+                macaddress,
+            </if>
+            <if test="parentId != null">
+                parentId,
+            </if>
+            <if test="vlanNum != null">
+                vlanNum,
+            </if>
+            <if test="gateway4 != ''">
+                gateway4,
+            </if>
+            <if test="gateway6 != ''">
+                gateway6,
+            </if>
+            <if test="ipv4NetworkSegment != ''">
+                ipv4NetworkSegment,
+            </if>
+            <if test="ipv6NetworkSegment != ''">
+                ipv6NetworkSegment,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+            <if test="isup != ''">
+                #{isup},
+            </if>
+            <if test="ipv4Address != ''">
+                #{ipv4Address},
+            </if>
+            <if test="ipv4netmask != ''">
+                #{ipv4netmask},
+            </if>
+            <if test="ipv6Address != ''">
+                #{ipv6Address},
+            </if>
+            <if test="ipv6netmask != ''">
+                #{ipv6netmask},
+            </if>
+            <if test="macaddress != ''">
+                #{macaddress},
+            </if>
+            <if test="parentId != null">
+                #{parentId},
+            </if>
+            <if test="vlanNum != null">
+                #{vlanNum},
+            </if>
+            <if test="gateway4 != ''">
+                #{gateway4},
+            </if>
+            <if test="gateway6 != ''">
+                #{gateway6},
+            </if>
+            <if test="ipv4NetworkSegment != ''">
+                #{ipv4NetworkSegment},
+            </if>
+            <if test="ipv6NetworkSegment != ''">
+                #{ipv6NetworkSegment},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.Interface">
+        UPDATE metoo_interface
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="isup != ''">
+                isup = #{isup},
+            </if>
+            <if test="ipv4Address != ''">
+                ipv4Address = #{ipv4Address},
+            </if>
+            <if test="ipv4netmask != ''">
+                ipv4netmask = #{ipv4netmask},
+            </if>
+            <if test="ipv6Address != ''">
+                ipv6Address = #{ipv6Address},
+            </if>
+            <if test="ipv6netmask != ''">
+                ipv6netmask = #{ipv6netmask},
+            </if>
+            <if test="macaddress != ''">
+                macaddress = #{macaddress},
+            </if>
+            <if test="parentId != null">
+                parentId = #{parentId},
+            </if>
+            <if test="vlanNum != null">
+                vlanNum = #{vlanNum},
+            </if>
+            <if test="gateway4 != ''">
+                gateway4 = #{gateway4},
+            </if>
+            <if test="gateway6 != ''">
+                gateway6 = #{gateway6},
+            </if>
+            <if test="ipv4NetworkSegment != ''">
+                ipv4NetworkSegment = #{ipv4NetworkSegment},
+            </if>
+            <if test="ipv6NetworkSegment != ''">
+                ipv6NetworkSegment = #{ipv6NetworkSegment},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from metoo_interface where id = #{id}
+    </delete>
+
+</mapper>

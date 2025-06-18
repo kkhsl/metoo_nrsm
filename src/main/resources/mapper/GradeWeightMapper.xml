@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.GradeWeightMapper">
+
+    <select id="selectObjOne" resultType="com.metoo.nrsm.entity.GradeWeight">
+        select * from metoo_grad_weight limit 1
+    </select>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.GradeWeight">
+        update metoo_grad_weight
+        <set>
+            <if test="ne != null">
+                ne = #{ne},
+            </if>
+            <if test="terminal != null">
+                terminal = #{terminal},
+            </if>
+            <if test="flux != null">
+                flux = #{flux},
+            </if>
+            <if test="reach != null">
+                reach = #{reach},
+            </if>
+        </set>
+    </update>
+</mapper>

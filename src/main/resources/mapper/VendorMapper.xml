@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.VendorMapper">
+
+    <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.Vendor">
+        <id column="id" property="id"></id>
+        <result column="addTime" property="addTime"></result>
+        <result column="name" property="name"></result>
+        <result column="name_en" property="nameEn"></result>
+        <result column="index" property="index"></result>
+    </resultMap>
+
+    <sql id="Base_Column_list">
+        id, addTime, deleteStatus, `name`, index, name_en
+    </sql>
+
+    <select id="selectObjById"  parameterType="java.lang.Long" resultMap="Base_Result_Map">
+        SELECT
+          *
+        FROM
+          metoo_vendor
+        WHERE
+          id = #{id}
+    </select>
+
+    <select id="selectObjByName"  parameterType="java.lang.String" resultMap="Base_Result_Map">
+        SELECT
+          *
+        FROM
+          metoo_vendor
+        WHERE
+          name = #{name}
+    </select>
+
+    <select id="selectObjByMap"  parameterType="java.util.Map" resultMap="Base_Result_Map">
+        SELECT
+          *
+        FROM
+          metoo_vendor
+          ORDER BY `index` ASC
+    </select>
+
+    <select id="selectConditionQuery" parameterType="java.util.Map" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_vendor
+        ORDER BY `index` ASC
+    </select>
+
+
+    <select id="selectByDeviceType" resultMap="Base_Result_Map">
+        SELECT v.*
+        FROM metoo_vendor v
+                 JOIN device_type_vendor dtv ON v.id = dtv.vendor_id
+        WHERE dtv.device_type_id = #{deviceTypeId}
+        ORDER BY dtv.sequence ASC
+    </select>
+
+</mapper>

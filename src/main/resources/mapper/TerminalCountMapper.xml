@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.TerminalCountMapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.TerminalCount">
+        select * from metoo_terminal_count order by addTime desc limit 1
+    </select>
+
+    <select id="selectHistoryObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.TerminalCount">
+        select * from metoo_terminal_count
+        <where>
+            <if test="time != null">
+                AND addTime = (
+                SELECT
+                  addTime
+                FROM
+                  metoo_terminal_history
+                WHERE
+                  addTime &lt;= #{time}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.TerminalCount">
+        insert into metoo_terminal_count
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="v4ip_count != null and v4ip_count!= ''">
+                v4ip_count,
+            </if>
+            <if test="v6ip_count != null and v6ip_count!= ''">
+                v6ip_count,
+            </if>
+            <if test="v4ip_v6ip_count != null and v4ip_v6ip_count!= ''">
+                v4ip_v6ip_count,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="v4ip_count != null and v4ip_count!= ''">
+                #{v4ip_count},
+            </if>
+            <if test="v6ip_count != null and v6ip_count!= ''">
+                #{v6ip_count},
+            </if>
+            <if test="v4ip_v6ip_count != null and v4ip_v6ip_count!= ''">
+                #{v4ip_v6ip_count},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.TerminalCount">
+        UPDATE metoo_terminal_count
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="v4ip_count != null and v4ip_count!= ''">
+                v4ip_count = #{v4ip_count},
+            </if>
+            <if test="v6ip_count != null and v6ip_count!= ''">
+                v6ip_count = #{v6ip_count},
+            </if>
+            <if test="v4ip_v6ip_count != null and v4ip_v6ip_count!= ''">
+                v4ip_v6ip_count = #{v4ip_v6ip_count},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.TerminalDiagnosisMapper">
+
+    <resultMap id="terminalDiagnosisMap" type="com.metoo.nrsm.entity.TerminalDiagnosis">
+        <id property="id" column="id" />
+        <result property="createTime" column="create_time" />
+        <result property="status" column="status" jdbcType="TINYINT" javaType="java.lang.Integer" />
+        <result property="name" column="name" />
+        <result property="type" column="type" />
+    </resultMap>
+
+    <select id="selectObjByType" parameterType="java.lang.Integer" resultMap="terminalDiagnosisMap">
+        SELECT *
+        FROM metoo_terminal_diagnosis
+        <where>
+            <if test="type != null">
+                AND `type` = #{type}
+            </if>
+        </where>
+    </select>
+
+</mapper>

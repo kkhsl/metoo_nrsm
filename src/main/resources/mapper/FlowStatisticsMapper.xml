@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.FlowStatisticsMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="flowSummaryMap" type="com.metoo.nrsm.entity.FlowSummary">
+        <result property="createTime" column="createTime"/>
+        <result property="ipv4TotalGb" column="ipv4TotalGb" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="ipv6TotalGb" column="ipv6TotalGb" javaType="java.math.BigDecimal" jdbcType="DECIMAL"/>
+        <result property="ipv6Percentage" column="ipv6Percentage" javaType="java.lang.Double" jdbcType="DOUBLE"/>
+    </resultMap>
+
+    <select id="getFlowSummary" parameterType="map" resultMap="flowSummaryMap">
+        SELECT
+        create_time AS createTime,
+        (SUM(CASE WHEN is_ipv6 = 0 THEN in_delta ELSE 0 END) +
+        SUM(CASE WHEN is_ipv6 = 0 THEN out_delta ELSE 0 END)) / 1073741824 AS ipv4TotalGb,
+
+        (SUM(CASE WHEN is_ipv6 = 1 THEN in_delta ELSE 0 END) +
+        SUM(CASE WHEN is_ipv6 = 1 THEN out_delta ELSE 0 END)) / 1073741824 AS ipv6TotalGb,
+
+        COALESCE(
+        100.0 * SUM(CASE WHEN is_ipv6 = 1 THEN in_delta + out_delta ELSE 0 END) /
+        NULLIF(SUM(in_delta + out_delta), 0),
+        0
+        ) AS ipv6Percentage
+        FROM port_traffic_data
+        WHERE create_time >= #{startTime}
+        AND create_time <![CDATA[ <= ]]> #{endTime}
+        GROUP BY create_time
+        ORDER BY create_time
+    </select>
+
+
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.FlowStatistics">
+        select * from metoo_flux_statistics
+        <where>
+            <if test="oneMinuteAgo != null">
+                AND addTime = (
+                SELECT
+                addTime
+                FROM
+                metoo_flux_statistics
+                WHERE
+                addTime &lt;= #{oneMinuteAgo}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+            <if test="time != null">
+                AND addTime = (
+                SELECT
+                addTime
+                FROM
+                metoo_flux_statistics
+                WHERE
+                addTime = #{time}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+            <if test="startOfDay != null and endOfDay != null">
+                AND addTime BETWEEN #{startOfDay} and #{endOfDay}
+            </if>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.nrsm.entity.FlowStatistics">
+        INSERT INTO metoo_flux_statistics
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="ipv6Rate != null">
+                ipv6Rate,
+            </if>
+            <if test="ipv4Sum != null">
+                ipv4Sum,
+            </if>
+            <if test="ipv6Sum != null">
+                ipv6Sum,
+            </if>
+            <if test="ipv4 != null">
+                ipv4,
+            </if>
+            <if test="ipv6 != null">
+                ipv6,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="ipv6Rate != null">
+                #{ipv6Rate},
+            </if>
+            <if test="ipv4Sum != null">
+                #{ipv4Sum},
+            </if>
+            <if test="ipv6Sum != null">
+                #{ipv6Sum},
+            </if>
+            <if test="ipv4 != null">
+                #{ipv4},
+            </if>
+            <if test="ipv6 != null">
+                #{ipv6},
+            </if>
+        </trim>
+    </insert>
+</mapper>
