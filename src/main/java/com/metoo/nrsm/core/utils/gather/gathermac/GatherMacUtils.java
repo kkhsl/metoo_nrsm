@@ -76,6 +76,7 @@ public class GatherMacUtils {
         setTagToX(); // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V
         setTagToU();// 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
         setTagToS();
+<<<<<<< HEAD
         setTagSToRT();
         setTagSToE();
         setTagXToE();
@@ -86,6 +87,12 @@ public class GatherMacUtils {
 
         // 在E中查询，deviceIp+port只对应同一个remoteDevice，tag改为DE
 
+=======
+        setTagSToE();
+        setTagSToRT();
+        setTagXToE();
+        setTagUToE();
+>>>>>>> c7b57879cc8c8932f058878f1606fb1bb7664798
         setTagUToRT();
 //        RTToDT();
         setTagRTToDT();
