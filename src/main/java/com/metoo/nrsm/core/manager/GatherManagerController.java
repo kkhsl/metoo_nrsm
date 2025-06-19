@@ -75,6 +75,10 @@ public class GatherManagerController {
         }
     }
 
+    @GetMapping("scanByTerminal")
+    public void scanByTerminal(){
+        probeServiceImpl.scanByTerminal();    }
+
     @GetMapping("writeTerminalByProbe")
     public void writeTerminalByProbe(){
         probeServiceImpl.writeTerminal();

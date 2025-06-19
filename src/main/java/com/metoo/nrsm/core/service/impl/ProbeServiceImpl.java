@@ -224,7 +224,9 @@ public class ProbeServiceImpl implements IProbeService {
 
         this.probeMapper.deleteTable();
 
-        List<Terminal> terminals = this.terminalService.selectObjToProbe(Collections.EMPTY_MAP);
+        Map params = new HashMap();
+        params.put("online", true);
+        List<Terminal> terminals = this.terminalService.selectObjByMap(params);
 
         try {
 
@@ -259,10 +261,10 @@ public class ProbeServiceImpl implements IProbeService {
 
                 // 补充针对表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描（删除条目）
                 // 去重 probe
-                List<String> ips = this.probeMapper.selectObjDistinctByIp();
-                Map params = new HashMap();
+                    List<String> ips = this.probeMapper.selectObjDistinctByIp();
+                params.clear();
                 params.put("notInIps", ips);
-                List<Terminal> terminalList = terminalService.selectObjByMap(null);
+                List<Terminal> terminalList = terminalService.selectObjByMap(params);
                 if (CollUtil.isNotEmpty(terminalList)) {
                     for (Terminal terminal : terminalList) {
                         Probe probe = Convert.convert(Probe.class, terminal);
@@ -464,7 +466,9 @@ public class ProbeServiceImpl implements IProbeService {
     // 写回终端表 合并vendor,os_gen,os_family
     // 判断ttl写os
     public void writeTerminal(){
-        List<Terminal> terminals = this.terminalService.selectObjByMap(Collections.EMPTY_MAP);
+        Map params = new HashMap();
+        params.put("online", true);
+        List<Terminal> terminals = this.terminalService.selectObjByMap(params);
         List<Probe> probes = this.mergeProbesByIp();
         if(probes.isEmpty() || terminals.isEmpty()){
             return;
@@ -579,7 +583,8 @@ public class ProbeServiceImpl implements IProbeService {
         // 存储解析后的 JSON 对象列表
         List<JSONObject> jsonList = new ArrayList<>();
 
-        if(input.contains("::")){
+        String os = input.replaceAll(":", "").replaceAll(",","");
+        if("".equals(os)){
             return jsonList;
         }
 

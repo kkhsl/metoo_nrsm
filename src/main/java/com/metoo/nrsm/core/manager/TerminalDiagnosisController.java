@@ -25,23 +25,24 @@ public class TerminalDiagnosisController {
         Terminal terminal = this.terminalService.selectObjById(Long.parseLong(terminalId));
         if(terminal != null){
             TerminalDiagnosis terminalDiagnosis = terminalDiagnosisService.selectObjByType(terminal.getConfig());
+            if(terminalDiagnosis != null){
+                terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv4}", terminal.getV4ip() != null ? terminal.getV4ip() : ""));
+                terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv4_subnet}", terminal.getPortSubne() != null ? terminal.getPortSubne() : ""));
 
-            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv4}", terminal.getV4ip() != null ? terminal.getV4ip() : ""));
-            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv4_subnet}", terminal.getPortSubne() != null ? terminal.getPortSubne() : ""));
+                terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Interface}", terminal.getPortName() != null ? terminal.getPortName() : ""));
+                terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Vendor}", terminal.getVendor() != null ? terminal.getVendor() : ""));
 
-            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Interface}", terminal.getPortName() != null ? terminal.getPortName() : ""));
-            terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Vendor}", terminal.getVendor() != null ? terminal.getVendor() : ""));
-
-            String portIpv6Subnet = terminal.getPortIpv6Subnet();
-            if(portIpv6Subnet != null && !portIpv6Subnet.isEmpty()){
-                if(portIpv6Subnet.contains("/")){
-                    String ip = portIpv6Subnet.split("/")[0];
-                    String mask = portIpv6Subnet.split("/")[1];
-                    terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv6}", ip));
-                    terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Prefix-length}", mask));
+                String portIpv6Subnet = terminal.getPortIpv6Subnet();
+                if(portIpv6Subnet != null && !portIpv6Subnet.isEmpty()){
+                    if(portIpv6Subnet.contains("/")){
+                        String ip = portIpv6Subnet.split("/")[0];
+                        String mask = portIpv6Subnet.split("/")[1];
+                        terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv6}", ip));
+                        terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Prefix-length}", mask));
+                    }
                 }
+                return ResponseUtil.ok(terminalDiagnosis);
             }
-            return ResponseUtil.ok(terminalDiagnosis);
         }
        return ResponseUtil.ok();
     }
