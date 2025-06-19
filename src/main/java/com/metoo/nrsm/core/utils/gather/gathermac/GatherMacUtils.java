@@ -3,9 +3,9 @@ package com.metoo.nrsm.core.utils.gather.gathermac;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.ap.utils.GecossApiUtil;
 import com.metoo.nrsm.core.service.*;
+import com.metoo.nrsm.core.service.impl.MacTestServiceImpl;
 import com.metoo.nrsm.core.utils.mac.MacUtils;
 import com.metoo.nrsm.entity.*;
 import com.metoo.nrsm.entity.ac.AcAction;
@@ -15,14 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +52,9 @@ public class GatherMacUtils {
     @Autowired
     private IMacService macService;
 
+    @Autowired
+    private MacTestServiceImpl macTestService;
+
     @Transactional
     public void copyGatherData(Date date){
         try {
@@ -80,6 +80,10 @@ public class GatherMacUtils {
         setTagSToRT();
         setTagXToE();
         setTagUToE();
+
+        macTestService.executeFullProcess();
+
+
         setTagUToRT();
 //        RTToDT();
         setTagRTToDT();

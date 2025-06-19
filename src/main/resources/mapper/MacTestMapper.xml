@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.MacTestMapper">
+
+    <!-- 1. 执行存储过程 -->
+    <select id="callRemoteIPAndPort" statementType="CALLABLE">
+        {call remoteIPAndPort()}
+    </select>
+
+
+    <select id="countMultiRecordDevices" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT deviceIp)
+        FROM metoo_mac_test
+        WHERE tag = 'E'
+          AND mac != '00:00:00:00:00:00'
+    </select>
+
+    <!-- 步骤2: 更新AE标签（仅对记录数>2的deviceIp组） -->
+    <update id="updateToAEForMultiples">
+        update metoo_mac_test set tag='AE'
+        where deviceIp in (
+            select deviceIp from (
+                                     select deviceIp ,count(1) as cnt from (
+                                                                               select deviceIp,port from metoo_mac_test
+                                                                               WHERE mac != '00:00:00:00:00:00' AND tag = 'E'
+                                                                               group by deviceIp,port ) a
+                                     group by deviceIp ) b
+            where b.cnt=1 )
+          AND mac != '00:00:00:00:00:00' AND tag = 'E'
+    </update>
+
+    <!-- 步骤3: 更新DE标签（仅对记录数>2的deviceIp组） -->
+    <update id="updateToDEForMultiples">
+        UPDATE metoo_mac_test as org join
+            (
+                SELECT d.deviceIp,d.`port`,d.remoteDevice from (
+                                                                   select a.deviceIp,a.`port`,a.cnt1,b.cnt2 from
+                                                                       (select deviceIp,port,count(1) as cnt1  from metoo_mac_test where tag ='E'
+                                                                        group by deviceIp,port)a
+                                                                           inner join
+                                                                       (
+                                                                           select deviceIp,port,remoteDevice, count(1) as cnt2 from metoo_mac_test where tag ='E'
+                                                                           group by deviceIp,port ,remoteDevice) b
+                                                                       on a.deviceIp=b.deviceIp
+                                                                           and a.port= b.port
+                                                                           and a.cnt1=b.cnt2 ) c
+                                                                   inner join metoo_mac_test d
+                                                                              on d.tag ='E'
+                                                                                  and c.deviceIp=d.deviceIp
+                                                                                  and c.`port`=d.`port` ) as dest
+            on dest.deviceIp=org.deviceIp
+                and dest.port=org.port
+                and dest.remoteDevice=org.remoteDevice
+        set tag='DE'
+    </update>
+
+    <!-- 步骤4: 交换设备关系（仅对记录数>2的deviceIp组） -->
+    <update id="swapAEtoDEForMultiples">
+        UPDATE metoo_mac_test as org join
+            (
+                SELECT d.deviceIp,d.remoteDevice from metoo_mac_test d where tag ='DE'
+            ) as dest
+            on dest.deviceIp=org.remoteDevice
+                and dest.remoteDevice=org.deviceIp
+        set org.tag='DE',org.remoteDevice=dest.deviceIp,org.deviceIp=dest.remoteDevice
+        where org.tag ='AE'
+    </update>
+
+    <!-- 步骤5: 更新XE标签（仅对记录数>2的deviceIp组） -->
+    <update id="updateToXEForMultiples">
+        update metoo_mac_test set tag='XE'
+        where tag='E'
+        and remoteDevice in(
+        select deviceIp from(
+        select deviceIp from metoo_mac_test where tag='AE'
+        ) as a
+        );
+
+        update metoo_mac_test set tag='XE'
+        where tag='AE' ;
+    </update>
+
+    <!-- 步骤6: 处理分组记录数为2的设备，将成对记录标记为DE -->
+    <update id="updatePairedDEForTwo">
+        UPDATE metoo_mac_test AS a
+            INNER JOIN metoo_mac_test AS b ON a.deviceIp = b.remoteDevice
+                AND a.remoteDevice = b.deviceIp
+        SET a.tag = 'DE',
+            b.tag = 'DE'
+        WHERE
+            a.tag = 'E'
+          AND b.tag = 'E'
+          AND a.deviceIp != a.remoteDevice
+          AND a.deviceIp IN ( SELECT deviceIp FROM ( SELECT deviceIp FROM metoo_mac_test WHERE tag = 'E' GROUP BY deviceIp) t )
+    </update>
+</mapper>
