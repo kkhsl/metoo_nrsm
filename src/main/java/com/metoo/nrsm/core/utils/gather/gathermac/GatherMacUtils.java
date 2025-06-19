@@ -61,7 +61,9 @@ public class GatherMacUtils {
             copyData(date);
             List<Mac> macs = this.macService.selectObjByMap(Collections.emptyMap());
             if(!macs.isEmpty()){// 给mac条目打tag
-                updateMacTag(date);
+//                updateMacTag(date); // tag方式一
+                // tag 方式二
+                macTestService.executeFullProcess();
             }
         } catch (Exception e) {
             log.error("Error method copyGatherData: {}", date, e);
@@ -81,7 +83,6 @@ public class GatherMacUtils {
         setTagXToE();
         setTagUToE();
 
-        macTestService.executeFullProcess();
 
 
         setTagUToRT();
