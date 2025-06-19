@@ -21,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -465,6 +466,9 @@ public class FluxConfigManagerController {
     @GetMapping("/gather")
     @Scheduled(cron = "0 */5 * * * ?")
     public Result gather() {
+        if(!flag){
+            return ResponseUtil.ok();
+        }
         Date now = new Date();
         List<FluxConfig> fluxConfigs = this.fluxConfigService.selectObjByMap(null);
         if (!fluxConfigs.isEmpty()) {
@@ -937,10 +941,14 @@ public class FluxConfigManagerController {
 
         return result;
     }
-
+    @Value("${task.switch.is-open}")
+    private boolean flag;
     @Scheduled(cron = "0 0 1 * * ?")
     @Transactional
     public void cleanupOldTrafficData() {
+        if(!flag){
+           return;
+        }
         long thirtyDaysAgo = System.currentTimeMillis() / 1000 - 30 * 24 * 3600;
         portTrafficDataMapper.deleteByTimestampBefore(thirtyDaysAgo);
         log.info("已清理30天前的流量记录");

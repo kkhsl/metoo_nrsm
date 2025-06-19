@@ -9,11 +9,10 @@ import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
 import com.metoo.nrsm.core.mapper.ProbeMapper;
-import com.metoo.nrsm.core.service.IArpService;
-import com.metoo.nrsm.core.service.IProbeResultService;
-import com.metoo.nrsm.core.service.IProbeService;
-import com.metoo.nrsm.core.service.ITerminalService;
+import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiService;
+import com.metoo.nrsm.core.utils.date.DateTools;
+import com.metoo.nrsm.core.utils.enums.LogStatusType;
 import com.metoo.nrsm.core.vo.ProbeRequestVO;
 import com.metoo.nrsm.entity.Probe;
 import com.metoo.nrsm.entity.Terminal;
@@ -50,6 +49,8 @@ public class ProbeServiceImpl implements IProbeService {
     private IProbeResultService probeResultService;
     @Autowired
     private IArpService arpService;
+    @Autowired
+    private ISurveyingLogService surveyingLogService;
 
 
     @Override
@@ -219,102 +220,86 @@ public class ProbeServiceImpl implements IProbeService {
         }
     }
 
+    public void getProbeResult() {
 
-    public String getProbeResult() {
-
+        String begin_time = DateTools.getCreateTime();
+        int probeLogId = surveyingLogService.createSureyingLog("全网资产扫描", begin_time, 1, null, 7);
         this.probeMapper.deleteTable();
 
         Map params = new HashMap();
         params.put("online", true);
         List<Terminal> terminals = this.terminalService.selectObjByMap(params);
+        if (terminals.size() >= 300) {
+            // 拆分v4|v6
+            List<Terminal> ipv4List = this.terminalService.selectObjToProbe(MapUtil.of("ipv4IsNotNull", true));
+            if (ipv4List.size() >= 300) {
+                processInBatches(ipv4List);
+            } else {
+                processSingleBatch(ipv4List);
+            }
+            List<Terminal> ipv6List = this.terminalService.selectObjToProbe(MapUtil.of("ipv6IsNotNull", true));
+            if (ipv6List.size() >= 300) {
+                processInBatches(ipv6List);
+            } else {
+                processSingleBatch(ipv6List);
+            }
+        } else {
+            List<Terminal> ipv4List = this.terminalService.selectObjToProbe(MapUtil.of("ipv4IsNotNull", true));
+            if (!ipv4List.isEmpty()) {
+                processSingleBatch(ipv4List);
+            }
+            List<Terminal> ipv6List = this.terminalService.selectObjToProbe(MapUtil.of("ipv6IsNotNull", true));
+            if (!ipv6List.isEmpty()) {
+                processSingleBatch(ipv6List);
+            }
+        }
 
         try {
+            // 补充针对表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描（删除条目）
+            // 去重 probe
+            List<String> ips = this.probeMapper.selectObjDistinctByIp();
+            params.clear();
+            params.put("notInIps", ips);
+            List<Terminal> terminalList = terminalService.selectObjByMap(params);
+            if (CollUtil.isNotEmpty(terminalList)) {
+                for (Terminal terminal : terminalList) {
+                    Probe probe = Convert.convert(Probe.class, terminal);
+                    probe.setIp_addr(terminal.getV4ip());
+                    probe.setIpv6(terminal.getV6ip());
+                    probe.setPort_num("2");
+                    probe.setMac(terminal.getMac());
+                    probe.setMac_vendor(terminal.getMacVendor());
+                    List<Probe> probeList = null;
 
-            if (terminals.size() >= 300) {
-                // 拆分v4|v6
-                List<Terminal> ipv4List = this.terminalService.selectObjToProbe(MapUtil.of("ipv4IsNotNull", true));
-
-                if (ipv4List.size() >= 300) {
-                    processInBatches(ipv4List);
-                } else {
-                    processSingleBatch(ipv4List);
-                }
-                List<Terminal> ipv6List = this.terminalService.selectObjToProbe(MapUtil.of("ipv6IsNotNull", true));
-                if (ipv6List.size() >= 300) {
-                    processInBatches(ipv6List);
-                } else {
-                    processSingleBatch(ipv6List);
-                }
-            } else {
-                List<Terminal> ipv4List = this.terminalService.selectObjToProbe(MapUtil.of("ipv4IsNotNull", true));
-                if (!ipv4List.isEmpty()) {
-                    processSingleBatch(ipv4List);
-                }
-                List<Terminal> ipv6List = this.terminalService.selectObjToProbe(MapUtil.of("ipv6IsNotNull", true));
-                if (!ipv6List.isEmpty()) {
-                    processSingleBatch(ipv6List);
-                }
-            }
-
-            try {
-
-
-                // 补充针对表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描（删除条目）
-                // 去重 probe
-                    List<String> ips = this.probeMapper.selectObjDistinctByIp();
-                params.clear();
-                params.put("notInIps", ips);
-                List<Terminal> terminalList = terminalService.selectObjByMap(params);
-                if (CollUtil.isNotEmpty(terminalList)) {
-                    for (Terminal terminal : terminalList) {
-                        Probe probe = Convert.convert(Probe.class, terminal);
-                        probe.setIp_addr(terminal.getV4ip());
-                        probe.setIpv6(terminal.getV6ip());
-                        probe.setPort_num("2");
-                        probe.setMac(terminal.getMac());
-                        probe.setMac_vendor(terminal.getMacVendor());
-                        List<Probe> probeList = null;
-
-                        if (StringUtil.isNotEmpty(probe.getIp_addr())) {
-                            probeList = this.selectObjByMap(MapUtil.of("ip_addr", terminal.getV4ip()));
-                        } else {
-                            probeList = this.selectObjByMap(MapUtil.of("ipv6", probe.getIpv6()));
-                        }
-                        if (CollUtil.isEmpty(probeList)) {
-                            // 不存在，则插入到probe表
-                            this.insert(probe);
-                            // 删除
+                    if (StringUtil.isNotEmpty(probe.getIp_addr())) {
+                        probeList = this.selectObjByMap(MapUtil.of("ip_addr", terminal.getV4ip()));
+                    } else {
+                        probeList = this.selectObjByMap(MapUtil.of("ipv6", probe.getIpv6()));
+                    }
+                    if (CollUtil.isEmpty(probeList)) {
+                        // 不存在，则插入到probe表
+                        this.insert(probe);
+                        // 删除
 //                            arpService.delete(arp.getId());
-                        }
                     }
                 }
-
-                log.info("================================ os-scanner ========================");
-                GatherFactory factory = new GatherFactory();
-                Gather gather = factory.getGather("fileToProbe");
-                gather.executeMethod();
-
-
-
-                this.deleteTableBack();
-
-                this.copyToBck();
-
-                this.writeTerminal();
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
 
+            GatherFactory factory = new GatherFactory();
+            Gather gather = factory.getGather("fileToProbe");
+            gather.executeMethod();
 
+            this.deleteTableBack();
 
-            log.info("Probe end===============");
+            this.copyToBck();
 
-            return null;
+            this.writeTerminal();
+
         } catch (Exception e) {
+            e.printStackTrace();
+            surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.FAIL.getCode());
         }
-        log.info("Probe end===============");
-        return null;
+        surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.SUCCESS.getCode());
     }
 
     private boolean processInBatches(List<Terminal> arpList) {
