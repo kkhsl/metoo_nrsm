@@ -19,8 +19,8 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
 import java.security.Security;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -450,20 +450,50 @@ public class SNMPv3Request {
         for (Map.Entry<String, String> entry : mac3Map.entrySet()) {
             String oid = entry.getKey(); // OID
             String index = entry.getValue(); // 端口值
-            strNew = "1.3.6.1.2.1.17.1.4.1.2." + index;
-            PDU pdu = sendStrRequest(snmpParams, strNew);
-            indexNew = pdu.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("= ", "").replace("\"", "");
-            String newOid = oid.replaceFirst(
-                    Pattern.quote(str) + "\\d+\\.", // 匹配 str 后紧跟的"数字+."
-                    ""
-            );
-            // 提取 MAC 地址部分
+
+            // 优化后的OID处理逻辑：从OID末尾提取6组数字
+            String newOid;
+
+            // 从OID字符串末尾反向查找最近6个连续的数字组
+            int lastDotPosition = oid.lastIndexOf('.'); // 找到最后一个点
+            int count = 0;
+            int startIndex = -1;
+
+            // 反向遍历找到第6个数字组的起始位置
+            for (int i = oid.length() - 1; i >= 0; i--) {
+                char c = oid.charAt(i);
+                if (c == '.') {
+                    count++;
+                    if (count == 6) {
+                        startIndex = i + 1; // 获取6个数字组的起始位置
+                        break;
+                    }
+                }
+            }
+
+            if (startIndex != -1) {
+                // 成功找到6个连续的组，取最后6个部分
+                newOid = oid.substring(startIndex);
+
+                // 如果有额外的部分（如最后的90），只保留6组数字
+                String[] parts = newOid.split("\\.");
+                if (parts.length > 6) {
+                    newOid = String.join(".", Arrays.copyOfRange(parts, 0, 6));
+                }
+            } else {
+                // 回退逻辑：如果无法提取6个组，使用原算法
+                newOid = oid.replaceFirst(
+                        Pattern.quote(str) + "\\d+\\.",
+                        "");
+            }
+
             String macAddress = convertOidToMac(newOid);
-            result.put(macAddress, indexNew);
+            result.put(macAddress, index);
         }
 
         return SNMPDataParser.convertToJson(result);
     }
+
 
     public static String getDevicePortStatus(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortStatus 表遍历
