@@ -61,9 +61,7 @@ public class GatherMacUtils {
             copyData(date);
             List<Mac> macs = this.macService.selectObjByMap(Collections.emptyMap());
             if(!macs.isEmpty()){// 给mac条目打tag
-                updateMacTag(date); // tag方式一
-                // tag 方式二
-//                macTestService.executeFullProcess();
+                updateMacTag(date);
             }
         } catch (Exception e) {
             log.error("Error method copyGatherData: {}", date, e);
@@ -116,13 +114,9 @@ public class GatherMacUtils {
         setTagRTToDT();
         copyArpIpToMacByDT();
         setTagRTToVDT(date);  // NSwitch
-
-
-
         setTagDTToVDE(); // （无线路由器）
         setTagRTToVDE();
         setTagRTToDTByDE();
-
         removeApTerminal(); // 删除mac与为ap mac地址相同的数据
 
     }
