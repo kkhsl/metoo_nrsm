@@ -17,4 +17,6 @@ public interface IFluxConfigService {
     boolean update(FluxConfig instance);
 
     boolean delete(Long id);
+
+    void gatherFlux();
 }

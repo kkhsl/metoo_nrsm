@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.nrsm.core.mapper.SurveyingLogMapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.SurveyingLog">
+        SELECT *
+        FROM metoo_sureying_log
+        <where>
+            <if test="name != null and name != ''">
+                AND `name` = #{name}
+            </if>
+            <if test="type != null and type != ''">
+                AND `type` = #{type}
+            </if>
+        </where>
+        order by addTime asc
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.nrsm.entity.SurveyingLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO metoo_sureying_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="name != null  and name != ''">
+                name,
+            </if>
+            <if test="beginTime != null and beginTime != ''">
+                beginTime,
+            </if>
+            <if test="endTime != null and endTime != ''">
+                endTime,
+            </if>
+            <if test="status != null and status != ''">
+                status,
+            </if>
+            <if test="desc != null and desc != ''">
+                desc,
+            </if>
+            <if test="info != null and info != ''">
+                info,
+            </if>
+            <if test="parentId != null and parentId != ''">
+                parentId,
+            </if>
+            <if test="type != null and type != ''">
+                type,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="name != null  and name != ''">
+                #{name},
+            </if>
+            <if test="beginTime != null and beginTime != ''">
+                #{beginTime},
+            </if>
+            <if test="endTime != null and endTime != ''">
+                #{endTime},
+            </if>
+            <if test="status != null and status != ''">
+                #{status},
+            </if>
+            <if test="desc != null and desc != ''">
+                #{desc},
+            </if>
+            <if test="info != null and info != ''">
+                #{info},
+            </if>
+            <if test="parentId != null and parentId != ''">
+                #{parentId},
+            </if>
+            <if test="type != null and type != ''">
+                #{type},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.nrsm.entity.SurveyingLog">
+        UPDATE metoo_sureying_log
+        <set>
+            <if test="addTime != null ">
+                addTime = #{addTime},
+            </if>
+            <if test="name != null ">
+                name = #{name},
+            </if>
+            <if test="beginTime != null and beginTime != ''">
+                beginTime = #{beginTime},
+            </if>
+            <if test="endTime != null and endTime != ''">
+                endTime = #{endTime},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="desc != null and desc != ''">
+                desc = #{desc},
+            </if>
+            <if test="info != null and info != ''">
+                info = #{info},
+            </if>
+            <if test="parentId != null and parentId != ''">
+                parentId = #{parentId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from metoo_sureying_log where id = #{id}
+    </delete>
+
+    <delete id="deleteTable">
+        delete from metoo_sureying_log
+    </delete>
+
+
+</mapper>

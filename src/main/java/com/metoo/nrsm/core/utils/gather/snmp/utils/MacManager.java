@@ -43,7 +43,7 @@ public class MacManager {
 
     // 处理网络元素数据
     private void processNetworkElementData(NetworkElement networkElement, String hostName, Date date) {
-        getLldpDataSNMP(networkElement, date, hostName);
+//        getLldpDataSNMP(networkElement, date, hostName);
 
         getMacData(networkElement, date, hostName);
 

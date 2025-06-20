@@ -74,4 +74,10 @@ public class FluxConfigServiceImpl implements IFluxConfigService {
             return false;
         }
     }
+
+    @Override
+    public void gatherFlux() {
+
+
+    }
 }

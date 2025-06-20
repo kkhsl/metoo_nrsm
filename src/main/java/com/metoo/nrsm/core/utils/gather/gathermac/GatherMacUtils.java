@@ -72,20 +72,45 @@ public class GatherMacUtils {
         macService.copyGatherDataToMac(date);
     }
 
+//    private void updateMacTag(Date date){
+//        setTagToX(); // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V
+//        setTagToU();// 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
+//        setTagToS();
+//        setTagSToE();
+//        setTagSToRT();
+//        setTagXToE();
+//        setTagUToE();
+//
+//macTestService.executeFullProcess();
+//
+//
+//        setTagUToRT();
+////        RTToDT();
+//        setTagRTToDT();
+//        copyArpIpToMacByDT();
+//        setTagRTToVDT(date);  // NSwitch
+//        setTagDTToVDE(); // （无线路由器）
+//        setTagRTToVDE();
+//        setTagRTToDTByDE();
+//        removeApTerminal(); // 删除mac与为ap mac地址相同的数据
+//
+//    }
+
+
     private void updateMacTag(Date date){
         setTagToX(); // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V
         setTagToU();// 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
         setTagToS();
         setTagSToE();
-        setTagSToRT();
         setTagXToE();
         setTagUToE();
 
         macTestService.executeFullProcess();
 
 
+        setTagSToRT();
         setTagUToRT();
-//        RTToDT();
+//        RTToDT(); // 弃用
         setTagRTToDT();
         copyArpIpToMacByDT();
         setTagRTToVDT(date);  // NSwitch

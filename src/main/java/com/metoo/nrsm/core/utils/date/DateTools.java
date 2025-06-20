@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,6 +37,14 @@ public class DateTools {
     public static String TIME_000 = "000";
     public static String TIME_235959 = "235959";
     public static long ONEDAY_TIME = 86400000L;
+
+
+    public static String getCreateTime(){
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+        return formattedDateTime;
+    }
 
     /**
      * @param date 当前时间
