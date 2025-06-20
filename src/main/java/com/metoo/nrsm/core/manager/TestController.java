@@ -73,6 +73,14 @@ public class TestController {
         System.out.println(JSONObject.class.getProtectionDomain().getCodeSource().getLocation());
     }
 
+    @GetMapping("mac")
+    public void mac() {
+        try {
+            this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     // interface vlans
     public void interfaceVlans(){
@@ -169,14 +177,6 @@ public class TestController {
         }
     }
 
-    @GetMapping("mac")
-    public void mac() {
-        try {
-            this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @GetMapping("gather/dhcp1")
     public void gatherDHCP1(){
