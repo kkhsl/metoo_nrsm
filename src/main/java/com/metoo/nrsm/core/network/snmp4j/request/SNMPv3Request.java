@@ -20,7 +20,6 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 import java.io.IOException;
 import java.security.Security;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -439,31 +438,33 @@ public class SNMPv3Request {
         return SNMPDataParser.convertToJson(result);
     }
     public static String getDeviceMac3(SNMPV3Params snmpParams) {
-        // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
-        Map<String, String> mac3Map = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC3);
-        String str = SNMP_OID.MAC3.getOid() + ".";
-        String strNew;
-        String indexNew = null;
+            // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
+            Map<String, String> mac3Map = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC3);
+            String str = SNMP_OID.MAC3.getOid() + ".";
+            String strNew;
+            String indexNew = null;
 
-        Map<String, String> result = new HashMap<>();
+            Map<String, String> result = new HashMap<>();
 
-        for (Map.Entry<String, String> entry : mac3Map.entrySet()) {
-            String oid = entry.getKey(); // OID
-            String index = entry.getValue(); // 端口值
-            strNew = "1.3.6.1.2.1.17.1.4.1.2." + index;
+            for (Map.Entry<String, String> entry : mac3Map.entrySet()) {
+                String oid = entry.getKey(); // OID
+                String index = entry.getValue(); // 端口值
+            /*strNew = "1.3.6.1.2.1.17.1.4.1.2." + index;
             PDU pdu = sendStrRequest(snmpParams, strNew);
             indexNew = pdu.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("= ", "").replace("\"", "");
-            String newOid = oid.replaceFirst(
-                    Pattern.quote(str) + "\\d+\\.", // 匹配 str 后紧跟的"数字+."
-                    ""
-            );
-            // 提取 MAC 地址部分
-            String macAddress = convertOidToMac(newOid);
-            result.put(macAddress, indexNew);
-        }
 
-        return SNMPDataParser.convertToJson(result);
-    }
+            );*/
+                // 提取 MAC 地址部分
+
+                String newOid = oid.replaceFirst(
+                        Pattern.quote(str) + "\\d+\\.", // 匹配 str 后紧跟的"数字+."
+                        "");
+                String macAddress = convertOidToMac(newOid);
+                result.put(macAddress, index);
+            }
+
+            return SNMPDataParser.convertToJson(result);
+        }
 
     public static String getDevicePortStatus(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 PortStatus 表遍历
