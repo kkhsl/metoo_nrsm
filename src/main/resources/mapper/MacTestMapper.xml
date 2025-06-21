@@ -35,24 +35,24 @@
     <update id="updateToDEForMultiples">
         UPDATE metoo_mac as org join
             (
-                SELECT d.deviceIp,d.`port`,d.remoteDevice from (
-                                                                   select a.deviceIp,a.`port`,a.cnt1,b.cnt2 from
-                                                                       (select deviceIp,port,count(1) as cnt1  from metoo_mac where tag ='E'
-                                                                        group by deviceIp,port)a
-                                                                           inner join
-                                                                       (
-                                                                           select deviceIp,port,remoteDevice, count(1) as cnt2 from metoo_mac where tag ='E'
-                                                                           group by deviceIp,port ,remoteDevice) b
-                                                                       on a.deviceIp=b.deviceIp
-                                                                           and a.port= b.port
-                                                                           and a.cnt1=b.cnt2 ) c
-                                                                   inner join metoo_mac d
-                                                                              on d.tag ='E'
-                                                                                  and c.deviceIp=d.deviceIp
-                                                                                  and c.`port`=d.`port` ) as dest
+                SELECT d.deviceIp,d.`port`,d.remoteIp from (
+                                                               select a.deviceIp,a.`port`,a.cnt1,b.cnt2 from
+                                                                   (select deviceIp,port,count(1) as cnt1  from metoo_mac where tag ='E'
+                                                                    group by deviceIp,port)a
+                                                                       inner join
+                                                                   (
+                                                                       select deviceIp,port,remoteIp, count(1) as cnt2 from metoo_mac where tag ='E'
+                                                                       group by deviceIp,port ,remoteIp) b
+                                                                   on a.deviceIp=b.deviceIp
+                                                                       and a.port= b.port
+                                                                       and a.cnt1=b.cnt2 ) c
+                                                               inner join metoo_mac d
+                                                                          on d.tag ='E'
+                                                                              and c.deviceIp=d.deviceIp
+                                                                              and c.`port`=d.`port` ) as dest
             on dest.deviceIp=org.deviceIp
                 and dest.port=org.port
-                and dest.remoteDevice=org.remoteDevice
+                and dest.remoteIp=org.remoteIp
         set tag='DE'
     </update>
 
@@ -60,11 +60,11 @@
     <update id="swapAEtoDEForMultiples">
         UPDATE metoo_mac as org join
             (
-                SELECT d.deviceIp,d.remoteDevice from metoo_mac d where tag ='DE'
+                SELECT d.deviceIp,d.remoteIp from metoo_mac d where tag ='DE'
             ) as dest
-            on dest.deviceIp=org.remoteDevice
-                and dest.remoteDevice=org.deviceIp
-        set org.tag='DE',org.remoteDevice=dest.deviceIp,org.deviceIp=dest.remoteDevice
+            on dest.deviceIp=org.remoteIp
+                and dest.remoteIp=org.deviceIp
+        set org.tag='DE',org.remoteIp=dest.deviceIp,org.deviceIp=dest.remoteIp
         where org.tag ='AE'
     </update>
 
@@ -72,12 +72,11 @@
     <update id="updateToXEForMultiples">
         update metoo_mac set tag='XE'
         where tag='E'
-        and remoteDevice in(
-        select deviceIp from(
-        select deviceIp from metoo_mac where tag='AE'
-        ) as a
-        );
-
+          and remoteIp in(
+            select deviceIp from(
+                                    select deviceIp from metoo_mac where tag='AE'
+                                ) as a
+        ) ;
         update metoo_mac set tag='XE'
         where tag='AE' ;
     </update>
@@ -85,14 +84,14 @@
     <!-- 步骤6: 处理分组记录数为2的设备，将成对记录标记为DE -->
     <update id="updatePairedDEForTwo">
         UPDATE metoo_mac AS a
-            INNER JOIN metoo_mac AS b ON a.deviceIp = b.remoteDevice
-                AND a.remoteDevice = b.deviceIp
+            INNER JOIN metoo_mac AS b ON a.deviceIp = b.remoteIp
+                AND a.remoteIp = b.deviceIp
         SET a.tag = 'DE',
             b.tag = 'DE'
         WHERE
             a.tag = 'E'
           AND b.tag = 'E'
-          AND a.deviceIp != a.remoteDevice
+          AND a.deviceIp != a.remoteIp
           AND a.deviceIp IN ( SELECT deviceIp FROM ( SELECT deviceIp FROM metoo_mac WHERE tag = 'E' GROUP BY deviceIp) t )
     </update>
 </mapper>
