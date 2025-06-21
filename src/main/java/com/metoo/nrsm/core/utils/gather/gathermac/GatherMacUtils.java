@@ -55,7 +55,7 @@ public class GatherMacUtils {
     @Autowired
     private MacTestServiceImpl macTestService;
 
-    @Transactional
+//    @Transactional
     public void copyGatherData(Date date){
         try {
             copyData(date);

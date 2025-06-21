@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 
 @Slf4j
 @RestController
-@RequestMapping("/test/task")
+@RequestMapping("/admin/netmap/task")
 public class TaskController {
 
     private final IProbeService probeService;
@@ -75,16 +75,24 @@ public class TaskController {
                     gatherData();
                 } catch (InterruptedException e) {
                     log.info("任务被正常中断");
+                    String beginTime = DateTools.getCreateTime();
+                    surveyingLogService.createSureyingLog("测绘失败", beginTime, 3, null, 5);
                     Thread.currentThread().interrupt(); // 恢复中断状态
                 } catch (Exception e) {
+                    String beginTime = DateTools.getCreateTime();
+                    surveyingLogService.createSureyingLog("测绘失败", beginTime, 3, null, 5);
                     log.error("任务执行异常", e);
                 }
                 return null;
             };
 
             runningTask = executorService.submit(task);
+            runningTask.get();
+            String beginTime = DateTools.getCreateTime();
+            surveyingLogService.createSureyingLog("测绘结束", beginTime, 2, null, 4);
+
             log.info("任务启动成功");
-            return ResponseUtil.error("任务已启动");
+            return ResponseUtil.ok("任务已成功");
         }
     }
 

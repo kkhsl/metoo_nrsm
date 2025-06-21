@@ -144,19 +144,19 @@
             <if test="notTag != null and notTag != ''">
                 AND tag != #{notTag}
             </if>
-            <if test="tags != null">
+            <if test="tags != null and tags.size() > 0">
                 AND tag in
                 <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
-            <if test="notTerminalSet != null">
+            <if test="notTerminalSet != null and notTerminalSet.size() > 0">
                 AND mac not in
                 <foreach collection="notTerminalSet" index = "index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
-            <if test="notInIps != null">
+            <if test="notInIps != null and notInIps.size() > 0">
                 AND v4ip not in
                 <foreach collection="notInIps" index = "index" item="item" separator="," open="(" close=")">
                     #{item}

@@ -10,6 +10,9 @@
             <if test="hostname != null and hostname != ''">
                 AND hostname = #{hostname}
             </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                AND deviceIp = #{deviceIp}
+            </if>
             <if test="remoteDevice != null and remoteDevice != ''">
                 AND remoteDevice = #{remoteDevice}
             </if>
@@ -752,7 +755,7 @@
                     tag = 'RT'
             ) rt
 
-        where not exists (select * from metoo_mac where deviceIp = rt.deviceIp and port = rt.port and tag = 'E')
+        where not exists (select * from metoo_mac where deviceIp = rt.deviceIp and port = rt.port and (tag = 'E' or tag = 'DE'))
 
         order by rt.port desc
 

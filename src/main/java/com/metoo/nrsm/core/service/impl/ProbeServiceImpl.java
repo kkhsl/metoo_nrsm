@@ -18,6 +18,7 @@ import com.metoo.nrsm.entity.Probe;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.ProbeResult;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -210,20 +211,28 @@ public class ProbeServiceImpl implements IProbeService {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void scanByTerminal() {
+
+        String begin_time = DateTools.getCreateTime();
+        int probeLogId = surveyingLogService.createSureyingLog("全网资产扫描", begin_time, 1, null, 3);
+
         // 1.查询全部终端（采集表）
         Map params = new HashMap();
         params.put("v4ipIsNull", "v4ipIsNull");
         List<Terminal> terminals = this.terminalService.selectObjByMap(params);
         if(!terminals.isEmpty()){
             // 调用创发接口
-            getProbeResult();
+            try {
+                getProbeResult();
+            } catch (Exception e) {
+                e.printStackTrace();
+                surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.FAIL.getCode());
+            }
         }
+        surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.SUCCESS.getCode());
     }
 
     public void getProbeResult() {
 
-        String begin_time = DateTools.getCreateTime();
-        int probeLogId = surveyingLogService.createSureyingLog("全网资产扫描", begin_time, 1, null, 7);
         this.probeMapper.deleteTable();
 
         Map params = new HashMap();
@@ -254,52 +263,45 @@ public class ProbeServiceImpl implements IProbeService {
             }
         }
 
-        try {
-            // 补充针对表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描（删除条目）
-            // 去重 probe
-            List<String> ips = this.probeMapper.selectObjDistinctByIp();
-            params.clear();
-            params.put("notInIps", ips);
-            List<Terminal> terminalList = terminalService.selectObjByMap(params);
-            if (CollUtil.isNotEmpty(terminalList)) {
-                for (Terminal terminal : terminalList) {
-                    Probe probe = Convert.convert(Probe.class, terminal);
-                    probe.setIp_addr(terminal.getV4ip());
-                    probe.setIpv6(terminal.getV6ip());
-                    probe.setPort_num("2");
-                    probe.setMac(terminal.getMac());
-                    probe.setMac_vendor(terminal.getMacVendor());
-                    List<Probe> probeList = null;
+        // 补充针对表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描（删除条目）
+        // 去重 probe
+        List<String> ips = this.probeMapper.selectObjDistinctByIp();
+        params.clear();
+        params.put("notInIps", ips);
+        List<Terminal> terminalList = terminalService.selectObjByMap(params);
+        if (CollUtil.isNotEmpty(terminalList)) {
+            for (Terminal terminal : terminalList) {
+                Probe probe = Convert.convert(Probe.class, terminal);
+                probe.setIp_addr(terminal.getV4ip());
+                probe.setIpv6(terminal.getV6ip());
+                probe.setPort_num("2");
+                probe.setMac(terminal.getMac());
+                probe.setMac_vendor(terminal.getMacVendor());
+                List<Probe> probeList = null;
 
-                    if (StringUtil.isNotEmpty(probe.getIp_addr())) {
-                        probeList = this.selectObjByMap(MapUtil.of("ip_addr", terminal.getV4ip()));
-                    } else {
-                        probeList = this.selectObjByMap(MapUtil.of("ipv6", probe.getIpv6()));
-                    }
-                    if (CollUtil.isEmpty(probeList)) {
-                        // 不存在，则插入到probe表
-                        this.insert(probe);
-                        // 删除
+                if (StringUtil.isNotEmpty(probe.getIp_addr())) {
+                    probeList = this.selectObjByMap(MapUtil.of("ip_addr", terminal.getV4ip()));
+                } else {
+                    probeList = this.selectObjByMap(MapUtil.of("ipv6", probe.getIpv6()));
+                }
+                if (CollUtil.isEmpty(probeList)) {
+                    // 不存在，则插入到probe表
+                    this.insert(probe);
+                    // 删除
 //                            arpService.delete(arp.getId());
-                    }
                 }
             }
-
-            GatherFactory factory = new GatherFactory();
-            Gather gather = factory.getGather("fileToProbe");
-            gather.executeMethod();
-
-            this.deleteTableBack();
-
-            this.copyToBck();
-
-            this.writeTerminal();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.FAIL.getCode());
         }
-        surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.SUCCESS.getCode());
+
+        GatherFactory factory = new GatherFactory();
+        Gather gather = factory.getGather("fileToProbe");
+        gather.executeMethod();
+
+        this.deleteTableBack();
+
+        this.copyToBck();
+
+        this.writeTerminal();
     }
 
     private boolean processInBatches(List<Terminal> arpList) {
