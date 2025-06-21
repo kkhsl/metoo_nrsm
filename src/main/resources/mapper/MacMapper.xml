@@ -16,6 +16,9 @@
             <if test="remoteDevice != null and remoteDevice != ''">
                 AND remoteDevice = #{remoteDevice}
             </if>
+            <if test="remoteIp != null and remoteIp != ''">
+                AND remoteIp = #{remoteIp}
+            </if>
             <if test="tag != null and tag != ''">
                 AND tag = #{tag}
             </if>
@@ -41,13 +44,9 @@
     </select>
 
     <select id="selectTagByDE" resultType="com.metoo.nrsm.entity.Mac">
-        SELECT
-				d1.*
-		FROM
-				metoo_mac d1
-		WHERE
-				tag = 'DE'
-		AND remoteDevice NOT LIKE 'NSwitch%'
+        SELECT d1.*
+        FROM metoo_mac d1
+        WHERE tag = 'DE' AND (remoteDevice IS NULL OR remoteDevice NOT LIKE 'NSwitch%')
 		AND NOT EXISTS (
 				SELECT
 						1

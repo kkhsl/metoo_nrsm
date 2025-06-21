@@ -79,6 +79,7 @@ public class Mac extends IdEntity {
 
     private String remoteDevice;
     private String remotePort;
+    private String remoteIp;
     private String remoteDeviceUuid;
 
     private String remoteDeviceIp;

@@ -346,19 +346,6 @@ public class SNMPParamFactory {
     }
 
     @Test
-    public void getMac() {
-        SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
-                .version("v2c")
-                .host("192.168.0.13")
-                .community("transfar")
-                .port(161)
-                .build();
-
-       JSONArray result = SNMPv3Request.getMac(snmpv3Params);
-       log.info("arpV6:{}", result);
-    }
-
-    @Test
     public void getArp() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")

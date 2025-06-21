@@ -388,26 +388,26 @@ public class GatherTaskScheduledUtil {
     }
 
 
-    private volatile boolean isRunningProbe = false;
-    @Scheduled(fixedDelay = 180_000)
-    public void probe() {
-        if(flag && !isRunningProbe){
-            log.info("Probe采集开始");
-            isRunningProbe = true;
-            try {
-                Long time = System.currentTimeMillis();
-                if(getLicenseProbe()){
-                    probeService.scanByTerminal();
-                }
-                log.info("Probe 网段采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("Probe 网段采集异常: {}", e.getMessage());
-            } finally {
-                isRunningProbe = false;
-            }
-        }
-    }
+//    private volatile boolean isRunningProbe = false;
+//    @Scheduled(fixedDelay = 180_000)
+//    public void probe() {
+//        if(flag && !isRunningProbe){
+//            log.info("Probe采集开始");
+//            isRunningProbe = true;
+//            try {
+//                Long time = System.currentTimeMillis();
+//                if(getLicenseProbe()){
+//                    probeService.scanByTerminal();
+//                }
+//                log.info("Probe 网段采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                log.error("Probe 网段采集异常: {}", e.getMessage());
+//            } finally {
+//                isRunningProbe = false;
+//            }
+//        }
+//    }
 
     public boolean getLicenseProbe(){
         License obj = this.licenseService.query().get(0);

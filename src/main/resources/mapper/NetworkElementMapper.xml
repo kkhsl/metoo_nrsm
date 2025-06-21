@@ -148,6 +148,9 @@
             <if test="deviceName != null and deviceName != ''">
                 AND device_name = #{deviceName}
             </if>
+            <if test="deviceIp != null and deviceIp != ''">
+                AND ip = #{deviceName}
+            </if>
             <if test="userId != null and userId != ''">
                 AND user_id = #{userId}
             </if>
