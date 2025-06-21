@@ -747,7 +747,7 @@ public class SNMPv2Request {
     // --- 辅助方法 ---
     private static JSONObject getPriorityMacData(SNMPParams snmpParams) {
         // 按优先级顺序尝试获取 MAC 数据
-        String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
+        String[] methods = {"getDeviceMac2", "getDeviceMac3"};
         for (String method : methods) {
             try {
                 String data = (String) SNMPv2Request.class
