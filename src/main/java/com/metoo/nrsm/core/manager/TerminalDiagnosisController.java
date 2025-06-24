@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequestMapping("/admin/terminal/diagnosis")
 public class TerminalDiagnosisController {
 
+
     @Autowired
     private ITerminalDiagnosisService terminalDiagnosisService;
 

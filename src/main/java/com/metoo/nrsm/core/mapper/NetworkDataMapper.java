@@ -16,6 +16,7 @@ public interface NetworkDataMapper {
             "FROM metoo_port WHERE status = '1'")
     List<Map<String, String>> getIpv6PortTable();
 
+
     /**
      * 获取终端表
      * @return List<Map<String, String>> 包含终端IPv4和IPv6地址的列表

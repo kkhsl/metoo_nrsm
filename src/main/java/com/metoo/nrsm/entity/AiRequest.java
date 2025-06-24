@@ -11,6 +11,7 @@ public class AiRequest {
     private Map<String, Object> data;
     private Map<String, String> params;
 
+
     // 构造方法
     public AiRequest(String ip) {
         this.params = new HashMap<>();
