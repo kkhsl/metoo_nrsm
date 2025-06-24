@@ -94,6 +94,10 @@ public interface MacMapper {
 
     int updateMacTagToDTByIds(@Param("ids") Set<Long> ids);
 
+    int normalizePortForDE();
+
+    int safelyDeleteDuplicateDEIpPairs();
+
     int batchSave(List<Mac> instance);
 
     int batchUpdate(List<Mac> instance);

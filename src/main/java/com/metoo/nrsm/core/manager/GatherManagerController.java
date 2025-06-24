@@ -1,28 +1,17 @@
 package com.metoo.nrsm.core.manager;
 
 import cn.hutool.core.thread.ThreadUtil;
-import com.alibaba.fastjson.JSONArray;
-import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.service.impl.ProbeServiceImpl;
-import com.metoo.nrsm.core.utils.date.DateTools;
-import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
-import com.metoo.nrsm.entity.DeviceType;
-import com.metoo.nrsm.entity.Terminal;
+import com.metoo.nrsm.core.service.IProbeService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.reflect.Array;
-import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author HKK

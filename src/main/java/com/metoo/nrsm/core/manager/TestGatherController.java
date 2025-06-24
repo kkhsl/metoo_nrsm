@@ -52,6 +52,8 @@ public class TestGatherController {
 
     @Autowired
     private IGatherService gatherService;
+    @Autowired
+    private GatherSingleThreadingMacSNMPUtils gatherSingleThreadingMacSNMPUtils;
 
     @GetMapping("/portIpv6")
     public void portIpv6() {
@@ -64,6 +66,11 @@ public class TestGatherController {
             e.printStackTrace();
             log.error("Ipv6 Port采集任务异常: {}", e.getMessage());
         }
+    }
+
+    @GetMapping("/terminal")
+    public void terminal() {
+        this.gatherSingleThreadingMacSNMPUtils.updateTerminal(DateTools.gatherDate());
     }
 }
 

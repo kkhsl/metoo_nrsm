@@ -310,516 +310,252 @@
     </select>
 
     <select id="selectObjIntersection" resultType="com.metoo.nrsm.entity.Terminal">
-         SELECT
-                     terminal.id,
-					 terminal.deviceTypeId,
-                     terminal.type,
-					 mac.mac,
-					 mac.port,
-					 mac.deviceIp,
---          IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
-                     mac.deviceName,
-					 mac.tag,
-					 mac.hostname,
-					 mac.remoteDevice,
-					 mac.remotePort,
-					 mac.v4ip,
-					 mac.v4ip1,
-					 mac.v4ip2,
-					 mac.v4ip3,
-					 mac.v4ipDynamic,
-					 mac.v4ip1Dynamic,
-					 mac.v4ip2Dynamic,
-					 mac.v4ip3Dynamic,
-					 mac.v6ip,
-					 mac.v6ip1,
-					 mac.v6ip2,
-					 mac.v6ip3,
-					 mac.v6ipDynamic,
-					 mac.v6ip1Dynamic,
-					 mac.v6ip2Dynamic,
-					 mac.v6ip3Dynamic,
-					 mac.client_hostname,
-                     mac.deviceUuid as deviceUuid2,
-                     mac.deviceName2,
-                     mac.deviceIp2,
-					 mac.macVendor as macVendor,
-                     mac.devicePort2
-        FROM
-            (
-                SELECT
-                    *,
-                IF (
-                    mac.v4ip IS NOT NULL,
-                    (
-                        SELECT
+        WITH prioritized_mac AS (
+        SELECT mac.*, 1 as priority
+        FROM metoo_mac mac
+        WHERE mac.tag IN ('DT', 'VDT')
 
-                        IF (COUNT(*) > 0, 1, 0)
-                        FROM
-                            metoo_dhcp dhcp
-                        WHERE
-                            dhcp.lease = mac.v4ip
-                    ),
-                    0
-                ) AS v4ipDynamic,
+        UNION ALL
 
-            IF (
-                mac.v4ip1 IS NOT NULL,
-                (
-                    SELECT
+        SELECT mac.*, 2 as priority
+        FROM metoo_mac mac
+        WHERE mac.tag = 'RT'
+        AND NOT EXISTS (
+            SELECT 1 FROM metoo_mac m2
+            WHERE m2.mac = mac.mac
+            AND m2.tag IN ('DT', 'VDT')
+        )
+    )
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip1
-                ),
-                0
-            ) AS v4ip1Dynamic,
+    SELECT
+        terminal.id,
+        terminal.deviceTypeId,
+        terminal.type,
+        mac.mac,
+        mac.port,
+        mac.deviceIp,
+        mac.deviceName,
+        mac.tag,
+        mac.hostname,
+        mac.remoteDevice,
+        mac.remotePort,
+        mac.v4ip,
+        mac.v4ip1,
+        mac.v4ip2,
+        mac.v4ip3,
+        -- 独立判断每个IPv4是否为动态
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp
+            WHERE lease = mac.v4ip AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v4ipDynamic,
 
-        IF (
-            mac.v4ip2 IS NOT NULL,
-            (
-                SELECT
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp
+            WHERE lease = mac.v4ip1 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v4ip1Dynamic,
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip2
-            ),
-            0
-        ) AS v4ip2Dynamic,
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp
+            WHERE lease = mac.v4ip2 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v4ip2Dynamic,
 
-        IF (
-            mac.v4ip3 IS NOT NULL,
-            (
-                SELECT
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp
+            WHERE lease = mac.v4ip3 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v4ip3Dynamic,
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip3
-            ),
-            0
-        ) AS v4ip3Dynamic,
+        mac.v6ip,
+        mac.v6ip1,
+        mac.v6ip2,
+        mac.v6ip3,
 
-        IF (
-            mac.v6ip IS NOT NULL,
-            (
-                SELECT
+        -- 独立判断每个IPv6是否为动态
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp6
+            WHERE iaaddr = mac.v6ip AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v6ipDynamic,
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip
-            ),
-            0
-        ) AS v6ipDynamic,
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp6
+            WHERE iaaddr = mac.v6ip1 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v6ip1Dynamic,
 
-        IF (
-            mac.v6ip1 IS NOT NULL,
-            (
-                SELECT
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp6
+            WHERE iaaddr = mac.v6ip2 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v6ip2Dynamic,
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip1
-            ),
-            0
-        ) AS v6ip1Dynamic,
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp6
+            WHERE iaaddr = mac.v6ip3 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v6ip3Dynamic,
 
-        IF (
-            mac.v6ip2 IS NOT NULL,
-            (
-                SELECT
+        -- 获取客户端主机名（优先取v4ip的hostname）
+        (
+            SELECT MAX(client_hostname) FROM (
+                SELECT client_hostname FROM metoo_dhcp
+                WHERE lease = mac.v4ip AND binding_state = 'active'
+                UNION ALL
+                SELECT client_hostname FROM metoo_dhcp
+                WHERE lease = mac.v4ip1 AND binding_state = 'active'
+                UNION ALL
+                SELECT client_hostname FROM metoo_dhcp
+                WHERE lease = mac.v4ip2 AND binding_state = 'active'
+                UNION ALL
+                SELECT client_hostname FROM metoo_dhcp
+                WHERE lease = mac.v4ip3 AND binding_state = 'active'
+            ) t WHERE client_hostname IS NOT NULL
+            LIMIT 1
+        ) AS client_hostname,
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip2
-            ),
-            0
-        ) AS v6ip2Dynamic,
-
-        IF (
-            mac.v6ip3 IS NOT NULL,
-            (
-                SELECT
-
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip3
-            ),
-            0
-        ) AS v6ip3Dynamic,
-
-        IF (
-            mac.v4ip IS NOT NULL,
-            (
-                SELECT
-                    client_hostname
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip
-                LIMIT 1
-            ),
-            NULL
-        ) AS client_hostname
-        FROM
-            metoo_mac mac
-        WHERE
-            tag in('DT', 'VDT', 'RT')
-        ) mac
-
-        join
-
-        metoo_terminal terminal on terminal.mac = mac.mac
-        /* and terminal.port = mac.port*/
-         /*and terminal.type = 0*/
+        mac.deviceUuid AS deviceUuid2,
+        mac.deviceName2,
+        mac.deviceIp2,
+        mac.macVendor,
+        mac.devicePort2
+    FROM prioritized_mac mac
+    JOIN metoo_terminal terminal ON terminal.mac = mac.mac
+    ORDER BY mac.priority, mac.mac
     </select>
 
     <select id="selectObjLeftdifference" resultType="com.metoo.nrsm.entity.Terminal">
+       WITH filtered_mac AS (
         SELECT
-         mac.addTime,
-         mac.mac,
-         mac.port,
-         mac.deviceIp,
---          IF(terminal.tag = 'VDT', null, mac.deviceName) as deviceName,
-         mac.deviceName,
-         mac.tag,
-         mac.hostname,
-         mac.remoteDevice,
-         mac.remotePort,
-         mac.v4ip,
-         mac.v4ip1,
-         mac.v4ip2,
-         mac.v4ip3,
-         mac.v4ipDynamic,
-         mac.v4ip1Dynamic,
-         mac.v4ip2Dynamic,
-         mac.v4ip3Dynamic,
-         mac.v6ip,
-         mac.v6ip1,
-         mac.v6ip2,
-         mac.v6ip3,
-         mac.v6ipDynamic,
-         mac.v6ip1Dynamic,
-         mac.v6ip2Dynamic,
-         mac.v6ip3Dynamic,
-         mac.client_hostname,
-         mac.macVendor,
-         mac.deviceUuid as deviceUuid2,
-         mac.deviceName2,
-         mac.deviceIp2,
-         mac.devicePort2
-        FROM
-            (
-                SELECT
-                    *,
-                IF (
-                    mac.v4ip IS NOT NULL,
-                    (
-                        SELECT
+            m.*,
+            ROW_NUMBER() OVER(
+                PARTITION BY mac
+                ORDER BY CASE
+                    WHEN tag IN ('DT', 'VDT') THEN 1
+                    WHEN tag = 'RT' THEN 2
+                    ELSE 3
+                END
+            ) AS priority_rank
+        FROM metoo_mac m
+        WHERE tag IN ('DT', 'VDT', 'RT')
+    ),
+    distinct_mac AS (
+        SELECT *
+        FROM filtered_mac
+        WHERE priority_rank = 1
+    )
 
-                        IF (COUNT(*) > 0, 1, 0)
-                        FROM
-                            metoo_dhcp dhcp
-                        WHERE
-                            dhcp.lease = mac.v4ip
-                    ),
-                    0
-                ) AS v4ipDynamic,
+    SELECT
+        mac.addTime,
+        mac.mac,
+        mac.port,
+        mac.deviceIp,
+        mac.deviceName,
+        mac.tag,
+        mac.hostname,
+        mac.remoteDevice,
+        mac.remotePort,
+        mac.v4ip,
+        mac.v4ip1,
+        mac.v4ip2,
+        mac.v4ip3,
+        -- IPv4动态标记（每个IP独立判断）
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp
+            WHERE lease = mac.v4ip AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v4ipDynamic,
 
-            IF (
-                mac.v4ip1 IS NOT NULL,
-                (
-                    SELECT
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp
+            WHERE lease = mac.v4ip1 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v4ip1Dynamic,
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip1
-                ),
-                0
-            ) AS v4ip1Dynamic,
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp
+            WHERE lease = mac.v4ip2 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v4ip2Dynamic,
 
-        IF (
-            mac.v4ip2 IS NOT NULL,
-            (
-                SELECT
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp
+            WHERE lease = mac.v4ip3 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v4ip3Dynamic,
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip2
-            ),
-            0
-        ) AS v4ip2Dynamic,
+        mac.v6ip,
+        mac.v6ip1,
+        mac.v6ip2,
+        mac.v6ip3,
 
-        IF (
-            mac.v4ip3 IS NOT NULL,
-            (
-                SELECT
+        -- IPv6动态标记（每个IP独立判断）
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp6
+            WHERE iaaddr = mac.v6ip AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v6ipDynamic,
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip3
-            ),
-            0
-        ) AS v4ip3Dynamic,
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp6
+            WHERE iaaddr = mac.v6ip1 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v6ip1Dynamic,
 
-        IF (
-            mac.v6ip IS NOT NULL,
-            (
-                SELECT
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp6
+            WHERE iaaddr = mac.v6ip2 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v6ip2Dynamic,
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip
-            ),
-            0
-        ) AS v6ipDynamic,
+        CASE WHEN EXISTS (
+            SELECT 1 FROM metoo_dhcp6
+            WHERE iaaddr = mac.v6ip3 AND binding_state = 'active'
+        ) THEN 1 ELSE 0 END AS v6ip3Dynamic,
 
-        IF (
-            mac.v6ip1 IS NOT NULL,
-            (
-                SELECT
+        -- 获取客户端主机名（优先取v4ip的hostname）
+        (
+            SELECT MAX(client_hostname) FROM (
+                SELECT client_hostname FROM metoo_dhcp
+                WHERE lease = mac.v4ip AND binding_state = 'active'
+                UNION ALL
+                SELECT client_hostname FROM metoo_dhcp
+                WHERE lease = mac.v4ip1 AND binding_state = 'active'
+                UNION ALL
+                SELECT client_hostname FROM metoo_dhcp
+                WHERE lease = mac.v4ip2 AND binding_state = 'active'
+                UNION ALL
+                SELECT client_hostname FROM metoo_dhcp
+                WHERE lease = mac.v4ip3 AND binding_state = 'active'
+            ) t WHERE client_hostname IS NOT NULL
+            LIMIT 1
+        ) AS client_hostname,
 
-               IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip1
-            ),
-            0
-        ) AS v6ip1Dynamic,
-
-        IF (
-            mac.v6ip2 IS NOT NULL,
-            (
-                SELECT
-
-               IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip2
-            ),
-            0
-        ) AS v6ip2Dynamic,
-
-        IF (
-            mac.v6ip3 IS NOT NULL,
-            (
-                SELECT
-
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip3
-            ),
-            0
-        ) AS v6ip3Dynamic,
-
-        IF (
-            mac.v4ip IS NOT NULL,
-            (
-                SELECT
-                    client_hostname
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip
-                LIMIT 1
-            ),
-            NULL
-        ) AS client_hostname
-        FROM
-            metoo_mac mac
-        WHERE
-            tag in('DT', 'VDT', 'RT')
-            ) mac
-        LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
-        WHERE
-            terminal.mac IS NULL
-       /* and (mac.v4ip is not null or mac.v6ip is not null)*/
+        mac.macVendor,
+        mac.deviceUuid AS deviceUuid2,
+        mac.deviceName2,
+        mac.deviceIp2,
+        mac.devicePort2
+    FROM distinct_mac mac
+    LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
+    WHERE terminal.mac IS NULL order by v4ip desc
     </select>
 
     <select id="selectObjRightdifference" resultType="com.metoo.nrsm.entity.Terminal">
-        /*SELECT
-           terminal.id
-        FROM
-            (
-                SELECT
-                    *,
-                IF (
-                    mac.v4ip IS NOT NULL,
-                    (
-                        SELECT
 
-                        IF (COUNT(*) > 0, 1, 0)
-                        FROM
-                            metoo_dhcp dhcp
-                        WHERE
-                            dhcp.lease = mac.v4ip
-                    ),
-                    0
-                ) AS v4ipDynamic,
+    WITH prioritized_mac AS (
+        -- 优先查询DT和VDT条目
+        SELECT mac, 1 as priority
+        FROM metoo_mac
+        WHERE tag IN ('DT', 'VDT')
 
-            IF (
-                mac.v4ip1 IS NOT NULL,
-                (
-                    SELECT
+        UNION ALL
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip1
-                ),
-                0
-            ) AS v4ip1Dynamic,
+        SELECT mac, 2 as priority
+        FROM metoo_mac
+        WHERE tag = 'RT'
+        AND NOT EXISTS (
+            SELECT 1 FROM metoo_mac m2
+            WHERE m2.mac = metoo_mac.mac
+            AND m2.tag IN ('DT', 'VDT')
+        )
+    )
 
-        IF (
-            mac.v4ip2 IS NOT NULL,
-            (
-                SELECT
-
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip2
-            ),
-            0
-        ) AS v4ip2Dynamic,
-
-        IF (
-            mac.v4ip3 IS NOT NULL,
-            (
-                SELECT
-
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip3
-            ),
-            0
-        ) AS v4ip3Dynamic,
-
-        IF (
-            mac.v6ip IS NOT NULL,
-            (
-                SELECT
-
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip
-            ),
-            0
-        ) AS v6ipDynamic,
-
-        IF (
-            mac.v6ip1 IS NOT NULL,
-            (
-                SELECT
-
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip1
-            ),
-            0
-        ) AS v6ip1Dynamic,
-
-        IF (
-            mac.v6ip2 IS NOT NULL,
-            (
-                SELECT
-
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip2
-            ),
-            0
-        ) AS v6ip2Dynamic,
-
-        IF (
-            mac.v6ip3 IS NOT NULL,
-            (
-                SELECT
-
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip3
-            ),
-            0
-        ) AS v6ip3Dynamic,
-
-        IF (
-            mac.v4ip IS NOT NULL,
-            (
-                SELECT
-                    client_hostname
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip
-                LIMIT 1
-            ),
-            NULL
-        ) AS client_hostname
-        FROM
-            metoo_mac mac
-        WHERE
-            tag = 'DT'
-            ) mac
-
-        right join
-
-        metoo_terminal terminal on terminal.mac = mac.mac
-        where mac.mac is null*/
-        /*and terminal.type = 0*/
-        SELECT
-           terminal.id
-        FROM
-            (
-               SELECT
-                    *
-                FROM
-                    metoo_mac mac
-                WHERE
-                    tag in('DT', 'VDT', 'RT')
-            ) mac
-        right join
-          metoo_terminal terminal
-        on
-          terminal.mac = mac.mac/* and terminal.port = mac.port*/
-        where mac.mac is null
+    SELECT
+        terminal.id
+    FROM
+        metoo_terminal terminal
+    LEFT JOIN
+        prioritized_mac mac ON terminal.mac = mac.mac
+    WHERE
+        mac.mac IS NULL
 
     </select>
 

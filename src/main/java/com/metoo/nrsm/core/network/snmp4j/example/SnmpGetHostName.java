@@ -7,13 +7,11 @@ import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 public class SnmpGetHostName {
 
     public static void main(String[] args) {
-        String host = "192.168.204.3";  // 目标设备地址
+        String host = "192.168.6.249";  // 目标设备地址
         String version = "v2c";       // SNMP 版本
         String community = "public@123";  // SNMP 社区字符串
         SNMPParams snmpParams = new SNMPParams(host,version,community);
-//        System.out.println(SNMPv2Request.getDeviceMac3(snmpParams));
         System.out.println(SNMPv2Request.getMac(snmpParams));
-
     }
 }
 

@@ -15,7 +15,6 @@ import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.ip.Ipv6.IPv6SubnetCheck;
 import com.metoo.nrsm.core.utils.ip.ipv4.IpSubnetMap;
 import com.metoo.nrsm.core.utils.ip.ipv4.Ipv6SubnetMap;
-import com.metoo.nrsm.core.utils.net.Ipv6Utils;
 import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -284,7 +283,7 @@ public class TerminalServiceImpl implements ITerminalService {
         DeviceType deviceTypeOther = deviceTypeService.selectObjByType(27);// 其他
 
         // 求交集，更新为终端在线
-        List<Terminal> inner = terminalMapper.selectObjIntersection();
+        List<Terminal> inner = terminalMapper.selectObjIntersection ();
         if (inner.size() > 0) {
             inner.stream().forEach(e -> {
                 e.setOnline(true);
@@ -730,7 +729,7 @@ public class TerminalServiceImpl implements ITerminalService {
         }
     }
 
-    @Override
+    /*@Override
     public void writeTerminalType() {
         Map params = new HashMap();
         params.put("type", 0);
@@ -764,6 +763,74 @@ public class TerminalServiceImpl implements ITerminalService {
 
                     }
 
+                }
+            }
+        }
+    }*/
+
+    @Override
+    public void writeTerminalType() {
+        Map params = new HashMap();
+        params.put("type", 0);
+        List<Terminal> terminalList = terminalMapper.selectObjByMap(params);
+
+        // 预加载设备类型避免多次查询
+        DeviceType phoneType = deviceTypeService.selectObjByName("手机");
+        DeviceType pcType = deviceTypeService.selectObjByName("台式电脑");
+
+        for (Terminal terminal : terminalList) {
+            String hostname = terminal.getClient_hostname();
+            if (StringUtils.isNotEmpty(hostname)) {
+                hostname = hostname.toUpperCase();  // 统一转换为大写方便匹配
+
+                // 手机标识
+                if (hostname.contains("HONOR") ||
+                        hostname.contains("XIAOMI") ||
+                        hostname.contains("HUAWEI") ||
+                        hostname.contains("REDMI") ||
+                        hostname.contains("IPHONE") ||
+                        hostname.contains("OPPO") ||
+                        hostname.contains("VIVO") ||
+                        hostname.contains("ONEPLUS")) {
+
+                    terminal.setDeviceTypeId(phoneType.getId());
+                    terminalMapper.update(terminal);
+                    continue;
+                }
+
+                // 电脑标识
+                if (hostname.contains("DESKTOP-") ||
+                        hostname.contains("PC-") ||
+                        hostname.contains("WIN-") ||
+                        hostname.contains("LAPTOP-")) {
+
+                    terminal.setDeviceTypeId(pcType.getId());
+                    terminalMapper.update(terminal);
+                    continue;
+                }
+            }
+
+            // 原始MAC地址处理逻辑（当主机名未匹配时执行）
+            if (StringUtil.isNotEmpty(terminal.getMac())) {
+                String mac = MacUtils.getMac(terminal.getMac());
+                params.clear();
+                params.put("mac", mac);
+                List<MacVendor> macVendors = macVendorMapper.selectObjByMap(params);
+                // 通过mac查找vendor
+                if (!macVendors.isEmpty()) {
+                    MacVendor macVendor = macVendors.get(0);
+                    if (StringUtils.isNotEmpty(macVendor.getVendor())) {
+                        TerminalMacVendor terminalMacVendor = terminalMacVendorMapper.selectByVendor(macVendor.getVendor());
+                        if (terminalMacVendor != null &&
+                                (terminal.getType() == null || terminal.getType() != 1)) {
+                            // 查询设备类型
+                            DeviceType deviceType = deviceTypeService.selectObjById(terminalMacVendor.getTerminalTypeId());
+                            if (deviceType != null) {
+                                terminal.setDeviceTypeId(deviceType.getId());
+                                terminalMapper.update(terminal);
+                            }
+                        }
+                    }
                 }
             }
         }

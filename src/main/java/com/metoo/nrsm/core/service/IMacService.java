@@ -77,6 +77,10 @@ public interface IMacService {
 
     boolean updateMacTagToDTByIds(Set<Long> ids);
 
+    int normalizePortForDE();
+
+    int safelyDeleteDuplicateDEIpPairs();
+
     boolean batchSave(List<Mac> instance);
 
     boolean batchUpdate(List<Mac> instance);

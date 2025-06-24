@@ -107,7 +107,6 @@ public class GatherMacUtils {
 
         macTestService.executeFullProcess();
 
-
         setTagSToRT();
         setTagUToRT();
 //        RTToDT(); // 弃用
@@ -117,9 +116,29 @@ public class GatherMacUtils {
         setTagDTToVDE(); // （无线路由器）
         setTagRTToVDE();
         setTagRTToDTByDE();
+
+        // DE条目remotePort修改为remoteIp对应的deviceIp的port，再在DE里面根据deviceIp和remoteIp去重
+        normalizePortForDE();
+
+
         removeApTerminal(); // 删除mac与为ap mac地址相同的数据
 
     }
+
+    // DE条目remotePort修改为remoteIp对应的deviceIp的port
+    private void normalizePortForDE() {
+
+        this.macService.normalizePortForDE();
+
+        safelyDeleteDuplicateDEIpPairs();
+    }
+
+    // 删除DE重复数据（deviceIp + remoteIp）
+    private void safelyDeleteDuplicateDEIpPairs() {
+        this.macService.safelyDeleteDuplicateDEIpPairs();
+    }
+
+
 
     // 标记为X
     private void setTagToX(){// 单台设备

@@ -716,25 +716,7 @@ public class SNMPv3Request {
     }
 
     // --- 辅助方法 ---
-    private static JSONObject getPriorityMacData(SNMPV3Params snmpParams) {
-        // 按优先级顺序尝试获取 MAC 数据
-        String[] methods = {/*"getDeviceMac", */"getDeviceMac2", "getDeviceMac3"};
-        for (String method : methods) {
-            try {
-                String data = (String) SNMPv3Request.class
-                        .getMethod(method, SNMPV3Params.class)
-                        .invoke(null, snmpParams);
-                if (isValidJson(data)) {
-                    return new JSONObject(data);
-                }
-            } catch (Exception e) {
-                // 静默处理反射异常，继续下一个方法
-            }
-        }
-        return new JSONObject(); // 返回空对象
-    }
-
-    private static JSONObject aaa(SNMPV3Params snmpParams) {
+    /*private static JSONObject getPriorityMacData(SNMPV3Params snmpParams) {
         // 按优先级顺序尝试获取 MAC 数据
         String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
         for (String method : methods) {
@@ -750,6 +732,36 @@ public class SNMPv3Request {
             }
         }
         return new JSONObject(); // 返回空对象
+    }*/
+
+    private static JSONObject getPriorityMacData(SNMPV3Params snmpParams) {
+        String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
+        JSONObject bestResult = null;  // 保存键值对数量最多的结果
+        int maxKeyCount = -1;          // 当前最大的键值对数量
+
+        for (String method : methods) {
+            try {
+                String data = (String) SNMPv3Request.class
+                        .getMethod(method, SNMPV3Params.class)
+                        .invoke(null, snmpParams);
+
+                if (isValidJson(data)) {
+                    JSONObject jsonObj = new JSONObject(data);
+                    int keyCount = jsonObj.length(); // 获取键值对数量
+
+                    // 若当前JSON的键值对数量更多，更新最佳结果
+                    if (keyCount > maxKeyCount) {
+                        maxKeyCount = keyCount;
+                        bestResult = jsonObj;
+                    }
+                }
+            } catch (Exception e) {
+                // 静默处理异常，继续尝试下一个方法
+            }
+        }
+
+        // 返回最佳结果或空对象
+        return (bestResult != null) ? bestResult : new JSONObject();
     }
 
     private static JSONObject getMacTypeData(SNMPV3Params snmpParams) {

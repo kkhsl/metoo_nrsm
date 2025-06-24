@@ -343,6 +343,26 @@ public class MacServiceImpl implements IMacService {
     }
 
     @Override
+    public int normalizePortForDE() {
+        try {
+            return this.macMapper.normalizePortForDE();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    @Override
+    public int safelyDeleteDuplicateDEIpPairs() {
+        try {
+            return this.macMapper.safelyDeleteDuplicateDEIpPairs();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    @Override
     public boolean batchSave(List<Mac> instance) {
         try {
             this.macMapper.batchSave(instance);

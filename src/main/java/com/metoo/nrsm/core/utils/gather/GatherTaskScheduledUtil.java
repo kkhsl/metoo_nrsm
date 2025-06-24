@@ -161,7 +161,7 @@ public class GatherTaskScheduledUtil {
 
     private volatile boolean isRunningTerminal = false;
     @Scheduled(fixedDelay = 180_000)
-    public void terminal() {
+    public void gatherTerminal() {
         if(flag && !isRunningTerminal){
             log.info("终端采集任务开始");
             isRunningTerminal = true;
