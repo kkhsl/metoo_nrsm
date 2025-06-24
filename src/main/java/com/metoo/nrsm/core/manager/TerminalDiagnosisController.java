@@ -35,6 +35,7 @@ public class TerminalDiagnosisController {
     // 存储活动的SSE发送器
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
+    //
     @GetMapping(
             value = "${sse.endpoint.terminal}/{terminalId}",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE
