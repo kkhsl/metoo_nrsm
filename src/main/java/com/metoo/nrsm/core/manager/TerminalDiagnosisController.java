@@ -3,22 +3,68 @@ package com.metoo.nrsm.core.manager;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.service.ITerminalDiagnosisService;
 import com.metoo.nrsm.core.service.ITerminalService;
+import com.metoo.nrsm.core.service.impl.TerminalDiagnosisImpl;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.TerminalDiagnosis;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/admin/terminal/diagnosis")
 public class TerminalDiagnosisController {
 
+
     @Autowired
     private ITerminalDiagnosisService terminalDiagnosisService;
+
+    @Autowired
+    private TerminalDiagnosisImpl terminalDiagnosis;
+
     @Autowired
     private ITerminalService terminalService;
+
+
+    // 存储活动的SSE发送器
+    private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
+
+    //
+    @GetMapping(
+            value = "${sse.endpoint.terminal}/{terminalId}",
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE
+    )
+    public SseEmitter handleTerminalSse(
+            @PathVariable("terminalId") String terminalId) {
+
+        SseEmitter emitter = new SseEmitter(120_000L); // 120秒超时
+
+        // 存储当前emitter
+        emitters.put(terminalId, emitter);
+
+        // 设置回调
+        emitter.onCompletion(() -> {
+            System.out.println("SSE连接完成: " + terminalId);
+            emitters.remove(terminalId);
+        });
+
+        emitter.onTimeout(() -> {
+            System.out.println("SSE连接超时: " + terminalId);
+            emitters.remove(terminalId);
+        });
+
+        // 使用异步服务处理
+        terminalDiagnosis.processSseStream(terminalId, emitter);
+
+        return emitter;
+    }
 
     @GetMapping
     public Result diagnosis(String terminalId){
@@ -46,4 +92,9 @@ public class TerminalDiagnosisController {
         }
        return ResponseUtil.ok();
     }
+
+
+
+
+
 }

@@ -15,6 +15,7 @@ import java.util.List;
 @Configuration("sseRestTemplateConfig")
 public class RestTemplateConfig {
 
+
     @Bean("sseRestTemplate")
     public RestTemplate sseRestTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
