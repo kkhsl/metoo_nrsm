@@ -70,10 +70,16 @@ public class TerminalDiagnosisController {
             }
         });
         // 客户端断开时的清理
-        emitter.onCompletion(() -> executor.shutdown());
-        emitter.onTimeout(() -> executor.shutdown());
+        emitter.onCompletion(() -> {
+            //
+        });
+        emitter.onTimeout(() -> {
+            //
+        });
         return emitter;
     }
+
+
 
     @GetMapping
     public Result diagnosis(String terminalId){
