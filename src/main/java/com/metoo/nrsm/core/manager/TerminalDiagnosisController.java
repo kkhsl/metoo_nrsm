@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/admin/terminal/diagnosis")
@@ -33,9 +34,7 @@ public class TerminalDiagnosisController {
     private ITerminalService terminalService;
 
 
-    // 存储活动的SSE发送器
-    private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-
+    private final ExecutorService executor = Executors.newCachedThreadPool();
     //
     @GetMapping(
             value = "${sse.endpoint.terminal}/{terminalId}",
@@ -43,26 +42,36 @@ public class TerminalDiagnosisController {
     )
     public SseEmitter handleTerminalSse(
             @PathVariable("terminalId") String terminalId) {
-
-        SseEmitter emitter = new SseEmitter(120_000L); // 120秒超时
-
-        // 存储当前emitter
-        emitters.put(terminalId, emitter);
-
-        // 设置回调
-        emitter.onCompletion(() -> {
-            System.out.println("SSE连接完成: " + terminalId);
-            emitters.remove(terminalId);
+        SseEmitter emitter = new SseEmitter(0L); // 无超时限制
+        // 先发送正在请求提示
+        String startInfo = "{\"conversationId\":\"\",\"data\":{\"type\":\"http\"},\"event\":\"FLOW_STARTED\",\"requestId\":\"\",\"topicId\":\"\"}";
+        try {
+            emitter.send(startInfo);
+        } catch (IOException e) {
+            emitter.completeWithError(e);
+            return emitter;
+        }
+        executor.execute(() -> {
+            try {
+                terminalDiagnosis.processSseStream(terminalId)
+                        .subscribe(
+                                data -> {
+                                    try {
+                                        emitter.send(data);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                },
+                                error -> emitter.completeWithError(error),
+                                () -> emitter.complete()
+                        );
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
         });
-
-        emitter.onTimeout(() -> {
-            System.out.println("SSE连接超时: " + terminalId);
-            emitters.remove(terminalId);
-        });
-
-        // 使用异步服务处理
-        terminalDiagnosis.processSseStream(terminalId, emitter);
-
+        // 客户端断开时的清理
+        emitter.onCompletion(() -> executor.shutdown());
+        emitter.onTimeout(() -> executor.shutdown());
         return emitter;
     }
 
