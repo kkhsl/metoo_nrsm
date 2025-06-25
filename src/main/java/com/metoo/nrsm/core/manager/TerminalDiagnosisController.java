@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RestController
 @RequestMapping("/admin/terminal/diagnosis")
@@ -33,6 +34,7 @@ public class TerminalDiagnosisController {
     @Autowired
     private ITerminalService terminalService;
 
+    private final ReentrantLock lock = new ReentrantLock();
 
     private final ExecutorService executor = Executors.newCachedThreadPool();
     //
@@ -42,38 +44,51 @@ public class TerminalDiagnosisController {
     )
     public SseEmitter handleTerminalSse(
             @PathVariable("terminalId") String terminalId) {
+
         SseEmitter emitter = new SseEmitter(0L); // 无超时限制
-        // 先发送正在请求提示
-        String startInfo = "{\"conversationId\":\"\",\"data\":{\"type\":\"http\"},\"event\":\"FLOW_STARTED\",\"requestId\":\"\",\"topicId\":\"\"}";
-        try {
-            emitter.send(startInfo);
-        } catch (IOException e) {
-            emitter.completeWithError(e);
-            return emitter;
-        }
-        executor.execute(() -> {
+        if (lock.tryLock()) {
             try {
-                terminalDiagnosis.processSseStream(terminalId)
-                        .subscribe(
-                                data -> {
-                                    try {
-                                        emitter.send(data);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                },
-                                error -> emitter.completeWithError(error),
-                                () -> emitter.complete()
-                        );
-            } catch (Exception e) {
-                emitter.completeWithError(e);
+                // 先发送正在请求提示
+                String startInfo = "{\"conversationId\":\"\",\"data\":{\"type\":\"http\"},\"event\":\"FLOW_STARTED\",\"requestId\":\"\",\"topicId\":\"\"}";
+                try {
+                    emitter.send(startInfo);
+                } catch (IOException e) {
+                    emitter.completeWithError(e);
+                    return emitter;
+                }
+                executor.execute(() -> {
+                    try {
+                        terminalDiagnosis.processSseStream(terminalId)
+                                .subscribe(
+                                        data -> {
+                                            try {
+                                                emitter.send(data);
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                        },
+                                        error -> emitter.completeWithError(error),
+                                        () -> emitter.complete()
+                                );
+                    } catch (Exception e) {
+                        emitter.completeWithError(e);
+                    }
+                });
+                // 客户端断开时的清理
+                emitter.onCompletion(() -> {
+                    //
+                });
+                emitter.onTimeout(() -> {
+                    //
+                });
+            }finally {
+                lock.unlock();
             }
-        });
-        // 客户端断开时的清理
-        emitter.onCompletion(() -> executor.shutdown());
-        emitter.onTimeout(() -> executor.shutdown());
+        }
         return emitter;
     }
+
+
 
     @GetMapping
     public Result diagnosis(String terminalId){
