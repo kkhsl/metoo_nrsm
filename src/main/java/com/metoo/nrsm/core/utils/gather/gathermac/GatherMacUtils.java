@@ -61,7 +61,7 @@ public class GatherMacUtils {
             copyData(date);
             List<Mac> macs = this.macService.selectObjByMap(Collections.emptyMap());
             if(!macs.isEmpty()){// 给mac条目打tag
-                updateMacTag(date);
+//                updateMacTag(date);
             }
         } catch (Exception e) {
             log.error("Error method copyGatherData: {}", date, e);
@@ -126,7 +126,7 @@ public class GatherMacUtils {
     }
 
     // DE条目remotePort修改为remoteIp对应的deviceIp的port
-    private void normalizePortForDE() {
+    public void normalizePortForDE() {
 
         this.macService.normalizePortForDE();
 
@@ -134,14 +134,14 @@ public class GatherMacUtils {
     }
 
     // 删除DE重复数据（deviceIp + remoteIp）
-    private void safelyDeleteDuplicateDEIpPairs() {
+    public void safelyDeleteDuplicateDEIpPairs() {
         this.macService.safelyDeleteDuplicateDEIpPairs();
     }
 
 
 
     // 标记为X
-    private void setTagToX(){// 单台设备
+    public void setTagToX(){// 单台设备
         List<Mac> unequalToUpMac = macService.selectTagToX(null);
         if(unequalToUpMac.size() > 0){
             unequalToUpMac.stream().forEach(e -> e.setTag(setTag("X", e.getMac())));
@@ -182,7 +182,7 @@ public class GatherMacUtils {
     }
 
     // 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
-    private void setTagToU(){// 单台设备
+    public void setTagToU(){// 单台设备
         List<Mac> macs = this.macService.selectTagToU(null);
         if(macs.size() > 0){
             macs.stream().forEach(e -> e.setTag("U"));
@@ -190,7 +190,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagToS(){
+    public void setTagToS(){
         List<Mac> macs = this.macService.selectTagToS(null);
         if(macs.size() > 0){
             macs.stream().forEach(e -> e.setTag("S"));
@@ -198,7 +198,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagSToE(){// 单台设备
+    public void setTagSToE(){// 单台设备
         List<Mac> macs = this.macService.selectTagSToE(null);
         if(macs.size() > 0){
             macs.stream().forEach(e -> e.setTag("E"));
@@ -206,7 +206,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagSToRT(){// 单台设备
+    public void setTagSToRT(){// 单台设备
         List<Mac> macs = this.macService.selectTagSToRT(null);
         if(macs.size() > 0){
             macs.stream().forEach(e -> e.setTag("RT"));
@@ -215,7 +215,7 @@ public class GatherMacUtils {
     }
 
     // 将arp表中mac对应的ip地址、mac厂商写入mac表(不包含DE)
-    private void copyArpMacAndIpToMac(){
+    public void copyArpMacAndIpToMac(){
         try {
             List<Mac> macs = this.macService.copyArpMacAndIpToMac(null);
             if(macs != null && macs.size() > 0){
@@ -227,7 +227,7 @@ public class GatherMacUtils {
     }
 
     // 为x的条目如果在全网(除本机)匹配到任何1条为L的标记，则此条目标记为E(Equipment)
-    private void setTagXToE(){
+    public void setTagXToE(){
         try {
             List<Mac> macs = this.macService.selectXToEByMap(null);
             if(macs != null && macs.size() > 0){
@@ -239,7 +239,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagUToE(){
+    public void setTagUToE(){
         try {
             List<Mac> macs = this.macService.selectUToEByMap(null);
             if(macs != null && macs.size() > 0){
@@ -251,7 +251,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagUToRT(){
+    public void setTagUToRT(){
         try {
             List<Mac> macs = this.macService.selectUToRTByMap(null);
             if(macs != null && macs.size() > 0){
@@ -266,7 +266,7 @@ public class GatherMacUtils {
     }
 
     // 标记为UT且有ip地址的，标记为DT
-    private void RTToDT(){
+    public void RTToDT(){
         try {
             List<Mac> macs = this.macService.selectRTToDTByMap(null);
             if(macs != null && macs.size() > 0){
@@ -278,7 +278,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagRTToDT(){
+    public void setTagRTToDT(){
         try {
             List<Mac> macs = this.macService.selectRTToDT2ByMap(null);
             if(macs != null && macs.size() > 0){
@@ -290,7 +290,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void copyArpIpToMacByDT(){
+    public void copyArpIpToMacByDT(){
         try {
             List<Mac> macs = this.macService.copyArpIpToMacByDT(null);
             if(macs != null && macs.size() > 0){
@@ -301,7 +301,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagDTToVDE(){
+    public void setTagDTToVDE(){
         try {
             List<Mac> macs = this.macService.selectDTToDEByMap(null);
             if(macs != null && macs.size() > 0){
@@ -312,7 +312,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagRTToVDE(){
+    public void setTagRTToVDE(){
         try {
             List<Mac> macs = this.macService.selectRTToDEByMap(null);
             if(macs != null && macs.size() > 0){
@@ -323,7 +323,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagRTToDTByDE(){
+    public void setTagRTToDTByDE(){
         try {
             List<Mac> macs = this.macService.selectRTToDTByDE();
             if(macs != null && macs.size() > 0){
@@ -334,7 +334,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void setTagRTToVDT(Date date){
+    public void setTagRTToVDT(Date date){
         try {
             List<Mac> macs = this.macService.selectRTToVDT();
             int i = 0;
@@ -435,7 +435,6 @@ public class GatherMacUtils {
             result = GecossApiUtil.getCall(GecossApiUtil.parseParam(instance, "stasearch"));
         } catch (Exception e) {
             e.printStackTrace();
-
         }
         if(result.size() <= 0){
             return false;
@@ -494,7 +493,7 @@ public class GatherMacUtils {
         }
     }
 
-    private void removeApTerminal(){
+    public void removeApTerminal(){
         Map params = new HashMap();
         params.put("type", 3);
         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);

@@ -197,6 +197,7 @@ public class Terminal extends IdEntity {
     private String combined_port_protocol;
     @ApiModelProperty("vendor + gen + family")
     private String combined_vendor_gen_family;
+    private String title;
 
 
     private List<Terminal> terminalList = new ArrayList<>();

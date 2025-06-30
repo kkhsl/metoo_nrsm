@@ -9,6 +9,8 @@ public interface IProbeService {
 
     List<Probe> selectObjByMap(Map params);
 
+    List<Probe> selectProbeBackByMap(Map params);
+
     List<Probe> mergeProbesByIp();
 
     List<Probe> selectDeduplicationByIp(Map params);

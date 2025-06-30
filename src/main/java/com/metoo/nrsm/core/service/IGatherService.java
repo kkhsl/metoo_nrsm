@@ -13,6 +13,7 @@ import java.util.Map;
  */
 public interface IGatherService {
 
+
     Map gatherMac(Date date, List<NetworkElement> networkElements);
 
     void gatherMacThread(Date date);

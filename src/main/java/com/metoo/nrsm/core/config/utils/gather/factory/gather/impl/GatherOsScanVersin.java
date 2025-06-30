@@ -105,7 +105,8 @@ public class GatherOsScanVersin implements Gather {
             // 分5个列表进行扫描
             Map params = new HashMap();
             params.put("IpaddrvIsNotNull", "IpaddrvIsNotNull");
-            List<Probe> probes = probeService.selectObjByMap(params);
+//            List<Probe> probes = probeService.selectObjByMap(params);
+            List<Probe> probes = probeService.selectProbeBackByMap(params);
             if (probes.size() > 0) {
                 // 分5个列表
                 List<List<Probe>> splitLists = JsonFileToDto.splitList(probes, number);

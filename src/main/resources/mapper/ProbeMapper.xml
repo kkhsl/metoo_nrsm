@@ -26,6 +26,50 @@
         </where>
     </select>
 
+    <select id="selectProbeBackByMapinsert" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Probe">
+        SELECT *
+        FROM metoo_probe_bck
+        <where>
+            <if test="ip_addr != null and ip_addr != ''">
+                AND ip_addr = #{ip_addr}
+            </if>
+            <if test="ipv6 != null and ipv6 != ''">
+                AND ipv6 = #{ipv6}
+            </if>
+            <if test="port_num != null and port_num != ''">
+                AND port_num = #{port_num}
+            </if>
+            <if test="ttlGt != null and ttlGt != ''">
+                AND ttl &gt; #{ttlGt}
+            </if>
+            <if test="IpvIsNotNull != null and IpvIsNotNull.trim() != ''">
+                AND ip_addr IS NOT NULL
+            </if>
+        </where>
+    </select>
+
+    <select id="findDiffBetweenProbeAndBackup" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Probe">
+        SELECT *
+        FROM metoo_probe_bck
+        <where>
+            <if test="ip_addr != null and ip_addr != ''">
+                AND ip_addr = #{ip_addr}
+            </if>
+            <if test="ipv6 != null and ipv6 != ''">
+                AND ipv6 = #{ipv6}
+            </if>
+            <if test="port_num != null and port_num != ''">
+                AND port_num = #{port_num}
+            </if>
+            <if test="ttlGt != null and ttlGt != ''">
+                AND ttl &gt; #{ttlGt}
+            </if>
+            <if test="IpvIsNotNull != null and IpvIsNotNull.trim() != ''">
+                AND ip_addr IS NOT NULL
+            </if>
+        </where>
+    </select>
+
     <select id="selectObjDistinctByIp" resultType="java.lang.String">
         SELECT DISTINCT ip_addr FROM metoo_probe_bck
     </select>
@@ -51,6 +95,15 @@
 						AND application_protocol != '',
 						application_protocol,
 						''
+						),
+
+						'/',
+
+						IF (
+						title IS NOT NULL
+						AND title != '',
+						title,
+						''
 						)
 					)
 					ORDER BY
@@ -64,10 +117,7 @@
 --         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_family IS NOT NULL AND os_family != ''AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '') ORDER BY os_family SEPARATOR ','))
 --         ))AS aa,
         GROUP_CONCAT(DISTINCT ttl SEPARATOR ',') as combined_ttl,
-
-						GROUP_CONCAT(DISTINCT
-
-							CONCAT(
+				GROUP_CONCAT(DISTINCT CONCAT(
 									if(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, ''), ':',
 									if(os_gen IS NOT NULL AND os_gen != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_gen, ''), ':',
 									if(os_family IS NOT NULL AND os_family != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '')
@@ -333,6 +383,12 @@
         where id = #{id}
     </update>
 
+    <update id="syncProbeIpWithTerminal" parameterType="com.metoo.nrsm.entity.Probe">
+        UPDATE metoo_probe_bck p
+        JOIN metoo_terminal t ON p.mac = t.mac
+        SET p.ip_addr = t.v4ip
+        WHERE p.ip_addr &lt;&gt; t.v4ip OR (p.ip_addr IS NULL OR t.v4ip IS NOT NULL);
+    </update>
 
     <delete id="delete" parameterType="java.lang.Integer">
         delete from metoo_probe where id = #{id}
@@ -350,4 +406,18 @@
          INSERT INTO metoo_probe_bck SELECT * FROM metoo_probe
     </insert>
 
+    <insert id="syncProbeDiffToBackup">
+        INSERT INTO metoo_probe_bck
+        SELECT
+            *
+        FROM
+            metoo_probe p
+        WHERE
+            NOT EXISTS (
+                SELECT 1
+                FROM metoo_probe_bck b
+                WHERE b.mac = p.mac
+                AND b.port_num = p.port_num
+            );
+    </insert>
 </mapper>

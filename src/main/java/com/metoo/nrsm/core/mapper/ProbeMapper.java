@@ -16,6 +16,16 @@ public interface ProbeMapper {
 
     List<Probe> selectObjByMap(Map params);
 
+    List<Probe> selectProbeBackByMap(Map params);
+
+    List<Probe> updateBackupToIp();
+
+    int syncProbeIpWithTerminal();
+
+    List<Probe> findDiffBetweenProbeAndBackup();
+
+    int syncProbeDiffToBackup();
+
     List<String> selectObjDistinctByIp();
 
     List<Probe> mergeProbesByIp();

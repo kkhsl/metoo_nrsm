@@ -160,7 +160,7 @@ public class GatherTaskScheduledUtil {
     }
 
     private volatile boolean isRunningTerminal = false;
-    @Scheduled(fixedDelay = 180_000)
+//    @Scheduled(fixedDelay = 180_000)
     public void gatherTerminal() {
         if(flag && !isRunningTerminal){
             log.info("终端采集任务开始");
@@ -179,7 +179,7 @@ public class GatherTaskScheduledUtil {
     }
 
    private volatile boolean isRunningMAC = false;
-    @Scheduled(fixedDelay = 180_000)
+//    @Scheduled(fixedDelay = 180_000)
     public void mac() {
         if(flag && !isRunningMAC){
             log.info("MAC采集任务开始");
