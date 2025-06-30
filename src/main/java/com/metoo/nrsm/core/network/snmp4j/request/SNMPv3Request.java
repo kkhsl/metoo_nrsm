@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.network.snmp4j.request;
 
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
-import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
 import com.metoo.nrsm.core.utils.string.StringUtils;
@@ -750,8 +749,8 @@ public class SNMPv3Request {
         for (String method : methods) {
             try {
                 // 反射调用方法获取 JSON 字符串
-                String data = (String) SNMPv2Request.class
-                        .getMethod(method, SNMPParams.class)
+                String data = (String) SNMPv3Request.class
+                        .getMethod(method, SNMPV3Params.class)
                         .invoke(null, snmpParams);
 
                 if (isValidJson(data)) {
