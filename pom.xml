@@ -458,7 +458,17 @@
             <artifactId>ipaddress</artifactId>
             <version>5.4.0</version>
         </dependency>
+        <!-- Spring WebFlux 核心 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
 
+        <!-- Reactor Netty（默认HTTP客户端实现） -->
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

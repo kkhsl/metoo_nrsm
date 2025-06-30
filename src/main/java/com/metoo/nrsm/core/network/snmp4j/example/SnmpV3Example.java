@@ -71,8 +71,7 @@ public class SnmpV3Example {
                 .community("transfar@123")
                 .build();
 
-        String traffic = SNMPv3Request.getDevicePort(snmpParams);
-        System.out.println(traffic);
+        System.out.println(SNMPv3Request.getMac(snmpParams));
 
 /*
         // v3带认证加密的请求
