@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -119,6 +120,14 @@ public class TerminalDiagnosisController {
 
 
 
+    @GetMapping(
+            value = "/ai/ipv6Suggestion/{terminalId}",
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE
+    )
+    public Flux<String> ipv6Suggestion(
+            @PathVariable("terminalId") String terminalId) {
+        return terminalDiagnosis.ipv6Suggestion(terminalId);
+    }
 
 
 }
