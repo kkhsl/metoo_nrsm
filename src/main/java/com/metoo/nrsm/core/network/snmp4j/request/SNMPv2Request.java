@@ -747,22 +747,31 @@ public class SNMPv2Request {
     // --- 辅助方法 ---
     private static JSONObject getPriorityMacData(SNMPParams snmpParams) {
         String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
-        JSONObject bestResult = null;  // 保存键值对数量最多的结果
-        int maxKeyCount = -1;          // 当前最大的键值对数量
+        JSONObject bestResult = null;      // 保存有效数据最多的结果
+        int maxValidCount = -1;            // 当前最多的有效数据数量
 
         for (String method : methods) {
             try {
+                // 反射调用方法获取 JSON 字符串
                 String data = (String) SNMPv2Request.class
                         .getMethod(method, SNMPParams.class)
                         .invoke(null, snmpParams);
 
                 if (isValidJson(data)) {
                     JSONObject jsonObj = new JSONObject(data);
-                    int keyCount = jsonObj.length(); // 获取键值对数量
+                    int validCount = 0;
 
-                    // 若当前JSON的键值对数量更多，更新最佳结果
-                    if (keyCount > maxKeyCount) {
-                        maxKeyCount = keyCount;
+                    // 遍历 JSON 条目，统计有效数据数量（过滤 noSuchInstance）
+                    for (String key : jsonObj.keySet()) {
+                        Object value = jsonObj.get(key);
+                        if (value instanceof String && !"noSuchInstance".equals(value)) {
+                            validCount++;
+                        }
+                    }
+
+                    // 更新最佳结果：有效数据更多时替换
+                    if (validCount > maxValidCount) {
+                        maxValidCount = validCount;
                         bestResult = jsonObj;
                     }
                 }
@@ -771,8 +780,8 @@ public class SNMPv2Request {
             }
         }
 
-        // 返回最佳结果或空对象
-        return (bestResult != null) ? bestResult : new JSONObject();
+        // 返回有效数据最多的结果（或空对象）
+        return bestResult != null ? bestResult : new JSONObject();
     }
 
     private static JSONObject getMacTypeData(SNMPParams snmpParams) {
