@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.network.snmp4j.request;
 
 import com.metoo.nrsm.core.network.snmp4j.constants.SNMP_OID;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.response.SNMPDataParser;
 import com.metoo.nrsm.core.utils.string.StringUtils;
@@ -147,24 +148,30 @@ public class SNMPv3Request {
     private static OID resolveAuthProtocol(String protocol) {
         if (protocol == null) return null;
         switch (protocol.toUpperCase()) {
-            case "SHA": return AuthSHA.ID;
-            case "MD5": return AuthMD5.ID;
-            default: throw new IllegalArgumentException("不支持的认证协议: " + protocol);
+            case "SHA":
+                return AuthSHA.ID;
+            case "MD5":
+                return AuthMD5.ID;
+            default:
+                throw new IllegalArgumentException("不支持的认证协议: " + protocol);
         }
     }
 
     private static OID resolvePrivProtocol(String protocol) {
         if (protocol == null) return null;
         switch (protocol.toUpperCase()) {
-            case "AES": return PrivAES128.ID;
-            case "DES": return PrivDES.ID;
-            default: throw new IllegalArgumentException("不支持的加密协议: " + protocol);
+            case "AES":
+                return PrivAES128.ID;
+            case "DES":
+                return PrivDES.ID;
+            default:
+                throw new IllegalArgumentException("不支持的加密协议: " + protocol);
         }
     }
 
     // 请求发送方法（支持v3）
     public static PDU sendRequest(SNMPV3Params params, SNMP_OID oid) {
-        if(params == null){
+        if (params == null) {
             return null;
         }
         try {
@@ -192,7 +199,7 @@ public class SNMPv3Request {
 
     // 发送请求
     public static PDU sendStrRequest(SNMPV3Params params, String oid) {
-        if(params == null){
+        if (params == null) {
             return null;
         }
         try {
@@ -225,7 +232,7 @@ public class SNMPv3Request {
 
     // 修改GETNEXT方法
     private static Map<String, String> sendGETNEXTRequest(SNMPV3Params params, SNMP_OID snmpOid) {
-        if(params == null){
+        if (params == null) {
             return new HashMap<>();
         }
         Map<String, String> resultMap = new HashMap<>();
@@ -262,7 +269,7 @@ public class SNMPv3Request {
             System.err.println("GETNEXT请求异常: " + e.getMessage());
             e.printStackTrace();
             return null;
-        }finally {
+        } finally {
             cleanup();
         }
         return resultMap;
@@ -289,7 +296,7 @@ public class SNMPv3Request {
             if (event.getResponse() == null) {
                 log.info("SNMP 无响应：{}", event.getPeerAddress());
             }
-            if(response != null && response.getErrorStatus() != PDU.noError){
+            if (response != null && response.getErrorStatus() != PDU.noError) {
                 log.info("无响应(超时或目标不可达) 或者SNMP 错误:{}, IP地址：{}", response.getErrorStatusText(), event.getPeerAddress());
             }
         } catch (Exception e) {
@@ -438,6 +445,7 @@ public class SNMPv3Request {
 
         return SNMPDataParser.convertToJson(result);
     }
+
     public static String getDeviceMac3(SNMPV3Params snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
         Map<String, String> mac3Map = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC3);
@@ -560,8 +568,8 @@ public class SNMPv3Request {
     public static String getTraffic(SNMPV3Params snmpParams, String oid1, String oid2) {
         // 调用 sendArpRequest 方法进行 SNMP 请求
         PDU in = sendStrRequest(snmpParams, oid1);
-        PDU out = sendStrRequest(snmpParams,oid2);
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseTraffic(in,out));
+        PDU out = sendStrRequest(snmpParams, oid2);
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseTraffic(in, out));
     }
 
 
@@ -601,9 +609,9 @@ public class SNMPv3Request {
         String macData = SNMPv3Request.getDevicePortMac(snmpParams);
         String statusData = SNMPv3Request.getDevicePortStatus(snmpParams);
         String portData = SNMPv3Request.getDevicePort(snmpParams);
-        if(StringUtils.isEmpty(macData) ||
+        if (StringUtils.isEmpty(macData) ||
                 StringUtils.isEmpty(statusData) ||
-                StringUtils.isEmpty(portData)){
+                StringUtils.isEmpty(portData)) {
             return new JSONArray();
         }
         // 解析 JSON 数据
@@ -736,22 +744,31 @@ public class SNMPv3Request {
 
     private static JSONObject getPriorityMacData(SNMPV3Params snmpParams) {
         String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
-        JSONObject bestResult = null;  // 保存键值对数量最多的结果
-        int maxKeyCount = -1;          // 当前最大的键值对数量
+        JSONObject bestResult = null;      // 保存有效数据最多的结果
+        int maxValidCount = -1;            // 当前最多的有效数据数量
 
         for (String method : methods) {
             try {
-                String data = (String) SNMPv3Request.class
-                        .getMethod(method, SNMPV3Params.class)
+                // 反射调用方法获取 JSON 字符串
+                String data = (String) SNMPv2Request.class
+                        .getMethod(method, SNMPParams.class)
                         .invoke(null, snmpParams);
 
                 if (isValidJson(data)) {
                     JSONObject jsonObj = new JSONObject(data);
-                    int keyCount = jsonObj.length(); // 获取键值对数量
+                    int validCount = 0;
 
-                    // 若当前JSON的键值对数量更多，更新最佳结果
-                    if (keyCount > maxKeyCount) {
-                        maxKeyCount = keyCount;
+                    // 遍历 JSON 条目，统计有效数据数量（过滤 noSuchInstance）
+                    for (String key : jsonObj.keySet()) {
+                        Object value = jsonObj.get(key);
+                        if (value instanceof String && !"noSuchInstance".equals(value)) {
+                            validCount++;
+                        }
+                    }
+
+                    // 更新最佳结果：有效数据更多时替换
+                    if (validCount > maxValidCount) {
+                        maxValidCount = validCount;
                         bestResult = jsonObj;
                     }
                 }
@@ -760,8 +777,8 @@ public class SNMPv3Request {
             }
         }
 
-        // 返回最佳结果或空对象
-        return (bestResult != null) ? bestResult : new JSONObject();
+        // 返回有效数据最多的结果（或空对象）
+        return bestResult != null ? bestResult : new JSONObject();
     }
 
     private static JSONObject getMacTypeData(SNMPV3Params snmpParams) {
@@ -799,7 +816,7 @@ public class SNMPv3Request {
         // 获取 SNMP 数据
         String lldpData = SNMPv3Request.getLLDP(snmpParams);
         String lldpPortData = SNMPv3Request.getLLDPPort(snmpParams);
-        if(StringUtils.isEmpty(lldpData) || StringUtils.isEmpty(lldpPortData)){
+        if (StringUtils.isEmpty(lldpData) || StringUtils.isEmpty(lldpPortData)) {
             return new JSONArray();
         }
         // 解析 JSON 数据
