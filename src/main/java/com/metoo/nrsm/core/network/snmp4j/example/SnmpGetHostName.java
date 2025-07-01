@@ -11,7 +11,7 @@ public class SnmpGetHostName {
         String version = "v2c";       // SNMP 版本
         String community = "transfar@123";  // SNMP 社区字符串
         SNMPParams snmpParams = new SNMPParams(host,version,community);
-        System.out.println(SNMPv2Request.getMac(snmpParams));
+        System.out.println(SNMPv2Request.getRoute(snmpParams));
     }
 }
 

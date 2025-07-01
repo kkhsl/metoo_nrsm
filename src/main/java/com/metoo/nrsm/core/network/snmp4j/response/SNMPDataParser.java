@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.network.snmp4j.response;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.snmp4j.PDU;
 
@@ -25,12 +26,40 @@ public class SNMPDataParser {
         return jsonObject.toString();
     }
 
-    public static String convertToJson(List<Map<String, String>> arpResult) {
-        if(arpResult.isEmpty()){
-            return "";
+    public static String convertToJson(List<Map<String, String>> data) {
+        if (data == null) {
+            return "null";
         }
-        JSONObject jsonObject = new JSONObject(arpResult);
-        return jsonObject.toString();
+
+        try {
+            if (data.isEmpty()) {
+                return "[]";
+            }
+
+            // 创建JSON数组
+            JSONArray jsonArray = new JSONArray();
+
+            // 遍历每个路由条目
+            for (Map<String, String> entry : data) {
+                // 为每个条目创建JSON对象
+                JSONObject entryObj = new JSONObject();
+
+                // 添加所有键值对
+                for (Map.Entry<String, String> field : entry.entrySet()) {
+                    String key = field.getKey();
+                    String value = field.getValue() != null ? field.getValue() : "";
+                    entryObj.put(key, value);
+                }
+
+                // 将对象添加到数组
+                jsonArray.put(entryObj);
+            }
+
+            return jsonArray.toString();
+        } catch (JSONException e) {
+            // 异常处理
+            return null;
+        }
     }
 
 

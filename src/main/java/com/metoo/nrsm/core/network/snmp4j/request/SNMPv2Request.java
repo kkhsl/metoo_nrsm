@@ -587,6 +587,20 @@ public class SNMPv2Request {
     }
 
 
+
+    public static String getRoute(SNMPParams snmpParams) {
+        // 获取原始SNMP数据
+        Map<String, String> destNetworkMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Destination_network);
+        Map<String, String> maskMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Mask);
+        Map<String, String> interfaceMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Interface);
+        Map<String, String> nextHopMap = sendGETNEXTRequest(snmpParams, SNMP_OID.NextHop);
+        Map<String, String> costMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Cost);
+        Map<String, String> protoTypeMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Proto_type);
+        // 3. 转换为JSON返回
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap,maskMap,interfaceMap,nextHopMap,costMap,protoTypeMap));
+    }
+
+
     public static Boolean getIsV6(SNMPParams snmpParams) {
         // 调用 sendRequest 方法进行 SNMP 请求
         PDU isV6 = sendRequest(snmpParams, SNMP_OID.IS_IPV6);

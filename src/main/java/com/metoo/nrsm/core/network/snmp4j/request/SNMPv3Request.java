@@ -714,22 +714,6 @@ public class SNMPv3Request {
         return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap,maskMap,interfaceMap,nextHopMap,costMap,protoTypeMap));
     }
 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public static Boolean getIsV6(SNMPV3Params snmpParams) {
         // 调用 sendRequest 方法进行 SNMP 请求
         PDU isV6 = sendRequest(snmpParams, SNMP_OID.IS_IPV6);
