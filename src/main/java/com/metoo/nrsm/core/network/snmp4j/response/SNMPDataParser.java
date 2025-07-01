@@ -4,8 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.snmp4j.PDU;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 考虑到需要处理的数据较少，先讲处理snmp返回数据的方法，放到这一个类中
@@ -18,6 +18,14 @@ public class SNMPDataParser {
 //    }
 
     public static String convertToJson(Map<String, String> arpResult) {
+        if(arpResult.isEmpty()){
+            return "";
+        }
+        JSONObject jsonObject = new JSONObject(arpResult);
+        return jsonObject.toString();
+    }
+
+    public static String convertToJson(List<Map<String, String>> arpResult) {
         if(arpResult.isEmpty()){
             return "";
         }
@@ -428,6 +436,65 @@ public class SNMPDataParser {
         }
         return result;
     }
+
+
+    public static List<Map<String, String>> parseRoute(Map<String, String> destNetworkMap,Map<String, String> maskMap,Map<String, String> interfaceMap,Map<String, String> nextHopMap,Map<String, String> costMap,
+                                                 Map<String, String> protoTypeMap) {
+        // 1. 提取所有目标网络地址（唯一键）
+        Set<String> targetIPs = extractTargetIPs(destNetworkMap);
+
+        // 2. 为每个IP构建路由对象
+        List<Map<String, String>> routeEntries = new ArrayList<>();
+        for (String ip : targetIPs) {
+            Map<String, String> entry = new HashMap<>();
+
+            entry.put("Destnetwork", getValueByIP(destNetworkMap, ip));
+            entry.put("Mask", getValueByIP(maskMap, ip));
+            entry.put("Interface", getValueByIP(interfaceMap, ip));
+            entry.put("Nexthop", getValueByIP(nextHopMap, ip));
+            entry.put("Cost", getValueByIP(costMap, ip));
+            entry.put("type", getValueByIP(protoTypeMap, ip));
+
+            routeEntries.add(entry);
+        }
+        return routeEntries;
+    }
+
+    /**
+     * 从OID数据中提取所有目标IP地址
+     */
+    private static Set<String> extractTargetIPs(Map<String, String> dataMap) {
+        return dataMap.keySet().stream()
+                .map(key -> {
+                    // 从形如 "1.3.6.1.2.1.4.21.1.1.172.16.253.0" 提取IP
+                    String[] parts = key.split("\\.");
+                    // 提取最后4段数字组成IP
+                    return String.join(".",
+                            parts[parts.length-4],
+                            parts[parts.length-3],
+                            parts[parts.length-2],
+                            parts[parts.length-1]
+                    );
+                })
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * 通过IP地址从OID数据中查找对应值
+     */
+    private static String getValueByIP(Map<String, String> dataMap, String targetIP) {
+        // 直接使用IP地址作为后缀匹配（OID格式与IP完全一致）
+        String suffix = "." + targetIP;
+
+        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+            // 精确匹配OID结尾
+            if (entry.getKey().endsWith(suffix)) {
+                return entry.getValue();
+            }
+        }
+        return "N/A";
+    }
+
 
     public static Boolean parseIsV6(PDU responsePdu) {
         if (responsePdu != null && !responsePdu.getVariableBindings().isEmpty()) {

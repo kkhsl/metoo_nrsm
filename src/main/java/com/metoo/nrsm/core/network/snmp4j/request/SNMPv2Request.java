@@ -305,11 +305,6 @@ public class SNMPv2Request {
     public static String getDeviceMac(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 Mac 表遍历
         Map<String, String> macMap = sendGETNEXTRequest(snmpParams, SNMP_OID.MAC);
-        /* Map<String, String> macMap = new HashMap<>();
-        // 赋值
-        macMap.put("1.3.6.1.2.1.17.4.3.1.2.0.11.95.228.214.24","52");  //1.3.6.1.2.1.17.4.3.1.2.0.11.95.228.214.0   163
-        macMap.put("1.3.6.1.2.1.17.4.3.1.2.48.67.215.235.184.16","12");
-        */
         String str = SNMP_OID.MAC.getOid() + ".";
         String strNew;
         String indexNew = null;
@@ -322,8 +317,43 @@ public class SNMPv2Request {
             strNew = "1.3.6.1.2.1.17.1.4.1.2." + index;
             PDU pdu = sendStrRequest(snmpParams, strNew);
             indexNew = pdu.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("= ", "").replace("\"", "");
-            String newOid = oid.replace(str, "");
-            // 提取 MAC 地址部分
+
+            // 优化后的OID处理逻辑：从OID末尾提取6组数字
+            String newOid;
+
+            // 从OID字符串末尾反向查找最近6个连续的数字组
+            int lastDotPosition = oid.lastIndexOf('.'); // 找到最后一个点
+            int count = 0;
+            int startIndex = -1;
+
+            // 反向遍历找到第6个数字组的起始位置
+            for (int i = oid.length() - 1; i >= 0; i--) {
+                char c = oid.charAt(i);
+                if (c == '.') {
+                    count++;
+                    if (count == 6) {
+                        startIndex = i + 1; // 获取6个数字组的起始位置
+                        break;
+                    }
+                }
+            }
+
+            if (startIndex != -1) {
+                // 成功找到6个连续的组，取最后6个部分
+                newOid = oid.substring(startIndex);
+
+                // 如果有额外的部分（如最后的90），只保留6组数字
+                String[] parts = newOid.split("\\.");
+                if (parts.length > 6) {
+                    newOid = String.join(".", Arrays.copyOfRange(parts, 0, 6));
+                }
+            } else {
+                // 回退逻辑：如果无法提取6个组，使用原算法
+                newOid = oid.replaceFirst(
+                        Pattern.quote(str) + "\\d+\\.",
+                        "");
+            }
+
             String macAddress = convertOidToMac(newOid);
             result.put(macAddress, indexNew);
         }
@@ -779,35 +809,43 @@ public class SNMPv2Request {
 
     // --- 辅助方法 ---
     private static JSONObject getPriorityMacData(SNMPParams snmpParams) {
-        String[] methods = {"getDeviceMac", "getDeviceMac2","getDeviceMac3"};
+        String[] methods = {"getDeviceMac", "getDeviceMac2", "getDeviceMac3"};
         JSONObject bestResult = null;      // 保存有效数据最多的结果
         int maxValidCount = -1;            // 当前最多的有效数据数量
 
-        for (String method : methods) {
+        for (int i = 0; i < methods.length; i++) {
             try {
                 // 反射调用方法获取 JSON 字符串
                 String data = (String) SNMPv2Request.class
-                        .getMethod(method, SNMPParams.class)
+                        .getMethod(methods[i], SNMPParams.class)
                         .invoke(null, snmpParams);
 
-                if (isValidJson(data)) {
-                    JSONObject jsonObj = new JSONObject(data);
-                    int validCount = 0;
+                if (!isValidJson(data)) {
+                    continue;
+                }
 
-                    // 遍历 JSON 条目，统计有效数据数量（过滤 noSuchInstance）
-                    for (String key : jsonObj.keySet()) {
-                        Object value = jsonObj.get(key);
-                        if (value instanceof String && !"noSuchInstance".equals(value)) {
-                            validCount++;
-                        }
-                    }
+                JSONObject jsonObj = new JSONObject(data);
+                int validCount = 0;
 
-                    // 更新最佳结果：有效数据更多时替换
-                    if (validCount > maxValidCount) {
-                        maxValidCount = validCount;
-                        bestResult = jsonObj;
+                // 遍历 JSON 条目，统计有效数据数量（过滤 noSuchInstance）
+                for (String key : jsonObj.keySet()) {
+                    Object value = jsonObj.get(key);
+                    if (value instanceof String && !"noSuchInstance".equals(value)) {
+                        validCount++;
                     }
                 }
+
+                // 新增逻辑：优先使用第一个方法且有效数据>2的结果
+                if (i == 0 && validCount > 2) {
+                    return jsonObj;  // 直接返回第一个有效的结果
+                }
+
+                // 更新最佳结果：有效数据更多时替换
+                if (validCount > maxValidCount) {
+                    maxValidCount = validCount;
+                    bestResult = jsonObj;
+                }
+
             } catch (Exception e) {
                 // 静默处理异常，继续尝试下一个方法
             }
