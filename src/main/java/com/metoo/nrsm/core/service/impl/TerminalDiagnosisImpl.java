@@ -1,7 +1,5 @@
 package com.metoo.nrsm.core.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metoo.nrsm.core.mapper.NetworkDataMapper;
 import com.metoo.nrsm.core.mapper.TerminalDiagnosisMapper;
 import com.metoo.nrsm.core.service.ITerminalDiagnosisService;
@@ -10,7 +8,6 @@ import com.metoo.nrsm.entity.AiDifyRequest;
 import com.metoo.nrsm.entity.AiRequest;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.TerminalDiagnosis;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;

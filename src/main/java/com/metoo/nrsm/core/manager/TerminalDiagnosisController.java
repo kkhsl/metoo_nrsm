@@ -120,6 +120,11 @@ public class TerminalDiagnosisController {
 
 
 
+
+
+
+
+
     @GetMapping(
             value = "/ai/ipv6Suggestion/{terminalId}",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE

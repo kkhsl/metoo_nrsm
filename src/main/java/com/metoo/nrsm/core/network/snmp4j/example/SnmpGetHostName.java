@@ -7,7 +7,7 @@ import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 public class SnmpGetHostName {
 
     public static void main(String[] args) {
-        String host = "192.168.0.8";  // 目标设备地址
+        String host = "192.168.0.7";  // 目标设备地址
         String version = "v2c";       // SNMP 版本
         String community = "transfar@123";  // SNMP 社区字符串
         SNMPParams snmpParams = new SNMPParams(host,version,community);
