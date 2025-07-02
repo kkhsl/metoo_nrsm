@@ -707,11 +707,12 @@ public class SNMPv3Request {
         Map<String, String> destNetworkMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Destination_network);
         Map<String, String> maskMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Mask);
         Map<String, String> interfaceMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Interface);
+        Map<String, String> portMap = SNMPDataParser.parseDevicePort(sendGETNEXTRequest(snmpParams, SNMP_OID.PORT));
         Map<String, String> nextHopMap = sendGETNEXTRequest(snmpParams, SNMP_OID.NextHop);
         Map<String, String> costMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Cost);
         Map<String, String> protoTypeMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Proto_type);
         // 3. 转换为JSON返回
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap,maskMap,interfaceMap,nextHopMap,costMap,protoTypeMap));
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap,maskMap,interfaceMap,nextHopMap,costMap,protoTypeMap,portMap));
     }
 
     public static Boolean getIsV6(SNMPV3Params snmpParams) {

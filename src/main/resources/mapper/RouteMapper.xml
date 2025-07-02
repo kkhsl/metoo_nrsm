@@ -3,7 +3,7 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.RouteTableMapper">
 
     <insert id="batchInsertRoutes">
-        INSERT INTO metoo_route_table (time, deviceIp, destnetwork, mask, interface, nexthop, cost, type)
+        INSERT INTO metoo_route_table (time, deviceIp, destnetwork, mask, interface,port, nexthop, cost, type)
         VALUES
         <foreach collection="routes" item="route" separator=",">
             (
@@ -12,6 +12,7 @@
             #{route.destnetwork},
             #{route.mask},
             #{route.interfaceName},
+            #{route.port},
             #{route.nexthop},
             #{route.cost},
             #{route.type}

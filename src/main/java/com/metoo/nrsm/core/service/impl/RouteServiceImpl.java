@@ -84,6 +84,7 @@ public class RouteServiceImpl {
                 entry.setDestnetwork(obj.getString("Destnetwork"));
                 entry.setMask(obj.getString("Mask"));
                 entry.setInterfaceName(obj.getString("Interface"));
+                entry.setPort(obj.getString("Port"));
                 entry.setNexthop(obj.getString("Nexthop"));
                 
                 // 处理cost类型(可能为字符串或数字)

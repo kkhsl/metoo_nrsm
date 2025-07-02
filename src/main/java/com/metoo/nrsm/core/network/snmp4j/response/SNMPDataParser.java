@@ -468,7 +468,7 @@ public class SNMPDataParser {
 
 
     public static List<Map<String, String>> parseRoute(Map<String, String> destNetworkMap,Map<String, String> maskMap,Map<String, String> interfaceMap,Map<String, String> nextHopMap,Map<String, String> costMap,
-                                                 Map<String, String> protoTypeMap) {
+                                                 Map<String, String> protoTypeMap,Map<String, String> portMap) {
         // 1. 提取所有目标网络地址（唯一键）
         Set<String> targetIPs = extractTargetIPs(destNetworkMap);
 
@@ -476,10 +476,10 @@ public class SNMPDataParser {
         List<Map<String, String>> routeEntries = new ArrayList<>();
         for (String ip : targetIPs) {
             Map<String, String> entry = new HashMap<>();
-
             entry.put("Destnetwork", getValueByIP(destNetworkMap, ip));
             entry.put("Mask", getValueByIP(maskMap, ip));
             entry.put("Interface", getValueByIP(interfaceMap, ip));
+            entry.put("Port", portMap.getOrDefault(getValueByIP(interfaceMap, ip), "unknown"));
             entry.put("Nexthop", getValueByIP(nextHopMap, ip));
             entry.put("Cost", getValueByIP(costMap, ip));
             entry.put("type", getValueByIP(protoTypeMap, ip));
