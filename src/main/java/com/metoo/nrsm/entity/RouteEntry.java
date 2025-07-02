@@ -22,4 +22,5 @@ public class RouteEntry {
     private String nexthop;
     private Integer cost;
     private String type;
+    private String preference;
 }

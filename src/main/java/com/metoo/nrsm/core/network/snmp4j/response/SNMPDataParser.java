@@ -5,8 +5,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.snmp4j.PDU;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 考虑到需要处理的数据较少，先讲处理snmp返回数据的方法，放到这一个类中
@@ -19,7 +21,7 @@ public class SNMPDataParser {
 //    }
 
     public static String convertToJson(Map<String, String> arpResult) {
-        if(arpResult.isEmpty()){
+        if (arpResult.isEmpty()) {
             return "";
         }
         JSONObject jsonObject = new JSONObject(arpResult);
@@ -229,6 +231,7 @@ public class SNMPDataParser {
         }
         return result;
     }
+
     public static Map<String, String> parseDevicePortIp(Map<String, String> portIpMap) {
         Map<String, String> result = new HashMap<>();
 
@@ -329,6 +332,7 @@ public class SNMPDataParser {
         }
         return resultArray;
     }
+
     public static Map<String, String> parseDevicePortMask(Map<String, String> portIpMap) {
         Map<String, String> result = new HashMap<>();
 
@@ -342,6 +346,7 @@ public class SNMPDataParser {
         }
         return result;
     }
+
     public static Map<String, String> parseDevicePortDescription(Map<String, String> portIpMap) {
         Map<String, String> result = new HashMap<>();
 
@@ -356,7 +361,7 @@ public class SNMPDataParser {
         return result;
     }
 
-    public static Map<String, String> parseDeviceMac(Map<String, String> macMap,String str) {
+    public static Map<String, String> parseDeviceMac(Map<String, String> macMap, String str) {
         Map<String, String> result = new HashMap<>();
 
         for (Map.Entry<String, String> entry : macMap.entrySet()) {
@@ -372,7 +377,7 @@ public class SNMPDataParser {
         return result;
     }
 
-    public static Map<String, String> parseDeviceMacType(Map<String, String> macMap,String str) {
+    public static Map<String, String> parseDeviceMacType(Map<String, String> macMap, String str) {
         Map<String, String> result = new HashMap<>();
 
         for (Map.Entry<String, String> entry : macMap.entrySet()) {
@@ -467,61 +472,137 @@ public class SNMPDataParser {
     }
 
 
-    public static List<Map<String, String>> parseRoute(Map<String, String> destNetworkMap,Map<String, String> maskMap,Map<String, String> interfaceMap,Map<String, String> nextHopMap,Map<String, String> costMap,
-                                                 Map<String, String> protoTypeMap,Map<String, String> portMap) {
-        // 1. 提取所有目标网络地址（唯一键）
-        Set<String> targetIPs = extractTargetIPs(destNetworkMap);
+    public static List<Map<String, String>> parseRoute(
+            Map<String, String> destNetworkMap,
+            Map<String, String> costMap,
+            Map<String, String> protoTypeMap,
+            Map<String, String> portMap) {
 
-        // 2. 为每个IP构建路由对象
+        // 存储所有路由条目的列表
         List<Map<String, String>> routeEntries = new ArrayList<>();
-        for (String ip : targetIPs) {
-            Map<String, String> entry = new HashMap<>();
-            entry.put("Destnetwork", getValueByIP(destNetworkMap, ip));
-            entry.put("Mask", getValueByIP(maskMap, ip));
-            entry.put("Interface", getValueByIP(interfaceMap, ip));
-            entry.put("Port", portMap.getOrDefault(getValueByIP(interfaceMap, ip), "unknown"));
-            entry.put("Nexthop", getValueByIP(nextHopMap, ip));
-            entry.put("Cost", getValueByIP(costMap, ip));
-            entry.put("type", getValueByIP(protoTypeMap, ip));
 
-            routeEntries.add(entry);
+        // 遍历 destNetworkMap 中的每个条目
+        for (Map.Entry<String, String> entry : destNetworkMap.entrySet()) {
+            try {
+                // 获取 OID 的尾部特征（用于匹配）
+                String oidSuffix = extractOIDSuffix(entry.getKey());
+                if (oidSuffix == null || oidSuffix.isEmpty()) {
+                    continue; // 跳过无效条目
+                }
+
+                Map<String, String> route = new HashMap<>();
+
+                // 解析目标网络、掩码和下一跳地址
+                parseNetInfo(oidSuffix, route);
+
+                String interfaceIndex = entry.getValue();
+                route.put("Interface", interfaceIndex);
+                route.put("Port", portMap.getOrDefault(interfaceIndex, "unknown"));
+
+                String cost = matchBySuffix(costMap, oidSuffix);
+                route.put("Cost", cost);
+
+                // 匹配路由类型
+                String typeCode = matchBySuffix(protoTypeMap, oidSuffix);
+                route.put("Preference", typeCode);
+                route.put("type", getRouteType(typeCode));
+
+                routeEntries.add(route);
+            } catch (Exception e) {
+                System.err.println("处理路由条目失败: " + entry.getKey());
+                e.printStackTrace();
+            }
         }
+
         return routeEntries;
     }
 
     /**
-     * 从OID数据中提取所有目标IP地址
+     * 提取 OID 尾部特征
      */
-    private static Set<String> extractTargetIPs(Map<String, String> dataMap) {
-        return dataMap.keySet().stream()
-                .map(key -> {
-                    // 从形如 "1.3.6.1.2.1.4.21.1.1.172.16.253.0" 提取IP
-                    String[] parts = key.split("\\.");
-                    // 提取最后4段数字组成IP
-                    return String.join(".",
-                            parts[parts.length-4],
-                            parts[parts.length-3],
-                            parts[parts.length-2],
-                            parts[parts.length-1]
-                    );
-                })
-                .collect(Collectors.toSet());
+    private static String extractOIDSuffix(String oidKey) {
+        // 截取 OID 的尾部部分
+        int prefixLength = "1.3.6.1.2.1.4.24.4.1.5".length() + 1;
+        if (oidKey.length() > prefixLength) {
+            return oidKey.substring(prefixLength);
+        }
+        return "";
     }
 
     /**
-     * 通过IP地址从OID数据中查找对应值
+     * 解析目标网络、掩码和下一跳地址
      */
-    private static String getValueByIP(Map<String, String> dataMap, String targetIP) {
-        // 直接使用IP地址作为后缀匹配（OID格式与IP完全一致）
-        String suffix = "." + targetIP;
+    private static void parseNetInfo(String oidSuffix, Map<String, String> route) {
+        String[] parts = oidSuffix.split("\\.");
 
-        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
-            // 精确匹配OID结尾
+        try {
+            // 目标网络
+            StringBuilder destNetwork = new StringBuilder();
+            for (int i = 0; i < 4; i++) {
+                if (i > 0) destNetwork.append(".");
+                destNetwork.append(parts[i]);
+            }
+            route.put("Destnetwork", destNetwork.toString());
+
+            // 子网掩码
+            StringBuilder mask = new StringBuilder();
+            for (int i = 4; i < 8; i++) {
+                if (i > 4) mask.append(".");
+                mask.append(parts[i]);
+            }
+            route.put("Mask", mask.toString());
+
+            // 下一跳地址
+            StringBuilder nextHop = new StringBuilder();
+            for (int i = 9; i < 13; i++) { // 跳过第8位
+                if (i > 9) nextHop.append(".");
+                nextHop.append(parts[i]);
+            }
+            route.put("Nexthop", nextHop.toString());
+
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println("无法解析 OID 后缀: " + oidSuffix);
+        }
+    }
+
+    /**
+     * 通过后缀匹配值
+     */
+    private static String matchBySuffix(Map<String, String> map, String suffix) {
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            // 检查是否以相同后缀结尾
             if (entry.getKey().endsWith(suffix)) {
                 return entry.getValue();
             }
         }
         return "N/A";
+    }
+
+    /**
+     * 将路由类型代码转换为有意义的名称
+     */
+    private static String getRouteType(String typeCode) {
+        if (typeCode == null || typeCode.equals("N/A")) {
+            return "unknown";
+        }
+
+        switch (typeCode) {
+            case "1": return "other";
+            case "2": return "local";
+            case "3": return "netmgmt";
+            case "4": return "icmp";
+            case "5": return "egp";
+            case "6": return "ggp";
+            case "7": return "hello";
+            case "8": return "rip";
+            case "9": return "isIs";
+            case "10": return "esIs";
+            case "11": return "ciscoIgrp";
+            case "12": return "bbnSpfIgp";
+            case "13": return "ospf";
+            case "14": return "bgp";
+            default: return "unknown(" + typeCode + ")";
+        }
     }
 
 
@@ -548,11 +629,11 @@ public class SNMPDataParser {
         if (inData != null && !inData.getVariableBindings().isEmpty()) {
             in = inData.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("\"", "");
             // 入口流量求和
-            result.put("in",in);
+            result.put("in", in);
         }
         if (outData != null && !outData.getVariableBindings().isEmpty()) {
             out = outData.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("\"", "");
-            result.put("out",out);
+            result.put("out", out);
             // 出口流量求和
         }
         return result;
@@ -634,7 +715,6 @@ public class SNMPDataParser {
 
         return result;
     }
-
 
 
 }
