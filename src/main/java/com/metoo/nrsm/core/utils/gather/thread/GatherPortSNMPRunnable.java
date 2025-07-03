@@ -54,7 +54,7 @@ public class GatherPortSNMPRunnable implements Runnable{
             JSONArray result = SNMPv3Request.getPortTable(SNMPParamFactory.createSNMPParam(networkElement));
 
             if(!result.isEmpty()){
-                // 使用 Jackson 将 JSON 字符串转换为 List<Ipv4>
+                // 使用 Jackson 将 JSON 字符串转换为
                 ObjectMapper objectMapper = new ObjectMapper();
                 List<Port> ports = objectMapper.readValue(result.toString(), new TypeReference<List<Port>>(){});
                 ports.forEach(e -> {

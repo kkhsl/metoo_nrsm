@@ -35,5 +35,11 @@ public class Port extends IdEntity {
 
     private Integer vlanNumber;
 
+    private String networkAddress;
+    private String remoteUuid;
+    private String remotePort;
+    private String remoteIp;
+
+
 
 }

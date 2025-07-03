@@ -73,6 +73,29 @@
         WHERE locate('VLAN', `port`) > 0 group by vlanNumber;
     </select>
 
+    <select id="selectSameSubnetWithTwoPortsNotBothVlan" resultType="com.metoo.nrsm.entity.Port">
+         SELECT
+            *, INET_NTOA(INET_ATON(ip) &amp; INET_ATON(mask)) AS networkAddress
+        FROM
+            metoo_port
+        WHERE
+            INET_NTOA(INET_ATON(ip) &amp; INET_ATON(mask)) IN (
+                SELECT
+                    INET_NTOA(INET_ATON(ip) &amp; INET_ATON(mask)) AS networkAddress
+                FROM
+                    metoo_port
+                WHERE
+                    ip != '127.0.0.1'
+                GROUP BY
+                    INET_ATON(ip) &amp; INET_ATON(mask)
+                HAVING
+                    COUNT(*) = 2
+                    AND SUM(CASE WHEN LOWER(port) LIKE 'vlan%' THEN 1 ELSE 0 END) &lt; 2
+            )
+        ORDER BY
+            ip
+    </select>
+
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Port">
         INSERT INTO metoo_port

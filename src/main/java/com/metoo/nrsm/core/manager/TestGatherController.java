@@ -61,6 +61,32 @@ public class TestGatherController {
     @Autowired
     private GatherSingleThreadingMacSNMPUtils gatherSingleThreadingMacSNMPUtils;
 
+    @GetMapping("/snmp")
+    public void snmp() {
+        log.info("snmp采集任务开始");
+        try {
+            Long time = System.currentTimeMillis();
+            gatherService.gatherSnmpStatus();
+            log.info("snmp采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("snmp采集任务异常: {}", e.getMessage());
+        }
+    }
+
+    @GetMapping("/port")
+    public void port() {
+        log.info("Port采集任务开始");
+        try {
+            Long time = System.currentTimeMillis();
+            gatherService.gatherPort(DateTools.gatherDate(), new ArrayList<>());
+            log.info("Port采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Port采集任务异常: {}", e.getMessage());
+        }
+    }
+
     @GetMapping("/portIpv6")
     public void portIpv6() {
         log.info("Ipv6 Port采集任务开始");
@@ -169,6 +195,7 @@ public class TestGatherController {
                 gatherMacUtils.setTagSToE();
                 gatherMacUtils.setTagXToE();
                 gatherMacUtils.setTagUToE();
+                break;
             case "callRemoteIPAndPort":
                 macTestMapper.callRemoteIPAndPort();
                 break;
@@ -186,6 +213,9 @@ public class TestGatherController {
                 gatherMacUtils.setTagRTToDTByDE();
                 gatherMacUtils.normalizePortForDE();
                 gatherMacUtils.removeApTerminal(); // 删除mac与为ap mac地址相同的数据
+                break;
+            case "portToDE":
+                gatherMacUtils.selectSameSubnetWithTwoPortsNotBothVlan(new Date());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown step: " + step);
