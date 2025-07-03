@@ -649,6 +649,8 @@
                 metoo_terminal
             WHERE
                 deviceTypeId = 34
+            AND
+                online = true
             GROUP BY
                 deviceName
         ) AS d2 ON d1.device_name = d2.deviceName

@@ -18,6 +18,8 @@ public interface PortMapper {
 
     List selectObjByDeviceUuid(String deviceUuid);
 
+    List selectSameSubnetWithTwoPortsNotBothVlan();
+
     int save(Port instance);
 
     int update(Port instance);

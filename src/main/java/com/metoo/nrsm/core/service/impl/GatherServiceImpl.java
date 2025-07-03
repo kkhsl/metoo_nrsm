@@ -3,7 +3,10 @@ package com.metoo.nrsm.core.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
@@ -852,19 +855,20 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     // 获取设备名
-    public String getHostName(NetworkElement element){
+    public String getHostName(NetworkElement networkElement){
 
-        String hostName = "";
 
-        String path = Global.PYPATH + "gethostname.py";
-        String[] args = {element.getIp(), element.getVersion(),
-                element.getCommunity()};
-        hostName = pythonExecUtils.exec(path, args);
-
+//        String path = Global.PYPATH + "gethostname.py";
+//        String[] args = {element.getIp(), element.getVersion(),
+//                element.getCommunity()};
+//        hostName = pythonExecUtils.exec(path, args);
+//
 //        SNMPParams snmpParams = new SNMPParams(element.getIp(), element.getVersion(), element.getCommunity());
 //        hostName = SNMPv2Request.getDeviceName(snmpParams);  // 获取设备名
+//        return hostName;
 
-        return hostName;
+        return SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement));
+
     }
 
     // 获取上一分钟的时间

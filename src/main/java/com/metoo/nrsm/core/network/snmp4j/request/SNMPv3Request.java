@@ -822,11 +822,23 @@ public class SNMPv3Request {
         String portDescriptionData = SNMPv3Request.getDevicePortDescription(snmpParams);
 
         // 解析 JSON 数据
-        JSONObject portJson = new JSONObject(portData);
-        JSONObject statusJson = new JSONObject(statusData);
-        JSONObject portIpJson = new JSONObject(portIpData);
-        JSONObject portMaskJson = new JSONObject(portMaskData);
-        JSONObject portDescriptionJson = new JSONObject(portDescriptionData);
+        JSONObject portJson = null;
+        JSONObject statusJson = null;
+        JSONObject portIpJson = null;
+        JSONObject portMaskJson = null;
+        JSONObject portDescriptionJson = null;
+        try {
+            portJson = new JSONObject(portData);
+            statusJson = new JSONObject(statusData);
+            portIpJson = new JSONObject(portIpData);
+            portMaskJson = new JSONObject(portMaskData);
+            portDescriptionJson = new JSONObject(portDescriptionData);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            log.error("设备{}数据解析错误", snmpParams.getHost());
+        }
+
+
 
         // 创建结果数组
         JSONArray resultArray = new JSONArray();

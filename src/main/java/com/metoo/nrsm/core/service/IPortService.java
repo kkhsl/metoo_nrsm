@@ -16,6 +16,8 @@ public interface IPortService {
 
     List<Port> selectObjByDeviceUuid(String deviceUuid);
 
+    List<Port> selectSameSubnetWithTwoPortsNotBothVlan();
+
     boolean save(Port instance);
 
     boolean update(Port instance);

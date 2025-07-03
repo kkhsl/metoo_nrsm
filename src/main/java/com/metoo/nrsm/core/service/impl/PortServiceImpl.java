@@ -39,6 +39,11 @@ public class PortServiceImpl implements IPortService {
     }
 
     @Override
+    public List<Port> selectSameSubnetWithTwoPortsNotBothVlan() {
+        return this.portMapper.selectSameSubnetWithTwoPortsNotBothVlan();
+    }
+
+    @Override
     public boolean save(Port instance) {
         if (instance.getId() == null || instance.getId().equals("")) {
             try {

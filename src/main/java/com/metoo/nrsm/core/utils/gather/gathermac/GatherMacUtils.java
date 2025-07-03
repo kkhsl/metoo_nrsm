@@ -16,6 +16,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import sun.nio.ch.Net;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -48,7 +49,7 @@ public class GatherMacUtils {
     @Autowired
     private INswitchService nswitchService;
     @Autowired
-    private ITerminalService terminalService;
+    private IPortService portService;
     @Autowired
     private IMacService macService;
 
@@ -120,11 +121,121 @@ public class GatherMacUtils {
         // DE条目remotePort修改为remoteIp对应的deviceIp的port，再在DE里面根据deviceIp和remoteIp去重
         normalizePortForDE();
 
-
         removeApTerminal(); // 删除mac与为ap mac地址相同的数据
+
+        selectSameSubnetWithTwoPortsNotBothVlan(date);// 生成DE
 
     }
 
+    /**
+     * 在同一网段
+     *
+     * 网段内仅有两条记录
+     *
+     * 两个 port 不同时以 vlan 开头
+     *
+     * 并且：A 的 remoteUuid = B.deviceUuid B 的 remoteUuid = A.deviceUuid
+     * @param date
+     */
+//    public void selectSameSubnetWithTwoPortsNotBothVlan(Date date) {
+//        List<Port> ports = this.portService.selectSameSubnetWithTwoPortsNotBothVlan();
+//
+//        if(ports.size() > 0){
+//            Map params = new HashMap();
+//            for (Port port : ports) {
+//                String deviceIp = port.getIp();
+//                String portName = port.getPort();
+//                params.put("deviceIp", deviceIp);
+//                params.put("portName", portName);
+//                params.put("tag", "DE");
+//                List<Mac> macs = this.macService.selectObjByMap(params);
+//                if(macs.size() <= 0){
+//                    try {
+//                        Mac mac = new Mac();
+//                        mac.setAddTime(date);
+//                        mac.setMac("00:00:00:00:00:00");
+//                        mac.setDeviceUuid(port.getDeviceUuid());
+//                        mac.setPort(portName);
+//                        mac.setDeviceIp(deviceIp);
+//                        mac.setTag("DE");
+//                        NetworkElement networkElement = this.networkElementService.selectObjByUuid(port.getDeviceUuid());
+//                        if(networkElement != null){
+//                            mac.setDeviceName(networkElement.getDeviceName());
+//                        }
+//                        this.macService.save(mac);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
+//    }
+    public void selectSameSubnetWithTwoPortsNotBothVlan(Date date) {
+        List<Port> ports = this.portService.selectSameSubnetWithTwoPortsNotBothVlan();
+        // 按 networkAddress 分组
+        Map<String, List<Port>> subnetMap = new HashMap<>();
+        for (Port port : ports) {
+            subnetMap.computeIfAbsent(port.getNetworkAddress(), k -> new ArrayList<>())
+                    .add(port);
+        }
+        Map params = new HashMap();
+        // 遍历每组，仅处理正好两条记录的 subnet
+        for (Map.Entry<String, List<Port>> entry : subnetMap.entrySet()) {
+            List<Port> pair = entry.getValue();
+            if (pair.size() != 2) continue; // 只处理刚好两条的网段
+
+            Port a = pair.get(0);
+            Port b = pair.get(1);
+
+            // 设置 remoteUuid
+            a.setRemoteUuid(b.getDeviceUuid());
+            a.setRemotePort(b.getPort());
+            a.setRemoteIp(b.getIp());
+            b.setRemoteUuid(a.getDeviceUuid());
+            b.setRemotePort(a.getPort());
+            b.setRemoteIp(a.getIp());
+
+            insertMac(a, params, date);
+            insertMac(b, params, date);
+        }
+    }
+
+    public void insertMac(Port port, Map params, Date date){
+        params.clear();
+        String deviceIp = port.getIp();
+        String portName = port.getPort();
+        params.put("deviceIp", deviceIp);
+        params.put("remoteIp", port.getRemoteIp());
+        params.put("portName", portName);
+        params.put("tag", "DE");
+        List<Mac> macs = this.macService.selectObjByMap(params);
+        if(macs.size() <= 0){
+            try {
+                Mac mac = new Mac();
+                mac.setAddTime(date);
+                mac.setMac("00:00:00:00:00:00");
+                mac.setDeviceUuid(port.getDeviceUuid());
+                mac.setPort(portName);
+                mac.setDeviceIp(deviceIp);
+                mac.setRemotePort(port.getRemotePort());
+                mac.setTag("DE");
+                NetworkElement networkElement = this.networkElementService.selectObjByUuid(port.getDeviceUuid());
+                if(networkElement != null){
+                    mac.setDeviceName(networkElement.getDeviceName());
+                }
+                NetworkElement remoteDevice = this.networkElementService.selectObjByUuid(port.getRemoteUuid());
+                if(remoteDevice != null){
+                    mac.setRemoteDevice(remoteDevice.getDeviceName());
+                    mac.setRemoteDeviceName(remoteDevice.getDeviceName());
+                    mac.setRemoteDeviceUuid(remoteDevice.getUuid());
+                    mac.setRemoteIp(port.getRemoteIp());
+                }
+                this.macService.save(mac);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
     // DE条目remotePort修改为remoteIp对应的deviceIp的port
     public void normalizePortForDE() {
 
@@ -493,7 +604,7 @@ public class GatherMacUtils {
         }
     }
 
-    public void removeApTerminal(){
+    public void removeApTerminal(){}/*{
         Map params = new HashMap();
         params.put("type", 3);
         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
@@ -541,6 +652,6 @@ public class GatherMacUtils {
 //                }
             }
         }
-    }
+    }*/
 
 }

@@ -13,6 +13,9 @@
             <if test="deviceIp != null and deviceIp != ''">
                 AND deviceIp = #{deviceIp}
             </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                AND deviceUuid = #{deviceUuid}
+            </if>
             <if test="remoteDevice != null and remoteDevice != ''">
                 AND remoteDevice = #{remoteDevice}
             </if>
@@ -1423,6 +1426,9 @@
             <if test="remotePort != null and remotePort != '' ">
                 remotePort,
             </if>
+            <if test="remoteIp != null and remoteIp != '' ">
+                remoteIp,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null ">
@@ -1457,6 +1463,9 @@
             </if>
             <if test="remotePort != null and remotePort != '' ">
                 #{remotePort},
+            </if>
+            <if test="remoteIp != null and remoteIp != '' ">
+                #{remoteIp},
             </if>
         </trim>
     </insert>
@@ -1659,23 +1668,15 @@
     </update>
 
     <delete id="safelyDeleteDuplicateDEIpPairs">
-        UPDATE metoo_mac m1
+        DELETE m1 FROM metoo_mac m1
         JOIN (
-            -- 使用 GROUP BY 去重
-            SELECT
-                deviceIp,
-                remoteIp,
-                MAX(id) AS max_id  -- 取每组最大id
-            FROM metoo_mac
-            WHERE tag = 'DE'
-            GROUP BY deviceIp, remoteIp
-        ) t_group ON (m1.remoteIp = t_group.deviceIp AND m1.deviceIp = t_group.remoteIp)
-        JOIN metoo_mac m2 ON m2.id = t_group.max_id  -- 关联回原表获取port
-        SET m1.remotePort = m2.port
-        WHERE
-            m1.tag = 'DE'
-            AND m1.remoteIp IS NOT NULL
-            AND m1.deviceIp IS NOT NULL;
+        SELECT deviceIp, remoteIp, MAX(id) AS max_id
+        FROM metoo_mac
+        WHERE tag = 'DE'
+        GROUP BY deviceIp, remoteIp
+        HAVING COUNT(*) > 1
+        ) m2 ON m1.deviceIp = m2.deviceIp AND m1.remoteIp = m2.remoteIp
+        WHERE m1.tag = 'DE' AND m1.id != m2.max_id;
     </delete>
 
     <insert id="saveGather" parameterType="com.metoo.nrsm.entity.Mac">
