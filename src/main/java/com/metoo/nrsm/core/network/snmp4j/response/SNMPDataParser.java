@@ -5,10 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.snmp4j.PDU;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 考虑到需要处理的数据较少，先讲处理snmp返回数据的方法，放到这一个类中
@@ -578,6 +575,128 @@ public class SNMPDataParser {
         return "N/A";
     }
 
+
+    public static List<Map<String, String>> parseRoute6(
+            Map<String, String> destNetworkMap,
+            Map<String, String> nextHopMap,
+            Map<String, String> costMap,
+            Map<String, String> protoTypeMap,
+            Map<String, String> portMap,
+            Map<String, String> preferenceMap) {
+
+        List<Map<String, String>> routeEntries = new ArrayList<>();
+
+        // 1. 创建标识符到各属性的映射
+        Map<String, String> suffixToCost = new HashMap<>();
+        Map<String, String> suffixToProto = new HashMap<>();
+        Map<String, String> suffixToPreference = new HashMap<>();
+        Map<String, String> suffixToInterface = new HashMap<>();
+        Map<String, String> suffixToOid = new HashMap<>();
+        Map<String, String> suffixToNextHop = new HashMap<>();
+
+        // 预处理数据索引
+        createSuffixIndex(costMap, suffixToCost);
+        createSuffixIndex(protoTypeMap, suffixToProto);
+        createSuffixIndex(preferenceMap, suffixToPreference);
+        createSuffixIndex(destNetworkMap, suffixToOid);
+        createSuffixIndex(nextHopMap, suffixToNextHop);
+
+        // 2. 创建接口映射
+        for (Map.Entry<String, String> entry : destNetworkMap.entrySet()) {
+            String suffix = getOidSuffix(entry.getKey());
+            if (suffix != null) {
+                suffixToInterface.put(suffix, entry.getValue());
+            }
+        }
+
+        // 3. 处理每条路由
+        for (Map.Entry<String, String> destEntry : destNetworkMap.entrySet()) {
+            try {
+                String oid = destEntry.getKey();
+                String suffix = getOidSuffix(oid);
+                if (suffix == null) continue;
+
+                Map<String, String> route = new LinkedHashMap<>();
+
+                // 解析目的网络和前缀长度
+                String[] parts = oid.split("\\.");
+                int startIdx = parts.length - 18;  // 前16位+前缀长度+后缀
+                if (startIdx < 0) startIdx = 0;
+
+                // 提取目的网络地址
+                StringBuilder destNetwork = new StringBuilder();
+                for (int i = startIdx; i < startIdx + 16 && i < parts.length - 2; i++) {
+                    if (destNetwork.length() > 0) destNetwork.append(":");
+                    destNetwork.append(parts[i]);
+                }
+
+                // 提取前缀长度 (倒数第二位)
+                String prefixLength = "64";
+                if (parts.length >= 2) {
+                    prefixLength = parts[parts.length - 2];
+                }
+
+                // 获取接口信息
+                String ifIndex = destNetworkMap.get(oid);
+                String portName = portMap.getOrDefault(ifIndex, "unknown");
+
+                // 添加路由信息
+                route.put("Destnetwork", convertToIPv6(destNetwork.toString()));
+                route.put("Mask", prefixLength);
+                route.put("Nexthop", compressIPv6(suffixToNextHop.getOrDefault(suffix,"unknown")));
+                route.put("Cost", suffixToCost.getOrDefault(suffix, "0"));
+                route.put("ProtoType", suffixToProto.getOrDefault(suffix, "2"));
+                route.put("Preference", suffixToPreference.getOrDefault(suffix, "0"));
+                route.put("type", getRouteType6(suffixToProto.get(suffix)));
+                route.put("Interface", ifIndex);
+                route.put("Port", portName);
+
+                routeEntries.add(route);
+
+            } catch (Exception e) {
+                System.err.println("路由解析失败: " + destEntry.getKey());
+            }
+        }
+
+        return routeEntries;
+    }
+
+    // 创建后缀索引
+    private static void createSuffixIndex(Map<String, String> sourceMap, Map<String, String> indexMap) {
+        for (Map.Entry<String, String> entry : sourceMap.entrySet()) {
+            String suffix = getOidSuffix(entry.getKey());
+            if (suffix != null) {
+                indexMap.put(suffix, entry.getValue());
+            }
+        }
+    }
+
+
+
+    // 提取OID后缀
+    private static String getOidSuffix(String oid) {
+        String[] parts = oid.split("\\.");
+        if (parts.length > 0) {
+            return parts[parts.length - 1];
+        }
+        return null;
+    }
+
+    // IPv6路由类型转换方法
+    private static String getRouteType6(String typeCode) {
+        if (typeCode == null || typeCode.equals("N/A")) {
+            return "unknown";
+        }
+
+        switch (typeCode) {
+            case "1": return "Static";
+            case "2": return "Direct";
+            default: return "unknown(" + typeCode + ")";
+        }
+    }
+
+
+
     /**
      * 将路由类型代码转换为有意义的名称
      */
@@ -714,6 +833,144 @@ public class SNMPDataParser {
                 .replaceAll("::$", "::");
 
         return result;
+    }
+
+
+    /**
+     * 将冒号分隔的十进制格式转换为标准IPv6地址
+     * 特别注意：正确处理全零地址返回"::"
+     *
+     * @param input 格式如 "252:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
+     * @return 标准IPv6地址，全零地址返回"::"
+     */
+    public static String convertToIPv6(String input) {
+        // 首先检查是否是全零地址
+        if (isAllZeros(input)) {
+            return "::";
+        }
+
+        // 处理非全零地址
+        String[] parts = input.split(":");
+        if (parts.length != 16) {
+            throw new IllegalArgumentException("输入格式不正确，需要16个用冒号分隔的数字");
+        }
+
+        // 构建压缩的IPv6地址
+        return buildCompressedIPv6(parts);
+    }
+
+    /**
+     * 检查输入是否代表全零地址
+     */
+    private static boolean isAllZeros(String input) {
+        String[] parts = input.split(":");
+        if (parts.length != 16) return false;
+
+        for (String part : parts) {
+            try {
+                int value = Integer.parseInt(part);
+                if (value != 0) return false;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 构建压缩的IPv6地址
+     */
+    private static String buildCompressedIPv6(String[] parts) {
+        // 将每部分转换为十六进制
+        String[] hexGroups = new String[8];
+        for (int i = 0; i < 8; i++) {
+            int high = Integer.parseInt(parts[2*i]);
+            int low = Integer.parseInt(parts[2*i + 1]);
+            hexGroups[i] = String.format("%x%02x", high, low);
+        }
+
+        // 压缩连续的零组
+        return compressIPv6(hexGroups);
+    }
+
+    /**
+     * 压缩IPv6地址中的连续零组
+     */
+    private static String compressIPv6(String[] groups) {
+        int maxZeroStart = -1;
+        int maxZeroLength = 0;
+        int currentZeroStart = -1;
+        int currentZeroLength = 0;
+
+        // 查找最长的连续零组
+        for (int i = 0; i < groups.length; i++) {
+            if (groups[i].equals("0000")) {
+                if (currentZeroStart == -1) {
+                    currentZeroStart = i;
+                    currentZeroLength = 1;
+                } else {
+                    currentZeroLength++;
+                }
+
+                if (currentZeroLength > maxZeroLength) {
+                    maxZeroLength = currentZeroLength;
+                    maxZeroStart = currentZeroStart;
+                }
+            } else {
+                // 遇到非零组时，重置计数
+                currentZeroStart = -1;
+                currentZeroLength = 0;
+            }
+        }
+
+        // 处理结尾的连续零
+        if (currentZeroLength > maxZeroLength) {
+            maxZeroLength = currentZeroLength;
+            maxZeroStart = currentZeroStart;
+        }
+
+        // 构建压缩后的地址
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < groups.length; i++) {
+            if (maxZeroLength > 1 && i == maxZeroStart) {
+                if (i == 0) {
+                    result.append("::");
+                } else {
+                    result.append(":");
+                }
+                i += maxZeroLength - 1;
+                continue;
+            }
+
+            // 添加冒号分隔符（除第一个组外）
+            if (i > 0 && (i < maxZeroStart || i >= maxZeroStart + maxZeroLength)) {
+                result.append(":");
+            }
+
+            // 添加组的值（去除前导零）
+            String group = groups[i];
+            if (!group.equals("0000")) {
+                // 去除前导零，但保留至少一个0
+                group = group.replaceFirst("^0+", "");
+                if (group.isEmpty()) group = "0";
+            }
+            result.append(group);
+        }
+
+        // 处理双冒号特殊情况
+        String compressed = result.toString();
+        if (compressed.contains("::::")) {
+            compressed = compressed.replace("::::", "::");
+        }
+        if (compressed.contains(":::")) {
+            compressed = compressed.replace(":::", "::");
+        }
+        if (compressed.equals("0")) {
+            return "::";
+        }
+
+        return compressed;
     }
 
 

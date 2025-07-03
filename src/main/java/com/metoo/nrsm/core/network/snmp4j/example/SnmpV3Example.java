@@ -66,12 +66,12 @@ public class SnmpV3Example {
         // 调整
         SNMPV3Params snmpParams = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("192.168.0.21")
+                .host("192.168.204.1")
                 .port(161)
-                .community("hnccsroot_read")
+                .community("public@123")
                 .build();
 
-        System.out.println(SNMPv3Request.getPortTable(snmpParams));
+        System.out.println(SNMPv3Request.getRoute6(snmpParams));
 
 /*
         // v3带认证加密的请求

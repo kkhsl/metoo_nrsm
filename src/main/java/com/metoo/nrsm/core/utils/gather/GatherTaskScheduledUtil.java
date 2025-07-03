@@ -10,7 +10,6 @@ import com.metoo.nrsm.core.mapper.TrafficDataMapper;
 import com.metoo.nrsm.core.network.ssh.SnmpHelper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
-import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
 import com.metoo.nrsm.core.utils.gather.snmp.utils.DeviceManager;
@@ -179,7 +178,7 @@ public class GatherTaskScheduledUtil {
     }
 
    private volatile boolean isRunningMAC = false;
-//    @Scheduled(fixedDelay = 180_000)
+    //@Scheduled(fixedDelay = 180_000)
     public void mac() {
         if(flag && !isRunningMAC){
             log.info("MAC采集任务开始");

@@ -3,10 +3,8 @@ package com.metoo.nrsm.core.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
-import com.metoo.nrsm.core.network.snmp4j.param.SNMPParams;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
@@ -79,7 +77,7 @@ public class GatherServiceImpl implements IGatherService {
     public List<NetworkElement> getGatherDevice(){
         List<NetworkElement> networkElements = new ArrayList<>();
         Set<String> uuids = this.snmpStatusUtils.getOnlineDevice();
-        if(uuids.size() > 0){
+        if(uuids.size() >0){
             for (String uuid : uuids) {
                 NetworkElement networkElement = this.networkElementService.selectObjByUuid(uuid);
                 if(networkElement != null
