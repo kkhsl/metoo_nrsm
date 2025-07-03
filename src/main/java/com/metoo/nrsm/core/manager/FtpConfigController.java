@@ -27,7 +27,7 @@ public class FtpConfigController {
      * 新增FTP配置
      */
     @PostMapping("/save")
-    public Result save(@RequestBody FtpConfig dto) {
+    public Result save(@RequestBody FtpConfig dto) throws Exception {
         Result ftpConfig = ftpConfigService.createFtpConfig(dto);
         return ftpConfig;
     }
