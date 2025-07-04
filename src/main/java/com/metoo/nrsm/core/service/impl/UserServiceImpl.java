@@ -53,7 +53,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Page<User> selectObjConditionQuery(UserDto dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new UserDto();
         }
         Page<User> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
@@ -85,59 +85,59 @@ public class UserServiceImpl implements IUserService {
     @Override
     public boolean save(UserDto dto) {
         User user = null;
-        if(dto.getId() == null){
+        if (dto.getId() == null) {
             user = new User();
             dto.setAddTime(new Date());
-        }else{
+        } else {
             user = this.userMapper.selectPrimaryKey(dto.getId());
         }
         BeanUtils.copyProperties(dto, user);
         // 查询组信息
 
-        if(dto.getId() == null){
+        if (dto.getId() == null) {
             try {
                 this.userMapper.insert(user);
 
                 String roleName = "";
                 // 批量添加用户角色信息
-                if(dto.getRole_id() != null && dto.getRole_id().length > 0){
+                if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
                     List<Integer> idList = Arrays.asList(dto.getRole_id());
                     List<Role> roleList = this.roleService.findRoleByIdList(idList);
                     List<UserRole> userRoles = new ArrayList<UserRole>();
-                    for(Role role : roleList){
+                    for (Role role : roleList) {
                         UserRole userRole = new UserRole();
                         userRole.setUser_id(user.getId());
                         userRole.setRole_id(role.getId());
                         userRoles.add(userRole);
                         roleName += role.getName() + ",";
                     }
-                    roleName = roleName.substring(0,roleName.lastIndexOf(","));
+                    roleName = roleName.substring(0, roleName.lastIndexOf(","));
                     this.userRoleService.batchAddUserRole(userRoles);
                 }
-                    try {
-                        user.setUserRole(roleName);
-                        this.userMapper.update(user);
-                        return true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return false;
-                    }
+                try {
+                    user.setUserRole(roleName);
+                    this.userMapper.update(user);
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 String roleName = "";
 
                 // 批量添加用户角色信息
-                if(dto.getRole_id() != null && dto.getRole_id().length > 0){
+                if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
                     // 清除用户角色信息
                     this.userRoleService.deleteUserByRoleId(user.getId());
                     List<Integer> idList = Arrays.asList(dto.getRole_id());
                     List<Role> roleList = this.roleService.findRoleByIdList(idList);
                     List<UserRole> userRoles = new ArrayList<UserRole>();
-                    for(Role role : roleList){
+                    for (Role role : roleList) {
                         UserRole userRole = new UserRole();
                         userRole.setUser_id(user.getId());
                         userRole.setRole_id(role.getId());
@@ -154,8 +154,8 @@ public class UserServiceImpl implements IUserService {
 
                 // 第一种方式 强制退出当前帐号
                 // 如果修改的是当前已登录用户信息则退出当前帐号
-                if(dto.isFlag() && currentUser.getId().equals(user.getId())){
-                     SecurityUtils.getSubject().logout();
+                if (dto.isFlag() && currentUser.getId().equals(user.getId())) {
+                    SecurityUtils.getSubject().logout();
                     // 修改身份信息后，动态更改Subject的用户属性
                    /* Subject subject = SecurityUtils.getSubject();
                     String username = (String) subject.getPrincipal();
@@ -205,7 +205,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public boolean allocation(List<User> list){
+    public boolean allocation(List<User> list) {
         try {
             this.userMapper.allocation(list);
             return true;

@@ -10,11 +10,12 @@ public class pingOp {
 
     /**
      * 执行 systemctl 命令  pingop.py
-     * @param action   status  stop  restart  start
-     * @param service  checkaliveip
+     *
+     * @param action  status  stop  restart  start
+     * @param service checkaliveip
      * @return
      */
-    public static String executeSystemctl(String action,String service) {
+    public static String executeSystemctl(String action, String service) {
         String command = "systemctl " + action + " " + service;
         Process process = null;
         try {
@@ -27,9 +28,9 @@ public class pingOp {
             consumeOutputStream(process.getInputStream());
 
             int exitCode = process.waitFor();
-            if (exitCode == 0){
+            if (exitCode == 0) {
                 return "True";
-            }else {
+            } else {
                 return "False";
             }
         } catch (IOException | InterruptedException e) {
@@ -45,11 +46,11 @@ public class pingOp {
      * 安全分割命令
      */
     private static String[] splitCommand(String command) {
-        return new String[] { 
-            "/bin/sh", 
-            "-c", 
-            // 过滤特殊字符
-            command.replaceAll("[^a-zA-Z0-9_\\-/. ]", "") 
+        return new String[]{
+                "/bin/sh",
+                "-c",
+                // 过滤特殊字符
+                command.replaceAll("[^a-zA-Z0-9_\\-/. ]", "")
         };
     }
 
@@ -59,7 +60,7 @@ public class pingOp {
     private static void consumeOutputStream(InputStream inputStream) {
         new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(inputStream))) {
+                    new InputStreamReader(inputStream))) {
                 while (reader.readLine() != null) {
 
                 }
@@ -71,12 +72,12 @@ public class pingOp {
 
     // 主方法入口
     public static void main(String[] args) {
-        String action="start";  //status  stop  restart  start
-        String service="checkaliveip";  //checkaliveip
+        String action = "start";  //status  stop  restart  start
+        String service = "checkaliveip";  //checkaliveip
         Session session = null;
         ChannelExec channel = null;
         try {
-            session= SnmpHelper.createSession();
+            session = SnmpHelper.createSession();
             // 创建一个执行频道
             channel = (ChannelExec) session.openChannel("exec");
             String command = "systemctl " + action + " " + service;
@@ -94,9 +95,9 @@ public class pingOp {
             // 6. 处理执行结果
             int exitStatus = channel.getExitStatus();
             String output = outputBuffer.toString();
-            if (exitStatus==0){
+            if (exitStatus == 0) {
                 System.out.println("True");
-            }else {
+            } else {
                 System.out.println("False");
             }
 

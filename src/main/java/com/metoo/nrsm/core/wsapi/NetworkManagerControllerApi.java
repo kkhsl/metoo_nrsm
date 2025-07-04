@@ -41,7 +41,7 @@ public class NetworkManagerControllerApi {
     private DeviceManager deviceManager;
 
     /**
-     *{"noticeType":"201","userId":"1","params":{"currentPage":1,"pageSize":20}}
+     * {"noticeType":"201","userId":"1","params":{"currentPage":1,"pageSize":20}}
      *
      * @param requestParams
      * @return
@@ -84,11 +84,10 @@ public class NetworkManagerControllerApi {
 //        rep.setNoticeStatus(0);
 //        return rep;
 //    }
-
     @RequestMapping("/list")
-    public NoticeWebsocketResp testApi(@RequestParam(value = "requestParams") String requestParams){
+    public NoticeWebsocketResp testApi(@RequestParam(value = "requestParams") String requestParams) {
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
-        if(requestParams != null && !requestParams.isEmpty()){
+        if (requestParams != null && !requestParams.isEmpty()) {
             Map param = JSONObject.parseObject(requestParams, Map.class);
             String sessionId = (String) param.get("sessionId");
             Map result = new HashMap();
@@ -100,18 +99,18 @@ public class NetworkManagerControllerApi {
             Page<NetworkElement> page = this.networkElementService.selectConditionQuery(dto);
             if (page.getResult().size() > 0) {
                 for (NetworkElement networkElement : page.getResult()) {
-                    if(networkElement.getIp() != null && StringUtil.isNotEmpty(networkElement.getIp())){
+                    if (networkElement.getIp() != null && StringUtil.isNotEmpty(networkElement.getIp())) {
                         // snmp状态
-                        if(StringUtils.isEmpty(networkElement.getCommunity()) || StringUtils.isEmpty(networkElement.getVersion())){
+                        if (StringUtils.isEmpty(networkElement.getCommunity()) || StringUtils.isEmpty(networkElement.getVersion())) {
                             result.put(networkElement.getIp(), "3");
-                        }else{
+                        } else {
 //                        String path = Global.PYPATH + "gethostname.py";
 //                        String[] params = {networkElement.getIp(), networkElement.getVersion(),
 //                                networkElement.getCommunity()};
 //                        String hostname = pythonExecUtils.exec(path, params);
                             String hostname = deviceManager.getDeviceNameByIpAndCommunityVersion(networkElement);
                             result.put(networkElement.getIp(), "2");
-                            if(StringUtils.isNotEmpty(hostname)){
+                            if (StringUtils.isNotEmpty(hostname)) {
                                 result.put(networkElement.getIp(), "1");
                             }
                         }
@@ -129,30 +128,29 @@ public class NetworkManagerControllerApi {
 
 
     /**
-     *
      * {
-     *  "noticeType":"202","userId":"1","time":"",
-     *  "params":["192.168.5.102&e34c6576-f0f3-4dee-b287-e229bada9111",
-     *                "192.168.5.212&ecf6ed9f-85aa-499b-9fb4-1296776c20a8",
-     *               "192.168.5.191&7bfa8c56-a478-4fcf-8220-07eb9c9fb539",
-     *               "192.168.5.192&896dcf46-2f19-4ba3-8976-cfe859f6231d",
-     *               "192.168.5.193&4804a11d-6393-4287-9307-e4ee141e8ed1"]}
+     * "noticeType":"202","userId":"1","time":"",
+     * "params":["192.168.5.102&e34c6576-f0f3-4dee-b287-e229bada9111",
+     * "192.168.5.212&ecf6ed9f-85aa-499b-9fb4-1296776c20a8",
+     * "192.168.5.191&7bfa8c56-a478-4fcf-8220-07eb9c9fb539",
+     * "192.168.5.192&896dcf46-2f19-4ba3-8976-cfe859f6231d",
+     * "192.168.5.193&4804a11d-6393-4287-9307-e4ee141e8ed1"]}
      *
      * @param requestParams
      * @return
      */
     @ApiOperation("拓扑|设备状态")
     @GetMapping("/snmp/status")
-    public Object status(@RequestParam(value = "requestParams") String requestParams){
+    public Object status(@RequestParam(value = "requestParams") String requestParams) {
         List result = new ArrayList();
         String sessionId = "";
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
-        if(requestParams != null && !requestParams.equals("")){
+        if (requestParams != null && !requestParams.equals("")) {
             Map param = JSONObject.parseObject(String.valueOf(requestParams), Map.class);
             sessionId = (String) param.get("sessionId");
             List<Object> ips = JSONObject.parseObject(param.get("params").toString(), List.class);
-            if(param.get("time") == null || StringUtil.isEmpty(String.valueOf(param.get("time")))){
-                for (Object ip : ips){
+            if (param.get("time") == null || StringUtil.isEmpty(String.valueOf(param.get("time")))) {
+                for (Object ip : ips) {
                     try {
                         Map map = new HashMap();
                         String[] str = ip.toString().split("&");
@@ -161,19 +159,19 @@ public class NetworkManagerControllerApi {
                         Map params = new HashMap();
                         params.put("ip", str[0]);
                         List<NetworkElement> nes = this.networkElementService.selectObjByMap(params);
-                        if(nes.size() > 0){
+                        if (nes.size() > 0) {
                             NetworkElement networkElement = nes.get(0);
                             // snmp状态
-                            if(StringUtils.isEmpty(networkElement.getCommunity()) || StringUtils.isEmpty(networkElement.getVersion())){
+                            if (StringUtils.isEmpty(networkElement.getCommunity()) || StringUtils.isEmpty(networkElement.getVersion())) {
                                 map.put("snmp", "3");
-                            }else{
+                            } else {
 //                                String path = Global.PYPATH + "gethostname.py";
 //                                String[] args = {networkElement.getIp(), networkElement.getVersion(),
 //                                        networkElement.getCommunity()};
 //                                String hostname = pythonExecUtils.exec(path, args);
                                 String hostname = deviceManager.getDeviceNameByIpAndCommunityVersion(networkElement);
                                 map.put("snmp", "2");
-                                if(StringUtils.isNotEmpty(hostname)){
+                                if (StringUtils.isNotEmpty(hostname)) {
                                     map.put("snmp", "1");
                                 }
                             }

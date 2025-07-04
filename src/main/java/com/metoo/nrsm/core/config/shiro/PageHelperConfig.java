@@ -10,13 +10,13 @@ import java.util.Properties;
 public class PageHelperConfig {
 
     @Bean
-    public PageHelper getPageHelper(){
-        PageHelper pageHelper=new PageHelper();
-        Properties properties=new Properties();
-        properties.setProperty("helperDialect","mysql");
-        properties.setProperty("reasonable","true");
-        properties.setProperty("supportMethodsArguments","true");
-        properties.setProperty("params","count=countSql");
+    public PageHelper getPageHelper() {
+        PageHelper pageHelper = new PageHelper();
+        Properties properties = new Properties();
+        properties.setProperty("helperDialect", "mysql");
+        properties.setProperty("reasonable", "true");
+        properties.setProperty("supportMethodsArguments", "true");
+        properties.setProperty("params", "count=countSql");
         pageHelper.setProperties(properties);
         return pageHelper;
     }

@@ -11,6 +11,7 @@ public interface AccessoryMapper {
 
     /**
      * 根据ID查询一个Accessory对象
+     *
      * @param id
      * @return
      */
@@ -18,6 +19,7 @@ public interface AccessoryMapper {
 
     /**
      * 保存一个Accessory附件对象
+     *
      * @param instance
      * @return
      */
@@ -25,6 +27,7 @@ public interface AccessoryMapper {
 
     /**
      * 更新
+     *
      * @param instance
      * @return
      */
@@ -32,6 +35,7 @@ public interface AccessoryMapper {
 
     /**
      * 删除
+     *
      * @param id
      * @return
      */
@@ -39,6 +43,7 @@ public interface AccessoryMapper {
 
     /**
      * 根据条件查询一组附件
+     *
      * @param params
      * @return
      */

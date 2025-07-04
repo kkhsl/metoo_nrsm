@@ -14,30 +14,30 @@
         id, addTime, deleteStatus, `name`, index, name_en
     </sql>
 
-    <select id="selectObjById"  parameterType="java.lang.Long" resultMap="Base_Result_Map">
+    <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
         SELECT
-          *
+        *
         FROM
-          metoo_vendor
+        metoo_vendor
         WHERE
-          id = #{id}
+        id = #{id}
     </select>
 
-    <select id="selectObjByName"  parameterType="java.lang.String" resultMap="Base_Result_Map">
+    <select id="selectObjByName" parameterType="java.lang.String" resultMap="Base_Result_Map">
         SELECT
-          *
+        *
         FROM
-          metoo_vendor
+        metoo_vendor
         WHERE
-          name = #{name}
+        name = #{name}
     </select>
 
-    <select id="selectObjByMap"  parameterType="java.util.Map" resultMap="Base_Result_Map">
+    <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
-          *
+        *
         FROM
-          metoo_vendor
-          ORDER BY `index` ASC
+        metoo_vendor
+        ORDER BY `index` ASC
     </select>
 
     <select id="selectConditionQuery" parameterType="java.util.Map" resultMap="Base_Result_Map">
@@ -50,7 +50,7 @@
     <select id="selectByDeviceType" resultMap="Base_Result_Map">
         SELECT v.*
         FROM metoo_vendor v
-                 JOIN device_type_vendor dtv ON v.id = dtv.vendor_id
+        JOIN device_type_vendor dtv ON v.id = dtv.vendor_id
         WHERE dtv.device_type_id = #{deviceTypeId}
         ORDER BY dtv.sequence ASC
     </select>

@@ -51,7 +51,7 @@ public class RackServiceImpl implements IRackService {
 
     @Override
     public List<Rack> query(Rack instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new Rack();
         }
 //        User user = ShiroUserHolder.currentUser();
@@ -68,11 +68,11 @@ public class RackServiceImpl implements IRackService {
 
     @Override
     public int save(Rack instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
             return this.rackMapper.save(instance);
-        }else{
-            return  this.rackMapper.update(instance);
+        } else {
+            return this.rackMapper.update(instance);
         }
     }
 
@@ -105,9 +105,9 @@ public class RackServiceImpl implements IRackService {
     public Object batchDel(String ids) {
         String[] l = ids.split(",");
         List<String> list = Arrays.asList(l);
-        for (String id : list){
+        for (String id : list) {
             Rack instance = this.rackMapper.getObjById(Long.parseLong(id));
-            if(instance == null){
+            if (instance == null) {
                 return ResponseUtil.badArgument("机柜不存在");
             }
             // 设备
@@ -116,7 +116,7 @@ public class RackServiceImpl implements IRackService {
             params.put("rackId", instance.getId());
 //            params.put("userId", user.getId());
             List<RsmsDevice> rsmsDevices = this.rsmsDeviceService.selectObjByMap(params);
-            for (RsmsDevice rsmsDevice : rsmsDevices){
+            for (RsmsDevice rsmsDevice : rsmsDevices) {
                 rsmsDevice.setRackId(null);
                 rsmsDevice.setRackName(null);
                 try {
@@ -128,7 +128,7 @@ public class RackServiceImpl implements IRackService {
         }
         int flag = this.rackMapper.batchDel(ids);
 
-        if (flag != 0){
+        if (flag != 0) {
             return ResponseUtil.ok();
         }
         return ResponseUtil.error("机柜删除失败");
@@ -140,7 +140,7 @@ public class RackServiceImpl implements IRackService {
         Rack rack = this.rackMapper.getObjById(id);
         // 优化 使用JDK新特性
         // 判断是否开启反面
-        if(rack instanceof Rack){
+        if (rack instanceof Rack) {
             map.put("rack", rack);
             map.put("front", this.getRack(rack, false));
             map.put("back", rack.getRear() ? this.getRack(rack, true) : null);
@@ -151,7 +151,7 @@ public class RackServiceImpl implements IRackService {
     @Override
     public boolean verifyRack(Rack rack, Integer start, Integer size, boolean rear, Long id) {
         boolean flag = false;
-        if(rack != null){
+        if (rack != null) {
             int current = start;
             // 查询设备，根据设备位置排序
             Map params = new HashMap();
@@ -161,32 +161,32 @@ public class RackServiceImpl implements IRackService {
             params.put("size", 0);
             List<RsmsDevice> rsmsDeviceList = this.rsmsDeviceService.selectObjByMap(params);
             // 查询空闲位置，一级已使用设备
-            if(rsmsDeviceList.size() > 0){
-                for(RsmsDevice device : rsmsDeviceList){
-                    if(device.getId().equals(id)){
+            if (rsmsDeviceList.size() > 0) {
+                for (RsmsDevice device : rsmsDeviceList) {
+                    if (device.getId().equals(id)) {
                         flag = true;
                         continue;
                     }
                     // 判断在前面
-                    if(device.getStart() - current > 0 && device.getStart() - current >= size){// 上次与本次间隔
+                    if (device.getStart() - current > 0 && device.getStart() - current >= size) {// 上次与本次间隔
                         flag = true;
                         continue;
-                    }else if(device.getStart() - current < 0 && (device.getStart() - 1 + device.getSize()) < current){// 上次与本次间隔
+                    } else if (device.getStart() - current < 0 && (device.getStart() - 1 + device.getSize()) < current) {// 上次与本次间隔
                         flag = true;
                         continue;
-                    }else{
+                    } else {
                         return false;
                     }
                 }
-            }else{
+            } else {
                 flag = true;
             }
         }
         return flag;
     }
 
-    public List getRack(Rack rack, boolean rear){
-        if(rack instanceof Rack){
+    public List getRack(Rack rack, boolean rear) {
+        if (rack instanceof Rack) {
             List list = new ArrayList();
             int current = 1;
             int lentght = rack.getSize();
@@ -198,10 +198,10 @@ public class RackServiceImpl implements IRackService {
             params.put("size", 0);
             List<RsmsDevice> rsmsDeviceList = this.rsmsDeviceService.selectObjByMap(params);
             // 查询空闲位置，一级已使用设备
-            if(rsmsDeviceList.size() > 0){
-                for(RsmsDevice device : rsmsDeviceList){
+            if (rsmsDeviceList.size() > 0) {
+                for (RsmsDevice device : rsmsDeviceList) {
                     // 判断首次
-                    if(device.getStart() - current > 0){// 上次与本次间隔
+                    if (device.getStart() - current > 0) {// 上次与本次间隔
                         // 首先记录间隔
                         Map middle = this.json1(current, device.getStart() - current, null);
                         list.add(middle);
@@ -212,8 +212,8 @@ public class RackServiceImpl implements IRackService {
                     lentght = rack.getSize() - (device.getSize() + device.getStart() - 1);
                 }
             }
-            if(lentght >= 1){
-                Map end = this.json1(current,lentght, null);
+            if (lentght >= 1) {
+                Map end = this.json1(current, lentght, null);
                 list.add(end);
             }
             return list;
@@ -221,10 +221,10 @@ public class RackServiceImpl implements IRackService {
         return null;
     }
 
-    public Map json(int current, int length, RsmsDevice rsmsDevice){
+    public Map json(int current, int length, RsmsDevice rsmsDevice) {
         Map map = new HashMap();
         List list = new ArrayList();
-        for (int i = current; i > current - length; i--){
+        for (int i = current; i > current - length; i--) {
             list.add(i);
         }
         map.put("floor", list);
@@ -232,10 +232,10 @@ public class RackServiceImpl implements IRackService {
         return map;
     }
 
-    public Map json1(int current, int length, RsmsDevice rsmsDevice){
+    public Map json1(int current, int length, RsmsDevice rsmsDevice) {
         Map map = new HashMap();
         List list = new ArrayList();
-        for (int i = current; i < current + length; i++){
+        for (int i = current; i < current + length; i++) {
             list.add(i);
         }
         map.put("floor", list);

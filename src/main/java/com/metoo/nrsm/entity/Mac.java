@@ -51,7 +51,6 @@ public class Mac extends IdEntity {
     private String v6ip3Dynamic;
 
 
-
     @ApiModelProperty("终端Uuid")
     private String uuid;
 

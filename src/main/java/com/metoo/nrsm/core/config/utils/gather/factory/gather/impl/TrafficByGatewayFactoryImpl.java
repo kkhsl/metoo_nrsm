@@ -46,7 +46,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
         log.info("untit exec traffic start gatewat number =================" + list.size());
 
-        if (list.size() > 0){
+        if (list.size() > 0) {
 
             List<FlowUnit> unitList = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                             try {
                                 if (pattern.equals("0")) {
                                     FlowUnit unit1 = insertTrafficYingTan4(unit, date);
-                                    if(unit1 != null){
+                                    if (unit1 != null) {
                                         unitList.add(unit1);
                                     }
                                 }
@@ -229,7 +229,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                         }
                     }
 
-                    if(flag){
+                    if (flag) {
                         if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-in")) {
                             for (String key : jsonObject.keySet()) {
                                 if (jsonObject.get(key) instanceof JSONObject) {
@@ -257,12 +257,10 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                 }
 
 
-
-
                 double vfour = 0;
 
 
-                if(ipv4Inbound1 != 0 && ipv4Outbound1 != 0 && ipv4Outbound2 != 0){
+                if (ipv4Inbound1 != 0 && ipv4Outbound1 != 0 && ipv4Outbound2 != 0) {
                     // v4
                     double ipv4InCalculate = FlowUtils.calculateFlow(ipv4Inbound1);
                     double ipv4OutCalculate1 = FlowUtils.calculateFlow(ipv4Outbound1);
@@ -283,7 +281,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
                 // v6
                 double vSix = 0;
-                if(flag){
+                if (flag) {
                     double ipv6InCalculate = FlowUtils.calculateFlow(ipv6Inbound1);
                     double ipv6OutCalculate1 = FlowUtils.calculateFlow(ipv6Outbound1);
                     double ipv6OutCalculate2 = FlowUtils.calculateFlow(ipv6Outbound2);
@@ -305,7 +303,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                 String formattedVfourFlow = "";
                 String formattedVsixFlow = "";
 
-                if(FlowUtils.isWithinTimeRange()){
+                if (FlowUtils.isWithinTimeRange()) {
                     // 方式一
 //                    DecimalFormat df = new DecimalFormat("#.##");
 //                    String formattedVfourFlow = df.format(vfour);
@@ -314,8 +312,8 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                     // 方式二
                     formattedVfourFlow = String.format("%.2f", vfour);
                     formattedVsixFlow = String.format("%.2f", vSix);
-                }else{
-                    if(vfour == 0){
+                } else {
+                    if (vfour == 0) {
                         // 生成指定范围内的随机数
                         double min = 1;
                         double max = 10;
@@ -323,7 +321,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                         double randomNumber = min + (max - min) * random.nextDouble();
                         vfour = randomNumber;
                         vSix = generateV6(randomNumber);
-                    }else{
+                    } else {
                         vSix = generateV6(vfour);
                     }
                     formattedVfourFlow = String.format("%.2f", vfour);
@@ -359,19 +357,20 @@ public class TrafficByGatewayFactoryImpl implements Gather {
     }
 
     public static void main(String[] args) {
-        System.out.println(getRandomWithinRange(0.37));;
+        System.out.println(getRandomWithinRange(0.37));
+        ;
     }
 
     // 定义一个方法，在给定值的加1减1范围内生成随机数
     public static double getRandomWithinRange(double value) {
-        if(value > 0){
+        if (value > 0) {
             Random random = new Random();
             // 在 [-1, 1] 的范围内生成随机数
             double offset = -1 + (1 + 1) * random.nextDouble();
             // 返回 value 加上这个偏移量
             double result = value + offset;
             return Math.round(result * 100.0) / 100.0;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -453,9 +452,9 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
         log.info("Traffic data start ==========================");
 
-        double vfour = Double.parseDouble(unit.getVfourFlow() == null ? "0": unit.getVfourFlow());
+        double vfour = Double.parseDouble(unit.getVfourFlow() == null ? "0" : unit.getVfourFlow());
 
-        double vSix = Double.parseDouble(unit.getVsixFlow() == null ? "0": unit.getVsixFlow());
+        double vSix = Double.parseDouble(unit.getVsixFlow() == null ? "0" : unit.getVsixFlow());
 
         vfour = getRandomWithinRange(vfour);
         vSix = getRandomWithinRange(vSix);
@@ -466,23 +465,23 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
         boolean isWeekend = WeekendChecker.isWeekend(now);
         boolean isWithinTimeRange = TimeRangeChecker.isWithinTimeRange(now);
-        if(isWeekend){
-            if(vfour > 0){
+        if (isWeekend) {
+            if (vfour > 0) {
                 vfour = vfour / 20;
             }
-            if(vSix > 0){
+            if (vSix > 0) {
                 vSix = vSix / 20;
             }
-        }else if(isWithinTimeRange){
+        } else if (isWithinTimeRange) {
             double number = RandomIntervalGenerator.generateRandomNumbersForCurrentInterval(now.toLocalTime());
-            if(vfour > 0){
+            if (vfour > 0) {
                 vfour = vfour / number;
             }
-            if(vSix > 0){
+            if (vSix > 0) {
                 vSix = vSix / number;
             }
-        }else{
-            if(vfour == 0){
+        } else {
+            if (vfour == 0) {
                 // 生成指定范围内的随机数
                 double min = 1;
                 double max = 10;
@@ -490,15 +489,15 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                 double randomNumber = min + (max - min) * random.nextDouble();
                 vfour = randomNumber;
                 vSix = generateV6(randomNumber);
-            }else{
+            } else {
                 vSix = generateV6(vfour);
             }
         }
 
-        if(vfour <= 0){
+        if (vfour <= 0) {
             vfour = 0;
         }
-        if(vSix <= 0){
+        if (vSix <= 0) {
             vSix = 0;
         }
         String formattedVfourFlow = String.format("%.2f", vfour);
@@ -535,6 +534,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
     /**
      * 计算表达式 x v4 / (1 - 随机数)，并保留两位小数
+     *
      * @param v4 输入的 double 类型参数
      * @return 计算结果的字符串表示，保留两位小数
      */

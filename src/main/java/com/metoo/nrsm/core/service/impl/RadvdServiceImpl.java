@@ -54,7 +54,7 @@ public class RadvdServiceImpl implements IRadvdService {
 
     @Override
     public Page<Radvd> selectObjConditionQuery(RadvdDTO instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new RadvdDTO();
         }
         Page<Radvd> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
@@ -66,19 +66,19 @@ public class RadvdServiceImpl implements IRadvdService {
     public boolean save(Radvd instance) {
         lock.lock();  // 获取锁，确保配置文件的原子性操作
 
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
             try {
-               this.radvdMapper.save(instance);
-               updateRadvdConfFile(); // 更新配置文件
-               return true;
+                this.radvdMapper.save(instance);
+                updateRadvdConfFile(); // 更新配置文件
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
-               return false;
-            }finally {
+                return false;
+            } finally {
                 lock.unlock();
             }
-        }else{
+        } else {
             try {
                 instance.setUpdateTime(new Date());
                 this.radvdMapper.update(instance);
@@ -87,7 +87,7 @@ public class RadvdServiceImpl implements IRadvdService {
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
-            }finally {
+            } finally {
                 lock.unlock();
             }
         }
@@ -105,7 +105,7 @@ public class RadvdServiceImpl implements IRadvdService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -120,7 +120,7 @@ public class RadvdServiceImpl implements IRadvdService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -131,14 +131,14 @@ public class RadvdServiceImpl implements IRadvdService {
     // 更新配置文件内容
     private void updateRadvdConfFile() {
         List<Radvd> radvdList = this.radvdMapper.selectObjByMap(Collections.emptyMap());
-        if(radvdList.size() > 0){
+        if (radvdList.size() > 0) {
             for (Radvd radvd : radvdList) {
                 Interface instance = this.interfaceService.selectObjById(radvd.getInterfaceId());
-                if(instance != null){
+                if (instance != null) {
                     radvd.setInterfaceName(instance.getName());
                 }
-                if(instance.getParentId() != null){
-                    radvd.setInterfaceName(instance.getName()+"."+instance.getVlanNum());
+                if (instance.getParentId() != null) {
+                    radvd.setInterfaceName(instance.getName() + "." + instance.getVlanNum());
                 }
             }
         }

@@ -17,5 +17,6 @@ public interface FlowStatisticsMapper {
     List<FlowSummary> getFlowSummary(Map<String, Object> params);
 
     List<FlowStatistics> selectObjByMap(Map params);
+
     int save(FlowStatistics instance);
 }

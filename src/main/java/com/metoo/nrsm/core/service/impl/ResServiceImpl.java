@@ -50,9 +50,9 @@ public class ResServiceImpl implements IResService {
 
     @Override
     public Page<Res> query(ResDto dto) {
-            Page<Res> page= PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
-            this.resMapper.query();
-            return page;
+        Page<Res> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
+        this.resMapper.query();
+        return page;
     }
 
     @Override
@@ -78,21 +78,21 @@ public class ResServiceImpl implements IResService {
     @Override
     public boolean save(ResDto dto) {
         Res obj = null;
-        if(dto.getId() == null){
+        if (dto.getId() == null) {
             obj = new Res();
             obj.setAddTime(new Date());
-        }else{
+        } else {
             obj = this.resMapper.selectPrimaryById(dto.getId());
         }
-        if(obj != null){
+        if (obj != null) {
             BeanUtils.copyProperties(dto, obj);
             Res res = this.resMapper.selectPrimaryById(dto.getParentId());
-            if(res != null){
+            if (res != null) {
                 obj.setParentId(res.getId());
                 obj.setParentName(res.getName());
             }
             obj.setType("URL");
-            if(obj.getId() == null ){
+            if (obj.getId() == null) {
                 try {
                     this.resMapper.save(obj);
                     return true;
@@ -100,7 +100,7 @@ public class ResServiceImpl implements IResService {
                     e.printStackTrace();
                     return false;
                 }
-            }else{
+            } else {
                 try {
                     this.resMapper.update(obj);
                     return true;

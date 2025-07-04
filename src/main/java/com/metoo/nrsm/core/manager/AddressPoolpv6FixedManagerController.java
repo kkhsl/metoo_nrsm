@@ -43,50 +43,50 @@ public class AddressPoolpv6FixedManagerController {
     private IAddressPoolV6FixedService addressPoolV6FixedService;
 
     @PostMapping("/list")
-    public Result list(@RequestBody AddressPoolV6FixedDTO dto){
+    public Result list(@RequestBody AddressPoolV6FixedDTO dto) {
         Page<AddressPoolV6Fixed> page = this.addressPoolV6FixedService.selectObjConditionQuery(dto);
         return ResponseUtil.ok(new PageInfo<AddressPoolV6Fixed>(page));
     }
 
-    @OperationLogAnno(operationType= OperationType.CREATE, name = "地址池")
+    @OperationLogAnno(operationType = OperationType.CREATE, name = "地址池")
     @ApiOperation("创建/更新")
     @PostMapping({"/save"})
     public Object save(@RequestBody AddressPoolV6Fixed instance) {
         Map params = new HashMap();
         if (StringUtil.isEmpty(instance.getHost())) {
             return ResponseUtil.badArgument("名称不能为空");
-        }else{
+        } else {
             params.clear();
             params.put("addressPoolIpv6FixedId", instance.getId());
             params.put("host", instance.getHost());
             List<AddressPoolV6Fixed> addressPools = this.addressPoolV6FixedService.selectObjByMap(params);
-            if(addressPools.size() > 0){
+            if (addressPools.size() > 0) {
                 return ResponseUtil.badArgument("名称不能重复");
             }
         }
         if (StringUtil.isEmpty(instance.getFixed_address6())) {
             return ResponseUtil.badArgument("Ip地址不能为空");
-        }else{
-            if(!Ipv6Util.verifyIpv6(instance.getFixed_address6())){
+        } else {
+            if (!Ipv6Util.verifyIpv6(instance.getFixed_address6())) {
                 return ResponseUtil.badArgument("Ip地址格式错误");
             }
             params.clear();
             params.put("addressPoolIpv6FixedId", instance.getId());
             params.put("fixed_address6", instance.getFixed_address6());
             List<AddressPoolV6Fixed> addressPoolIpv6s = this.addressPoolV6FixedService.selectObjByMap(params);
-            if(addressPoolIpv6s.size() > 0){
+            if (addressPoolIpv6s.size() > 0) {
                 return ResponseUtil.badArgument("Ip地址重复");
             }
         }
 
         if (StringUtil.isEmpty(instance.getHost_identifier_option_dhcp6_client_id())) {
             return ResponseUtil.badArgument("设备标识不能为空");
-        }else{
+        } else {
             params.clear();
             params.put("addressPoolIpv6FixedId", instance.getId());
             params.put("host_identifier_option_dhcp6_client_id", instance.getHost_identifier_option_dhcp6_client_id());
             List<AddressPoolV6Fixed> addressPoolIpv6s = this.addressPoolV6FixedService.selectObjByMap(params);
-            if(addressPoolIpv6s.size() > 0){
+            if (addressPoolIpv6s.size() > 0) {
                 return ResponseUtil.badArgument("设备标识重复");
             }
         }
@@ -104,7 +104,7 @@ public class AddressPoolpv6FixedManagerController {
             String[] var2 = ids.split(",");
             int var3 = var2.length;
 
-            for(int var4 = 0; var4 < var3; ++var4) {
+            for (int var4 = 0; var4 < var3; ++var4) {
                 String id = var2[var4];
                 Map params = new HashMap();
                 params.put("id", Long.parseLong(id));
@@ -144,7 +144,7 @@ public class AddressPoolpv6FixedManagerController {
         list.add(addressPoolFixedVO_1);
         list.add(addressPoolFixedVO_2);
 
-        List filteredEntities = (List)list.stream().filter((e) -> {
+        List filteredEntities = (List) list.stream().filter((e) -> {
             return e != null && !e.getHost().isEmpty();
         }).collect(Collectors.toList());
 
@@ -152,13 +152,13 @@ public class AddressPoolpv6FixedManagerController {
             FileOutputStream fos = new FileOutputStream("C:\\Users\\Administrator\\Desktop\\metoo\\dhcp_fixed6.txt");
             Iterator var6 = filteredEntities.iterator();
 
-            while(var6.hasNext()) {
-                AddressPoolV6FixedVO entity = (AddressPoolV6FixedVO)var6.next();
+            while (var6.hasNext()) {
+                AddressPoolV6FixedVO entity = (AddressPoolV6FixedVO) var6.next();
                 LinkedHashMap<String, Object> map = new LinkedHashMap();
                 Class<?> clazz = entity.getClass();
                 Field[] var10 = clazz.getDeclaredFields();
                 int var11 = var10.length;
-                for(int var12 = 0; var12 < var11; ++var12) {
+                for (int var12 = 0; var12 < var11; ++var12) {
                     Field field = var10[var12];
                     field.setAccessible(true);
                     String fieldName = field.getName();
@@ -171,7 +171,7 @@ public class AddressPoolpv6FixedManagerController {
                 Collection<Object> values = map.values();
                 Iterator var19 = values.iterator();
 
-                while(var19.hasNext()) {
+                while (var19.hasNext()) {
                     Object value = var19.next();
                     if (value != null) {
                         System.out.println(value);
@@ -197,7 +197,7 @@ public class AddressPoolpv6FixedManagerController {
 
         lock.lock();
         try {
-            List filteredEntities = (List)list.stream().filter((e) -> {
+            List filteredEntities = (List) list.stream().filter((e) -> {
                 return e != null && !e.getHost().isEmpty();
             }).collect(Collectors.toList());
 
@@ -206,13 +206,13 @@ public class AddressPoolpv6FixedManagerController {
                 Iterator var6 = filteredEntities.iterator();
 
                 fos.write("group { \n\n".getBytes());
-                while(var6.hasNext()) {
-                    AddressPoolV6FixedVO entity = (AddressPoolV6FixedVO)var6.next();
+                while (var6.hasNext()) {
+                    AddressPoolV6FixedVO entity = (AddressPoolV6FixedVO) var6.next();
                     LinkedHashMap<String, Object> map = new LinkedHashMap();
                     Class<?> clazz = entity.getClass();
                     Field[] var10 = clazz.getDeclaredFields();
                     int var11 = var10.length;
-                    for(int var12 = 0; var12 < var11; ++var12) {
+                    for (int var12 = 0; var12 < var11; ++var12) {
                         Field field = var10[var12];
                         field.setAccessible(true);
                         String fieldName = field.getName();
@@ -225,7 +225,7 @@ public class AddressPoolpv6FixedManagerController {
                     Collection<Object> values = map.values();
                     Iterator var19 = values.iterator();
 
-                    while(var19.hasNext()) {
+                    while (var19.hasNext()) {
                         Object value = var19.next();
                         if (value != null) {
                             System.out.println(value);

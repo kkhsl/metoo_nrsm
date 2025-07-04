@@ -39,23 +39,23 @@ public class RackManagerController {
     private IPlantRoomService plantRoomService;
 
     @GetMapping("/get")
-    public Object get(@PathVariable("id") String id){
+    public Object get(@PathVariable("id") String id) {
         Rack rack = this.rackService.getObjById(Long.parseLong(id));
         return ResponseUtil.ok(rack);
     }
 
     @ApiOperation("获取机柜信息")
     @RequestMapping("/getRack")
-    public Object getTackByDeviceId(@RequestParam(value = "id",required = false) Long id,
-                            @RequestParam(value="uuid",required = false) String uuid){
-        if(uuid != null){
+    public Object getTackByDeviceId(@RequestParam(value = "id", required = false) Long id,
+                                    @RequestParam(value = "uuid", required = false) String uuid) {
+        if (uuid != null) {
             RsmsDevice device = this.rsmsDeviceService.getObjByUuid(uuid);
-            if(device == null){
+            if (device == null) {
                 return ResponseUtil.badArgument("设备已删除");
             }
             Object obj = this.rackService.rack(device.getRackId());
             return ResponseUtil.ok(obj);
-        }else if(id != null){
+        } else if (id != null) {
             Object obj = this.rackService.rack(id);
             return ResponseUtil.ok(obj);
         }
@@ -65,9 +65,9 @@ public class RackManagerController {
 
     @ApiOperation("机柜列表")
     @PostMapping("/list")
-    public Object list(@RequestBody PlantRoomDTO dto){
+    public Object list(@RequestBody PlantRoomDTO dto) {
         Page<PlantRoom> page = this.plantRoomService.findBySelectAndRack(dto);
-        if(page.size() > 0){
+        if (page.size() > 0) {
             return ResponseUtil.ok(new PageInfo<Rack>(page));
         }
         return ResponseUtil.ok();
@@ -75,16 +75,16 @@ public class RackManagerController {
 
     @ApiOperation("添加机柜")
     @GetMapping("/add")
-    public Object add(){
+    public Object add() {
         List<PlantRoomVO> plantRoomList = this.plantRoomService.query(null);
         return ResponseUtil.ok(plantRoomList);
     }
 
     @ApiOperation("更新机柜")
     @GetMapping("/update")
-    public Object update(String id){
+    public Object update(String id) {
         Rack rack = this.rackService.getObjById(Long.parseLong(id));
-        if(rack != null){
+        if (rack != null) {
             PlantRoom plantRoom = this.plantRoomService.getObjById(rack.getPlantRoomId());
             List<PlantRoomVO> plantRoomList = this.plantRoomService.query(null);
             Map map = new HashMap();
@@ -97,41 +97,41 @@ public class RackManagerController {
 
     @ApiOperation("保存机柜")
     @RequestMapping("/save")
-    public Object save(@RequestBody Rack instance){
-        if(instance == null){
+    public Object save(@RequestBody Rack instance) {
+        if (instance == null) {
             return ResponseUtil.badArgument();
         }
-        if(instance.getSize() == null || instance.getSize().equals("")){
+        if (instance.getSize() == null || instance.getSize().equals("")) {
             return ResponseUtil.badArgument("请选择机柜大小");
-        }else if(instance.getSize() == 0){
+        } else if (instance.getSize() == 0) {
             return ResponseUtil.badArgument("择机柜大小不能小于等于0");
         }
 
         Map params = new HashMap();
         // 验证名称唯一性
-        if(instance.getName() != null && !instance.getName().isEmpty()){
+        if (instance.getName() != null && !instance.getName().isEmpty()) {
             params.clear();
             params.put("rackId", instance.getId());
             params.put("rackName", instance.getName());
             params.put("plantRoomId", instance.getPlantRoomId());
             List<Rack> rackList = this.rackService.selectObjByMap(params);
-            if(rackList.size() > 0){
+            if (rackList.size() > 0) {
                 return ResponseUtil.badArgumentRepeatedName();
             }
         }
         PlantRoom obj = this.plantRoomService.getObjById(instance.getPlantRoomId());
 
-        if(obj == null){
+        if (obj == null) {
             return ResponseUtil.badArgument("请选择机房");
         }
 
         // 验证资产编号唯一性
-        if(instance.getAsset_number() != null && !instance.getAsset_number().isEmpty()){
+        if (instance.getAsset_number() != null && !instance.getAsset_number().isEmpty()) {
             params.clear();
             params.put("rackId", instance.getId());
             params.put("asset_number", instance.getAsset_number());
             List<Rack> rackList = this.rackService.selectObjByMap(params);
-            if(rackList.size() > 0){
+            if (rackList.size() > 0) {
                 Rack rack = rackList.get(0);
                 return ResponseUtil.badArgument("资产编号与(" + rack.getPlantRoomName() + ":" + rack.getName() + ")重复");
             }
@@ -139,7 +139,7 @@ public class RackManagerController {
 
 
         int flag = this.rackService.save(instance);
-        if (flag != 0){
+        if (flag != 0) {
             return ResponseUtil.ok();
         }
         return ResponseUtil.error("机柜保存失败");
@@ -147,9 +147,9 @@ public class RackManagerController {
 
     @ApiOperation("删除机柜")
     @DeleteMapping("/del")
-    public Object del(@RequestParam(value = "id") String id){
+    public Object del(@RequestParam(value = "id") String id) {
         Rack instance = this.rackService.getObjById(Long.parseLong(id));
-        if(instance == null){
+        if (instance == null) {
             return ResponseUtil.badArgument("机柜不存在");
         }
         // 设备
@@ -158,7 +158,7 @@ public class RackManagerController {
         params.put("rackId", instance.getId());
 //        params.put("userId", user.getId());
         List<RsmsDevice> rsmsDevices = this.rsmsDeviceService.selectObjByMap(params);
-        for (RsmsDevice rsmsDevice : rsmsDevices){
+        for (RsmsDevice rsmsDevice : rsmsDevices) {
             rsmsDevice.setRackId(null);
             rsmsDevice.setRackName(null);
             try {
@@ -168,7 +168,7 @@ public class RackManagerController {
             }
         }
         int flag = this.rackService.delete(Long.parseLong(id));
-        if (flag >= 1){
+        if (flag >= 1) {
 
             return ResponseUtil.ok();
         }
@@ -177,75 +177,75 @@ public class RackManagerController {
 
     @ApiOperation("批量删除机柜")
     @DeleteMapping("/batch/del")
-    public Object batchDel(@RequestParam(value = "ids") String ids){
+    public Object batchDel(@RequestParam(value = "ids") String ids) {
         return this.rackService.batchDel(ids);
     }
 
     @ApiOperation("设备批量导入")
     @PostMapping("/import")
     public Object importExcel(@RequestPart("file") MultipartFile file) throws Exception {
-        if(!file.isEmpty()){
+        if (!file.isEmpty()) {
             String fileName = file.getOriginalFilename().toLowerCase();
-            String suffix = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
+            String suffix = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
             if (suffix.equals("xlsx") || suffix.equals("xls")) {
                 List<Rack> racks = ExcelUtils.readMultipartFile(file, Rack.class);
                 // 校验表格数据是否符号要求
                 String tips = "";
                 for (Rack rack : racks) {
-                    if(!rack.getRowTips().isEmpty()){
+                    if (!rack.getRowTips().isEmpty()) {
                         tips = rack.getRowTips();
                         break;
                     }
                 }
-                if(!tips.isEmpty()){
+                if (!tips.isEmpty()) {
                     return ResponseUtil.badArgument(tips);
                 }
-                if(racks.size() > 0){
+                if (racks.size() > 0) {
                     String msg = "";
                     Map params = new HashMap();
                     List<Rack> rackList = new ArrayList<>();
                     for (int i = 0; i < racks.size(); i++) {
                         Rack obj = racks.get(i);
-                        if(obj.getName()  == null || obj.getName().equals("")){
+                        if (obj.getName() == null || obj.getName().equals("")) {
                             msg = "第" + (i + 2) + "行,机柜名不能为空";
                             break;
-                        }else{
+                        } else {
                             params.clear();
                             params.put("name", obj.getName());
                             List<RsmsDevice> deviceList = this.rsmsDeviceService.selectObjByMap(params);
-                            if(deviceList.size() > 0){
+                            if (deviceList.size() > 0) {
                                 msg = "第" + (i + 2) + "行, 机柜已存在";
                                 break;
                             }
                         }
-                        if(obj.getSize() == null || obj.getSize().equals("")){
+                        if (obj.getSize() == null || obj.getSize().equals("")) {
                             msg = "第" + (i + 2) + "行,机柜大小不能为空";
                             break;
-                        }else if(obj.getSize() <= 0){
+                        } else if (obj.getSize() <= 0) {
                             msg = "第" + (i + 2) + "行,机柜大小不能为小于1";
                             break;
                         }
                         // 机房
-                        if(obj.getPlantRoomName()!= null && !obj.getPlantRoomName().equals("")){
+                        if (obj.getPlantRoomName() != null && !obj.getPlantRoomName().equals("")) {
                             params.clear();
                             params.put("name", obj.getPlantRoomName());
                             List<PlantRoom> plantRooms = this.plantRoomService.selectObjByMap(params);
-                            if(plantRooms.size() >= 1){
+                            if (plantRooms.size() >= 1) {
                                 PlantRoom plantRoom = plantRooms.get(0);
                                 obj.setPlantRoomId(plantRoom.getId());
                                 obj.setPlantRoomName(plantRoom.getName());
-                            }else{
+                            } else {
                                 msg = "第" + (i + 2) + "行,机房不存在";
                                 break;
                             }
                         }
                         // 验证资产编号唯一性
-                        if(obj.getAsset_number() != null && !obj.getAsset_number().isEmpty()){
+                        if (obj.getAsset_number() != null && !obj.getAsset_number().isEmpty()) {
                             params.clear();
                             params.put("asset_number", obj.getAsset_number());
                             params.put("rackId", obj.getId());
                             List<Rack> rackList1 = this.rackService.selectObjByMap(params);
-                            if(rackList1.size() > 0){
+                            if (rackList1.size() > 0) {
                                 Rack rsmsDevice = rackList1.get(0);
                                 return ResponseUtil.badArgument("资产编号与(" + rsmsDevice.getName() + ")机柜重复");
                             }
@@ -253,20 +253,20 @@ public class RackManagerController {
                         rackList.add(obj);
                     }
 
-                    if(msg.isEmpty()){
+                    if (msg.isEmpty()) {
                         int i = this.rackService.batchInsert(rackList);
-                        if(i >= 0){
+                        if (i >= 0) {
                             return ResponseUtil.ok();
-                        }else{
+                        } else {
                             return ResponseUtil.error();
                         }
-                    }else{
+                    } else {
                         return ResponseUtil.badArgument(msg);
                     }
-                }else{
+                } else {
                     return ResponseUtil.badArgument("文件无数据");
                 }
-            }else{
+            } else {
                 return ResponseUtil.badArgument("文件格式错误，请使用标准模板上传");
             }
         }
@@ -282,9 +282,9 @@ public class RackManagerController {
     @GetMapping("/downTemp")
     public Object downTemplate(HttpServletResponse response) throws UnsupportedEncodingException {
         boolean flag = DownLoadFileUtil.downloadTemplate(this.batchImportFilePath, this.batchImportRackFileName, response);
-        if(flag){
+        if (flag) {
             return ResponseUtil.ok();
-        }else{
+        } else {
             return ResponseUtil.error();
         }
     }

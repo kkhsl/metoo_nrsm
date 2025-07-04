@@ -3,14 +3,14 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.RoleMapper">
 
     <resultMap id="roles" type="com.metoo.nrsm.entity.Role">
-        <id property="id" column="rid" />
+        <id property="id" column="rid"/>
         <result property="name" column="name"></result>
         <result property="roleCode" column="roleCode"></result>
         <result property="type" column="type"></result>
     </resultMap>
 
     <resultMap id="Unit_Role_Map" type="com.metoo.nrsm.entity.Role">
-        <id property="id" column="mr_id" />
+        <id property="id" column="mr_id"/>
         <result property="name" column="mr_name"></result>
         <result property="addTime" column="mr_addTime"></result>
         <result property="roleCode" column="mr_roleCode"></result>
@@ -30,17 +30,16 @@
 
 
     <select id="findRoleById" parameterType="Long" resultType="com.metoo.nrsm.entity.Role">
-          SELECT *
-          FROM metoo_role
-          WHERE id=#{id}
-      </select>
+        SELECT *
+        FROM metoo_role
+        WHERE id=#{id}
+    </select>
 
     <select id="findRoleByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Role">
-          SELECT *
-          FROM metoo_role
-          WHERE name=#{name}
-      </select>
-
+        SELECT *
+        FROM metoo_role
+        WHERE name=#{name}
+    </select>
 
 
     <!--
@@ -49,32 +48,32 @@
   /*      LEFT JOIN metoo_role_group mrg on mr.rg_id=mrg.id*/-->
     <select id="selectByPrimaryUpdae" parameterType="Long" resultMap="Unit_Role_Map">
         SELECT mr.id mr_id, mr.addTime mr_addTime, mr.name mr_name,
-            mr.roleCode mr_roleCode, mr.url mr_url,mr.component mr_component,
-            mr.sequence mr_querysequence, mr.info mr_info,
-            res.id res_id, res.name res_name
+        mr.roleCode mr_roleCode, mr.url mr_url,mr.component mr_component,
+        mr.sequence mr_querysequence, mr.info mr_info,
+        res.id res_id, res.name res_name
         FROM metoo_role mr
         LEFT JOIN metoo_role_res mrr ON mrr.role_id = mr.id
         LEFT JOIN metoo_res res ON res.id = mrr.res_id
         where mr.id= #{id}
-      </select>
+    </select>
 
     <select id="query" parameterType="com.metoo.nrsm.core.dto.RoleDto" resultType="com.metoo.nrsm.entity.Role">
         SELECT *
         FROM metoo_role mr
         WHERE
-          mr.deleteStatus = 0
+        mr.deleteStatus = 0
         ORDER BY mr.addTime DESC
     </select>
 
     <select id="findObjByMap" parameterType="map" resultMap="Unit_Role_Map">
         SELECT mr.id mr_id, mr.addTime mr_addTime, mr.name mr_name, mr.roleCode mr_roleCode, mr.url mr_url,
-            mr.component mr_component, mr.sequence mr_sequence, res.id res_id,
-            res.name res_name
+        mr.component mr_component, mr.sequence mr_sequence, res.id res_id,
+        res.name res_name
         FROM metoo_role mr
-            LEFT JOIN metoo_role_res mrr ON mrr.role_id = mr.id
-            LEFT JOIN metoo_res res ON res.id = mrr.res_id
-            WHERE mr.deleteStatus = 0
-        ORDER BY  mr.addTime DESC
+        LEFT JOIN metoo_role_res mrr ON mrr.role_id = mr.id
+        LEFT JOIN metoo_res res ON res.id = mrr.res_id
+        WHERE mr.deleteStatus = 0
+        ORDER BY mr.addTime DESC
     </select>
 
     <resultMap id="roleDtoMap" type="com.metoo.nrsm.core.vo.RoleVo">
@@ -100,34 +99,34 @@
 
     <sql id="Base_Role_List">
         mr.id mr_id, mr.addTime mr_addTime, mr.deleteStatus mr_deleteStatus, mr.name mr_name, mr.roleCode mr_roleCode,
-         mr.type mr_type, mr.info mr_info, mrg.id mrg_id, mrg.name mrg_name, mrg.sequence mrg_sequence, mrg.type mrg_type
+        mr.type mr_type, mr.info mr_info, mrg.id mrg_id, mrg.name mrg_name, mrg.sequence mrg_sequence, mrg.type mrg_type
     </sql>
 
     <!--根据用户id查询所有角色 嵌套插叙-->
-     <select id="findRoleByUserId" parameterType="Long" resultType="com.metoo.nrsm.entity.Role">
-         SELECT role.id,role.roleCode
-         FROM metoo_role role
-         WHERE id IN(
-           SELECT role_id
-           FROM metoo_user_role
-           WHERE user_id=#{user_id}
-         )
-     </select>
+    <select id="findRoleByUserId" parameterType="Long" resultType="com.metoo.nrsm.entity.Role">
+        SELECT role.id,role.roleCode
+        FROM metoo_role role
+        WHERE id IN(
+        SELECT role_id
+        FROM metoo_user_role
+        WHERE user_id=#{user_id}
+        )
+    </select>
 
     <select id="findRoleByResId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Role">
         SELECT mr.id, mr.roleCode, mr.name
         FROM metoo_role mr
         where id IN(
-          SELECT role_id
-          FROM metoo_role_res mrr
-          WHERE mrr.res_id=#{id, jdbcType=BIGINT}
+        SELECT role_id
+        FROM metoo_role_res mrr
+        WHERE mrr.res_id=#{id, jdbcType=BIGINT}
         )
     </select>
 
     <select id="findRoleByRoleGroupId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Role">
-         SELECT *
-         FROM metoo_role mr
-         WHERE mr.rg_id=#{role_group_id, jdbcType=BIGINT};
+        SELECT *
+        FROM metoo_role mr
+        WHERE mr.rg_id=#{role_group_id, jdbcType=BIGINT};
     </select>
 
     <!--<select id="findRoleByRoleGroupId" parameterType="java.lang.Long" resultMap="Unit_Role_Map">
@@ -137,26 +136,28 @@
          WHERE mrg.id=#{role_group_id, jdbcType=BIGINT};
     </select>-->
 
-  <!--  <select id="findRoleByUserId" parameterType="Long" resultMap="roles">
-        SELECT r.id rid, r.roleCode rcode, r.type
-        FROM role r
-        left join
-        user_role ur
-        on r.id=ur.role_id
-        left join
-        user u
-        on ur.user_id=u.id
-        where u.id=#{user_id}
-    </select>-->
+    <!--  <select id="findRoleByUserId" parameterType="Long" resultMap="roles">
+          SELECT r.id rid, r.roleCode rcode, r.type
+          FROM role r
+          left join
+          user_role ur
+          on r.id=ur.role_id
+          left join
+          user u
+          on ur.user_id=u.id
+          where u.id=#{user_id}
+      </select>-->
 
     <select id="findRoleByIds" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Role">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_role mr
         WHERE mr.id in(${ids, jdbcType=VARCHAR})
     </select>
 
     <select id="findRoleByIdList" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Role">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_role mr
         WHERE mr.id
         IN
@@ -228,34 +229,34 @@
     </insert>
 
 
-    <update id="update" parameterType="com.metoo.nrsm.entity.Role" >
-          UPDATE metoo_role
-          <set>
-              <if test="name != null">
-                  name = #{name},
-              </if>
-              <if test="roleCode != null">
-                  roleCode = #{roleCode},
-              </if>
-              <if test="type != null">
-                  type = #{type},
-              </if>
-              <if test="info != null">
-                  info = #{info},
-              </if>
-              <if test="roleGroup != null">
-                  rg_id = #{roleGroup.id},
-              </if>
-              <if test="url != null">
-                  url = #{url},
-              </if>
-              <if test="component != null">
-                  component = #{component},
-             </if>
-              <if test="sequence != null">
-                  sequence = #{sequence},
-              </if>
-          </set>
+    <update id="update" parameterType="com.metoo.nrsm.entity.Role">
+        UPDATE metoo_role
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="roleCode != null">
+                roleCode = #{roleCode},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="info != null">
+                info = #{info},
+            </if>
+            <if test="roleGroup != null">
+                rg_id = #{roleGroup.id},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="component != null">
+                component = #{component},
+            </if>
+            <if test="sequence != null">
+                sequence = #{sequence},
+            </if>
+        </set>
         <where>
             <if test="id != null">
                 id=#{id, jdbcType=BIGINT}
@@ -265,7 +266,7 @@
 
     <update id="batchUpdateRoleGroupId" parameterType="java.util.Map">
         <foreach collection="roles" item="item" index="index" separator=";">
-            update  metoo_role mr
+            update metoo_role mr
             set
             mr.rg_id=#{rg_id}
             WHERE mr.id=#{item.id}

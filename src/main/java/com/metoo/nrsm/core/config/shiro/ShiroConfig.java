@@ -77,7 +77,7 @@ public class ShiroConfig {
 //        filterChainDefinitionMap.put("/admin/dhcp/**", "anon");
 //        filterChainDefinitionMap.put("/admin/address/pool/**", "anon");
 
-    
+
         filterChainDefinitionMap.put("/notice/**", "anon");
         filterChainDefinitionMap.put("/ws/**", "anon");
         filterChainDefinitionMap.put("/file/**", "anon");
@@ -125,7 +125,7 @@ public class ShiroConfig {
 
         //shiroFilterFactoryBean.setLoginUrl("/login.jsp");
         //shiroFilterFactoryBean.setLoginUrl("/buyer/login");
-          shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         // sshiroFilterFactoryBean.setLoginUrl("/user/login"); // 导致不断重定向
 
 
@@ -205,7 +205,7 @@ public class ShiroConfig {
     @Bean("sessionManager")
     public DefaultWebSessionManager getDefaultSessionManager() {
         DefaultWebSessionManager defaultWebSessionManager = new DefaultWebSessionManager();
-       // defaultWebSessionManager.setGlobalSessionTimeout(1000 * 60 * 60 * 24*7);// 会话过期时间，单位：毫秒(在无操作时开始计时)
+        // defaultWebSessionManager.setGlobalSessionTimeout(1000 * 60 * 60 * 24*7);// 会话过期时间，单位：毫秒(在无操作时开始计时)
         defaultWebSessionManager.setGlobalSessionTimeout(-1000L);// -1000L,永不过期 1000 * 60 * 20
         defaultWebSessionManager.setSessionValidationSchedulerEnabled(true);
         defaultWebSessionManager.setSessionIdCookieEnabled(true);
@@ -217,6 +217,7 @@ public class ShiroConfig {
 
     /**
      * 设置cookie
+     *
      * @return
      */
     private SimpleCookie sessionIdCookie() {
@@ -250,23 +251,24 @@ public class ShiroConfig {
 
     /**
      * 　　id：就是session id；
-     *
+     * <p>
      * 　　startTimestamp：session的创建时间；
-     *
+     * <p>
      * 　　stopTimestamp：session的失效时间；
-     *
+     * <p>
      * 　　lastAccessTime：session的最近一次访问时间，初始值是startTimestamp
-     *
+     * <p>
      * 　　timeout：session的有效时长，默认30分钟
-     *
+     * <p>
      * 　　expired：session是否到期
-     *
+     * <p>
      * 　　attributes：session的属性容器
+     *
      * @return
      */
     // 创建一个简单的Cookie对象；创建cookie模板
     @Bean
-    public SimpleCookie rememberMeCookie(){
+    public SimpleCookie rememberMeCookie() {
         SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
         // 只能通过http访问cookie，js不能
         // XSS:保证该系统不会受到跨域的脚本操作攻击
@@ -280,6 +282,7 @@ public class ShiroConfig {
     /**
      * cookie管理对象;
      * rememberMeManager()方法是生成rememberMe管理器，而且要将这个rememberMe管理器设置到securityManager中
+     *
      * @return
      */
     @Bean
@@ -292,24 +295,26 @@ public class ShiroConfig {
     }
 
     /**
-     *  开启shiro aop 注解支持. 否则注解不生效
-     *  使用代理方式;所以需要开启代码支持;
+     * 开启shiro aop 注解支持. 否则注解不生效
+     * 使用代理方式;所以需要开启代码支持;
+     *
      * @return
      */
     @Bean
-    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor(){
+    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();
     }
+
     @Bean
     @DependsOn({"lifecycleBeanPostProcessor"})
-    public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator(){
+    public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator() {
         DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator = new DefaultAdvisorAutoProxyCreator();
         advisorAutoProxyCreator.setProxyTargetClass(true);
         return advisorAutoProxyCreator;
     }
 
     @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(DefaultWebSecurityManager defaultWebSecurityManager){
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(DefaultWebSecurityManager defaultWebSecurityManager) {
         AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(defaultWebSecurityManager);
         return authorizationAttributeSourceAdvisor;

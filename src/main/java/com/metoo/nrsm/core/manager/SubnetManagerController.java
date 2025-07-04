@@ -122,12 +122,12 @@ public class SubnetManagerController {
     }
 
     public Map<String, List<Object>> ipAddressCombingByDB(List<Port> ports) {
-        if(ports.size() == 0){
+        if (ports.size() == 0) {
             return new HashMap<>();
         }
         Map<String, Integer> map = new HashMap();
         List<Integer> masks = new ArrayList();
-        for (Port port : ports){
+        for (Port port : ports) {
             String ip = port.getIp();
             String mask = port.getMask();
             Integer maskBit = Ipv4Util.getMaskBitByMask(mask);
@@ -143,10 +143,10 @@ public class SubnetManagerController {
         Integer firstMask = masks.get(0);// 最短掩码
         Map<String, Integer> firstMap = new HashMap();
         Map<String, Integer> otherMap = new HashMap();
-        for (Map.Entry<String, Integer> entry : map.entrySet()){
-            if(entry.getValue().equals(firstMask)){
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            if (entry.getValue().equals(firstMask)) {
                 firstMap.put(entry.getKey(), entry.getValue());
-            }else{
+            } else {
                 otherMap.put(entry.getKey(), entry.getValue());
             }
         }
@@ -162,7 +162,7 @@ public class SubnetManagerController {
                 parentMask = 16;
             } else if (16 >= maskBit && maskBit > 8) {
                 parentMask = 8;
-            }else if(maskBit <= 8){
+            } else if (maskBit <= 8) {
                 parentMask = maskBit;
             }
             String segment = this.getParentSegment(ip, parentMask);// 生成网段
@@ -173,7 +173,7 @@ public class SubnetManagerController {
                 parentMap.put(parentSegment, childList);
             } else {
                 List<Object> childList = parentMap.get(parentSegment);
-                if(childList != null){
+                if (childList != null) {
                     childList.add(ip + "/" + maskBit);
                 }
             }
@@ -187,14 +187,14 @@ public class SubnetManagerController {
             int parentIndex = 0;
             String parentIpPartial = null;
             if (parentMask == 24) {
-                parentIndex =  parentSegment.indexOf(".");
-                parentIndex =  parentSegment.indexOf(".", parentIndex + 1);
-                parentIndex =  parentSegment.indexOf(".", parentIndex + 1);
+                parentIndex = parentSegment.indexOf(".");
+                parentIndex = parentSegment.indexOf(".", parentIndex + 1);
+                parentIndex = parentSegment.indexOf(".", parentIndex + 1);
             } else if (parentMask == 16) {
-                parentIndex =  parentSegment.indexOf(".");
-                parentIndex =  parentSegment.indexOf(".", parentIndex + 1);
+                parentIndex = parentSegment.indexOf(".");
+                parentIndex = parentSegment.indexOf(".", parentIndex + 1);
             } else if (parentMask == 8) {
-                parentIndex =  parentSegment.indexOf(".");
+                parentIndex = parentSegment.indexOf(".");
             }
             parentIpPartial = parentSegment.substring(0, parentIndex);
             parentSegmentMap.put(parentIpPartial, parentSegment);
@@ -206,20 +206,20 @@ public class SubnetManagerController {
             String ip = entry.getKey();
             int index = 0;
             if (mask > 24) {
-                index =  ip.indexOf(".");
-                index =  ip.indexOf(".", index + 1);
-                index =  ip.indexOf(".", index + 1);
+                index = ip.indexOf(".");
+                index = ip.indexOf(".", index + 1);
+                index = ip.indexOf(".", index + 1);
             } else if (24 >= mask && mask > 16) {
-                index =  ip.indexOf(".");
-                index =  ip.indexOf(".", index + 1);
+                index = ip.indexOf(".");
+                index = ip.indexOf(".", index + 1);
             } else if (16 >= mask && mask > 8) {
-                index =  ip.indexOf(".");
+                index = ip.indexOf(".");
             }
             String ipParentIpPartial = ip.substring(0, index);
-            if(parentSegmentMap.get(ipParentIpPartial) != null){
+            if (parentSegmentMap.get(ipParentIpPartial) != null) {
                 List<Object> list = parentMap.get(parentSegmentMap.get(ipParentIpPartial));
                 list.add(ip + "/" + mask);
-            }else{
+            } else {
                 Integer parentMask = null;
                 if (mask > 24) {
                     parentMask = 24;
@@ -237,44 +237,45 @@ public class SubnetManagerController {
             }
         }
         // 遍历二级ip，生成上级Ip
-        if(parentMap.size() > 1){
+        if (parentMap.size() > 1) {
             Map<String, List<Object>> parent = this.getShortMask(parentMap);
-            if(parent != null && parent.size() > 0){
+            if (parent != null && parent.size() > 0) {
                 return parent;
             }
-        }else{}
+        } else {
+        }
         return parentMap;
     }
 
-    public String getParentSegment(String ip, Integer bitmask){
+    public String getParentSegment(String ip, Integer bitmask) {
         String segment = "";
         if (24 == bitmask) {
             String mask = Ipv4Util.bitMaskConvertMask(bitmask);
             segment = Ipv4Util.getNetwork(ip, mask);
-        } else if (16  == bitmask) {
+        } else if (16 == bitmask) {
             String mask = Ipv4Util.bitMaskConvertMask(bitmask);
             segment = Ipv4Util.getNetwork(ip, mask);
-        }else if (8  == bitmask) {
+        } else if (8 == bitmask) {
             String mask = Ipv4Util.bitMaskConvertMask(bitmask);
             segment = Ipv4Util.getNetwork(ip, mask);
         }
         return segment;
     }
+
     /**
-     *
      * @param ip
      * @param bitmask
      * @return
      */
-    public String getParentIp(String ip, Integer bitmask){
+    public String getParentIp(String ip, Integer bitmask) {
         String segment = "";
         if (24 == bitmask) {
             String mask = Ipv4Util.bitMaskConvertMask(bitmask);
             segment = Ipv4Util.getNetwork(ip, mask);
-        } else if (16  == bitmask) {
+        } else if (16 == bitmask) {
             String mask = Ipv4Util.bitMaskConvertMask(bitmask);
             segment = Ipv4Util.getNetwork(ip, mask);
-        }else if (8  == bitmask) {
+        } else if (8 == bitmask) {
             String mask = Ipv4Util.bitMaskConvertMask(bitmask);
             segment = Ipv4Util.getNetwork(ip, mask);
         }
@@ -282,14 +283,14 @@ public class SubnetManagerController {
     }
 
 
-    public Map<String, List<Object>> getShortMask(Map<String, List<Object>> parentMap){
+    public Map<String, List<Object>> getShortMask(Map<String, List<Object>> parentMap) {
 //        String parentIp = null;
         Integer shorMask = 0;
-        for (Map.Entry<String, List<Object>> entry : parentMap.entrySet()){
+        for (Map.Entry<String, List<Object>> entry : parentMap.entrySet()) {
             String ip = entry.getKey();
             int index = ip.indexOf("/");
             int mask = Integer.parseInt(ip.substring(index + 1));
-            if(mask > shorMask || shorMask == 0){
+            if (mask > shorMask || shorMask == 0) {
                 shorMask = mask;
             }
         }
@@ -297,23 +298,23 @@ public class SubnetManagerController {
 
         Map<String, List<Object>> map = new HashMap<>();
 
-        for (Map.Entry<String, List<Object>> entry : parentMap.entrySet()){
+        for (Map.Entry<String, List<Object>> entry : parentMap.entrySet()) {
             String ipMask = entry.getKey();
             int index = ipMask.indexOf("/");
             int mask = Integer.parseInt(ipMask.substring(index + 1));
             // 判断当前mask是否等于最短mask
-            if(mask != shorMask){
+            if (mask != shorMask) {
                 map.put(ipMask, parentMap.get(ipMask));
             }
         }
-        for (Map.Entry<String, List<Object>> entry : parentMap.entrySet()){
+        for (Map.Entry<String, List<Object>> entry : parentMap.entrySet()) {
             String ipMask = entry.getKey();
             int index = ipMask.indexOf("/");
             int mask = Integer.parseInt(ipMask.substring(index + 1));
             String ip = ipMask.substring(0, index);
             Integer parentMask = null;
             // 判断当前mask是否等于最短mask
-            if(mask == shorMask){
+            if (mask == shorMask) {
                 // 同为最低等级mask/创建上级
                 if (mask > 24) {
                     parentMask = 24;
@@ -326,7 +327,7 @@ public class SubnetManagerController {
                 String parentIp = this.getParentIp(ip, parentMask);
                 parentIp = parentIp + "/" + parentMask;
                 // 比较是否已经存在
-                if(map.get(parentIp) != null){
+                if (map.get(parentIp) != null) {
 
                     List<Object> list = map.get(parentIp);
 
@@ -339,8 +340,8 @@ public class SubnetManagerController {
 
                     map.put(parentIp, list);
 
-                }else{
-                    List<Object> list =  new ArrayList<>();
+                } else {
+                    List<Object> list = new ArrayList<>();
 
                     List<Object> childs = parentMap.get(ipMask);
 
@@ -588,7 +589,7 @@ public class SubnetManagerController {
     }
 
     @PutMapping
-    public Result update(@RequestBody Subnet instance){
+    public Result update(@RequestBody Subnet instance) {
         return this.subnetService.update(instance);
     }
 }

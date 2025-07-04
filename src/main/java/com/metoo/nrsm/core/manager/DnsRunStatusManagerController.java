@@ -21,20 +21,20 @@ public class DnsRunStatusManagerController {
     private IDnsRunStatusService dnsRunStatusService;
 
     @GetMapping
-    public Result dns(){
+    public Result dns() {
         DnsRunStatus dnsRunStatus = this.dnsRunStatusService.selectOneObj();
         return ResponseUtil.ok(dnsRunStatus);
     }
 
     @PutMapping
-    public Result update(@RequestBody DnsRunStatus instance){
+    public Result update(@RequestBody DnsRunStatus instance) {
 //        DnsRunStatus dnsRunStatus = this.dnsRunStatusService.selectOneObj();
         boolean flag = this.dnsRunStatusService.update(instance);
-        if(flag){
+        if (flag) {
             boolean checkdns = this.dnsRunStatusService.checkdns();
-            if(!checkdns && instance.isStatus()){
+            if (!checkdns && instance.isStatus()) {
                 this.dnsRunStatusService.start();
-            }else if(checkdns && !instance.isStatus()){
+            } else if (checkdns && !instance.isStatus()) {
                 this.dnsRunStatusService.stop();
             }
             return ResponseUtil.ok();
@@ -43,7 +43,7 @@ public class DnsRunStatusManagerController {
     }
 
     @GetMapping("/checkdns")
-    public Result checkaliveip(){
+    public Result checkaliveip() {
         boolean flag = this.dnsRunStatusService.checkdns();
         return ResponseUtil.ok(flag);
     }

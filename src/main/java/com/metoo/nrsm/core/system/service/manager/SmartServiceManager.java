@@ -17,11 +17,12 @@ public class SmartServiceManager implements ServiceManager {
 
     /**
      * 构造方法
-     * @param host 主机地址(localhost/127.0.0.1表示本地)
-     * @param port SSH端口(本地执行时忽略)
+     *
+     * @param host     主机地址(localhost/127.0.0.1表示本地)
+     * @param port     SSH端口(本地执行时忽略)
      * @param username SSH用户名(本地执行时忽略)
      * @param password SSH密码(本地执行时忽略)
-     * @param timeout 超时时间(毫秒)
+     * @param timeout  超时时间(毫秒)
      */
     public SmartServiceManager(String host, int port, String username,
                                String password, int timeout) {
@@ -61,6 +62,7 @@ public class SmartServiceManager implements ServiceManager {
 
     /**
      * 判断是否为本地主机
+     *
      * @param host 主机地址
      * @return 如果是本地返回true，否则false
      */

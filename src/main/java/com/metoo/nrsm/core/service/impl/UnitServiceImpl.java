@@ -41,7 +41,7 @@ public class UnitServiceImpl implements IUnitService {
 
     @Override
     public Result selectObjConditionQuery(UnitNewDTO dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new UnitNewDTO();
         }
         Page<Unit> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
@@ -91,10 +91,10 @@ public class UnitServiceImpl implements IUnitService {
 
     @Override
     public Result delete(String ids) {
-        if(ids != null && !ids.equals("")){
-            for (String id : ids.split(",")){
+        if (ids != null && !ids.equals("")) {
+            for (String id : ids.split(",")) {
                 Unit unit = this.unitMapper.selectObjById(Long.parseLong(id));
-                if(unit != null){
+                if (unit != null) {
                     try {
                         this.unitMapper.delete(Long.parseLong(id));
                     } catch (NumberFormatException e) {

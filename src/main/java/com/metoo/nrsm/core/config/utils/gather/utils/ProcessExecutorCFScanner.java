@@ -17,8 +17,9 @@ public class ProcessExecutorCFScanner {
 
     /**
      * 跨平台执行二进制文件
+     *
      * @param directory 二进制文件路径
-     * @param args 执行参数
+     * @param args      执行参数
      * @return 执行结果
      */
     public static ExecutionResult executeBinary(String directory, String fileNname, String... args) {
@@ -28,10 +29,11 @@ public class ProcessExecutorCFScanner {
 
     /**
      * 带超时控制的跨平台执行
+     *
      * @param directory 二进制文件路径
-     * @param timeout 超时时间
-     * @param unit 时间单位
-     * @param args 执行参数
+     * @param timeout   超时时间
+     * @param unit      时间单位
+     * @param args      执行参数
      * @return 执行结果
      */
     public static ExecutionResult executeBinaryWithTimeout(String directory, String fileName, long timeout, TimeUnit unit, String... args) {

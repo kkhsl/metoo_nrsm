@@ -52,11 +52,11 @@ public class LicenseDeviceAop {
 
             Object[] arguments = pjp.getArgs();
             List list = this.networkElementService.selectObjAll();
-            switch(methodName){
+            switch (methodName) {
                 case "save":
                     String node = JSONObject.toJSONString(arguments[0]);
                     JSONObject json = JSONObject.parseObject(node);
-                    if(/*json.get("id") == null && */list.size() > license.getLicenseDevice()){
+                    if (/*json.get("id") == null && */list.size() > license.getLicenseDevice()) {
                         return ResponseUtil.error("授权设备数量已达到最大授权数，禁止上传");
                     }
                     break;
@@ -66,7 +66,7 @@ public class LicenseDeviceAop {
                     int excelRowCount = getExcelRowCount(file);
                     System.out.println("导入的 Excel 条数：" + excelRowCount);
                     // 这里可以进行进一步的处理，比如记录日志等
-                    if(list.size() + excelRowCount > license.getLicenseDevice()){
+                    if (list.size() + excelRowCount > license.getLicenseDevice()) {
                         return ResponseUtil.error("授权设备数量已达到最大授权数，禁止上传");
                     }
                 default:

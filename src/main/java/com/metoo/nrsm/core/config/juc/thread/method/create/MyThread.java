@@ -2,8 +2,8 @@ package com.metoo.nrsm.core.config.juc.thread.method.create;
 
 public class MyThread extends Thread {
 
-    public MyThread(){
-        System.out.println("构造方法：打印当前线程的名称：" +  Thread.currentThread().getName());
+    public MyThread() {
+        System.out.println("构造方法：打印当前线程的名称：" + Thread.currentThread().getName());
     }
 
     @Override

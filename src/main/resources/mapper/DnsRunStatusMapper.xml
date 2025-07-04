@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.DnsRunStatusMapper">
 
-    <select id="selectOneObj"  resultType="com.metoo.nrsm.entity.DnsRunStatus">
+    <select id="selectOneObj" resultType="com.metoo.nrsm.entity.DnsRunStatus">
         SELECT * FROM metoo_dns_run_start limit 1
     </select>
 

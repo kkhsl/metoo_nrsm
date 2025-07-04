@@ -36,14 +36,14 @@ public class NetworkElementServiceImpl implements INetworkElementService {
 
     @Override
     public Page<NetworkElement> selectConditionQuery(NetworkElementDto instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new NetworkElementDto();
         }
         instance.setDisplay(false);
         Page<NetworkElement> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
         this.networkElementMapper.selectConditionQuery(instance);
         return page;
-}
+    }
 
     @Override
     public List<NetworkElement> selectConditionByIpQuery(List<String> instance) {
@@ -59,7 +59,7 @@ public class NetworkElementServiceImpl implements INetworkElementService {
         if (params.get("display") == null) {
             params.put("display", Boolean.FALSE);
         }
-        if(params.get("displayList") != null){
+        if (params.get("displayList") != null) {
             if (params.get("display") != null) {
                 params.remove("display");
             }
@@ -79,7 +79,7 @@ public class NetworkElementServiceImpl implements INetworkElementService {
 
     @Override
     public int save(NetworkElement instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
             instance.setUuid(UUID.randomUUID().toString());
 //            if(!instance.getDeviceName().contains("NSwitch")){
@@ -93,7 +93,7 @@ public class NetworkElementServiceImpl implements INetworkElementService {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 instance.setUpdateTime(new Date());
                 return this.networkElementMapper.update(instance);

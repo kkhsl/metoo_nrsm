@@ -86,20 +86,20 @@ public class RsmsDeviceServiceImpl implements IRsmsDeviceService {
     @Override
     public int save(RsmsDevice instance) {
         DeviceType deviceType = this.deviceTypeMapper.selectObjById(instance.getDeviceTypeId());
-        if(deviceType instanceof DeviceType){
+        if (deviceType instanceof DeviceType) {
             instance.setDeviceTypeName(deviceType.getName());
         }
 //        User user = ShiroUserHolder.currentUser();
 //        if(user != null){
 //            instance.setUserId(user.getId());
 //        }
-        if(instance.getId() == null){
-            if(StringUtil.isEmpty(instance.getUuid())){
+        if (instance.getId() == null) {
+            if (StringUtil.isEmpty(instance.getUuid())) {
                 instance.setUuid(UUID.randomUUID().toString());
             }
             instance.setAddTime(new Date());
             return this.rsmsDeviceMapper.save(instance);
-        }else{
+        } else {
             return this.rsmsDeviceMapper.update(instance);
         }
     }
@@ -110,7 +110,7 @@ public class RsmsDeviceServiceImpl implements IRsmsDeviceService {
             return this.rsmsDeviceMapper.update(instance);
         } catch (Exception e) {
             e.printStackTrace();
-            return  0;
+            return 0;
         }
     }
 

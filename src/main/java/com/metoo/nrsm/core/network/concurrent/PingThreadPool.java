@@ -6,9 +6,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 虽然是轻量级操作，但数量大时仍需要并发执行以减少总耗时。
- *
+ * <p>
  * 为什么重新开一个线程池：如果 SNMP数据采集任务耗时远高于 Ping，可能导致 Ping 任务被阻塞。
- *
+ * <p>
  * CPU核心数	CPU核心数 * 2、无界队列（或大容量）、轻量级任务、快速执行
  */
 public class PingThreadPool {

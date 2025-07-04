@@ -57,9 +57,9 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
             Date date = context.getAddTime();
             if (unit != null) {
 //                unit.setHidden(false);
-                if(StringUtil.isNotEmpty(String.valueOf(unit.getGatewayId()))){
+                if (StringUtil.isNotEmpty(String.valueOf(unit.getGatewayId()))) {
                     Gateway gateway = gatewayService.selectObjById(unit.getGatewayId());
-                    if(gateway != null){
+                    if (gateway != null) {
                         PyCommandBuilder3 pyCommand = new PyCommandBuilder3();
                         pyCommand.setVersion(Global.py_name);
                         pyCommand.setPath(Global.py_path);
@@ -77,11 +77,11 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                         if (StringUtil.isNotEmpty(result)) {
                             try {
                                 // 根据pattern，判断使用哪种方式获取流量
-                                if(unit.getPattern().equals("1")){
+                                if (unit.getPattern().equals("1")) {
 //                                    unit.setHidden(true);
                                     this.insertTraffic2(result, unit, date);
 
-                                }else if(unit.getPattern().equals("0")){
+                                } else if (unit.getPattern().equals("0")) {
                                     log.info("traffic ============== pattern 0 =============== ");
 //                                    unit.setHidden(true);
 //                                    this.insertTraffic(result, unit, date);
@@ -106,8 +106,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 //    [{"Type": "sum-ipv4-out", "1/7": {"1": "0", "2": "0", "3": "0", "4": "0", "5": "0", "6": "0"}, "1/8": {"1": "1640", "2": "0", "3": "16", "4": "0", "5": "37720", "6": "0"}, "2/7": {"1": "0", "2": "0", "3": "0", "4": "0", "5": "0", "6": "0"}, "2/8": {"1": "4040", "2": "0", "3": "8", "4": "0", "5": "1864", "6": "0"}}, {"Type": "sum-ipv6-out", "1/7": {"1": "0", "2": "0", "3": "0", "4": "0", "5": "0", "6": "0"}, "1/8": {"1": "0", "2": "0", "3": "0", "4": "0", "5": "0", "6": "0"}, "2/7": {"1": "0", "2": "0", "3": "0", "4": "0", "5": "0", "6": "0"}, "2/8": {"1": "0", "2": "0", "3": "0", "4": "0", "5": "32", "6": "0"}}, {"Type": "sum-ipv4-in", "1/7": {"1": "0", "3": "0", "5": "0"}, "1/8": {"1": "61040", "3": "8", "5": "60112"}, "2/7": {"1": "0", "3": "0", "5": "0"}, "2/8": {"1": "272", "3": "0", "5": "124560"}}, {"Type": "sum-ipv6-in", "1/7": {"1": "0", "3": "0", "5": "0"}, "1/8": {"1": "0", "3": "0", "5": "24"}, "2/7": {"1": "0", "3": "0", "5": "0"}, "2/8": {"1": "0", "3": "0", "5": "0"}}]
 
 
-
-    public void insertTrafficYingTan(String outData, String inData, FlowUnit unit, Date date){
+    public void insertTrafficYingTan(String outData, String inData, FlowUnit unit, Date date) {
 
         double vfourFlow = vfourFlow(outData, inData, unit, date);
         double vsixFlow = vsixFlow(outData, inData, unit, date);
@@ -134,20 +133,14 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
     }
 
 
-
-
-
-    public double vfourFlow(String outData, String inData, FlowUnit unit, Date date){
+    public double vfourFlow(String outData, String inData, FlowUnit unit, Date date) {
         double vfourFlowOut = vfourFlowOut(outData, unit, date);
 
         return 0;
     }
 
 
-
-
-
-    public double vsixFlow(String data, String inData, FlowUnit unit, Date date){
+    public double vsixFlow(String data, String inData, FlowUnit unit, Date date) {
         double vsixFlowOut = vsixFlowOut(data, unit, date);
 
         return 0;
@@ -155,9 +148,9 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
 
     // 共享
-    public double vfourFlowOut(String outData, FlowUnit unit, Date date){
+    public double vfourFlowOut(String outData, FlowUnit unit, Date date) {
         double ipv4Outbound = 0;
-        if(StringUtil.isNotEmpty(outData)) {
+        if (StringUtil.isNotEmpty(outData)) {
             JSONArray jsonArray = JSONArray.parseArray(outData);
             String rule = unit.getRule();
             if (jsonArray.size() > 0) {
@@ -181,17 +174,17 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
     }
 
 
-    public double vsixFlowOut(String outData, FlowUnit unit, Date date){
+    public double vsixFlowOut(String outData, FlowUnit unit, Date date) {
         double ipv6Outbound = 0;
-        if(StringUtil.isNotEmpty(outData)){
+        if (StringUtil.isNotEmpty(outData)) {
             JSONArray jsonArray = JSONArray.parseArray(outData);
             String rule = unit.getRule();
-            if(jsonArray.size() > 0){
+            if (jsonArray.size() > 0) {
 
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-out")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-out")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -209,20 +202,20 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
     }
 
     @Test
-    public void test(){
+    public void test() {
         String data = "[{\"Type\": \"sum-ipv4-out\", \"1/7\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"1/8\": {\"1\": \"1640\", \"2\": \"0\", \"3\": \"16\", \"4\": \"0\", \"5\": \"37720\", \"6\": \"0\"}, \"2/7\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"2/8\": {\"1\": \"4040\", \"2\": \"0\", \"3\": \"8\", \"4\": \"0\", \"5\": \"1864\", \"6\": \"0\"}}, {\"Type\": \"sum-ipv6-out\", \"1/7\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"1/8\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"2/7\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"0\", \"6\": \"0\"}, \"2/8\": {\"1\": \"0\", \"2\": \"0\", \"3\": \"0\", \"4\": \"0\", \"5\": \"32\", \"6\": \"0\"}}, {\"Type\": \"sum-ipv4-in\", \"1/7\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}, \"1/8\": {\"1\": \"61040\", \"3\": \"8\", \"5\": \"60112\"}, \"2/7\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}, \"2/8\": {\"1\": \"272\", \"3\": \"0\", \"5\": \"124560\"}}, {\"Type\": \"sum-ipv6-in\", \"1/7\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}, \"1/8\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"24\"}, \"2/7\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}, \"2/8\": {\"1\": \"0\", \"3\": \"0\", \"5\": \"0\"}}]";
         insertTrafficYingTan(data, new FlowUnit(), new Date());
     }
 
 
-    public void insertTrafficYingTan(String data, FlowUnit unit, Date date){
+    public void insertTrafficYingTan(String data, FlowUnit unit, Date date) {
 
         log.info("traffic - data - start ==========================");
-        if(StringUtil.isNotEmpty(data)){
+        if (StringUtil.isNotEmpty(data)) {
 
             JSONArray jsonArray = JSONArray.parseArray(data);
             String rule = unit.getRule();
-            if(jsonArray.size() > 0){
+            if (jsonArray.size() > 0) {
 
                 double ipv4Inbound1 = 0;
 
@@ -236,7 +229,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-in")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-in")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -247,7 +240,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                         }
                     }
 
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-out")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-out")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -260,7 +253,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                     }
 
 
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-in")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-in")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -272,8 +265,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                     }
 
 
-
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-out")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-out")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -288,42 +280,42 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                 }
                 System.out.println("ipv4Inbound1: " + ipv4Inbound1);
 
-                double ipv4Inbound = (ipv4Inbound1/2) * 5 / 1000000;
+                double ipv4Inbound = (ipv4Inbound1 / 2) * 5 / 1000000;
 
 
                 double ipv4Outbound = ipv4Outbound1 - ipv4Outbound2;
-                ipv4Outbound = (ipv4Outbound/2) * 5 / 1000000;
+                ipv4Outbound = (ipv4Outbound / 2) * 5 / 1000000;
 
                 double vfourFlow = 0.01;
 
-                if((ipv4Outbound  < 0.01 && ipv4Outbound > 0) && (ipv4Inbound  < 0.01 && ipv4Inbound > 0)){
+                if ((ipv4Outbound < 0.01 && ipv4Outbound > 0) && (ipv4Inbound < 0.01 && ipv4Inbound > 0)) {
                     vfourFlow = 0.01;
-                }else{
-                    if (ipv4Outbound  < 0.01 && ipv4Outbound > 0) {
+                } else {
+                    if (ipv4Outbound < 0.01 && ipv4Outbound > 0) {
                         ipv4Outbound = 0.01;
                     }
-                    if (ipv4Inbound  < 0.01 && ipv4Inbound > 0) {
+                    if (ipv4Inbound < 0.01 && ipv4Inbound > 0) {
                         ipv4Inbound = 0.01;
                     }
                     vfourFlow = ipv4Inbound + ipv4Outbound;
                 }
 
 
-                double ipv6Inbound = (ipv6Inbound1/2) * 5 / 1000000;
+                double ipv6Inbound = (ipv6Inbound1 / 2) * 5 / 1000000;
 
                 double ipv6Outbound = ipv6Outbound1 - ipv6Outbound2;
 
-                ipv6Outbound =  (ipv6Outbound/2) * 5 / 1000000;
+                ipv6Outbound = (ipv6Outbound / 2) * 5 / 1000000;
 
                 double vsixFlow = 0.01;
 
-                if((ipv6Outbound  < 0.01 && ipv6Outbound > 0) && (ipv6Inbound  < 0.01 && ipv6Inbound > 0)){
+                if ((ipv6Outbound < 0.01 && ipv6Outbound > 0) && (ipv6Inbound < 0.01 && ipv6Inbound > 0)) {
                     vsixFlow = 0.01;
-                }else{
-                    if (ipv6Outbound  < 0.01 && ipv6Outbound > 0) {
+                } else {
+                    if (ipv6Outbound < 0.01 && ipv6Outbound > 0) {
                         ipv6Outbound = 0.01;
                     }
-                    if (ipv6Inbound  < 0.01 && ipv6Inbound > 0) {
+                    if (ipv6Inbound < 0.01 && ipv6Inbound > 0) {
                         ipv6Inbound = 0.01;
                     }
                     vsixFlow = ipv6Inbound + ipv6Outbound;
@@ -378,11 +370,11 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
 
     // 共享
-    public void insertTraffic(String data, FlowUnit unit, Date date){
-        if(StringUtil.isNotEmpty(data)){
+    public void insertTraffic(String data, FlowUnit unit, Date date) {
+        if (StringUtil.isNotEmpty(data)) {
             JSONArray jsonArray = JSONArray.parseArray(data);
             String rule = unit.getRule();
-            if(jsonArray.size() > 0){
+            if (jsonArray.size() > 0) {
 
                 double ipv4Inbound1 = 0;
                 double ipv4Inbound2 = 0;
@@ -398,7 +390,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-in")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-in")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -410,7 +402,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                         }
                     }
 
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-out")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-out")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -423,7 +415,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                     }
 
 
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-in")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-in")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -436,8 +428,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                     }
 
 
-
-                    if(jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-out")){
+                    if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv6-out")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -453,8 +444,8 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                 System.out.println("ipv4Inbound1: " + ipv4Inbound1);
                 System.out.println("ipv4Inbound2: " + ipv4Inbound2);
 
-                ipv4Inbound1 = (ipv4Inbound1/2) * 5 / 1000000;
-                ipv4Inbound2 = (ipv4Inbound2/2) * 5 / 1000000;
+                ipv4Inbound1 = (ipv4Inbound1 / 2) * 5 / 1000000;
+                ipv4Inbound2 = (ipv4Inbound2 / 2) * 5 / 1000000;
 
 
                 double a = ipv4Inbound1 - ipv4Inbound2;
@@ -462,13 +453,12 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
                 double vfourFlow = a + b;
 
-                ipv6Inbound1 = (ipv6Inbound1/2) * 5 / 1000000;
-                ipv6Inbound2 = (ipv6Inbound2/2) * 5 / 1000000;
+                ipv6Inbound1 = (ipv6Inbound1 / 2) * 5 / 1000000;
+                ipv6Inbound2 = (ipv6Inbound2 / 2) * 5 / 1000000;
 
 
                 double c = ipv6Inbound1 - ipv6Inbound2;
                 double d = ipv6Outbound1 - ipv6Outbound2;
-
 
 
                 double vsixFlow = c + d;
@@ -499,10 +489,10 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 //        return 0 ;
     }
 
-    public void insertTraffic2(String data, FlowUnit unit, Date date){
-        if(StringUtil.isNotEmpty(data)){
+    public void insertTraffic2(String data, FlowUnit unit, Date date) {
+        if (StringUtil.isNotEmpty(data)) {
             JSONArray jsonArray = JSONArray.parseArray(data);
-            if(jsonArray.size() > 0){
+            if (jsonArray.size() > 0) {
 
                 double ipv4Inbound = 0;
 
@@ -514,7 +504,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if(jsonObject.get("Protocol") != null && jsonObject.get("Protocol").equals("Ipv4")){
+                    if (jsonObject.get("Protocol") != null && jsonObject.get("Protocol").equals("Ipv4")) {
                         if (jsonObject.containsKey("Input")) {
                             ipv4Inbound += Double.parseDouble(jsonObject.getString("Input"));
                         }
@@ -523,7 +513,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                         }
                     }
 
-                    if(jsonObject.get("Protocol") != null && jsonObject.get("Protocol").equals("Ipv6")){
+                    if (jsonObject.get("Protocol") != null && jsonObject.get("Protocol").equals("Ipv6")) {
                         if (jsonObject.containsKey("Input")) {
                             ipv6Inbound += Double.parseDouble(jsonObject.getString("Input"));
                         }

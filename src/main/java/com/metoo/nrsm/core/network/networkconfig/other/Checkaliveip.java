@@ -59,7 +59,7 @@ public class Checkaliveip {
     @Scheduled(fixedRate = 60_000)
     public void scheduledMonitoring() {
 
-        if(!flag){
+        if (!flag) {
             return;
         }
         // 配置自动刷新
@@ -177,7 +177,7 @@ public class Checkaliveip {
      */
     private boolean shouldRefreshConfig() {
         return lastConfigUpdate == null ||
-               lastConfigUpdate.isBefore(LocalDateTime.now().minusMinutes(CONFIG_REFRESH_MINUTES));
+                lastConfigUpdate.isBefore(LocalDateTime.now().minusMinutes(CONFIG_REFRESH_MINUTES));
     }
 
     /**
@@ -185,13 +185,13 @@ public class Checkaliveip {
      */
     private boolean ping(String ip) throws IOException, InterruptedException {
         String[] command = System.getProperty("os.name").toLowerCase().contains("win") ?
-            new String[]{"ping", "-n", "1", ip} :
-            new String[]{"ping", "-c", "1", ip};
+                new String[]{"ping", "-n", "1", ip} :
+                new String[]{"ping", "-c", "1", ip};
 
         Process process = new ProcessBuilder(command).start();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             return reader.lines().anyMatch(line -> line.toLowerCase().contains("ttl=")) &&
-                   process.waitFor() == 0;
+                    process.waitFor() == 0;
         }
     }
 

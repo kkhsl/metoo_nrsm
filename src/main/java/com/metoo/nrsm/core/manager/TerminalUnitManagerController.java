@@ -43,10 +43,10 @@ public class TerminalUnitManagerController {
         if (unitSubnets == null || unitSubnets.isEmpty()) {
             return ResponseUtil.error("Input data cannot be empty");
         }
-        if(!unitSubnets.isEmpty()){
+        if (!unitSubnets.isEmpty()) {
             Map map = new HashMap();
             for (UnitSubnet unitSubnet : unitSubnets) {
-                if(map.get(unitSubnet.getUnitId()) != null){
+                if (map.get(unitSubnet.getUnitId()) != null) {
                     Unit unit2 = this.unitService.selectObjById(unitSubnet.getUnitId());
                     return ResponseUtil.badArgument(unit2.getUnitName() + " 网段名称重复");
                 }

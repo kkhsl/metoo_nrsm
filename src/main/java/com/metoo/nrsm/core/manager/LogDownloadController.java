@@ -28,6 +28,7 @@ import java.util.zip.ZipOutputStream;
 public class LogDownloadController {
 
     private static final Map<String, LogConfig> LOG_CONFIGS = new HashMap<>();
+
     static {
         LOG_CONFIGS.put("dhcp", new LogConfig(
                 "/var/log/dhcp",
@@ -137,6 +138,7 @@ public class LogDownloadController {
             zos.closeEntry();
         }
     }
+
     private LocalDate parseDate(String dateStr) {
         try {
             return LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);

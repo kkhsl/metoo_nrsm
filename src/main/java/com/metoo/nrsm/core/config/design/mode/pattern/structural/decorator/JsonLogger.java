@@ -8,12 +8,11 @@ import org.slf4j.Marker;
  * @author HKK
  * @version 1.0
  * @date 2024-03-29 16:35
- *
  * @title 装饰器模式（结构型模式）
- *
+ * <p>
  * 具体装饰器: Json-logger
  */
-public class JsonLogger extends DecoratorLogger{
+public class JsonLogger extends DecoratorLogger {
 
     public JsonLogger(Logger logger) {
         super(logger);

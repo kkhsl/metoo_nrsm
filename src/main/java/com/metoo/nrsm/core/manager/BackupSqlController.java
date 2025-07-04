@@ -98,12 +98,12 @@ public class BackupSqlController {
 //    }
 
     @PostMapping("/list")
-    public Object list(@RequestBody(required = false) BackupSqlDTO dto){
-        if(dto == null){
+    public Object list(@RequestBody(required = false) BackupSqlDTO dto) {
+        if (dto == null) {
             dto = new BackupSqlDTO();
         }
         Page<BackupSql> page = this.backupSqlService.selectObjConditionQuery(dto);
-        if(page.getResult().size() > 0){
+        if (page.getResult().size() > 0) {
             return ResponseUtil.ok(new PageInfo<BackupSql>(page));
         }
         return ResponseUtil.ok();
@@ -111,6 +111,7 @@ public class BackupSqlController {
 
     /**
      * 备份
+     *
      * @param name
      * @return
      */
@@ -147,7 +148,7 @@ public class BackupSqlController {
             Process process2 = Runtime.getRuntime().exec(dump);
 
             // 等待进程完成，设定超时
-            if (!process2.waitFor(60*3, TimeUnit.SECONDS)) {
+            if (!process2.waitFor(60 * 3, TimeUnit.SECONDS)) {
                 process2.destroy(); // 超时则终止进程
                 return ResponseUtil.error("备份超时");
             }
@@ -192,15 +193,15 @@ public class BackupSqlController {
         String scriptPath1;
         String scriptPath2;
         String backupDir = null;
-        String backupDir2=null;
+        String backupDir2 = null;
         if ("dev".equals(Global.env)) {
-            backupDir=Global.LICENSEPATHLOCAL;
-            backupDir2=Global.DBPATHLOCAL;
+            backupDir = Global.LICENSEPATHLOCAL;
+            backupDir2 = Global.DBPATHLOCAL;
             scriptPath1 = Global.DBSCRIPTPATHLOCAL; // Windows 脚本路径
             scriptPath2 = Global.DBSCRIPTPATHLOCAL2; // Windows 脚本路径
         } else {
-            backupDir=Global.LICENSEPATH;
-            backupDir2=Global.DBPATH;
+            backupDir = Global.LICENSEPATH;
+            backupDir2 = Global.DBPATH;
             scriptPath1 = Global.DBSCRIPTPATH; // Linux 脚本路径
             scriptPath2 = Global.DBSCRIPTPATH2; // Linux 脚本路径
         }
@@ -279,8 +280,6 @@ public class BackupSqlController {
     }
 
 
-
-
     // 解析大小字符串并转换为字节
     private long parseSize(String size) {
         String[] parts = size.trim().split(" ");
@@ -306,7 +305,6 @@ public class BackupSqlController {
                 return fileSize;
         }
     }
-
 
 
     public static void main(String[] args) {
@@ -555,14 +553,14 @@ public class BackupSqlController {
         String size = "";
         String fileName = name + ".sql";
         if ("dev".equals(Global.env)) {
-            size = getSizeWindows(dbPath+File.separator + fileName);
-        }else{
-            size = getSizeLinux(dbPath+File.separator + fileName);
+            size = getSizeWindows(dbPath + File.separator + fileName);
+        } else {
+            size = getSizeLinux(dbPath + File.separator + fileName);
         }
         return size;
     }
 
-    public String  getSizeWindows(String path) {
+    public String getSizeWindows(String path) {
         // 指定文件路径
         String filePath = path;
 
@@ -638,11 +636,11 @@ public class BackupSqlController {
     }
 
     private Object deleteBackupFile(String backupName) {
-        String savePath=null;
+        String savePath = null;
         if ("dev".equals(Global.env)) {
-            savePath = Global.DBPATHLOCAL + "/" + backupName+".sql";
-        }else{
-            savePath = Global.DBPATH + "/" + backupName+".sql";
+            savePath = Global.DBPATHLOCAL + "/" + backupName + ".sql";
+        } else {
+            savePath = Global.DBPATH + "/" + backupName + ".sql";
         }
         File saveFile = new File(savePath);
         if (saveFile.exists()) {
@@ -663,23 +661,23 @@ public class BackupSqlController {
     // 上传
     @ApiOperation("上传")
     @RequestMapping("/upload")
-    public Object uploadConfig(@RequestParam(value = "file", required = false) MultipartFile file, String name){
-            if(file != null){
-                boolean accessory = this.fileUtil.uploadFile(file, name,  ".sql", Global.DBPATH);
-                if(accessory){
-                    return ResponseUtil.ok();
-                }else{
-                    return ResponseUtil.error();
-                }
+    public Object uploadConfig(@RequestParam(value = "file", required = false) MultipartFile file, String name) {
+        if (file != null) {
+            boolean accessory = this.fileUtil.uploadFile(file, name, ".sql", Global.DBPATH);
+            if (accessory) {
+                return ResponseUtil.ok();
+            } else {
+                return ResponseUtil.error();
             }
+        }
         return ResponseUtil.badArgument();
     }
 
     // 下载
     @GetMapping("/down/{id}")
-    public Object down(@PathVariable Long id, HttpServletResponse response){
+    public Object down(@PathVariable Long id, HttpServletResponse response) {
         BackupSql backupSql = this.backupSqlService.selectObjById(id);
-        if(backupSql != null){
+        if (backupSql != null) {
             String path = Global.DBPATH + File.separator + backupSql.getName() + File.separator + Global.DBNAME + ".sql";
             File file = new File(path);
             if (file.getParentFile().exists()) {
@@ -697,18 +695,18 @@ public class BackupSqlController {
 
     }
 
-    public String recover(String name){
+    public String recover(String name) {
         String dbPath = getDbPath();
         String recover = "";
         if ("dev".equals(Global.env)) {
             recover = recoverWindows(dbPath, name);
-        }else{
+        } else {
             recover = recoverLinux(dbPath, name);
         }
         return recover;
     }
 
-//    public String recoverWindows(){
+    //    public String recoverWindows(){
 //        StringBuilder sb = new StringBuilder();
 //        sb.append("C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe");
 //        sb.append(" -h"+ "127.0.0.1");
@@ -721,7 +719,7 @@ public class BackupSqlController {
 //        sb.append(" C:\\Users\\Administrator\\Desktop\\backup\\db\\TestAbstrack\\metoo_nrsm_local.sql");
 //        return sb.toString();
 //    }
-    public String recoverWindows(String dbPath, String dbName){
+    public String recoverWindows(String dbPath, String dbName) {
         StringBuilder command = new StringBuilder();
         command.append("C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe").append(" ");
         command.append("--user=").append("root").append(" ");
@@ -731,7 +729,7 @@ public class BackupSqlController {
         return command.toString();
     }
 
-    public String recoverLinux(String dbPath, String dbName){
+    public String recoverLinux(String dbPath, String dbName) {
         StringBuilder sb = new StringBuilder();
 //        sb.append("mysql");
 //        sb.append(" -h"+ "127.0.0.1");
@@ -751,29 +749,29 @@ public class BackupSqlController {
         return command.toString();
     }
 
-    public String dump(String name){
+    public String dump(String name) {
         String dbPath = getDbPath();
         String dump = "";
         if ("dev".equals(Global.env)) {
             dump = dumpWindows(dbPath, name);
-        }else{
+        } else {
             dump = dumpLinux(dbPath, name);
         }
         return dump;
     }
 
-    public String dump1(String name){
+    public String dump1(String name) {
         String dbPath = getDbPath1();
         String dump = "";
         if ("dev".equals(Global.env)) {
             dump = dumpWindows1(dbPath, name);
-        }else{
+        } else {
             dump = dumpLinux1(dbPath, name);
         }
         return dump;
     }
 
-    public String dumpWindows(String savePath, String fileName){
+    public String dumpWindows(String savePath, String fileName) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append("C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump")
@@ -795,7 +793,7 @@ public class BackupSqlController {
         return stringBuilder.toString();
     }
 
-    public String dumpWindows1(String savePath, String fileName){
+    public String dumpWindows1(String savePath, String fileName) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append("C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump")
@@ -819,7 +817,7 @@ public class BackupSqlController {
         return stringBuilder.toString();
     }
 
-    public String dumpLinux(String savePath, String fileName){
+    public String dumpLinux(String savePath, String fileName) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append("mysqldump")
@@ -841,7 +839,7 @@ public class BackupSqlController {
         return stringBuilder.toString();
     }
 
-    public String dumpLinux1(String savePath, String fileName){
+    public String dumpLinux1(String savePath, String fileName) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append("mysqldump")
@@ -865,12 +863,12 @@ public class BackupSqlController {
         return stringBuilder.toString();
     }
 
-    public String getDbPath(){
+    public String getDbPath() {
         // 命令行
         String dbPath = "";
-        if ("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             dbPath = Global.DBPATHLOCAL;
-        }else{
+        } else {
             dbPath = Global.DBPATH;
         }
         File dbFile = new File(dbPath);
@@ -883,12 +881,12 @@ public class BackupSqlController {
         return dbPath;
     }
 
-    public String getDbPath1(){
+    public String getDbPath1() {
         // 命令行
         String dbPath = "";
-        if ("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             dbPath = Global.LICENSEPATHLOCAL;
-        }else{
+        } else {
             dbPath = Global.LICENSEPATH;
         }
         File dbFile = new File(dbPath);
@@ -943,7 +941,7 @@ public class BackupSqlController {
     }
 
     @Test
-    public void getWindowsSpace(){
+    public void getWindowsSpace() {
         try {
             // 执行 wmic 命令并获取输出
             Process process = Runtime.getRuntime().exec("wmic logicaldisk get FreeSpace");
@@ -981,7 +979,7 @@ public class BackupSqlController {
 
 
     @Test
-    public void getLinuxSpace(){
+    public void getLinuxSpace() {
         String url = "jdbc:mysql://localhost:3306/nsrm";
         String user = "root";
         String password = "xsl101410";

@@ -47,6 +47,7 @@ public class FlowUnitServiceImpl implements IFlowUnitService {
     public List<FlowUnit> selectObjByMap(Map params) {
         return this.flowUnitMapper.selectObjByMap(params);
     }
+
     @Override
     public List<FlowUnit> selectByUnitId(Long unitId) {
         return this.flowUnitMapper.selectByUnitId(unitId);
@@ -69,7 +70,7 @@ public class FlowUnitServiceImpl implements IFlowUnitService {
 
     @Override
     public Result selectObjConditionQuery(UnitNewDTO dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new UnitNewDTO();
         }
         Page<FlowUnit> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
@@ -77,16 +78,16 @@ public class FlowUnitServiceImpl implements IFlowUnitService {
 
         if (page.getResult().size() > 0) {
             for (FlowUnit instance : page.getResult()) {
-                if(instance.getGatewayId() != null
-                        && !instance.getGatewayId().equals("")){
+                if (instance.getGatewayId() != null
+                        && !instance.getGatewayId().equals("")) {
                     Gateway gateway = this.gatewayService.selectObjById(instance.getGatewayId());
-                    if(gateway != null){
+                    if (gateway != null) {
                         instance.setGatewayName(gateway.getName());
                     }
                 }
-                if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
+                if (instance.getUnitId() != null && !instance.getUnitId().equals("")) {
                     Unit unit2 = this.unitService.selectObjById(instance.getUnitId());
-                    if(unit2 != null){
+                    if (unit2 != null) {
                         instance.setUnitName(unit2.getUnitName());
                     }
                 }
@@ -98,6 +99,7 @@ public class FlowUnitServiceImpl implements IFlowUnitService {
         data.put("gateway", gatewayList);
         return ResponseUtil.ok(new PageInfo<FlowUnit>(page, data));
     }
+
     @Override
     public Result selectAllQuery() {
         List<FlowUnit> units = this.flowUnitMapper.selectAllQuery();
@@ -108,11 +110,11 @@ public class FlowUnitServiceImpl implements IFlowUnitService {
     public Result add() {
         Map data = new HashMap();
         List<Gateway> gatewayList = this.gatewayService.selectObjByMap(null);
-        if(gatewayList.size() > 0){
+        if (gatewayList.size() > 0) {
             for (Gateway gateway : gatewayList) {
-                if(gateway.getVendorId() != null && !gateway.getVendorId().equals("")){
+                if (gateway.getVendorId() != null && !gateway.getVendorId().equals("")) {
                     Vendor vendor = this.vendorService.selectObjById(gateway.getVendorId());
-                    if(vendor != null){
+                    if (vendor != null) {
                         gateway.setVendorName(vendor.getName());
                         gateway.setVendorAlias(vendor.getNameEn());
                     }
@@ -128,17 +130,17 @@ public class FlowUnitServiceImpl implements IFlowUnitService {
 
     @Override
     public Result save(FlowUnit instance) {
-        if(instance.getGatewayId() != null && !instance.getGatewayId().equals("")){
+        if (instance.getGatewayId() != null && !instance.getGatewayId().equals("")) {
             Gateway gateway = this.gatewayService.selectObjById(instance.getGatewayId());
-            if(gateway == null){
+            if (gateway == null) {
                 return ResponseUtil.badArgument("网关设备不存在");
             }
         }
-        if(instance.getUnitId() != null && !instance.getUnitId().equals("")){
+        if (instance.getUnitId() != null && !instance.getUnitId().equals("")) {
             Unit unit2 = this.unitService.selectObjById(instance.getUnitId());
-            if(unit2 == null){
+            if (unit2 == null) {
                 return ResponseUtil.badArgument("单位不存在");
-            }else{
+            } else {
                 instance.setUnitName(unit2.getUnitName());
             }
         }
@@ -159,10 +161,10 @@ public class FlowUnitServiceImpl implements IFlowUnitService {
 
     @Override
     public Result delete(String ids) {
-        if(ids != null && !ids.equals("")){
-            for (String id : ids.split(",")){
+        if (ids != null && !ids.equals("")) {
+            for (String id : ids.split(",")) {
                 FlowUnit unit = this.flowUnitMapper.selectObjById(Long.parseLong(id));
-                if(unit != null){
+                if (unit != null) {
                     try {
                         this.flowUnitMapper.delete(Long.parseLong(id));
                     } catch (NumberFormatException e) {

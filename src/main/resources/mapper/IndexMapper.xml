@@ -2,35 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.IndexMapper">
 
-   <!-- <resultMap id="Base_Menu_Map" type="MenuVo">
-        <result column="roleGroupId" property="roleGroupId"></result>
-        <result column="roleGroupName" property="roleGroupName"></result>
-        <result column="roleGroupIcon" property="roleGroupIcon"></result>
-        <result column="roleGroupUrl" property="roleGroupUrl"></result>
-        <collection property="role" ofType="RoleReq">
-            <id column="roleId" property="roleId"></id>
-            <result column="roleName" property="roleName"></result>
-            <result column="roleUrl" property="roleUrl"></result>
-            <result column="roleComponent" property="roleComponent"></result>
-        </collection>
-    </resultMap>
+    <!-- <resultMap id="Base_Menu_Map" type="MenuVo">
+         <result column="roleGroupId" property="roleGroupId"></result>
+         <result column="roleGroupName" property="roleGroupName"></result>
+         <result column="roleGroupIcon" property="roleGroupIcon"></result>
+         <result column="roleGroupUrl" property="roleGroupUrl"></result>
+         <collection property="role" ofType="RoleReq">
+             <id column="roleId" property="roleId"></id>
+             <result column="roleName" property="roleName"></result>
+             <result column="roleUrl" property="roleUrl"></result>
+             <result column="roleComponent" property="roleComponent"></result>
+         </collection>
+     </resultMap>
 
-    <update id="Base_Column_List">
-        mrg.id roleGroupId, mrg.`name` roleGroupName, mrg.icon roleGroupIcon,mrg.url roleGroupUrl,
-        mr.id roleId, mr.name roleName, mr.url roleUrl, mr.component roleComponent
-    </update>
+     <update id="Base_Column_List">
+         mrg.id roleGroupId, mrg.`name` roleGroupName, mrg.icon roleGroupIcon,mrg.url roleGroupUrl,
+         mr.id roleId, mr.name roleName, mr.url roleUrl, mr.component roleComponent
+     </update>
 
-    <select id="findMenu" parameterType="java.lang.Long" resultMap="Base_Menu_Map">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM metoo_role_group mrg
-        LEFT JOIN metoo_role mr ON mr.rg_id = mrg.id
-        LEFT JOIN metoo_user_role mur ON mur.role_id = mr.id
-        LEFT JOIN metoo_user mu ON mu.id = mur.user_id
-        WHERE
-        mu.id = #{userId}
-        ORDER BY mrg.sequence DESC, mr.sequence DESC
-    </select>-->
+     <select id="findMenu" parameterType="java.lang.Long" resultMap="Base_Menu_Map">
+         SELECT
+         <include refid="Base_Column_List"/>
+         FROM metoo_role_group mrg
+         LEFT JOIN metoo_role mr ON mr.rg_id = mrg.id
+         LEFT JOIN metoo_user_role mur ON mur.role_id = mr.id
+         LEFT JOIN metoo_user mu ON mu.id = mur.user_id
+         WHERE
+         mu.id = #{userId}
+         ORDER BY mrg.sequence DESC, mr.sequence DESC
+     </select>-->
 
     <resultMap id="Base_Nav_Map" type="com.metoo.nrsm.core.vo.MenuVo">
         <id column="id" property="id"/>
@@ -53,7 +53,7 @@
             <result column="res2_sequence" property="sequence"></result>
             <result column="res2_icon" property="icon"></result>
             <result column="res2_hidden" property="hidden"></result>
-         </collection>
+        </collection>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -63,69 +63,69 @@
         res2.icon res2_icon, res2.hidden res2_hidden
     </sql>
 
-  <!--  <select id="findMenu" parameterType="java.lang.Long" resultMap="Base_Nav_Map">
-        SELECT <include refid="Base_Column_List"/>
-        FROM metoo_res res1
-	      JOIN metoo_res res2 ON res2.parentId = res1.id
-        WHERE res2.level = 1 AND res1.level = 0
-        ORDER BY res1.sequence DESC, res2.sequence DESC
-    </select>-->
+    <!--  <select id="findMenu" parameterType="java.lang.Long" resultMap="Base_Nav_Map">
+          SELECT <include refid="Base_Column_List"/>
+          FROM metoo_res res1
+            JOIN metoo_res res2 ON res2.parentId = res1.id
+          WHERE res2.level = 1 AND res1.level = 0
+          ORDER BY res1.sequence DESC, res2.sequence DESC
+      </select>-->
 
     <select id="findMenu" parameterType="java.lang.Long" resultMap="Base_Nav_Map">
         <!--SELECT-->
-            <!--<include refid="Base_Column_List"/>-->
+        <!--<include refid="Base_Column_List"/>-->
         <!--FROM metoo_res res-->
         <!--JOIN (-->
-            <!--SELECT res.*-->
-            <!--FROM metoo_res res-->
-                <!--LEFT JOIN metoo_role_res role_res ON role_res.res_id = res.id-->
-                <!--LEFT JOIN metoo_role role ON role.id = role_res.role_id-->
-                <!--LEFT JOIN metoo_user_role user_role ON user_role.role_id = role.id-->
-                <!--LEFT JOIN metoo_user user ON user.id = user_role.user_id-->
-                <!--WHERE-->
-                    <!--user.id = #{id}-->
-                <!--AND-->
-                    <!--res.level = 1-->
+        <!--SELECT res.*-->
+        <!--FROM metoo_res res-->
+        <!--LEFT JOIN metoo_role_res role_res ON role_res.res_id = res.id-->
+        <!--LEFT JOIN metoo_role role ON role.id = role_res.role_id-->
+        <!--LEFT JOIN metoo_user_role user_role ON user_role.role_id = role.id-->
+        <!--LEFT JOIN metoo_user user ON user.id = user_role.user_id-->
+        <!--WHERE-->
+        <!--user.id = #{id}-->
+        <!--AND-->
+        <!--res.level = 1-->
         <!--) res2	ON res2.parentId = res.id-->
-            <!--WHERE-->
-              <!--res.level = 0-->
+        <!--WHERE-->
+        <!--res.level = 0-->
         <!--ORDER BY res.sequence ASC,res2.sequence ASC-->
         SELECT
-            res.id, res.name, res.value, res.sequence, res.componentName, res.icon,
-            res.url, res.component, res.hidden, res.level,
-            res2.id res2_id, res2.name res2_name, res2.value res2_value, res2.url res2_url,
-            res2.component res_component, res2.sequence res2_sequence, res2.componentName res2_componentName,
-            res2.icon res2_icon, res2.hidden res2_hidden
+        res.id, res.name, res.value, res.sequence, res.componentName, res.icon,
+        res.url, res.component, res.hidden, res.level,
+        res2.id res2_id, res2.name res2_name, res2.value res2_value, res2.url res2_url,
+        res2.component res_component, res2.sequence res2_sequence, res2.componentName res2_componentName,
+        res2.icon res2_icon, res2.hidden res2_hidden
         FROM
         metoo_res res
         LEFT JOIN (
         -- 用户有权限的子菜单(level=1)
-            SELECT res.*
-            FROM metoo_res res
-            JOIN metoo_role_res role_res ON role_res.res_id = res.id
-            JOIN metoo_role role ON role.id = role_res.role_id
-            JOIN metoo_user_role user_role ON user_role.role_id = role.id
-            JOIN metoo_user user ON user.id = user_role.user_id
-            WHERE
-              user.id = #{userId}
-            AND
-              res.level = 1
+        SELECT res.*
+        FROM metoo_res res
+        JOIN metoo_role_res role_res ON role_res.res_id = res.id
+        JOIN metoo_role role ON role.id = role_res.role_id
+        JOIN metoo_user_role user_role ON user_role.role_id = role.id
+        JOIN metoo_user user ON user.id = user_role.user_id
+        WHERE
+        user.id = #{userId}
+        AND
+        res.level = 1
         ) res2 ON res2.parentId = res.id
         WHERE
         res.level = 0
         AND (
         -- 情况1：用户有该顶级菜单的直接权限
-            EXISTS (
-            SELECT 1
-            FROM metoo_role_res rr
-            JOIN metoo_role r ON r.id = rr.role_id
-            JOIN metoo_user_role ur ON ur.role_id = r.id
-            WHERE ur.user_id = #{userId} AND rr.res_id = res.id
+        EXISTS (
+        SELECT 1
+        FROM metoo_role_res rr
+        JOIN metoo_role r ON r.id = rr.role_id
+        JOIN metoo_user_role ur ON ur.role_id = r.id
+        WHERE ur.user_id = #{userId} AND rr.res_id = res.id
         )
         -- 情况2：或者用户有该菜单的子菜单权限
         OR res2.id IS NOT NULL
         )
         ORDER BY
-          res.sequence ASC, res2.sequence ASC
-  </select>
+        res.sequence ASC, res2.sequence ASC
+    </select>
 </mapper>

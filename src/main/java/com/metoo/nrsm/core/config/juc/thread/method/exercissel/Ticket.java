@@ -11,20 +11,19 @@ public class Ticket {
 
 
     @RequestMapping("/ttt")
-    public void ttt(){
+    public void ttt() {
 
     }
-
 
 
     static Random random = new Random();
 
-    public static int random(int amount){
+    public static int random(int amount) {
         return random.nextInt(amount) + 1;
     }
 }
 
-class TicketWindow{
+class TicketWindow {
 
     private int count;
 
@@ -32,15 +31,15 @@ class TicketWindow{
         this.count = count;
     }
 
-    public int getCount(){
+    public int getCount() {
         return this.count;
     }
 
-    public synchronized int sell(int amout){
-        if(this.count >= amout){
+    public synchronized int sell(int amout) {
+        if (this.count >= amout) {
             this.count -= amout;
             return amout;
-        }else{
+        } else {
             return 0;
         }
     }

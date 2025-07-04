@@ -144,7 +144,7 @@ public class DiskServiceImpl implements IDiskService {
 
     @Override
     public boolean save(Disk instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
 
                 this.diskMapper.save(instance);
@@ -153,7 +153,7 @@ public class DiskServiceImpl implements IDiskService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.diskMapper.update(instance);
                 return true;

@@ -67,7 +67,7 @@ public class AddressPoolV6FixedServiceImpl implements IAddressPoolV6FixedService
 
     @Override
     public int save(AddressPoolV6Fixed instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 instance.setAddTime(new Date());
                 int i = this.addressPoolV6FixedMapper.save(instance);
@@ -86,7 +86,7 @@ public class AddressPoolV6FixedServiceImpl implements IAddressPoolV6FixedService
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
 //                int i = this.addressPoolV6FixedMapper.update(instance);
 //                try {
@@ -98,7 +98,7 @@ public class AddressPoolV6FixedServiceImpl implements IAddressPoolV6FixedService
                 // 判断是否是否变化
                 AddressPoolV6Fixed obj = this.addressPoolV6FixedMapper.selectObjById(instance.getId());
                 boolean flag = Md5Crypt.getDiffrent(obj, instance);
-                if(!flag){
+                if (!flag) {
                     // 更新应用按钮
                     SysConfig sysconfig = this.sysConfigService.select();
                     sysconfig.setV6_status(true);
@@ -127,7 +127,7 @@ public class AddressPoolV6FixedServiceImpl implements IAddressPoolV6FixedService
 //            return i;
             AddressPoolV6Fixed obj = this.addressPoolV6FixedMapper.selectObjById(instance.getId());
             boolean flag = Md5Crypt.getDiffrent(obj, instance);
-            if(!flag){
+            if (!flag) {
                 // 更新应用按钮
                 SysConfig sysconfig = this.sysConfigService.select();
                 sysconfig.setV6_status(true);

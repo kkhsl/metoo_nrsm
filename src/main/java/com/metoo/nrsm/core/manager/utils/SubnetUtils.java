@@ -23,13 +23,14 @@ import java.util.List;
 @Component
 public class SubnetUtils {
 
-//    @Autowired
+    //    @Autowired
     private ISubnetService subnetService;
     @Autowired
     private Ipv4DetailService ipv4DetailService;
     @Autowired
     private IAddressService addressService;
     private final GatherDataThreadPool threadPool;
+
     @Autowired
     public SubnetUtils(GatherDataThreadPool threadPool) {
         this.threadPool = threadPool;
@@ -41,7 +42,7 @@ public class SubnetUtils {
     }
 
 
-    public void cardingSubnetIp(){
+    public void cardingSubnetIp() {
         // 同步子网ip
         // 获取所有子网一级
         List<Subnet> subnets = this.subnetService.selectSubnetByParentId(null);

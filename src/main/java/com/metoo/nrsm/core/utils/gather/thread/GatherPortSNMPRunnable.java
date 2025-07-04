@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
  * @date 2024-02-20 11:36
  */
 @Component
-public class GatherPortSNMPRunnable implements Runnable{
+public class GatherPortSNMPRunnable implements Runnable {
 
 
     private NetworkElement networkElement;
@@ -53,10 +53,11 @@ public class GatherPortSNMPRunnable implements Runnable{
 //            JSONArray result = SNMPv2Request.getPortTable(snmpParams);
             JSONArray result = SNMPv3Request.getPortTable(SNMPParamFactory.createSNMPParam(networkElement));
 
-            if(!result.isEmpty()){
+            if (!result.isEmpty()) {
                 // 使用 Jackson 将 JSON 字符串转换为
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Port> ports = objectMapper.readValue(result.toString(), new TypeReference<List<Port>>(){});
+                List<Port> ports = objectMapper.readValue(result.toString(), new TypeReference<List<Port>>() {
+                });
                 ports.forEach(e -> {
                     e.setDeviceUuid(networkElement.getUuid());
                     e.setAddTime(date);
@@ -65,8 +66,8 @@ public class GatherPortSNMPRunnable implements Runnable{
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(latch != null){
+        } finally {
+            if (latch != null) {
                 latch.countDown();
             }
         }

@@ -23,17 +23,17 @@ import java.util.*;
 
 /**
  * <p>
- *     Title: FileUtil.java
+ * Title: FileUtil.java
  * </p>
  *
  * <p>
- *     Desciption: 文件工具管理类；
- *        负责创建文件
- *       文件夹权限修改等;
+ * Desciption: 文件工具管理类；
+ * 负责创建文件
+ * 文件夹权限修改等;
  * </p>
  *
  * <author>
- *     HKK
+ * HKK
  * </author>
  */
 
@@ -156,13 +156,12 @@ public class FileUtil {
     public static void deleteAll(File file) {
         if (file.isFile() || file.list().length == 0) {
             file.delete();
-        }else{
+        } else {
             for (File f : file.listFiles()) {
                 deleteAll(f); // 递归删除每一个文件
             }
             file.delete(); // 删除文件夹
         }
-
 
 
         try {
@@ -182,7 +181,7 @@ public class FileUtil {
      */
     public static void storeFile(String filePath) throws IllegalStateException, IOException {
         File file = new File(filePath);
-        if(!file.isDirectory() ){
+        if (!file.isDirectory()) {
             file.mkdirs();
         }
 
@@ -232,7 +231,7 @@ public class FileUtil {
     /**
      * 修改文件/目录所有者
      */
-    public static void possessor(String object){
+    public static void possessor(String object) {
         Path path = Paths.get(object);
         FileOwnerAttributeView foav = Files.getFileAttributeView(path,
                 FileOwnerAttributeView.class);
@@ -250,10 +249,11 @@ public class FileUtil {
         }
 
     }
+
     /**
      * 修改文件/目录所有组
      */
-    public static void groups(){
+    public static void groups() {
 
     }
 
@@ -286,10 +286,10 @@ public class FileUtil {
     }
 
     public boolean uploadFile(MultipartFile file, String fileName,
-                                String ext, String path){
+                              String ext, String path) {
 //        boolean flag = this.createFile(file, fileName, path);
         boolean flag = false;
-        File fil = new File(path + File.separator + fileName + File.separator + Global.DBNAME  + ext);
+        File fil = new File(path + File.separator + fileName + File.separator + Global.DBNAME + ext);
         if (!fil.getParentFile().exists()) {
             fil.getParentFile().mkdirs();
         }
@@ -300,24 +300,24 @@ public class FileUtil {
             e.printStackTrace();
             flag = false;
         }
-        if(flag){
+        if (flag) {
             String size = null;
             try {
-                size = this.getSize(path + File.separator + fileName + File.separator + Global.DBNAME  + ext);
+                size = this.getSize(path + File.separator + fileName + File.separator + Global.DBNAME + ext);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            boolean accessory = this.createBackupSql(fileName,size);
-            if(accessory){
+            boolean accessory = this.createBackupSql(fileName, size);
+            if (accessory) {
                 return true;
-            }else{
+            } else {
                 // 删除文件
             }
         }
         return false;
     }
 
-    public boolean createFile(MultipartFile file, String fileName, String path){
+    public boolean createFile(MultipartFile file, String fileName, String path) {
         File fil = new File(path + fileName);
         if (!fil.getParentFile().exists()) {
             fil.getParentFile().mkdirs();
@@ -331,7 +331,7 @@ public class FileUtil {
         }
     }
 
-    public boolean createBackupSql(String fileName, String size){
+    public boolean createBackupSql(String fileName, String size) {
         // 创建记录
 //        BackupSql backupSql = this.backupSqlService.selectObjByName(fileName);
 //        if(backupSql == null){
@@ -341,14 +341,14 @@ public class FileUtil {
         backupSql.setName(fileName);
         backupSql.setSize(size);
         int i = this.backupSqlService.save(backupSql);
-        if(i > 0){
+        if (i > 0) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public String getSize(String path){
+    public String getSize(String path) {
         try {
             Process p = Runtime.getRuntime().exec("du -sh " + path);
 
@@ -362,7 +362,7 @@ public class FileUtil {
 
                 StringBuilder builder = new StringBuilder();
 
-                while((line = reader.readLine())!= null){
+                while ((line = reader.readLine()) != null) {
 
                     builder.append(line);
 
@@ -380,11 +380,11 @@ public class FileUtil {
 
                 p.destroy();
 
-                if (builder.length()==0) {
+                if (builder.length() == 0) {
                     return "";
                 } else {
                     String str = builder.substring(0, builder.length() - System.lineSeparator().length());
-                    if(str.indexOf("/") > -1){
+                    if (str.indexOf("/") > -1) {
                         return str.substring(0, str.indexOf("/")).trim();
                     }
                     return builder.substring(0, builder.length() - System.lineSeparator().length());
@@ -399,7 +399,7 @@ public class FileUtil {
         return "";
     }
 
-    public boolean createAccessory(String fileName, String ext, String path, int fileSize){
+    public boolean createAccessory(String fileName, String ext, String path, int fileSize) {
         Accessory accessory = new Accessory();
         accessory.setAddTime(new Date());
         accessory.setA_name(fileName);
@@ -408,7 +408,7 @@ public class FileUtil {
             accessory.setA_ext(ext);
             accessory.setA_size(fileSize);
             int i = this.accessoryService.save(accessory);
-            if(i > 0){
+            if (i > 0) {
                 return true;
             }
             return false;

@@ -4,11 +4,11 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.TerminalDiagnosisMapper">
 
     <resultMap id="terminalDiagnosisMap" type="com.metoo.nrsm.entity.TerminalDiagnosis">
-        <id property="id" column="id" />
-        <result property="createTime" column="create_time" />
-        <result property="status" column="status" jdbcType="TINYINT" javaType="java.lang.Integer" />
-        <result property="name" column="name" />
-        <result property="type" column="type" />
+        <id property="id" column="id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="status" column="status" jdbcType="TINYINT" javaType="java.lang.Integer"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
     </resultMap>
 
     <select id="selectObjByType" parameterType="java.lang.Integer" resultMap="terminalDiagnosisMap">

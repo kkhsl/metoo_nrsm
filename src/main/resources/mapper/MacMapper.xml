@@ -33,13 +33,13 @@
             </if>
             <if test="tags != null">
                 AND tag in
-                <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="tags" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="notMacSet != null">
                 AND mac not in
-                <foreach collection="notMacSet" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="notMacSet" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -50,119 +50,119 @@
         SELECT d1.*
         FROM metoo_mac d1
         WHERE tag = 'DE' AND (remoteDevice IS NULL OR remoteDevice NOT LIKE 'NSwitch%')
-		AND NOT EXISTS (
-				SELECT
-						1
-				FROM
-						metoo_terminal d2
-				WHERE
-						 d2.deviceUuid2 = d1.deviceUuid
-				AND d2.deviceTypeId = 34
-				AND d1.remoteDevice = d2.deviceName
-		)
+        AND NOT EXISTS (
+        SELECT
+        1
+        FROM
+        metoo_terminal d2
+        WHERE
+        d2.deviceUuid2 = d1.deviceUuid
+        AND d2.deviceTypeId = 34
+        AND d1.remoteDevice = d2.deviceName
+        )
     </select>
 
     <select id="selectTagDEWithoutNswitch" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-				d1.*
-		FROM
-				metoo_mac d1
-		WHERE
-				tag = 'DE'
-		AND remoteDevice NOT LIKE 'NSwitch%'
-		AND NOT EXISTS (
-				SELECT
-						1
-				FROM
-						metoo_terminal d2
-				WHERE
-						 d2.deviceUuid2 = d1.deviceUuid
-				AND d2.deviceTypeId = 34
-				AND d1.remoteDevice = d2.deviceName
-		)
+        d1.*
+        FROM
+        metoo_mac d1
+        WHERE
+        tag = 'DE'
+        AND remoteDevice NOT LIKE 'NSwitch%'
+        AND NOT EXISTS (
+        SELECT
+        1
+        FROM
+        metoo_terminal d2
+        WHERE
+        d2.deviceUuid2 = d1.deviceUuid
+        AND d2.deviceTypeId = 34
+        AND d1.remoteDevice = d2.deviceName
+        )
     </select>
 
     <select id="selectTagDEWithNswitch" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-				d1.*
-		FROM
-				metoo_mac d1
-		WHERE
-				tag = 'DE'
-		AND remoteDevice LIKE 'NSwitch%'
-		AND NOT EXISTS (
-				SELECT
-						1
-				FROM
-						metoo_terminal d2
-				WHERE
-						 d2.deviceUuid2 = d1.deviceUuid
-				AND d2.deviceTypeId = 34
-				AND d1.remoteDevice = d2.deviceName
-		)
+        d1.*
+        FROM
+        metoo_mac d1
+        WHERE
+        tag = 'DE'
+        AND remoteDevice LIKE 'NSwitch%'
+        AND NOT EXISTS (
+        SELECT
+        1
+        FROM
+        metoo_terminal d2
+        WHERE
+        d2.deviceUuid2 = d1.deviceUuid
+        AND d2.deviceTypeId = 34
+        AND d1.remoteDevice = d2.deviceName
+        )
     </select>
 
     <select id="selectHistoryTagDEWithNswitch" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-         d1.*
+        d1.*
         FROM
-         metoo_mac d1
+        metoo_mac d1
         WHERE
-         tag = 'DE'
+        tag = 'DE'
         AND remoteDevice LIKE 'NSwitch%'
         AND NOT EXISTS (
-          SELECT
-            1
-          FROM
-            metoo_terminal_history d2
-          WHERE
-            d2.deviceUuid2 = d1.deviceUuid
-          AND d2.deviceTypeId = 34
-          AND d1.remoteDevice = d2.deviceName
-          AND d2.addTime = (
-              SELECT
-                addTime
-              FROM
-                metoo_terminal_history
-              WHERE
-                addTime &lt;= #{time}
-              ORDER BY addTime DESC limit 1
-            )
+        SELECT
+        1
+        FROM
+        metoo_terminal_history d2
+        WHERE
+        d2.deviceUuid2 = d1.deviceUuid
+        AND d2.deviceTypeId = 34
+        AND d1.remoteDevice = d2.deviceName
+        AND d2.addTime = (
+        SELECT
+        addTime
+        FROM
+        metoo_terminal_history
+        WHERE
+        addTime &lt;= #{time}
+        ORDER BY addTime DESC limit 1
+        )
         )
     </select>
 
     <select id="selectTagToX" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
-       /* select * from metoo_mac mac1
+        /* select * from metoo_mac mac1
         left join
         (select * from(
-                select * from metoo_mac where tag in ('L', 'LV') group by deviceIp
-            )mac3
+        select * from metoo_mac where tag in ('L', 'LV') group by deviceIp
+        )mac3
         )mac2
         on mac1.deviceIp = mac2.deviceIp and mac1.mac != mac2.mac
         where mac1.tag is null*/
 
         /*优化使用EXISTS*/
 
-       /* SELECT mac1.*
+        /* SELECT mac1.*
         FROM metoo_mac mac1
         WHERE mac1.tag IS NULL
         AND EXISTS (
-            SELECT 1
-            FROM metoo_mac mac2
-            WHERE mac1.deviceIp = mac2.deviceIp
-            AND mac1.mac != mac2.mac
-            AND mac2.tag IN ('L', 'LV')
+        SELECT 1
+        FROM metoo_mac mac2
+        WHERE mac1.deviceIp = mac2.deviceIp
+        AND mac1.mac != mac2.mac
+        AND mac2.tag IN ('L', 'LV')
         );*/
 
         /*优化使用窗口函数*/
         WITH valid_macs AS (
-            SELECT deviceIp, mac
-            FROM (
-            SELECT deviceIp, mac, tag,
-            ROW_NUMBER() OVER(PARTITION BY deviceIp ORDER BY tag) AS rn
-            FROM metoo_mac
-            WHERE tag IN ('L', 'LV')
-            ) t WHERE rn = 1  -- 每个deviceIp只取一条记录
+        SELECT deviceIp, mac
+        FROM (
+        SELECT deviceIp, mac, tag,
+        ROW_NUMBER() OVER(PARTITION BY deviceIp ORDER BY tag) AS rn
+        FROM metoo_mac
+        WHERE tag IN ('L', 'LV')
+        ) t WHERE rn = 1 -- 每个deviceIp只取一条记录
         )
         SELECT mac1.*
         FROM metoo_mac mac1
@@ -173,62 +173,62 @@
     </select>
 
     <select id="selectTagToU" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
-       SELECT
-            *
+        SELECT
+        *
         FROM
-            metoo_mac mac
+        metoo_mac mac
         WHERE
-            mac.tag != 'L'
+        mac.tag != 'L'
         AND mac.tag != 'LV'
         AND mac.tag != 'DE'
         GROUP BY
-            deviceIp,
-            mac
+        deviceIp,
+        mac
         HAVING
-            count(*) = 1
+        count(*) = 1
     </select>
 
     <select id="selectTagToS" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            mac.*
+        mac.*
         FROM
-            metoo_mac mac
+        metoo_mac mac
         JOIN (
-            SELECT
-                *
-            FROM
-                metoo_mac mac
-                where tag != 'L' and tag != 'LV' and tag != 'DE'
-            GROUP BY
-                deviceIp,
-                PORT
-            HAVING
-                count(*) > 1
+        SELECT
+        *
+        FROM
+        metoo_mac mac
+        where tag != 'L' and tag != 'LV' and tag != 'DE'
+        GROUP BY
+        deviceIp,
+        PORT
+        HAVING
+        count(*) > 1
         ) mac1 ON mac.deviceIp = mac1.deviceIp and mac.port = mac1.port
         AND mac. PORT = mac1. PORT
-        where mac.id not in(select id from metoo_mac where tag  in('L', 'LV', 'DE'))
+        where mac.id not in(select id from metoo_mac where tag in('L', 'LV', 'DE'))
 
     </select>
 
     <select id="selectTagSToE" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            mac1.*
+        mac1.*
         FROM
-            (
-                SELECT
-                    *
-                FROM
-                    metoo_mac
-                WHERE
-                    tag = 'S'
-            ) mac1
+        (
+        SELECT
+        *
+        FROM
+        metoo_mac
+        WHERE
+        tag = 'S'
+        ) mac1
         JOIN (
-            SELECT
-                *
-            FROM
-                metoo_mac
-            WHERE
-                tag = 'L'
+        SELECT
+        *
+        FROM
+        metoo_mac
+        WHERE
+        tag = 'L'
         ) mac2 ON mac1. mac = mac2. mac
 
         group by mac1.id
@@ -236,23 +236,23 @@
 
     <select id="selectTagSToRT" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            mac1.*
+        mac1.*
         FROM
-            (
-                SELECT
-                    *
-                FROM
-                    metoo_mac
-                WHERE
-                    tag = 'S'
-            ) mac1
+        (
+        SELECT
+        *
+        FROM
+        metoo_mac
+        WHERE
+        tag = 'S'
+        ) mac1
         JOIN (
-            SELECT
-                *
-            FROM
-                metoo_mac
-            WHERE
-                tag = 'L'
+        SELECT
+        *
+        FROM
+        metoo_mac
+        WHERE
+        tag = 'L'
         ) mac2 ON mac1.mac != mac2.mac
 
         group by mac1.id
@@ -268,7 +268,7 @@
 
         on mac2.hostname = mac1.remoteDevice and mac2.remoteDevice = mac1.hostname
 
-        where  mac1.tag = 'DE' and mac2.tag = 'DE'
+        where mac1.tag = 'DE' and mac2.tag = 'DE'
 
         group by mac1.hostname, mac2.remoteDevice
     </select>
@@ -287,9 +287,10 @@
     </resultMap>
 
     <select id="copyArpMacAndIpToMac" parameterType="java.util.Map" resultMap="Copy_Arp_MacAndIp">
-       select mac.id, mac.addTime, mac.mac, mac.port, mac.deviceIp, mac.deviceName, mac.tag, mac.type, mac.hostname,
+        select mac.id, mac.addTime, mac.mac, mac.port, mac.deviceIp, mac.deviceName, mac.tag, mac.type, mac.hostname,
         mac.remoteDevice, mac.remotePort,
-        arp.v4ip, arp.v6ip, arp.v4ip1, arp.v4ip2, arp.v4ip3, arp.v6ip1, arp.v6ip2, arp.v6ip3, arp.macVendor macVendor from metoo_mac mac
+        arp.v4ip, arp.v6ip, arp.v4ip1, arp.v4ip2, arp.v4ip3, arp.v6ip1, arp.v6ip2, arp.v6ip3, arp.macVendor macVendor
+        from metoo_mac mac
         JOIN
         metoo_arp arp
         ON mac.mac = arp.mac
@@ -299,167 +300,167 @@
     </select>
 
     <select id="copyArpIpToMacByDT" parameterType="java.util.Map" resultMap="Copy_Arp_MacAndIp">
-       SELECT
-            mac.id,
-            mac.addTime,
-            mac.mac,
-            mac. PORT,
-            mac.deviceIp,
-            mac.deviceName,
-            mac.tag,
-            mac.type,
-            mac.hostname,
-            mac.remoteDevice,
-            mac.remotePort,
-            arp.v4ip,
-            arp.v4ip1,
-            arp.v4ip2,
-            arp.v4ip3,
-            arp.v6ip,
-            arp.v6ip1,
-            arp.v6ip2,
-            arp.v6ip3,
-            arp.macVendor macVendor
+        SELECT
+        mac.id,
+        mac.addTime,
+        mac.mac,
+        mac. PORT,
+        mac.deviceIp,
+        mac.deviceName,
+        mac.tag,
+        mac.type,
+        mac.hostname,
+        mac.remoteDevice,
+        mac.remotePort,
+        arp.v4ip,
+        arp.v4ip1,
+        arp.v4ip2,
+        arp.v4ip3,
+        arp.v6ip,
+        arp.v6ip1,
+        arp.v6ip2,
+        arp.v6ip3,
+        arp.macVendor macVendor
         FROM
-            metoo_mac mac
+        metoo_mac mac
         LEFT JOIN (
-            SELECT
-                mac,
-                macVendor,
-            IF (
-                LENGTH(v4ip) - LENGTH(REPLACE(v4ip, ',', '')) >= 0,
-                SUBSTRING_INDEX(
-                    SUBSTRING_INDEX(v4ip, ',', 1),
-                    ',',
-                    - 1
-                ),
-                NULL
-            ) v4ip,
+        SELECT
+        mac,
+        macVendor,
+        IF (
+        LENGTH(v4ip) - LENGTH(REPLACE(v4ip, ',', '')) >= 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v4ip, ',', 1),
+        ',',
+        - 1
+        ),
+        NULL
+        ) v4ip,
 
         IF (
-            LENGTH(v4ip) - LENGTH(REPLACE(v4ip, ',', '')) - 0 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v4ip, ',', 2),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v4ip) - LENGTH(REPLACE(v4ip, ',', '')) - 0 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v4ip, ',', 2),
+        ',',
+        - 1
+        ),
+        NULL
         ) v4ip1,
 
         IF (
-            LENGTH(v4ip) - LENGTH(REPLACE(v4ip, ',', '')) - 1 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v4ip, ',', 3),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v4ip) - LENGTH(REPLACE(v4ip, ',', '')) - 1 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v4ip, ',', 3),
+        ',',
+        - 1
+        ),
+        NULL
         ) v4ip2,
 
         IF (
-            LENGTH(v4ip) - LENGTH(REPLACE(v4ip, ',', '')) - 2 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v4ip, ',', 4),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v4ip) - LENGTH(REPLACE(v4ip, ',', '')) - 2 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v4ip, ',', 4),
+        ',',
+        - 1
+        ),
+        NULL
         ) v4ip3,
 
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v6ip, ',', 1),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 1),
+        ',',
+        - 1
+        ),
+        NULL
         ) v6ip,
 
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v6ip, ',', 2),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 2),
+        ',',
+        - 1
+        ),
+        NULL
         ) v6ip1,
 
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v6ip, ',', 3),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 3),
+        ',',
+        - 1
+        ),
+        NULL
         ) v6ip2,
 
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v6ip, ',', 4),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 4),
+        ',',
+        - 1
+        ),
+        NULL
         ) v6ip3
         FROM
-            (
-                SELECT
-                    mac,
-                    distinct_values (
-                        GROUP_CONCAT(
-                            CONCAT(
-                                v4ip,
+        (
+        SELECT
+        mac,
+        distinct_values (
+        GROUP_CONCAT(
+        CONCAT(
+        v4ip,
 
-                            IF (v4ip1 IS NOT NULL, ',', ''),
+        IF (v4ip1 IS NOT NULL, ',', ''),
 
-                        IF (v4ip1 IS NOT NULL, v4ip1, ''),
+        IF (v4ip1 IS NOT NULL, v4ip1, ''),
 
-                    IF (v4ip2 IS NOT NULL, ',', ''),
+        IF (v4ip2 IS NOT NULL, ',', ''),
 
-                IF (v4ip2 IS NOT NULL, v4ip2, ''),
+        IF (v4ip2 IS NOT NULL, v4ip2, ''),
 
-            IF (v4ip3 IS NOT NULL, ',', ''),
+        IF (v4ip3 IS NOT NULL, ',', ''),
 
         IF (v4ip3 IS NOT NULL, v4ip3, '')
-                            ) SEPARATOR ','
-                        )
-                    ) v4ip,
-                    distinct_values (
-                        GROUP_CONCAT(
-                            CONCAT(
-                                v6ip,
+        ) SEPARATOR ','
+        )
+        ) v4ip,
+        distinct_values (
+        GROUP_CONCAT(
+        CONCAT(
+        v6ip,
 
-                            IF (v6ip1 IS NOT NULL, ',', ''),
+        IF (v6ip1 IS NOT NULL, ',', ''),
 
-                        IF (v6ip1 IS NOT NULL, v6ip1, ''),
+        IF (v6ip1 IS NOT NULL, v6ip1, ''),
 
-                    IF (v6ip2 IS NOT NULL, ',', ''),
+        IF (v6ip2 IS NOT NULL, ',', ''),
 
-                IF (v6ip2 IS NOT NULL, v6ip2, ''),
+        IF (v6ip2 IS NOT NULL, v6ip2, ''),
 
-            IF (v6ip3 IS NOT NULL, ',', ''),
+        IF (v6ip3 IS NOT NULL, ',', ''),
 
         IF (v6ip3 IS NOT NULL, v6ip3, '')
-                            ) SEPARATOR ','
-                        )
-                    ) v6ip,
-                    macVendor
-                FROM
-                    metoo_arp
-                GROUP BY
-                    mac
-            ) arp
+        ) SEPARATOR ','
+        )
+        ) v6ip,
+        macVendor
+        FROM
+        metoo_arp
+        GROUP BY
+        mac
+        ) arp
         ) arp ON mac.mac = arp.mac
         WHERE
-            mac.tag != 'DE'
+        mac.tag != 'DE'
         AND mac.tag = 'DT'
         OR mac.tag = 'RT'
         GROUP BY
-            mac.id
+        mac.id
     </select>
 
     <select id="selectXToEByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
@@ -510,7 +511,7 @@
     </resultMap>
 
     <select id="selectXToUTByMap" parameterType="java.util.Map" resultMap="X_TO_UT">
-       select mac_x.id, mac_l.id mac_l_id from (
+        select mac_x.id, mac_l.id mac_l_id from (
 
         select * from metoo_mac where tag = 'X')
         mac_x
@@ -530,7 +531,7 @@
     </select>
 
     <select id="selectUToRTByMap" parameterType="java.util.Map" resultMap="X_TO_UT">
-       select mac_u.id, mac_l.id mac_l_id from (
+        select mac_u.id, mac_l.id mac_l_id from (
 
         select * from metoo_mac where tag = 'U')
         mac_u
@@ -551,213 +552,214 @@
 
     <select id="selectDTToDEByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            metoo_mac.id,
-            device_name AS remoteDevice,
-            REPLACE(metoo_mac.tag, 'RT', 'E') tag,
-            'V0' as remotePort
+        metoo_mac.id,
+        device_name AS remoteDevice,
+        REPLACE(metoo_mac.tag, 'RT', 'E') tag,
+        'V0' as remotePort
         FROM
-            (
-                SELECT
-                    metoo_mac.*, ne.device_name
-                FROM
-                    metoo_mac
-                JOIN (
-                    SELECT
-                        *
-                    FROM
-                        metoo_ne
-                    WHERE
-                        device_type_id in(10, 32)
-                ) ne ON metoo_mac.v4ip = ne.ip
-                WHERE
-                    metoo_mac.tag = 'DT'
-            ) mac
+        (
+        SELECT
+        metoo_mac.*, ne.device_name
+        FROM
+        metoo_mac
+        JOIN (
+        SELECT
+        *
+        FROM
+        metoo_ne
+        WHERE
+        device_type_id in(10, 32)
+        ) ne ON metoo_mac.v4ip = ne.ip
+        WHERE
+        metoo_mac.tag = 'DT'
+        ) mac
         JOIN metoo_mac ON metoo_mac.v4ip = mac.v4ip
         WHERE
-            metoo_mac.tag = 'RT'
+        metoo_mac.tag = 'RT'
 
         UNION
 
         SELECT
-            metoo_mac.id,
-            device_name AS remoteDevice,
-            REPLACE (metoo_mac.tag, 'DT', 'DE') tag,
-            'V0' AS remotePort
+        metoo_mac.id,
+        device_name AS remoteDevice,
+        REPLACE (metoo_mac.tag, 'DT', 'DE') tag,
+        'V0' AS remotePort
         FROM
-            metoo_mac
+        metoo_mac
         JOIN (
-            SELECT
-                *
-            FROM
-                metoo_ne
-            WHERE
-                device_type_id in(10, 32)
+        SELECT
+        *
+        FROM
+        metoo_ne
+        WHERE
+        device_type_id in(10, 32)
         ) ne ON metoo_mac.v4ip = ne.ip
         WHERE
-            metoo_mac.tag = 'DT'
+        metoo_mac.tag = 'DT'
     </select>
 
     <select id="selectRTToDEByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
-       SELECT
+        SELECT
         mac.id,
         device_name AS remoteDevice,
         REPLACE (mac.tag, 'RT', 'E') tag,
         'V0' AS remotePort
-    FROM
-        (
-            SELECT
-                metoo_mac.*, mac.device_name
-            FROM
-                (
-                    SELECT
-                        metoo_mac.*, ne.device_name
-                    FROM
-                        metoo_mac
-                    JOIN (
-                        SELECT
-                            *
-                        FROM
-                            metoo_ne
-                        WHERE
-                           device_type_id in(10, 32)
-                    ) ne ON metoo_mac.v4ip = ne.ip
-                    GROUP BY
-                        v4ip
-                    HAVING
-                        count(DISTINCT tag) = 1
-                ) mac
-            JOIN metoo_mac ON metoo_mac.v4ip = mac.v4ip
-            WHERE
-                metoo_mac.tag = 'RT'
-        ) mac
-    LEFT JOIN metoo_mac ON metoo_mac. PORT = mac. PORT
-    AND metoo_mac.deviceIp = mac.deviceIp
-    WHERE
-        metoo_mac.tag = 'E'
-    GROUP BY
-        mac.id
-    UNION
-        SELECT
-            mac.id,
-            device_name AS remoteDevice,
-            REPLACE (mac.tag, 'RT', 'DE') tag,
-            'V0' AS remotePort
         FROM
-            (
-                SELECT
-                    metoo_mac.*, mac.device_name
-                FROM
-                    (
-                        SELECT
-                            metoo_mac.*, ne.device_name
-                        FROM
-                            metoo_mac
-                        JOIN (
-                            SELECT
-                                *
-                            FROM
-                                metoo_ne
-                            WHERE
-                                device_type_id in(10, 32)
-                        ) ne ON metoo_mac.v4ip = ne.ip
-                        GROUP BY
-                            v4ip
-                        HAVING
-                            count(DISTINCT tag) = 1
-                    ) mac
-                JOIN metoo_mac ON metoo_mac.v4ip = mac.v4ip
-                WHERE
-                    metoo_mac.tag = 'RT'
-            ) mac
+        (
+        SELECT
+        metoo_mac.*, mac.device_name
+        FROM
+        (
+        SELECT
+        metoo_mac.*, ne.device_name
+        FROM
+        metoo_mac
+        JOIN (
+        SELECT
+        *
+        FROM
+        metoo_ne
         WHERE
-            mac.id NOT IN (
-                SELECT
-                    mac.id
-                FROM
-                    (
-                        SELECT
-                            metoo_mac.*, mac.device_name
-                        FROM
-                            (
-                                SELECT
-                                    metoo_mac.*, ne.device_name
-                                FROM
-                                    metoo_mac
-                                JOIN (
-                                    SELECT
-                                        *
-                                    FROM
-                                        metoo_ne
-                                    WHERE
-                                        device_type_id in(10, 32)
-                                ) ne ON metoo_mac.v4ip = ne.ip
-                                GROUP BY
-                                    v4ip
-                                HAVING
-                                    count(DISTINCT tag) = 1
-                            ) mac
-                        JOIN metoo_mac ON metoo_mac.v4ip = mac.v4ip
-                        WHERE
-                            metoo_mac.tag = 'RT'
-                    ) mac
-                JOIN metoo_mac ON metoo_mac. PORT = mac. PORT
-                AND metoo_mac.deviceIp = mac.deviceIp
-                WHERE
-                    metoo_mac.tag = 'E'
-                GROUP BY
-                    mac.id
-            )
+        device_type_id in(10, 32)
+        ) ne ON metoo_mac.v4ip = ne.ip
+        GROUP BY
+        v4ip
+        HAVING
+        count(DISTINCT tag) = 1
+        ) mac
+        JOIN metoo_mac ON metoo_mac.v4ip = mac.v4ip
+        WHERE
+        metoo_mac.tag = 'RT'
+        ) mac
+        LEFT JOIN metoo_mac ON metoo_mac. PORT = mac. PORT
+        AND metoo_mac.deviceIp = mac.deviceIp
+        WHERE
+        metoo_mac.tag = 'E'
+        GROUP BY
+        mac.id
+        UNION
+        SELECT
+        mac.id,
+        device_name AS remoteDevice,
+        REPLACE (mac.tag, 'RT', 'DE') tag,
+        'V0' AS remotePort
+        FROM
+        (
+        SELECT
+        metoo_mac.*, mac.device_name
+        FROM
+        (
+        SELECT
+        metoo_mac.*, ne.device_name
+        FROM
+        metoo_mac
+        JOIN (
+        SELECT
+        *
+        FROM
+        metoo_ne
+        WHERE
+        device_type_id in(10, 32)
+        ) ne ON metoo_mac.v4ip = ne.ip
+        GROUP BY
+        v4ip
+        HAVING
+        count(DISTINCT tag) = 1
+        ) mac
+        JOIN metoo_mac ON metoo_mac.v4ip = mac.v4ip
+        WHERE
+        metoo_mac.tag = 'RT'
+        ) mac
+        WHERE
+        mac.id NOT IN (
+        SELECT
+        mac.id
+        FROM
+        (
+        SELECT
+        metoo_mac.*, mac.device_name
+        FROM
+        (
+        SELECT
+        metoo_mac.*, ne.device_name
+        FROM
+        metoo_mac
+        JOIN (
+        SELECT
+        *
+        FROM
+        metoo_ne
+        WHERE
+        device_type_id in(10, 32)
+        ) ne ON metoo_mac.v4ip = ne.ip
+        GROUP BY
+        v4ip
+        HAVING
+        count(DISTINCT tag) = 1
+        ) mac
+        JOIN metoo_mac ON metoo_mac.v4ip = mac.v4ip
+        WHERE
+        metoo_mac.tag = 'RT'
+        ) mac
+        JOIN metoo_mac ON metoo_mac. PORT = mac. PORT
+        AND metoo_mac.deviceIp = mac.deviceIp
+        WHERE
+        metoo_mac.tag = 'E'
+        GROUP BY
+        mac.id
+        )
     </select>
 
     <select id="selectRTToDTByDE" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            metoo_mac.id,
-            REPLACE (metoo_mac.tag, 'RT', 'DT') tag,
-            'V1' AS PORT,
-            mac.v4ip AS deviceIp,
-            device_name AS deviceName,
-            device_name AS hostname
+        metoo_mac.id,
+        REPLACE (metoo_mac.tag, 'RT', 'DT') tag,
+        'V1' AS PORT,
+        mac.v4ip AS deviceIp,
+        device_name AS deviceName,
+        device_name AS hostname
         FROM
-            (
-                SELECT
-                    metoo_mac.*, ne.device_name,
-                    ne.ip
-                FROM
-                    metoo_mac
-                JOIN (
-                    SELECT
-                        *
-                    FROM
-                        metoo_ne
-                    WHERE
-                        device_type_id in(10, 32)
-                ) ne ON metoo_mac.v4ip = ne.ip
-                WHERE
-                    tag = 'DE'
-                GROUP BY
-                    v4ip,
-                    PORT
-            ) mac
+        (
+        SELECT
+        metoo_mac.*, ne.device_name,
+        ne.ip
+        FROM
+        metoo_mac
+        JOIN (
+        SELECT
+        *
+        FROM
+        metoo_ne
+        WHERE
+        device_type_id in(10, 32)
+        ) ne ON metoo_mac.v4ip = ne.ip
+        WHERE
+        tag = 'DE'
+        GROUP BY
+        v4ip,
+        PORT
+        ) mac
         JOIN metoo_mac ON metoo_mac.deviceIp = mac.deviceIp
         AND metoo_mac. PORT = mac. PORT
         WHERE
-            metoo_mac.tag = 'RT'
+        metoo_mac.tag = 'RT'
     </select>
 
     <select id="selectRTToVDT" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            *
+        *
         FROM
-            (
-                SELECT
-                    *
-                FROM
-                    metoo_mac
-                WHERE
-                    tag = 'RT'
-            ) rt
+        (
+        SELECT
+        *
+        FROM
+        metoo_mac
+        WHERE
+        tag = 'RT'
+        ) rt
 
-        where not exists (select * from metoo_mac where deviceIp = rt.deviceIp and port = rt.port and (tag = 'E' or tag = 'DE'))
+        where not exists (select * from metoo_mac where deviceIp = rt.deviceIp and port = rt.port and (tag = 'E' or tag
+        = 'DE'))
 
         order by rt.port desc
 
@@ -769,316 +771,317 @@
 
     <select id="selectRTToDT2ByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            *
+        *
         FROM
-            (
-                SELECT
-                    *
-                FROM
-                    metoo_mac
-                WHERE
-                    tag != 'L'
-                GROUP BY
-                    deviceIp,
-                    `port`
-                HAVING
-                    count(*) = 1
-            ) mac
+        (
+        SELECT
+        *
+        FROM
+        metoo_mac
         WHERE
-            tag = 'RT'
+        tag != 'L'
+        GROUP BY
+        deviceIp,
+        `port`
+        HAVING
+        count(*) = 1
+        ) mac
+        WHERE
+        tag = 'RT'
     </select>
 
     <select id="selectDTByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-            *
+        *
         FROM
-            (
-                SELECT
-                    *,
-                    CONCAT_WS(',', v4ip, v4ip1, v4ip2, v4ip3) AS v4ipAll,
-                    CONCAT_WS(',', v6ip, v6ip1, v6ip2, v6ip3) AS v6ipAll
-                FROM
-                    metoo_mac
-                WHERE
-                    tag = 'DT'
-            ) mac
+        (
+        SELECT
+        *,
+        CONCAT_WS(',', v4ip, v4ip1, v4ip2, v4ip3) AS v4ipAll,
+        CONCAT_WS(',', v6ip, v6ip1, v6ip2, v6ip3) AS v6ipAll
+        FROM
+        metoo_mac
+        WHERE
+        tag = 'DT'
+        ) mac
     </select>
 
     <select id="selectDTAndDynamicByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
-            SELECT
-                *,
-            IF (
-                mac.v4ip IS NOT NULL,
-                (
-                    SELECT
+        SELECT
+        *,
+        IF (
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip
-                ),
-                0
-            ) AS v4ipDynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        ),
+        0
+        ) AS v4ipDynamic,
 
-            IF (
-                mac.v4ip1 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac.v4ip1 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip1
-                ),
-                0
-            ) AS v4ip1Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip1
+        ),
+        0
+        ) AS v4ip1Dynamic,
 
-            IF (
-                mac.v4ip2 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac.v4ip2 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip2
-                ),
-                0
-            ) AS v4ip2Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip2
+        ),
+        0
+        ) AS v4ip2Dynamic,
 
-            IF (
-                mac.v4ip3 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac.v4ip3 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip3
-                ),
-                0
-            ) AS v4ip3Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip3
+        ),
+        0
+        ) AS v4ip3Dynamic,
 
-            IF (
-                mac.v6ip IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac.v6ip IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp6 dhcp6
-                    WHERE
-                        dhcp6.iaaddr = mac.v6ip
-                ),
-                0
-            ) AS v6ipDynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip
+        ),
+        0
+        ) AS v6ipDynamic,
 
-            IF (
-                mac.v6ip1 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac.v6ip1 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (iaaddr IS NOT NULL, 1, 0)
-                    FROM
-                        metoo_dhcp6 dhcp6
-                    WHERE
-                        dhcp6.iaaddr = mac.v6ip1
-                ),
-                0
-            ) AS v6ip1Dynamic,
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip1
+        ),
+        0
+        ) AS v6ip1Dynamic,
 
-            IF (
-                mac.v6ip2 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac.v6ip2 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (iaaddr IS NOT NULL, 1, 0)
-                    FROM
-                        metoo_dhcp6 dhcp6
-                    WHERE
-                        dhcp6.iaaddr = mac.v6ip2
-                ),
-                0
-            ) AS v6ip2Dynamic,
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip2
+        ),
+        0
+        ) AS v6ip2Dynamic,
 
-            IF (
-                mac.v6ip3 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac.v6ip3 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (iaaddr IS NOT NULL, 1, 0)
-                    FROM
-                        metoo_dhcp6 dhcp6
-                    WHERE
-                        dhcp6.iaaddr = mac.v6ip3
-                ),
-                0
-            ) AS v6ip3Dynamic,
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip3
+        ),
+        0
+        ) AS v6ip3Dynamic,
 
-            IF (
-                mac.v4ip IS NOT NULL,
-                (
-                    SELECT
-                        client_hostname
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip
-                    LIMIT 1
-                ),
-                0
-            ) AS client_hostname
-            FROM
-                metoo_mac mac
-            WHERE
-                tag = 'DT'
-            UNION ALL
-                SELECT
-                    *,
-                IF (
-                    mac_rt.v4ip IS NOT NULL,
-                    (
-                        SELECT
+        IF (
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
+        client_hostname
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        LIMIT 1
+        ),
+        0
+        ) AS client_hostname
+        FROM
+        metoo_mac mac
+        WHERE
+        tag = 'DT'
+        UNION ALL
+        SELECT
+        *,
+        IF (
+        mac_rt.v4ip IS NOT NULL,
+        (
+        SELECT
 
-                        IF (COUNT(*) > 0, 1, 0)
-                        FROM
-                            metoo_dhcp dhcp
-                        WHERE
-                            dhcp.lease = mac_rt.v4ip
-                    ),
-                    0
-                ) AS v4ipDynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip
+        ),
+        0
+        ) AS v4ipDynamic,
 
-            IF (
-                mac_rt.v4ip1 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac_rt.v4ip1 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac_rt.v4ip1
-                ),
-                0
-            ) AS v4ip1Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip1
+        ),
+        0
+        ) AS v4ip1Dynamic,
 
-            IF (
-                mac_rt.v4ip2 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac_rt.v4ip2 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac_rt.v4ip2
-                ),
-                0
-            ) AS v4ip2Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip2
+        ),
+        0
+        ) AS v4ip2Dynamic,
 
-            IF (
-                mac_rt.v4ip3 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac_rt.v4ip3 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac_rt.v4ip3
-                ),
-                0
-            ) AS v4ip3Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip3
+        ),
+        0
+        ) AS v4ip3Dynamic,
 
-            IF (
-                mac_rt.v6ip IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac_rt.v6ip IS NOT NULL,
+        (
+        SELECT
 
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp6 dhcp6
-                    WHERE
-                        dhcp6.iaaddr = mac_rt.v6ip
-                ),
-                0
-            ) AS v6ipDynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac_rt.v6ip
+        ),
+        0
+        ) AS v6ipDynamic,
 
-            IF (
-                mac_rt.v6ip1 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac_rt.v6ip1 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (iaaddr IS NOT NULL, 1, 0)
-                    FROM
-                        metoo_dhcp6 dhcp6
-                    WHERE
-                        dhcp6.iaaddr = mac_rt.v6ip1
-                ),
-                0
-            ) AS v6ip1Dynamic,
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac_rt.v6ip1
+        ),
+        0
+        ) AS v6ip1Dynamic,
 
-            IF (
-                mac_rt.v6ip2 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac_rt.v6ip2 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (iaaddr IS NOT NULL, 1, 0)
-                    FROM
-                        metoo_dhcp6 dhcp6
-                    WHERE
-                        dhcp6.iaaddr = mac_rt.v6ip2
-                ),
-                0
-            ) AS v6ip2Dynamic,
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac_rt.v6ip2
+        ),
+        0
+        ) AS v6ip2Dynamic,
 
-            IF (
-                mac_rt.v6ip3 IS NOT NULL,
-                (
-                    SELECT
+        IF (
+        mac_rt.v6ip3 IS NOT NULL,
+        (
+        SELECT
 
-                    IF (iaaddr IS NOT NULL, 1, 0)
-                    FROM
-                        metoo_dhcp6 dhcp6
-                    WHERE
-                        dhcp6.iaaddr = mac_rt.v6ip3
-                ),
-                0
-            ) AS v6ip3Dynamic,
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac_rt.v6ip3
+        ),
+        0
+        ) AS v6ip3Dynamic,
 
-            IF (
-                mac_rt.v4ip IS NOT NULL,
-                (
-                    SELECT
-                        client_hostname
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac_rt.v4ip
-                    LIMIT 1
-                ),
-                0
-            ) AS client_hostname
-            FROM
-                metoo_mac mac_rt
-            WHERE
-                tag = 'RT'
-            AND mac NOT IN (
-                SELECT
-                    mac
-                FROM
-                    metoo_mac
-                WHERE
-                    tag = 'DT'
-            );
+        IF (
+        mac_rt.v4ip IS NOT NULL,
+        (
+        SELECT
+        client_hostname
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac_rt.v4ip
+        LIMIT 1
+        ),
+        0
+        ) AS client_hostname
+        FROM
+        metoo_mac mac_rt
+        WHERE
+        tag = 'RT'
+        AND mac NOT IN (
+        SELECT
+        mac
+        FROM
+        metoo_mac
+        WHERE
+        tag = 'DT'
+        );
     </select>
 
-    <select id="selectDTAndDynamicByConditionQuery" parameterType="com.metoo.nrsm.core.dto.MacDTO" resultType="com.metoo.nrsm.entity.Mac">
+    <select id="selectDTAndDynamicByConditionQuery" parameterType="com.metoo.nrsm.core.dto.MacDTO"
+            resultType="com.metoo.nrsm.entity.Mac">
         select * from (
         SELECT
         *,
@@ -1366,19 +1369,19 @@
                 OR mac.v4ip
                 like
                 concat(concat('%',#{filter}),'%')
-                or  mac.v4ip1
+                or mac.v4ip1
                 like concat(concat('%',#{filter}),'%')
-                or  mac.v4ip2
+                or mac.v4ip2
                 like concat(concat('%',#{filter}),'%')
-                or  mac.v4ip3
+                or mac.v4ip3
                 like concat(concat('%',#{filter}),'%')
-                or  mac.v6ip
+                or mac.v6ip
                 like concat(concat('%',#{filter}),'%')
-                or  mac.v6ip1
+                or mac.v6ip1
                 like concat(concat('%',#{filter}),'%')
-                or  mac.v6ip2
+                or mac.v6ip2
                 like concat(concat('%',#{filter}),'%')
-                or  mac.v6ip3
+                or mac.v6ip3
                 like concat(concat('%',#{filter}),'%')
                 or mac.mac
                 like concat(concat('%',#{filter}),'%')
@@ -1558,7 +1561,7 @@
         remotePort
         )
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
             #{item.addTime},
             #{item.mac},
@@ -1606,7 +1609,7 @@
                     v6ip3 = #{item.v6ip3},
                 </if>
                 <!--<if TestAbstrack="item.macVendor != null and item.macVendor != ''">-->
-                    <!--macVendor = #{item.macVendor},-->
+                <!--macVendor = #{item.macVendor},-->
                 <!--</if>-->
                 <if test="item.remotePort != null and item.remotePort != ''">
                     remotePort = #{item.remotePort},
@@ -1650,21 +1653,21 @@
     <update id="normalizePortForDE">
         UPDATE metoo_mac m1
         JOIN (
-            -- 使用 GROUP BY 去重
-            SELECT
-                deviceIp,
-                remoteIp,
-                MAX(id) AS max_id  -- 取每组最大id
-            FROM metoo_mac
-            WHERE tag = 'DE'
-            GROUP BY deviceIp, remoteIp
+        -- 使用 GROUP BY 去重
+        SELECT
+        deviceIp,
+        remoteIp,
+        MAX(id) AS max_id -- 取每组最大id
+        FROM metoo_mac
+        WHERE tag = 'DE'
+        GROUP BY deviceIp, remoteIp
         ) t_group ON (m1.remoteIp = t_group.deviceIp AND m1.deviceIp = t_group.remoteIp)
-        JOIN metoo_mac m2 ON m2.id = t_group.max_id  -- 关联回原表获取port
+        JOIN metoo_mac m2 ON m2.id = t_group.max_id -- 关联回原表获取port
         SET m1.remotePort = m2.port
         WHERE
-            m1.tag = 'DE'
-            AND m1.remoteIp IS NOT NULL
-            AND m1.deviceIp IS NOT NULL;
+        m1.tag = 'DE'
+        AND m1.remoteIp IS NOT NULL
+        AND m1.deviceIp IS NOT NULL;
     </update>
 
     <delete id="safelyDeleteDuplicateDEIpPairs">
@@ -1755,21 +1758,21 @@
 
     <insert id="batchSaveGather" parameterType="java.util.List">
         INSERT INTO `metoo_mac_gather` (
-            addTime,
-            mac,
-            mac1,
-            port,
-            `type`,
-            deviceIp,
-            deviceName,
-            deviceUuid,
-            tag,
-            hostname,
-            remoteDevice,
-            remotePort
+        addTime,
+        mac,
+        mac1,
+        port,
+        `type`,
+        deviceIp,
+        deviceName,
+        deviceUuid,
+        tag,
+        hostname,
+        remoteDevice,
+        remotePort
         )
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
             #{item.addTime},
             #{item.mac},
@@ -1800,7 +1803,7 @@
     </delete>
 
     <sql id="COPY_COLUMN">
-       addTime, mac, port, deviceIp, deviceName, deviceUuid, tag, type, hostname, remoteDevice, remotePort, macVendor
+        addTime, mac, port, deviceIp, deviceName, deviceUuid, tag, type, hostname, remoteDevice, remotePort, macVendor
     </sql>
 
     <insert id="copyGatherDataToMac" parameterType="java.util.Date">
@@ -1814,11 +1817,15 @@
         <!--FROM metoo_mac_gather d1-->
         <!--join metoo_mac_vendor d2 on d1.mac LIKE CONCAT(d2.mac, '%');-->
 
---         SELECT d1.addTime, d1.mac, d1.port, d1.deviceIp, d1.deviceName, d1.deviceUuid, d1.tag, d1.type,d1.hostname, d1.remoteDevice, d1.remotePort, d2.vendor as macVendor
---         FROM metoo_mac_gather d1
---         join metoo_mac_vendor d2 ON LEFT(d1.mac, LENGTH(d2.mac)) = d2.mac;
-        INSERT INTO metoo_mac( <include refid="COPY_COLUMN"/> )
-        SELECT #{addTime}, d1.mac, d1.port, d1.deviceIp, d1.deviceName, d1.deviceUuid, d1.tag, d1.type,d1.hostname, d1.remoteDevice, d1.remotePort,
+        -- SELECT d1.addTime, d1.mac, d1.port, d1.deviceIp, d1.deviceName, d1.deviceUuid, d1.tag, d1.type,d1.hostname,
+        d1.remoteDevice, d1.remotePort, d2.vendor as macVendor
+        -- FROM metoo_mac_gather d1
+        -- join metoo_mac_vendor d2 ON LEFT(d1.mac, LENGTH(d2.mac)) = d2.mac;
+        INSERT INTO metoo_mac(
+        <include refid="COPY_COLUMN"/>
+        )
+        SELECT #{addTime}, d1.mac, d1.port, d1.deviceIp, d1.deviceName, d1.deviceUuid, d1.tag, d1.type,d1.hostname,
+        d1.remoteDevice, d1.remotePort,
         d2.vendor as macVendor
         FROM metoo_mac_gather d1
         left join metoo_mac_vendor d2 on d1.mac1 = d2.mac
@@ -1826,11 +1833,11 @@
     </insert>
 
     <select id="lock">
-      lock table metoo_mac_gather write;
+        lock table metoo_mac_gather write;
     </select>
 
     <select id="releaseLock">
-      UNLOCK TABLES;
+        UNLOCK TABLES;
     </select>
 
     <select id="queryLock">

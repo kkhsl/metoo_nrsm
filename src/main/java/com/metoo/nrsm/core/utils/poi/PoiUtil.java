@@ -17,13 +17,13 @@ import java.util.List;
 
 /**
  * Java操作Excel的两种方式
- *
+ * <p>
  * 第一种方式：POI（Apache）
- *  优点：方便生成数据报表、数据批量上传、数据备份等...
- *  缺点：如果将文件一次性全部加载到内存可能导致OOM(Out OfMemory)(内存占用增加)
- *
+ * 优点：方便生成数据报表、数据批量上传、数据备份等...
+ * 缺点：如果将文件一次性全部加载到内存可能导致OOM(Out OfMemory)(内存占用增加)
+ * <p>
  * 第二种方式：EasyExcel(Alibaba)，是对POI的封装；减少内存占用，避免OOM
- *  优点：easyExcel解析Excel时没有将文件数据一次性全部加载到内存中，二十从磁盘上一行行读取数据，逐个解析
+ * 优点：easyExcel解析Excel时没有将文件数据一次性全部加载到内存中，二十从磁盘上一行行读取数据，逐个解析
  */
 public class PoiUtil {
 
@@ -42,7 +42,7 @@ public class PoiUtil {
     /**
      * 03版Excel：导入导出
      */
-    public static void exportHFFS(List<NetworkElement> ne){
+    public static void exportHFFS(List<NetworkElement> ne) {
         //时间
         long begin = System.currentTimeMillis();
         // 创建一个工作薄
@@ -103,7 +103,7 @@ public class PoiUtil {
                 workbook.write(fos);
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 //关闭流
                 try {
                     fos.close();
@@ -111,21 +111,21 @@ public class PoiUtil {
                     e.printStackTrace();
                 }
                 long end = System.currentTimeMillis();
-                System.out.println("耗时："+(end-begin));
+                System.out.println("耗时：" + (end - begin));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    public static void exportXSSF(){
+    public static void exportXSSF() {
         //时间
         long begin = System.currentTimeMillis();
         // 创建一个工作簿
         Workbook workbook = new XSSFWorkbook();
     }
 
-    public static void importXSSF(){
+    public static void importXSSF() {
         //时间
         long begin = System.currentTimeMillis();
         // 创建一个工作簿

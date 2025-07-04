@@ -36,7 +36,7 @@ public class DhcpHistoryServiceImpl implements IDhcpHistoryService {
 
     @Override
     public Page<Dhcp> selectConditionQuery(DhcpDto dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new DhcpDto();
         }
         Page<Dhcp> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
@@ -51,7 +51,7 @@ public class DhcpHistoryServiceImpl implements IDhcpHistoryService {
 
     @Override
     public boolean save(Dhcp instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
                 this.dhcpHistoryMapper.save(instance);
                 return true;
@@ -59,7 +59,7 @@ public class DhcpHistoryServiceImpl implements IDhcpHistoryService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.dhcpHistoryMapper.update(instance);
                 return true;

@@ -1,7 +1,6 @@
 package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
-import com.metoo.nrsm.core.manager.utils.AESUtils;
 import com.metoo.nrsm.core.mapper.FtpConfigMapper;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.FtpConfig;
@@ -22,7 +21,7 @@ public class FtpConfigServiceImpl {
      * 保存FTP配置
      */
     @Transactional
-    public Result createFtpConfig(FtpConfig config) throws Exception {
+    public Result createFtpConfig(FtpConfig config) {
         if (config.getUserName() == null) {
             return ResponseUtil.error("用户名不能为空");
         }
@@ -31,15 +30,14 @@ public class FtpConfigServiceImpl {
         }
 
         config.setCreateTime(new Date());
-        config.setPassword(AESUtils.encrypt(config.getPassword()));
 
-        if (ftpConfigMapper.selectById(config.getId())!=null){
+        if (ftpConfigMapper.selectById(config.getId()) != null) {
             config.setUpdateTime(new Date());
             int i = this.ftpConfigMapper.update(config);
             if (i >= 1) {
                 return ResponseUtil.ok();
             }
-        }else {
+        } else {
             int i = this.ftpConfigMapper.insert(config);
             if (i >= 1) {
                 return ResponseUtil.ok();

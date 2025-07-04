@@ -27,7 +27,7 @@ public class IdGenerator {
         System.out.println(uuid());
         System.out.println(uuid().length());
 
-        for(int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             System.out.println(randomLong() + "  " + randomBase62(5));
         }
 

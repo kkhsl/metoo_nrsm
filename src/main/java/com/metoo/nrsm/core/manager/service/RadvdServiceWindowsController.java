@@ -27,7 +27,7 @@ public class RadvdServiceWindowsController {
                     ("start".equals(action) && currentStatus.isActive())) {
                 return ResponseUtil.ok(currentStatus);
             }
-            if("status".equals(action)){
+            if ("status".equals(action)) {
                 return ResponseUtil.ok(currentStatus);
             }
             ServiceInfo serviceInfo = executeAction(serviceManager, action);

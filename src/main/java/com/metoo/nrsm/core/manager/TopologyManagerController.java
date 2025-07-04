@@ -45,19 +45,19 @@ public class TopologyManagerController {
     private IPortIpv6Service portIpv6Service;
 
     @RequestMapping("/list")
-    public Object list(@RequestBody(required = false) TopologyDTO dto){
+    public Object list(@RequestBody(required = false) TopologyDTO dto) {
         User user = ShiroUserHolder.currentUser();
-        if(user.getUnitId() == null){
+        if (user.getUnitId() == null) {
             return ResponseUtil.ok();
         }
-        if(dto == null){
+        if (dto == null) {
             dto = new TopologyDTO();
         }
 
         dto.setUnitId(user.getUnitId());
         Page<Topology> page = this.topologyService.selectConditionQuery(dto);
-        if(page.getResult().size() > 0) {
-            if(page.getResult().size() == 1){
+        if (page.getResult().size() > 0) {
+            if (page.getResult().size() == 1) {
                 // 设置默认拓扑
                 try {
                     this.setTopologyDefualt();
@@ -72,32 +72,32 @@ public class TopologyManagerController {
 
     @ApiOperation("拓扑修改名称")
     @GetMapping("/rename")
-    public Object rename(Long id, String name){
-        if(name == null || name.equals("")){
-            return  ResponseUtil.badArgument("拓扑名称不能为空");
+    public Object rename(Long id, String name) {
+        if (name == null || name.equals("")) {
+            return ResponseUtil.badArgument("拓扑名称不能为空");
         }
         Map params = new HashMap();
         params.put("name", name);
         params.put("NotId", id);
         List<Topology> topologies = this.topologyService.selectObjByMap(params);
-        if(topologies.size() > 0){
-            return  ResponseUtil.badArgument("拓扑名称已存在");
-        }else{
-            if(name != null && !name.equals("")){
+        if (topologies.size() > 0) {
+            return ResponseUtil.badArgument("拓扑名称已存在");
+        } else {
+            if (name != null && !name.equals("")) {
                 Topology topology = this.topologyService.selectObjById(id);
-                if(topology != null){
+                if (topology != null) {
                     topology.setName(name);
-                    if(topology.getSuffix() != null && !topology.getSuffix().equals("")){
+                    if (topology.getSuffix() != null && !topology.getSuffix().equals("")) {
                         topology.setSuffix(null);
                     }
                     int i = this.topologyService.update(topology);
-                    if(i == 1){
+                    if (i == 1) {
                         return ResponseUtil.ok();
-                    }else{
+                    } else {
                         return ResponseUtil.error();
                     }
-                }else{
-                    return  ResponseUtil.resourceNotFound();
+                } else {
+                    return ResponseUtil.resourceNotFound();
                 }
             }
         }
@@ -106,65 +106,65 @@ public class TopologyManagerController {
 
     @ApiOperation("拓扑复制")
     @GetMapping("/copy")
-    public Object copy(String id, String name, String groupId, Long unitId){
+    public Object copy(String id, String name, String groupId, Long unitId) {
         Map params = new HashMap();
-        if(name != null && !name.equals("")){
+        if (name != null && !name.equals("")) {
             params.clear();
             params.put("name", name);
             params.put("NotId", id);
             params.put("unitId", unitId);
             List<Topology> Topos = this.topologyService.selectObjByMap(params);
-            if(Topos.size() > 0){
-                return  ResponseUtil.badArgument("拓扑名称已存在");
+            if (Topos.size() > 0) {
+                return ResponseUtil.badArgument("拓扑名称已存在");
             }
         }
         params.clear();
         params.put("id", id);
         List<Topology> topologies = this.topologyService.selectObjByMap(params);
-        if(topologies.size() > 0){
+        if (topologies.size() > 0) {
             Topology copyTopology = topologies.get(0);
             Long returnId = this.topologyService.copy(copyTopology);
-            if(returnId != null){
+            if (returnId != null) {
                 Topology topology = this.topologyService.selectObjById(Long.parseLong(String.valueOf(returnId)));
-                if(topology != null){
-                    if(name != null && !name.equals("")){
+                if (topology != null) {
+                    if (name != null && !name.equals("")) {
                         topology.setName(name);
-                    }else{
+                    } else {
                         String suffix = this.changName(copyTopology.getSuffix(), 1);
                         topology.setSuffix(suffix);
                     }
                     this.topologyService.update(topology);
                     return ResponseUtil.ok();
                 }
-            }else{
+            } else {
                 return ResponseUtil.error();
             }
         }
         return ResponseUtil.badArgument();
     }
 
-    public String changName(String suffix, int num){
-        if(suffix == null || suffix.equals("")){
+    public String changName(String suffix, int num) {
+        if (suffix == null || suffix.equals("")) {
             int number = num;
-            if(number == 0){
+            if (number == 0) {
                 number = 1;
             }
             String name = "副本" + " (" + number + ")";
             Topology topology = this.topologyService.selectObjBySuffix(name);
-            if(topology != null){
-                number ++;
+            if (topology != null) {
+                number++;
                 return this.changName(null, number);
             }
             return name;
-        }else{
+        } else {
             int number = num;
-            if(number == 0){
+            if (number == 0) {
                 number = 1;
             }
             String name = suffix + " 副本 (" + number + ")";
             Topology topology = this.topologyService.selectObjBySuffix(name);
-            if(topology != null){
-                number ++;
+            if (topology != null) {
+                number++;
                 return this.changName(suffix, number);
             }
             return name;
@@ -173,33 +173,33 @@ public class TopologyManagerController {
 
     @ApiOperation("保存拓扑")
     @RequestMapping("/save")
-    public Object save(@RequestBody(required = false) Topology instance){
+    public Object save(@RequestBody(required = false) Topology instance) {
         // 校验拓扑名称是否重复
         Map params = new HashMap();
-        if(instance.getId() == null
+        if (instance.getId() == null
                 || instance.getId().equals("")
-                ){
-            if(StringUtils.isEmpty(instance.getName())){
+        ) {
+            if (StringUtils.isEmpty(instance.getName())) {
                 return ResponseUtil.badArgument("拓扑名称不能为空");
             }
         }
-        if(StringUtils.isNotEmpty(instance.getName())){
+        if (StringUtils.isNotEmpty(instance.getName())) {
             params.put("topologyId", instance.getId());
             params.put("name", instance.getName());
             params.put("unitId", instance.getUnitId());
             List<Topology> topologList = this.topologyService.selectObjByMap(params);
-            if(topologList.size() > 0){
+            if (topologList.size() > 0) {
                 return ResponseUtil.badArgument("拓扑名称重复");
             }
         }
 
-        if(instance.getContent() != null && !instance.getContent().equals("")){
+        if (instance.getContent() != null && !instance.getContent().equals("")) {
             String str = JSONObject.toJSONString(instance.getContent());
             instance.setContent(str);
         }
 
         int result = this.topologyService.save(instance);
-        if(result >= 1){
+        if (result >= 1) {
             // 设置默认拓扑
             try {
                 this.setTopologyDefualt();
@@ -212,18 +212,18 @@ public class TopologyManagerController {
     }
 
     @DeleteMapping("/delete")
-    public Object delete(String ids){
-        if(ids != null && !ids.equals("")){
-            for (String id : ids.split(",")){
+    public Object delete(String ids) {
+        if (ids != null && !ids.equals("")) {
+            for (String id : ids.split(",")) {
                 Topology obj = this.topologyService.selectObjById(Long.parseLong(id));
-                if(obj.getIsDefault()){
+                if (obj.getIsDefault()) {
                     return ResponseUtil.badArgument("拓扑【" + obj.getName() + "】为默认拓扑");
                 }
                 try {
                     Topology topology = this.topologyService.selectObjById(obj.getId());
-                    if(topology != null){
+                    if (topology != null) {
                         int i = this.topologyService.delete(obj.getId());
-                        if(i >= 1){
+                        if (i >= 1) {
                             // 设置默认拓扑
                             try {
                                 this.setTopologyDefualt();
@@ -231,7 +231,7 @@ public class TopologyManagerController {
                                 e.printStackTrace();
                             }
                         }
-                    }else{
+                    } else {
                         return ResponseUtil.badArgument();
                     }
                 } catch (Exception e) {
@@ -245,24 +245,23 @@ public class TopologyManagerController {
     }
 
     /**
-     *
      * @param id
      * @return
      */
     // TODO 设置乐观锁，多用户同时登陆，避免并发提交
     @ApiOperation("设置默认拓扑")
     @RequestMapping("/default")
-    public Object isDefault(String id){
+    public Object isDefault(String id) {
         Topology obj = this.topologyService.selectObjById(Long.parseLong(id));
-        if(obj != null){
+        if (obj != null) {
             obj.setIsDefault(true);
             User user = ShiroUserHolder.currentUser();
             List<Topology> topologyList = this.defaultList(user, true);
-            if(topologyList.size() > 0){
+            if (topologyList.size() > 0) {
                 Topology topology = topologyList.get(0);
-                if(obj == topology){
+                if (obj == topology) {
                     return ResponseUtil.ok();
-                }else{
+                } else {
                     topology.setIsDefault(false);
                     this.topologyService.update(topology);
                 }
@@ -277,22 +276,22 @@ public class TopologyManagerController {
     @GetMapping("/info")
     public Object topologyInfo(
             @RequestParam(value = "id") Long id,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-            @RequestParam(value = "time", required = false) Date time){
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+            @RequestParam(value = "time", required = false) Date time) {
         User user = ShiroUserHolder.currentUser();
-        if(user.getUnitId() == null){
+        if (user.getUnitId() == null) {
             return ResponseUtil.ok();
         }
-        if(id == null){
-            return  ResponseUtil.badArgument();
+        if (id == null) {
+            return ResponseUtil.badArgument();
         }
         List<Topology> topologies = this.selectObjById(id, time, user.getUnitId());
-        if(topologies != null && topologies.size() > 0){
+        if (topologies != null && topologies.size() > 0) {
             Topology topology = topologies.get(0);
-            if(topology.getUnitId() != user.getUnitId()){
+            if (topology.getUnitId() != user.getUnitId()) {
                 return ResponseUtil.ok();
             }
-            if(topology.getContent() != null && !topology.getContent().equals("")){
+            if (topology.getContent() != null && !topology.getContent().equals("")) {
                 JSONObject content = JSONObject.parseObject(topology.getContent().toString());
                 topology.setContent(content);
             }
@@ -301,14 +300,14 @@ public class TopologyManagerController {
         return ResponseUtil.ok();
     }
 
-    public  List<Topology> selectObjById(Long id, Date time, Long unitId){
+    public List<Topology> selectObjById(Long id, Date time, Long unitId) {
         Map params = new HashMap();
         List<Topology> topologies = null;
         params.put("id", id);
         params.put("unitId", unitId);
-        if(time == null){
+        if (time == null) {
             topologies = this.topologyService.selectObjByMap(params);
-        }else{
+        } else {
             params.put("id", id);
             params.put("unitId", unitId);
             Calendar cal = Calendar.getInstance();
@@ -323,14 +322,14 @@ public class TopologyManagerController {
 
     @ApiOperation("默认拓扑")
     @GetMapping("/default/topology")
-    public Object defaultTopology(){
+    public Object defaultTopology() {
         Map map = new HashMap();
         Map params = new HashMap();
         params.put("isDefault", true);
         List<Topology> topologies = this.topologyService.selectObjByMap(params);
-        if (topologies.size() > 0){
+        if (topologies.size() > 0) {
             Topology topology = topologies.get(0);
-            if(topology.getContent() != null && !topology.getContent().equals("")){
+            if (topology.getContent() != null && !topology.getContent().equals("")) {
                 JSONObject content = JSONObject.parseObject(topology.getContent().toString());
                 topology.setContent(content);
             }
@@ -340,9 +339,9 @@ public class TopologyManagerController {
         return ResponseUtil.ok(map);
     }
 
-    public void setTopologyDefualt(){
+    public void setTopologyDefualt() {
         List<Topology> topologies = this.topologyService.selectObjByMap(null);
-        if(topologies.size() == 1){
+        if (topologies.size() == 1) {
             Topology topology = topologies.get(0);
             topology.setIsDefault(true);
             this.topologyService.update(topology);
@@ -350,7 +349,7 @@ public class TopologyManagerController {
     }
 
 
-    public  List<Topology> defaultList(User user, boolean isDefault){
+    public List<Topology> defaultList(User user, boolean isDefault) {
         Map params = new HashMap();
         params.put("isDefault", true);
         List<Topology> topologies = this.topologyService.selectObjByMap(params);
@@ -358,12 +357,12 @@ public class TopologyManagerController {
     }
 
 
-    public String uploadFile(@RequestParam(required = false) MultipartFile file){
+    public String uploadFile(@RequestParam(required = false) MultipartFile file) {
         String path = Global.TOPOLOGYFILEPATH;
         String originalName = file.getOriginalFilename();
         String ext = originalName.substring(originalName.lastIndexOf("."));
         String fileName1 = DateTools.getCurrentDate(new Date());
-        File imageFile = new File(path +  "/" + fileName1 + ext);
+        File imageFile = new File(path + "/" + fileName1 + ext);
         if (!imageFile.getParentFile().exists()) {
             imageFile.getParentFile().mkdirs();
         }
@@ -373,7 +372,7 @@ public class TopologyManagerController {
             accessory.setA_name(fileName1);
             accessory.setA_path(path);
             accessory.setA_ext(ext);
-            accessory.setA_size((int)file.getSize());
+            accessory.setA_size((int) file.getSize());
             accessory.setType(4);
             this.accessoryService.save(accessory);
             String picNewName = fileName1 + ext;
@@ -387,17 +386,17 @@ public class TopologyManagerController {
         return "";
     }
 
-    public boolean winUploadFile(@RequestParam(required = false) MultipartFile file){
+    public boolean winUploadFile(@RequestParam(required = false) MultipartFile file) {
         String path = "C:\\Users\\Administrator\\Desktop\\新建文件夹 (2)";
         String originalName = file.getOriginalFilename();
         String fileName = UUID.randomUUID().toString().replace("-", "");
         String ext = originalName.substring(originalName.lastIndexOf("."));
         String picNewName = fileName + ext;
-        String imgRealPath = path  + File.separator + picNewName;
+        String imgRealPath = path + File.separator + picNewName;
         Date currentDate = new Date();
         String fileName1 = DateTools.getCurrentDate(currentDate);
         System.out.println(path + "\\" + fileName1 + ".png");
-        File imageFile = new File(path +  "\\" + fileName1 + ".png");
+        File imageFile = new File(path + "\\" + fileName1 + ".png");
         if (!imageFile.getParentFile().exists()) {
             imageFile.getParentFile().mkdirs();
         }
@@ -407,7 +406,7 @@ public class TopologyManagerController {
             accessory.setA_name(picNewName);
             accessory.setA_path(path);
             accessory.setA_ext(ext);
-            accessory.setA_size((int)file.getSize());
+            accessory.setA_size((int) file.getSize());
             accessory.setType(4);
             this.accessoryService.save(accessory);
             return true;
@@ -418,27 +417,27 @@ public class TopologyManagerController {
     }
 
     @GetMapping("/query/device/{value}")
-    public Object queryDevice(@PathVariable(value = "value") String value){
+    public Object queryDevice(@PathVariable(value = "value") String value) {
         Map result = new HashMap();
         Map params = new HashMap();
-        if(MacUtils.isValidMacAddress(value)){
+        if (MacUtils.isValidMacAddress(value)) {
             params.clear();
             params.put("mac", value);
             List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-            if(terminals.size() > 0){
+            if (terminals.size() > 0) {
                 Set<String> set = terminals.stream().map(e -> {
                     return e.getMac();
                 }).collect(Collectors.toSet());
                 result.put("terminal", set);
             }
             return ResponseUtil.ok(result);
-        }else{
-            if(StringUtils.isNotBlank(value)){
+        } else {
+            if (StringUtils.isNotBlank(value)) {
                 params.clear();
-                if(Ipv4Util.verifyIp(value) && StringUtil.isNotEmpty(value)){
+                if (Ipv4Util.verifyIp(value) && StringUtil.isNotEmpty(value)) {
                     params.put("ip", value);
                     List<Port> ports = this.portService.selectObjByMap(params);
-                    if(ports.size() > 0){
+                    if (ports.size() > 0) {
                         Set<String> set = new HashSet<>();
                         set.add(ports.get(0).getDeviceUuid());
                         result.put("device", set);
@@ -446,26 +445,26 @@ public class TopologyManagerController {
                     params.clear();
                     params.put("v4ip", value);
                     List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-                    if(terminals.size() > 0){
+                    if (terminals.size() > 0) {
                         Set<String> set = terminals.stream().map(e -> {
                             return e.getMac();
                         }).collect(Collectors.toSet());
                         result.put("terminal", set);
                     }
-                } else if(Ipv6Util.verifyIpv6(value) && StringUtil.isNotEmpty(value)){
+                } else if (Ipv6Util.verifyIpv6(value) && StringUtil.isNotEmpty(value)) {
                     params.clear();
                     params.put("v6ip", value);
                     List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-                    if(terminals.size() > 0){
+                    if (terminals.size() > 0) {
                         Set<String> set = terminals.stream().map(e -> {
                             return e.getMac();
                         }).collect(Collectors.toSet());
                         result.put("terminal", set);
-                    }else{
+                    } else {
                         params.clear();
                         params.put("v6ip", value);
                         List<PortIpv6> portIpv6s = this.portIpv6Service.selectObjByMap(params);
-                        if(portIpv6s.size() > 0){
+                        if (portIpv6s.size() > 0) {
                             Set<String> set = new HashSet<>();
                             set.add(portIpv6s.get(0).getDeviceUuid());
                             result.put("device", set);
@@ -481,8 +480,8 @@ public class TopologyManagerController {
 
     @ApiOperation("端口信息")
     @GetMapping("/port/{uuid}")
-    public Object port(@PathVariable(value = "uuid") String uuid){
-        if(Strings.isBlank(uuid)){
+    public Object port(@PathVariable(value = "uuid") String uuid) {
+        if (Strings.isBlank(uuid)) {
             return ResponseUtil.badArgument();
         }
         List list = this.topologyService.getDevicePortsByUuid(uuid);

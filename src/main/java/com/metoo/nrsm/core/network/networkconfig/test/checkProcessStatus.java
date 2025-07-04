@@ -11,7 +11,8 @@ import java.io.InputStreamReader;
 public class checkProcessStatus {
     /**
      * checkdhcpd.py  checkdns.py  checkping.py  checkprocess.py
-     * @param process   "dhcpd", "dhcpd6", "checkaliveip", "Dnsredis"
+     *
+     * @param process "dhcpd", "dhcpd6", "checkaliveip", "Dnsredis"
      * @return
      */
     public static String checkProcessStatus(String process) {
@@ -42,9 +43,9 @@ public class checkProcessStatus {
             while ((line = reader.readLine()) != null) {
                 output.append(line).append("\n");
             }
-            if (!output.toString().isEmpty()){
+            if (!output.toString().isEmpty()) {
                 return "True";
-            }else {
+            } else {
                 return "None";
             }
         } catch (Exception e) {
@@ -58,9 +59,9 @@ public class checkProcessStatus {
         Session session = null;
         ChannelExec channel = null;
         String command = "";
-        String process="dhcpd6";     //{"dhcpd", "dhcpd6", "checkaliveip", "Dnsredis"}
+        String process = "dhcpd6";     //{"dhcpd", "dhcpd6", "checkaliveip", "Dnsredis"}
         try {
-            session= SnmpHelper.createSession();
+            session = SnmpHelper.createSession();
             // 创建一个执行频道
             channel = (ChannelExec) session.openChannel("exec");
             switch (process) {
@@ -94,9 +95,9 @@ public class checkProcessStatus {
                 while ((line = reader.readLine()) != null) {
                     output.append(line).append("\n");
                 }
-                if (!output.toString().isEmpty()){
+                if (!output.toString().isEmpty()) {
                     System.out.println("True");
-                }else {
+                } else {
                     System.out.println("None");
                 }
             }

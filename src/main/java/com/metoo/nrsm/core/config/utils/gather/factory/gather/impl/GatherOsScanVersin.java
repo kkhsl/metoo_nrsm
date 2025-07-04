@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GatherOsScanVersin implements Gather {
     /**
      * 创建一个固定大小的线程池
-      */
+     */
     ExecutorService executorService = ThreadUtil.newExecutor(5);
 
     public static <T> List<List<T>> splitList(List<T> list, int numOfSubLists) {
@@ -121,17 +121,17 @@ public class GatherOsScanVersin implements Gather {
                 try {
                     // 提交所有任务并等待它们完成
                     List<Future<String>> futures = executorService.invokeAll(tasks);
-                    for (Future<String> future : futures){
+                    for (Future<String> future : futures) {
                         String result = future.get();
-                        log.info("os-scan任务完成情况========：{}",result);
+                        log.info("os-scan任务完成情况========：{}", result);
                     }
                     // 执行下一个读取result_append.txt
-                    for (int i = 1; i <= number; i++){
+                    for (int i = 1; i <= number; i++) {
                         // 读取result_append.txt
-                        fileToDatabase.readFileToProbe(i+"");
+                        fileToDatabase.readFileToProbe(i + "");
                     }
                 } catch (InterruptedException e) {
-                   log.error("os scan 任务出现错误:{}",e);
+                    log.error("os scan 任务出现错误:{}", e);
                     // 如果当前线程在等待任务完成时被中断，则需要适当处理
                     Thread.currentThread().interrupt(); // 恢复中断状态
                 } finally {
@@ -140,7 +140,7 @@ public class GatherOsScanVersin implements Gather {
                 }
             }
         } catch (Exception e) {
-            log.error("os scan 出现错误:{}",e);
+            log.error("os scan 出现错误:{}", e);
         }
         log.info("os scan......" + (System.currentTimeMillis() - time));
     }

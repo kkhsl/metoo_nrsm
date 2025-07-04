@@ -38,16 +38,16 @@ public class ArpManagerController {
     private PythonExecUtils pythonExecUtils;
 
     @GetMapping("getArp")
-    public void ipv4(){
+    public void ipv4() {
 //        String path = "/opt/nrsm/py/getmac.py";
 //        String[] params = {"v2c", "public@123"};
 //        String result = PythonExecUtils.exec(path, params);
         String path = "E:\\python\\project\\djangoProject\\app01\\nrsm\\getarp.py";
         String result = pythonExecUtils.exec(path);
-        if(!"".equals(result)){
+        if (!"".equals(result)) {
             try {
                 List<Ipv4> array = JSONObject.parseArray(result, Ipv4.class);
-                if(array.size()>0){
+                if (array.size() > 0) {
                     this.ipv4Service.truncateTable();
                     array.forEach(e -> {
                         this.ipv4Service.save(e);
@@ -60,16 +60,16 @@ public class ArpManagerController {
     }
 
     @GetMapping("ipv6")
-    public void ipv6(){
+    public void ipv6() {
 //        String path = "/opt/nrsm/py/getmac.py";
 //        String[] params = {"v2c", "public@123"};
 //        String result = PythonExecUtils.exec(path, params);
         String path = "E:\\python\\project\\djangoProject\\app01\\nrsm\\getarpv6.py";
         String result = pythonExecUtils.exec(path);
-        if(!"".equals(result)){
+        if (!"".equals(result)) {
             try {
                 List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
-                if(array.size()>0){
+                if (array.size() > 0) {
                     this.ipv6Service.truncateTable();
                     array.forEach(e -> {
                         this.ipv6Service.save(e);
@@ -83,9 +83,9 @@ public class ArpManagerController {
 
 
     @GetMapping("arp")
-    public void arp(){
+    public void arp() {
         List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
-        if(networkElements.size() > 0){
+        if (networkElements.size() > 0) {
 
             this.ipv4Service.truncateTable();
             this.ipv6Service.truncateTable();
@@ -93,10 +93,10 @@ public class ArpManagerController {
             for (NetworkElement networkElement : networkElements) {
                 String path = "E:\\python\\project\\djangoProject\\app01\\nrsm\\getarp.py";
                 String result = pythonExecUtils.exec(path);
-                if(!"".equals(result)){
+                if (!"".equals(result)) {
                     try {
                         List<Ipv4> array = JSONObject.parseArray(result, Ipv4.class);
-                        if(array.size()>0){
+                        if (array.size() > 0) {
                             array.forEach(e -> {
                                 e.setDeviceIp(networkElement.getIp());
                                 e.setDeviceName(networkElement.getDeviceName());
@@ -110,10 +110,10 @@ public class ArpManagerController {
 
                 path = "E:\\python\\project\\djangoProject\\app01\\nrsm\\getarpv6.py";
                 result = pythonExecUtils.exec(path);
-                if(!"".equals(result)){
+                if (!"".equals(result)) {
                     try {
                         List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
-                        if(array.size()>0){
+                        if (array.size() > 0) {
                             array.forEach(e -> {
                                 e.setDeviceIp(networkElement.getIp());
                                 e.setDeviceName(networkElement.getDeviceName());
@@ -131,7 +131,7 @@ public class ArpManagerController {
     }
 
     @GetMapping("exec")
-    public void exec(){
-       this.arpService.gatherArp(new Date());
+    public void exec() {
+        this.arpService.gatherArp(new Date());
     }
 }

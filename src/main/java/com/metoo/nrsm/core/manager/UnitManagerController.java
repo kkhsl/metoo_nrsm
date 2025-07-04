@@ -38,13 +38,13 @@ public class UnitManagerController {
     private IFlowUnitService flowUnitService;
 
     @PostMapping("/list")
-    public Result list(@RequestBody(required=false) UnitNewDTO dto){
+    public Result list(@RequestBody(required = false) UnitNewDTO dto) {
         Result result = this.unitService.selectObjConditionQuery(dto);
         return result;
     }
 
     @GetMapping("/selectAll")
-    public Result selectAll(){
+    public Result selectAll() {
         Result result = this.unitService.selectAllQuery();
         return result;
     }
@@ -69,7 +69,7 @@ public class UnitManagerController {
     }
 
     @PostMapping("/save")
-    public Result save(@RequestBody Unit instance){
+    public Result save(@RequestBody Unit instance) {
         Result result = this.unitService.save(instance);
         return result;
     }

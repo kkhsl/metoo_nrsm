@@ -52,19 +52,19 @@
     <sql id="Join_Column_List">
         dt.id, dt.addTime, dt.deleteStatus, dt.name, n.id ne_id, n.*,
         (
-			SELECT COUNT(*)
-			FROM metoo_ne n
-			WHERE dt.id = n.`device_type_id`
-	 ) count
+        SELECT COUNT(*)
+        FROM metoo_ne n
+        WHERE dt.id = n.`device_type_id`
+        ) count
     </sql>
 
     <sql id="Terminal_Join_Column_List">
         dt.id, dt.name, rt.id rt_id, rt.name rt_name, rt.online rt_online,
         (
-			SELECT COUNT(*)
-			FROM metoo_terminal rt
-			WHERE dt.id = rt.`deviceTypeId`
-	 ) count
+        SELECT COUNT(*)
+        FROM metoo_terminal rt
+        WHERE dt.id = rt.`deviceTypeId`
+        ) count
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Join_Result_Map">
@@ -74,15 +74,16 @@
 
     <select id="selectObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT * FROM metoo_device_type
-        where  `name` = #{name}
+        where `name` = #{name}
     </select>
 
     <select id="selectObjByType" parameterType="java.lang.Integer" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT * FROM metoo_device_type
-        where  `type` = #{type}
+        where `type` = #{type}
     </select>
 
-    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DeviceTypeDTO" resultType="com.metoo.nrsm.entity.DeviceType">
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DeviceTypeDTO"
+            resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT *
         FROM metoo_device_type
     </select>
@@ -93,7 +94,7 @@
         <where>
             <if test="types != null">
                 AND `type` in
-                <foreach collection="types" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="types" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -110,65 +111,65 @@
                 AND diff = #{diff}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
 
     <select id="selectCountByLeftJoin" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT
-            dt.*, IF(d.device_type_id IS NULL,0,COUNT(*)) `count`
+        dt.*, IF(d.device_type_id IS NULL,0,COUNT(*)) `count`
         FROM
-            metoo_device_type dt
+        metoo_device_type dt
         LEFT JOIN
-            rsms_device d
+        rsms_device d
         ON
-            d.device_type_id = dt.id
+        d.device_type_id = dt.id
         GROUP BY
-            dt.id
+        dt.id
     </select>
 
     <select id="selectDeviceTypeAndNeByJoin" resultType="com.metoo.nrsm.entity.DeviceType">
         SELECT
-            metoo_device_type.*,
+        metoo_device_type.*,
         IF (
-            metoo_ne.device_type_id IS NULL,
-            0,
-            COUNT(*)
+        metoo_ne.device_type_id IS NULL,
+        0,
+        COUNT(*)
         ) `count`
         FROM
-            metoo_device_type
+        metoo_device_type
         LEFT JOIN metoo_ne ON metoo_device_type.id = metoo_ne.device_type_id
         WHERE
-            diff = 0
+        diff = 0
         GROUP BY
-            metoo_device_type.id;
+        metoo_device_type.id;
     </select>
 
 
     <select id="selectDeviceTypeAndTerminalByJoin" resultMap="Join_Terminal_Map">
         SELECT
-            metoo_device_type.*,
+        metoo_device_type.*,
         IF (
-            metoo_terminal.deviceTypeId IS NULL,
-            0,
-            COUNT(*)
+        metoo_terminal.deviceTypeId IS NULL,
+        0,
+        COUNT(*)
         ) `count`
         FROM
-            metoo_device_type
+        metoo_device_type
         LEFT JOIN metoo_terminal ON metoo_device_type.id = metoo_terminal.deviceTypeId
         WHERE
-            diff = 1
+        diff = 1
         GROUP BY
-            metoo_device_type.id;
+        metoo_device_type.id;
     </select>
 
     <select id="selectCountByJoin" resultMap="Join_Result_Map">
         SELECT
-            <include refid="Join_Column_List"/>
+        <include refid="Join_Column_List"/>
         FROM metoo_device_type dt
         LEFT JOIN
         metoo_ne n
@@ -190,13 +191,13 @@
 
     <select id="selectNeSumByType" parameterType="java.util.Map" resultMap="Join_Result_Map">
         SELECT
-            dt.*, IF(mn.device_type_id IS NULL,0,COUNT(*)) `count`
+        dt.*, IF(mn.device_type_id IS NULL,0,COUNT(*)) `count`
         FROM
-            metoo_device_type dt
-         LEFT JOIN
-            metoo_ne mn
+        metoo_device_type dt
+        LEFT JOIN
+        metoo_ne mn
         ON
-            mn.device_type_id = dt.id
+        mn.device_type_id = dt.id
         <where>
             <if test="diff != null">
                 AND diff = #{diff}
@@ -224,13 +225,13 @@
 
     <select id="selectTerminalSumByType" parameterType="java.util.Map" resultMap="Join_Result_Map">
         SELECT
-            dt.*, IF(rt.deviceTypeId IS NULL,0,COUNT(*)) `count`
+        dt.*, IF(rt.deviceTypeId IS NULL,0,COUNT(*)) `count`
         FROM
-            metoo_device_type dt
-         JOIN
-          metoo_terminal rt
+        metoo_device_type dt
+        JOIN
+        metoo_terminal rt
         ON
-            rt.deviceTypeId = dt.id
+        rt.deviceTypeId = dt.id
         <where>
             <if test="type != null">
                 AND dt.type = #{type}
@@ -249,46 +250,45 @@
     </select>
 
 
-
     <select id="statistics" resultType="com.metoo.nrsm.core.vo.DeviceTypeVO">
         SELECT
-              t.*, IF(d.device_type_id IS NULL,0, d.`online`) `online`,
-	          IF(w.device_type_id IS NULL,0, w.overProtection) overProtection
-            FROM (
-            SELECT
-              dt.*, IF(d.device_type_id IS NULL,0,COUNT(*)) `count`
-            FROM
-             metoo_device_type dt
-            LEFT JOIN
-             rsms_device d
-            ON
-              d.device_type_id = dt.id
-            GROUP BY
-             dt.id
-            )t
-            LEFT JOIN
-            (
-                SELECT
-                  *, IF(device_type_id IS NULL,0,COUNT(*)) `online`
-                FROM
-                  rsms_device
-                WHERE
-                  status = 1
-                GROUP BY
-                  device_type_id
-            ) d
-            ON
-            t.id = d.device_type_id
-            LEFT JOIN
-            (
-                SELECT
-                  *, COUNT(*) `overProtection`
-                FROM rsms_device
-                WHERE
-                  to_days(warranty_time) - to_days(purchase_time) &lt; 60
-                GROUP BY device_type_id)w
-            ON
-            w.device_type_id = t.id
+        t.*, IF(d.device_type_id IS NULL,0, d.`online`) `online`,
+        IF(w.device_type_id IS NULL,0, w.overProtection) overProtection
+        FROM (
+        SELECT
+        dt.*, IF(d.device_type_id IS NULL,0,COUNT(*)) `count`
+        FROM
+        metoo_device_type dt
+        LEFT JOIN
+        rsms_device d
+        ON
+        d.device_type_id = dt.id
+        GROUP BY
+        dt.id
+        )t
+        LEFT JOIN
+        (
+        SELECT
+        *, IF(device_type_id IS NULL,0,COUNT(*)) `online`
+        FROM
+        rsms_device
+        WHERE
+        status = 1
+        GROUP BY
+        device_type_id
+        ) d
+        ON
+        t.id = d.device_type_id
+        LEFT JOIN
+        (
+        SELECT
+        *, COUNT(*) `overProtection`
+        FROM rsms_device
+        WHERE
+        to_days(warranty_time) - to_days(purchase_time) &lt; 60
+        GROUP BY device_type_id)w
+        ON
+        w.device_type_id = t.id
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.DeviceType">
@@ -334,7 +334,7 @@
     <delete id="batcheDel" parameterType="java.lang.Long">
         DELETE FROM metoo_device_type
         WHERE id in
-        <foreach collection="array" item="item"  separator="," open="(" close=")">
+        <foreach collection="array" item="item" separator="," open="(" close=")">
             #{item}
         </foreach>
     </delete>

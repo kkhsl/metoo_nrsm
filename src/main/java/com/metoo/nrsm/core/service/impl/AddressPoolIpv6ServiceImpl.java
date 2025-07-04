@@ -72,7 +72,7 @@ public class AddressPoolIpv6ServiceImpl implements IAddressPoolIpv6Service {
 
     @Override
     public int save(AddressPoolIpv6 instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 instance.setAddTime(new Date());
                 int i = this.addressPoolIpv6Mapper.save(instance);
@@ -93,7 +93,7 @@ public class AddressPoolIpv6ServiceImpl implements IAddressPoolIpv6Service {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
 //                int i = this.addressPoolIpv6Mapper.update(instance);
 //                try {
@@ -105,7 +105,7 @@ public class AddressPoolIpv6ServiceImpl implements IAddressPoolIpv6Service {
                 // 判断是否是否变化
                 AddressPoolIpv6 obj = this.addressPoolIpv6Mapper.selectObjById(instance.getId());
                 boolean flag = Md5Crypt.getDiffrent(obj, instance);
-                if(!flag){
+                if (!flag) {
                     // 更新应用按钮
                     SysConfig sysconfig = this.sysConfigService.select();
                     sysconfig.setV6_status(true);
@@ -135,7 +135,7 @@ public class AddressPoolIpv6ServiceImpl implements IAddressPoolIpv6Service {
 //            return i;
             AddressPoolIpv6 obj = this.addressPoolIpv6Mapper.selectObjById(instance.getId());
             boolean flag = Md5Crypt.getDiffrent(obj, instance);
-            if(!flag){
+            if (!flag) {
                 // 更新应用按钮
                 SysConfig sysconfig = this.sysConfigService.select();
                 sysconfig.setV6_status(true);
@@ -179,7 +179,7 @@ public class AddressPoolIpv6ServiceImpl implements IAddressPoolIpv6Service {
         AddressPoolIpv6ConcurrentUtil instance = AddressPoolIpv6ConcurrentUtil.getInstance();
         try {
             boolean flag = instance.write(addressPoolV6FixedVOS);
-            if(flag){
+            if (flag) {
 
                 SysConfig sysconfig = this.sysConfigService.select();
                 sysconfig.setV6_status(false);
@@ -187,7 +187,7 @@ public class AddressPoolIpv6ServiceImpl implements IAddressPoolIpv6Service {
 
 
                 String dhcpd = this.dhcpService.checkdhcpd("dhcpd6");
-                if(Boolean.valueOf(dhcpd)){
+                if (Boolean.valueOf(dhcpd)) {
                     this.dhcpService.dhcpdop("restart", "dhcpd6");
                 }
             }

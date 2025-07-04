@@ -30,7 +30,7 @@ public class LinkServiceImpl implements ILinkService {
 
     @Override
     public Page<Link> selectObjConditionQuery(LinkDTO dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new LinkDTO();
         }
         Page<Link> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
@@ -46,20 +46,20 @@ public class LinkServiceImpl implements ILinkService {
     @Override
     public int save(Link instance) {
         User user = ShiroUserHolder.currentUser();
-        if(instance.getGroupId() == null){
+        if (instance.getGroupId() == null) {
             instance.setGroupId(user.getGroupId());
         }
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
         }
-        if(instance.getId() == null  || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 return this.linkMapper.save(instance);
             } catch (Exception e) {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 return this.linkMapper.update(instance);
             } catch (Exception e) {
@@ -102,7 +102,7 @@ public class LinkServiceImpl implements ILinkService {
     @Override
     public int batchesInsert(List<Link> instances) {
         try {
-           return this.linkMapper.batchesInsert(instances);
+            return this.linkMapper.batchesInsert(instances);
         } catch (Exception e) {
             e.printStackTrace();
             return 0;

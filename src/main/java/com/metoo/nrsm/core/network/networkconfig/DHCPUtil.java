@@ -14,6 +14,7 @@ public class DHCPUtil {
 
 
     private final PingTest pingTest;
+
     @Autowired
     public DHCPUtil(PingTest pingTest) {
         this.pingTest = pingTest;
@@ -62,7 +63,7 @@ public class DHCPUtil {
 
     //modifydns.py
     public static void modifyDNS(String dns1, String dns2) {
-        modifyDns.changeDNS(dns1,dns2);
+        modifyDns.changeDNS(dns1, dns2);
     }
 
     //getnetintf.py
@@ -78,16 +79,16 @@ public class DHCPUtil {
     public static int modifyIp(String iface, String ipv4address, String ipv6address,
                                String gateway4, String gateway6) {
         try {
-            return modifyIp.modifyIP(iface,ipv4address,ipv6address,gateway4,gateway6);
+            return modifyIp.modifyIP(iface, ipv4address, ipv6address, gateway4, gateway6);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     public static int modifyVlans(String parentInterface, String vlanId, String ipv4Address,
-                               String ipv6Address, String gateway4,String gateway6) {
+                                  String ipv6Address, String gateway4, String gateway6) {
         try {
-            return modifyVlans.modifyVlanConfig(parentInterface,vlanId,ipv4Address,ipv6Address,gateway4,gateway6);
+            return modifyVlans.modifyVlanConfig(parentInterface, vlanId, ipv4Address, ipv6Address, gateway4, gateway6);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -96,7 +97,7 @@ public class DHCPUtil {
 
     //pingop.py
     public static String pingOp(String action, String service) {
-        return pingOp.executeSystemctl(action,service);
+        return pingOp.executeSystemctl(action, service);
     }
 
     //PingTest.py
@@ -105,11 +106,11 @@ public class DHCPUtil {
 //    }
 
     public static void pingSubnet(String network, int mask) {
-        PingSubnet.scanSubnet(network,mask);
+        PingSubnet.scanSubnet(network, mask);
     }
 
     public static void pingSubnetConcurrent(String network, int mask) {
-        PingSubnetConcurrent.scanSubnet(network,mask);
+        PingSubnetConcurrent.scanSubnet(network, mask);
     }
 
 }

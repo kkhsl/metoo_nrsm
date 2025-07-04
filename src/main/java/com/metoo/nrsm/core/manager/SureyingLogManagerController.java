@@ -33,17 +33,17 @@ public class SureyingLogManagerController {
 
     // false true结束轮询
     @GetMapping
-    public Result logs(){
+    public Result logs() {
         // 获取测绘日志
-        List<SurveyingLogVo> surveyingLogList=surveyingLogService.queryLogInfo();
+        List<SurveyingLogVo> surveyingLogList = surveyingLogService.queryLogInfo();
         Map result = new HashMap();
         boolean finish = false;
         result.put("data", surveyingLogList);
 
-        if(surveyingLogList.size() > 0){
+        if (surveyingLogList.size() > 0) {
             long count = surveyingLogList.stream().filter(surveyingLogVo -> surveyingLogVo.getType() != null
                     && surveyingLogVo.getType() == 5 && (surveyingLogVo.getStatus() == 2 || surveyingLogVo.getStatus() == 3)).count();
-            if(count >= 1){
+            if (count >= 1) {
                 finish = true;
             }
         }

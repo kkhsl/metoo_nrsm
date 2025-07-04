@@ -17,7 +17,7 @@ public class Python3 {
 
     public static void main(String[] params) {
 
-        String[] args = new String[] {
+        String[] args = new String[]{
                 "python3", "/opt/nrsm/py/modifyip.py"};
 
         String[] mergedArray = new String[args.length + params.length];
@@ -26,9 +26,9 @@ public class Python3 {
 
         for (int i = 0; i < mergedArray.length; i++) {
 
-            if(i < argsLen){
+            if (i < argsLen) {
                 mergedArray[i] = args[i];
-            }else{
+            } else {
                 mergedArray[i] = params[i - argsLen];
             }
         }
@@ -38,13 +38,13 @@ public class Python3 {
         try {
             proc = Runtime.getRuntime().exec(args);
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(),"gb2312"));//解决中文乱码，参数可传中文
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
             String line = null;
             while ((line = in.readLine()) != null) {
                 sb.append(line);
             }
             System.out.println(sb);
-            if(sb.toString().equals("0")){
+            if (sb.toString().equals("0")) {
                 System.out.println("true");
             }
         } catch (IOException e) {
@@ -73,7 +73,6 @@ public class Python3 {
         for (int i = 0; i < mergedArray.length; i++) {
 //            System.out.print(mergedArray[i] + " ");
         }
-
 
 
         String[] array3 = {"Hello", "World"};

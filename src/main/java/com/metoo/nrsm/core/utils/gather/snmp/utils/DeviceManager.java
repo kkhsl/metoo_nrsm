@@ -25,20 +25,20 @@ public class DeviceManager {
     @Autowired
     private SnmpStatusUtils snmpStatusUtils;
 
-    public void saveAvailableDevicesToRedis(){
+    public void saveAvailableDevicesToRedis() {
         Set<String> hostNames = getDeviceNamesFromNetworkElement();
         // 更新redis
         this.snmpStatusUtils.editSnmpStatus(hostNames);
     }
 
 
-    public Set<String> getDeviceNamesFromNetworkElement(){
+    public Set<String> getDeviceNamesFromNetworkElement() {
         Set<String> hostNames = new HashSet<>();
         List<NetworkElement> networkElements = this.networkElementService.selectObjAllByGather();
-        if(networkElements.size() > 0){
+        if (networkElements.size() > 0) {
             for (NetworkElement element : networkElements) {
                 String hostName = getDeviceNameByIpAndCommunityVersion(element);
-                if(StringUtils.isNotEmpty(hostName)){
+                if (StringUtils.isNotEmpty(hostName)) {
                     String key = element.getUuid();
                     hostNames.add(key);
                 }
@@ -49,13 +49,13 @@ public class DeviceManager {
 
     public static void main(String[] args) {
         String hostName = null;
-        if(StringUtils.isNotEmpty(hostName)){
+        if (StringUtils.isNotEmpty(hostName)) {
             System.out.println(1);
         }
     }
 
     // 获取设备名
-    public String getDeviceNameByIpAndCommunityVersion(NetworkElement networkElement){
+    public String getDeviceNameByIpAndCommunityVersion(NetworkElement networkElement) {
         String result = SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement));
         return result;
     }

@@ -9,7 +9,8 @@ import java.util.regex.Pattern;
 
 public class Ipv6Utils {
 
-    private Ipv6Utils() {} // 防止实例化
+    private Ipv6Utils() {
+    } // 防止实例化
 
     private static final Pattern IPV6_PATTERN = Pattern.compile(
             "([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)|" +
@@ -93,6 +94,7 @@ public class Ipv6Utils {
 
     /**
      * 检查字符串是否为有效的IPv6网段
+     *
      * @param input 要检查的字符串
      * @return true如果是有效的IPv6网段，否则false
      */

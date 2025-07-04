@@ -39,14 +39,14 @@ public class MacManagerControllerApi {
     @GetMapping(value = {"/nswitch"})
     public NoticeWebsocketResp nswitch(@RequestParam(value = "requestParams", required = false) String requestParams) {
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
-        if(!String.valueOf(requestParams).equals("")){
+        if (!String.valueOf(requestParams).equals("")) {
             Map map = JSONObject.parseObject(String.valueOf(requestParams), Map.class);
-            String sessionId = (String)  map.get("sessionId");
+            String sessionId = (String) map.get("sessionId");
             Map result = new HashMap();
-            if(map.get("time") == null || StringUtil.isEmpty(String.valueOf(map.get("time")))){
+            if (map.get("time") == null || StringUtil.isEmpty(String.valueOf(map.get("time")))) {
                 List<Mac> list = this.macService.selectTagDEWithNswitch();
                 result.put("nswitchList", list);
-            }else{
+            } else {
                 // mac-nswitch历史数据
 
             }

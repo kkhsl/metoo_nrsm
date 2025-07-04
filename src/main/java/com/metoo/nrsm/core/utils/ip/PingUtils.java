@@ -7,7 +7,7 @@ import java.net.InetAddress;
  * @author HKK
  * @version 1.0
  * @date 2024-03-26 14:50
- *
+ * <p>
  * 1，创建ping工具
  * 2，实现ping方法
  * 3，调用ping方法
@@ -21,9 +21,9 @@ public class PingUtils {
     }
 
 
-
     /**
      * 测试地址是否可达
+     *
      * @param ipAddress
      */
     public static void ping(String ipAddress) {
@@ -36,7 +36,6 @@ public class PingUtils {
             e.printStackTrace();
         }
     }
-
 
 
     public static void printResult(boolean isReachable) {

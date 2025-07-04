@@ -22,25 +22,25 @@ public class LinkManagerController {
     private ILinkService linkService;
 
     @GetMapping
-    public Object list(@RequestBody(required = false) LinkDTO dto){
-        if(dto == null){
+    public Object list(@RequestBody(required = false) LinkDTO dto) {
+        if (dto == null) {
             dto = new LinkDTO();
         }
 
         Page<Link> page = this.linkService.selectObjConditionQuery(dto);
-        if(page.getResult().size() > 0) {
+        if (page.getResult().size() > 0) {
             return ResponseUtil.ok(new PageInfo<Link>(page));
         }
         return ResponseUtil.ok();
     }
 
     @PostMapping
-    public Object save(@RequestBody(required = false) Link instance){
-        if(checkObjAllFieldsIsNull(instance)){
+    public Object save(@RequestBody(required = false) Link instance) {
+        if (checkObjAllFieldsIsNull(instance)) {
             return ResponseUtil.ok();
         }
         int i = this.linkService.save(instance);
-        if(i >= 1){
+        if (i >= 1) {
             return ResponseUtil.ok();
         }
         return ResponseUtil.badArgument();
@@ -59,7 +59,7 @@ public class LinkManagerController {
 
                 System.out.println(f.get(object));
 
-                if (f.get(object)!= null && StringUtils.isNotBlank(f.get(object).toString())) {
+                if (f.get(object) != null && StringUtils.isNotBlank(f.get(object).toString())) {
                     return false;
                 }
             }
@@ -72,19 +72,19 @@ public class LinkManagerController {
 
     @DeleteMapping
     public Object delete(@RequestParam(required = false, value = "id") String id,
-                         @RequestParam(required = false, value = "ids") Long[] ids){
-        if(ids != null && ids.length > 0){
+                         @RequestParam(required = false, value = "ids") Long[] ids) {
+        if (ids != null && ids.length > 0) {
             int i = this.linkService.batchesDel(ids);
-            if(i >= 1){
+            if (i >= 1) {
                 return ResponseUtil.ok();
-            }else{
+            } else {
                 return ResponseUtil.badArgument();
             }
-        }else  if(id != null && !id.equals("")){
+        } else if (id != null && !id.equals("")) {
             int i = this.linkService.delete(Long.parseLong(id));
-            if(i >= 1){
+            if (i >= 1) {
                 return ResponseUtil.ok();
-            }else{
+            } else {
                 return ResponseUtil.badArgument();
             }
         }

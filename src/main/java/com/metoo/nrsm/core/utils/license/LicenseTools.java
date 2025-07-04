@@ -14,9 +14,10 @@ public class LicenseTools {
 
     /**
      * 验证License合法性
+     *
      * @return
      */
-    public boolean verifySN(String systemSN, String code){
+    public boolean verifySN(String systemSN, String code) {
         try {
             String decrypt = this.aesEncryptUtils.decrypt(code);
             System.out.println("&&&decrypt" + decrypt);
@@ -26,7 +27,7 @@ public class LicenseTools {
 
             String sn = license.getSystemSN();
 
-            if(sn.equals(systemSN)){
+            if (sn.equals(systemSN)) {
                 return true;
             }
 
@@ -36,7 +37,7 @@ public class LicenseTools {
         return false;
     }
 
-    public boolean verifyExpiration(String code)  {
+    public boolean verifyExpiration(String code) {
         // 检测授权码是否已过期
         if (code != null) {
             License license = null;

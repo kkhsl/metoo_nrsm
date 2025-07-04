@@ -62,7 +62,8 @@ public class UnboundConfUtil {
 
         try {
             // 解析数据
-            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {});
+            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {
+            });
             List<String> lines = Files.readAllLines(Paths.get(filePath));
 
             // 更新配置
@@ -84,7 +85,7 @@ public class UnboundConfUtil {
     }
 
     // 修正写入逻辑
-    public static boolean writeConfigFile(String filePath, DnsFilter newConfig,String oldDomain) throws IOException {
+    public static boolean writeConfigFile(String filePath, DnsFilter newConfig, String oldDomain) throws IOException {
         try {
             List<String> lines = Files.readAllLines(Paths.get(filePath));
 
@@ -105,7 +106,7 @@ public class UnboundConfUtil {
         }
     }
 
-    public static boolean writeConfigFile(String filePath, DnsFilter config,boolean enable) throws IOException {
+    public static boolean writeConfigFile(String filePath, DnsFilter config, boolean enable) throws IOException {
         try {
             List<String> lines = Files.readAllLines(Paths.get(filePath));
 
@@ -116,7 +117,7 @@ public class UnboundConfUtil {
             List<String> updatedLines = configUpdater.updateConfig(
                     operationType,
                     lines,
-                    new DnsFilterStatePayload(config.getDomainName(),enable)
+                    new DnsFilterStatePayload(config.getDomainName(), enable)
             );
 
             Files.write(Paths.get(filePath), updatedLines, StandardCharsets.UTF_8,
@@ -134,7 +135,8 @@ public class UnboundConfUtil {
 
         try {
             // 解析数据
-            Set<String> forwardAddress = objectMapper.readValue(unbound.getForwardAddress(), new TypeReference<Set<String>>() {});
+            Set<String> forwardAddress = objectMapper.readValue(unbound.getForwardAddress(), new TypeReference<Set<String>>() {
+            });
             List<String> lines = Files.readAllLines(Paths.get(filePath));
 
             // 更新配置
@@ -312,7 +314,6 @@ public class UnboundConfUtil {
     }
 
 
-
     public static List<String> selectConfigPortFile(String filePath) throws IOException {
         List<String> interfaceNames = new ArrayList<>();
         try {
@@ -413,7 +414,8 @@ public class UnboundConfUtil {
 
         try {
             // 解析数据
-            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {});
+            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {
+            });
             List<String> lines = Files.readAllLines(Paths.get(filePath));
 
             // 收集要删除的 zone 名称
@@ -498,8 +500,10 @@ public class UnboundConfUtil {
 
         try {
             // 解析数据
-            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {});
-            Set<String> forwardAddress = objectMapper.readValue(unbound.getForwardAddress(), new TypeReference<Set<String>>() {});
+            List<LocalZoneDTO> localZoneDTOS = objectMapper.readValue(unbound.getLocalZone(), new TypeReference<List<LocalZoneDTO>>() {
+            });
+            Set<String> forwardAddress = objectMapper.readValue(unbound.getForwardAddress(), new TypeReference<Set<String>>() {
+            });
             List<String> lines = Files.readAllLines(Paths.get(filePath));
 
             // 更新配置
@@ -527,7 +531,7 @@ public class UnboundConfUtil {
 
     // 根据 validZoneNames 配置删除不必要的 local-zone 和 local-data 行，并新增缺失的行
     public static boolean updateConfigFileTest(String filePath, Set<String> validZoneNames, JSONArray localZoneConfig,
-                                        Set<String> validForwardAddresses, boolean privateAddress) throws IOException {
+                                               Set<String> validForwardAddresses, boolean privateAddress) throws IOException {
 
         try {
             List<String> lines = Files.readAllLines(Paths.get(filePath));

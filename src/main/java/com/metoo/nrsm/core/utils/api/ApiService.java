@@ -41,13 +41,14 @@ public class ApiService {
 
 
     private final RestTemplate restTemplate;
+
     @Autowired
     public ApiService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
 
-//    @Retryable(value = {ResourceAccessException.class, SocketTimeoutException.class, ConnectTimeoutException.class, TimeoutException.class},
+    //    @Retryable(value = {ResourceAccessException.class, SocketTimeoutException.class, ConnectTimeoutException.class, TimeoutException.class},
 //            maxAttempts = 3,
 //            backoff = @Backoff(delay = 2000))
     public void sendDataToMTO(String data) throws SocketTimeoutException, ConnectTimeoutException, TimeoutException {
@@ -211,7 +212,6 @@ public class ApiService {
     }
 
 
-
     public String callThirdPartyApiT111(String apiUrl, JindustryUnitRequest jindustryUnitRequest) throws Exception {
         log.info("Calling API, attempt number: {}", attemptCount.getAndIncrement() + jindustryUnitRequest.getData());
 
@@ -328,9 +328,9 @@ public class ApiService {
 
         // 设置请求体参数 jindustryUnitRequest-进行国安加密(必须)
 
-            String param = EncrypUtils.encrypt(jindustryUnitRequest.getData());
+        String param = EncrypUtils.encrypt(jindustryUnitRequest.getData());
 
-            HttpEntity<String> requestBody = new HttpEntity<>(param, headers);
+        HttpEntity<String> requestBody = new HttpEntity<>(param, headers);
         try {
             log.info("Api exchange =================================");
             ResponseEntity<String> response = restTemplate.exchange(
@@ -378,7 +378,7 @@ public class ApiService {
         byte[] var2 = bytes;
         int var3 = bytes.length;
 
-        for(int var4 = 0; var4 < var3; ++var4) {
+        for (int var4 = 0; var4 < var3; ++var4) {
             byte b = var2[var4];
             r.append(HEX_CODE[b >> 4 & 15]);
             r.append(HEX_CODE[b & 15]);

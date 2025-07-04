@@ -52,10 +52,10 @@
                 updateTime = #{updateTime},
             </if>
             <if test="domainName != null">
-                domainName =  #{domainName},
+                domainName = #{domainName},
             </if>
             <if test="domainName != null">
-                status =  #{status},
+                status = #{status},
             </if>
         </set>
         where id = #{id}

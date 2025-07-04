@@ -26,7 +26,7 @@ public class CredentialServiceImpl implements ICredentialService {
     private CredentialMapper credentialMaaper;
     @Autowired
     private ISysConfigService sysConfigService;
-//    @Autowired
+    //    @Autowired
 //    private NodeUtil nodeUtil;
     @Autowired
     private IUserService userService;
@@ -49,21 +49,21 @@ public class CredentialServiceImpl implements ICredentialService {
 
     @Override
     public int save(Credential instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             String uuid = UUID.randomUUID().toString().replace("-", "");
             instance.setUuid(uuid);
             User user = ShiroUserHolder.currentUser();
             instance.setUserId(user.getId());
         }
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 return this.credentialMaaper.save(instance);
             } catch (Exception e) {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 return this.credentialMaaper.update(instance);
             } catch (Exception e) {
@@ -119,7 +119,7 @@ public class CredentialServiceImpl implements ICredentialService {
 
     @Override
     public Page<Credential> getObjsByLevel(Credential instance) {
-        if(instance.getBranchLevel() == null || instance.getBranchLevel().equals("")){
+        if (instance.getBranchLevel() == null || instance.getBranchLevel().equals("")) {
             User currentUser = ShiroUserHolder.currentUser();
             User user = this.userService.findByUserName(currentUser.getUsername());
             instance.setBranchLevel(user.getGroupLevel());
@@ -136,16 +136,17 @@ public class CredentialServiceImpl implements ICredentialService {
 
     @Override
     public Page<Credential> selectObjByConditionQuery(CredentialDTO dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new CredentialDTO();
         }
         Page<Credential> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
         this.credentialMaaper.selectConditionQuery(dto);
         return page;
     }
+
     @Override
     public List<Credential> selectObjByIdQuery(CredentialDTO dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new CredentialDTO();
         }
         return this.credentialMaaper.selectConditionQuery(dto);

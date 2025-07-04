@@ -24,7 +24,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherMacGetlldpRunnable implements Runnable{
+public class GatherMacGetlldpRunnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -56,26 +56,26 @@ public class GatherMacGetlldpRunnable implements Runnable{
             String[] params = {networkElement.getIp(), networkElement.getVersion(),
                     networkElement.getCommunity()};
             String result = pythonExecUtils.exec2(path, params);
-            if(StringUtil.isNotEmpty(result)){
+            if (StringUtil.isNotEmpty(result)) {
                 List<Map> lldps = JSONObject.parseArray(result, Map.class);
                 this.setRemoteDevice(networkElement, lldps, hostname, date);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(latch != null){
+            if (latch != null) {
                 latch.countDown();
             }
         }
     }
 
-    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date){
+    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date) {
         // 写入对端信息
-        if(lldps != null && lldps.size() > 0){
+        if (lldps != null && lldps.size() > 0) {
 
             MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");
             List<Mac> list = new ArrayList();
-            for(Map<String, String> obj : lldps){
+            for (Map<String, String> obj : lldps) {
                 Mac mac = new Mac();
                 mac.setAddTime(date);
                 mac.setDeviceIp(e.getIp());
@@ -90,7 +90,7 @@ public class GatherMacGetlldpRunnable implements Runnable{
 //                macService.save(mac);
                 list.add(mac);
             }
-            if(list.size() > 0){
+            if (list.size() > 0) {
                 macService.batchSaveGather(list);
             }
         }

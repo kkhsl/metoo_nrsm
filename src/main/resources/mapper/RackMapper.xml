@@ -22,38 +22,42 @@
     </sql>
 
     <select id="getObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM rsms_rack
         WHERE id = #{id, jdbcType=BIGINT}
     </select>
 
     <select id="selectObjByName" parameterType="java.lang.String" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM rsms_rack
         WHERE name = #{name}
     </select>
 
     <select id="findBySelect" parameterType="com.metoo.nrsm.core.dto.RackDTO" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM rsms_rack
         <where>
-           <if test="userId != null and userId != '' ">
+            <if test="userId != null and userId != '' ">
                 AND user_id = #{userId}
             </if>
             <if test="plantRoomId != null and plantRoomId != ''">
                 AND plant_room_id = #{plantRoomId}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
 
     <select id="query" parameterType="com.metoo.nrsm.entity.Rack" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM rsms_rack
         <where>
             <if test="userId != null and userId != ''">
@@ -75,7 +79,8 @@
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM rsms_rack
         <where>
             <if test="userId != null and userId != ''">
@@ -106,7 +111,8 @@
         order by addTime desc
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.Rack" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Rack" keyColumn="id" useGeneratedKeys="true"
+            keyProperty="id">
         INSERT INTO rsms_rack
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -179,19 +185,19 @@
             </if>
         </trim>
     </insert>
-    
+
     <insert id="batchInsert" parameterType="java.util.List">
-        INSERT INTO  rsms_rack(addTime, `name`, asset_number, plant_room_id, plant_room_name, `size`, user_id)
+        INSERT INTO rsms_rack(addTime, `name`, asset_number, plant_room_id, plant_room_name, `size`, user_id)
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
-                #{item.addTime},
-                #{item.name},
-                #{item.asset_number},
-                #{item.plantRoomId},
-                #{item.plantRoomName},
-                #{item.size},
-                #{item.userId}
+            #{item.addTime},
+            #{item.name},
+            #{item.asset_number},
+            #{item.plantRoomId},
+            #{item.plantRoomName},
+            #{item.size},
+            #{item.userId}
             )
         </foreach>
     </insert>
@@ -200,7 +206,7 @@
         UPDATE rsms_rack
         <set>
             <if test="addTime != null">
-                addTime =  #{addTime},
+                addTime = #{addTime},
             </if>
             <if test="name != null">
                 `name` = #{name},

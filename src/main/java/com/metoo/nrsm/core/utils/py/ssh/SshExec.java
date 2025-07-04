@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
  */
 public class SshExec {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         try {
             Process proc = Runtime.getRuntime().exec("/opt/autostart/Dnsredis.sh start 0");
             // 标准输入流（必须写在 waitFor 之前）
@@ -22,7 +22,7 @@ public class SshExec {
             String errStr = consumeInputStream(proc.getErrorStream());
 
             int retCode = proc.waitFor();
-            if(retCode == 0){
+            if (retCode == 0) {
                 System.out.println("程序正常执行结束");
             }
         } catch (IOException e) {
@@ -34,7 +34,7 @@ public class SshExec {
 
     }
 
-    public static boolean exec(String args){
+    public static boolean exec(String args) {
         try {
             Process proc = Runtime.getRuntime().exec(args);
 //            // 标准输入流（必须写在 waitFor 之前）
@@ -43,8 +43,8 @@ public class SshExec {
 //            String errStr = consumeInputStream(proc.getErrorStream());
 
             int retCode = proc.waitFor();
-            if(retCode == 0){
-               return true;
+            if (retCode == 0) {
+                return true;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,13 +55,13 @@ public class SshExec {
     }
 
     /**
-     *   消费inputstream，并返回
+     * 消费inputstream，并返回
      */
     public static String consumeInputStream(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String s ;
+        String s;
         StringBuilder sb = new StringBuilder();
-        while((s=br.readLine())!=null){
+        while ((s = br.readLine()) != null) {
             System.out.println(s);
             sb.append(s);
         }

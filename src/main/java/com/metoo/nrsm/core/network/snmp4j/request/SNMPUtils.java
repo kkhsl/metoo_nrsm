@@ -98,7 +98,7 @@ public class SNMPUtils {
 
     private Result processResponse(ResponseEvent event) {
         if (event.getResponse() == null) {
-            return new Result(404, "无响应",null );
+            return new Result(404, "无响应", null);
         }
 
         PDU response = event.getResponse();
@@ -106,7 +106,7 @@ public class SNMPUtils {
             return new Result(400, null, response.getErrorStatusText());
         }
 
-        return new Result(200, "成功",response.getVariableBindings());
+        return new Result(200, "成功", response.getVariableBindings());
     }
 
     public void close() throws IOException {
@@ -186,18 +186,24 @@ public class SNMPUtils {
     private static OID resolveAuthProtocol(String protocol) {
         if (protocol == null) return null;
         switch (protocol.toUpperCase()) {
-            case "SHA": return AuthSHA.ID;
-            case "MD5": return AuthMD5.ID;
-            default: throw new IllegalArgumentException("不支持的认证协议: " + protocol);
+            case "SHA":
+                return AuthSHA.ID;
+            case "MD5":
+                return AuthMD5.ID;
+            default:
+                throw new IllegalArgumentException("不支持的认证协议: " + protocol);
         }
     }
 
     private static OID resolvePrivProtocol(String protocol) {
         if (protocol == null) return null;
         switch (protocol.toUpperCase()) {
-            case "AES": return PrivAES128.ID;
-            case "DES": return PrivDES.ID;
-            default: throw new IllegalArgumentException("不支持的加密协议: " + protocol);
+            case "AES":
+                return PrivAES128.ID;
+            case "DES":
+                return PrivDES.ID;
+            default:
+                throw new IllegalArgumentException("不支持的加密协议: " + protocol);
         }
     }
 }

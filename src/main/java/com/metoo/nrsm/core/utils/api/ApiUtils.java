@@ -68,7 +68,7 @@ public class ApiUtils {
         }
     }
 
-    public void partyApi(List<UnitVO> unitVos){
+    public void partyApi(List<UnitVO> unitVos) {
         for (UnitVO unitVO : unitVos) {
             try {
                 String data = JSONObject.toJSONString(unitVO);
@@ -93,7 +93,7 @@ public class ApiUtils {
         }
     }
 
-    public void monitorApi(List<UnitVO> unitVos){
+    public void monitorApi(List<UnitVO> unitVos) {
         try {
             for (UnitVO unitVo : unitVos) {
                 apiService.callDataLogToSelf(JSON.toJSONString(unitVo));

@@ -34,7 +34,8 @@ public class MyRealm extends AuthorizingRealm {
      */
     @Override
     public boolean supports(AuthenticationToken token) {
-        return token instanceof UsernamePasswordToken;}
+        return token instanceof UsernamePasswordToken;
+    }
 
     // 授权
     @Override
@@ -44,13 +45,13 @@ public class MyRealm extends AuthorizingRealm {
         IUserService userService = (IUserService) ApplicationContextUtils.getBean("userServiceImpl");
         User user = userService.findByUserName(username);
         List<Role> roles = this.roleService.findRoleByUserId(user.getId());//user.getRoles();
-        if(!CollectionUtils.isEmpty(roles)){
-            if(user != null){
+        if (!CollectionUtils.isEmpty(roles)) {
+            if (user != null) {
                 SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-                for(Role role : roles){
+                for (Role role : roles) {
                     simpleAuthorizationInfo.addRole(role.getRoleCode());
                     List<Res> permissions = resService.findResByRoleId(role.getId());
-                    if(!CollectionUtils.isEmpty(permissions)){
+                    if (!CollectionUtils.isEmpty(permissions)) {
                         permissions.forEach(permission -> {
                             simpleAuthorizationInfo.addStringPermission(permission.getValue());
                         });
@@ -69,10 +70,10 @@ public class MyRealm extends AuthorizingRealm {
         IUserService userService = (IUserService) ApplicationContextUtils.getBean("userServiceImpl");
 
         User user = userService.findByUserName(username);
-        if(!ObjectUtils.isEmpty(user)){
-            if(username.equals(user.getUsername())){
+        if (!ObjectUtils.isEmpty(user)) {
+            if (username.equals(user.getUsername())) {
                 String userName = user.getUsername();
-                return new SimpleAuthenticationInfo(userName, user.getPassword(),  new MyByteSource(user.getSalt()), this.getName());
+                return new SimpleAuthenticationInfo(userName, user.getPassword(), new MyByteSource(user.getSalt()), this.getName());
             }
         }
         return null;

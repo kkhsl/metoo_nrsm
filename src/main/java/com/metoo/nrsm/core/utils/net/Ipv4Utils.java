@@ -45,7 +45,7 @@ public class Ipv4Utils {
     }
 
     // 校验IP地址格式-cidr
-    public static boolean verifyCidr(String param){
+    public static boolean verifyCidr(String param) {
         if (param == "0.0.0.0/0") {
             return false;
         }
@@ -54,13 +54,14 @@ public class Ipv4Utils {
 
     /**
      * 校验Ip
+     *
      * @param param
      * @return
      */
-    public static boolean verifyIp(String param){
+    public static boolean verifyIp(String param) {
         String regex = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."
                 + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
-                +"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
                 + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
         // 判断ip地址是否与正则表达式匹配
         if (!param.matches(regex)) {
@@ -80,14 +81,15 @@ public class Ipv4Utils {
 
     /**
      * 掩码 转 掩码位
+     *
      * @param mask
      * @return
      */
-    public static int getMaskBitByMask(String mask){
+    public static int getMaskBitByMask(String mask) {
         StringBuffer sbf;
         String str;
         int inetmask = 0, count = 0;
-        if(StringUtil.isEmpty(mask)){
+        if (StringUtil.isEmpty(mask)) {
             return inetmask;
         }
         String[] ipList = mask.split("\\.");
@@ -111,17 +113,18 @@ public class Ipv4Utils {
 
 
     @Test
-    public void getMaskByMaskBitTest(){
+    public void getMaskByMaskBitTest() {
         String mask = this.getMaskByMaskBit(25);
         System.out.println(mask);
     }
 
     /**
      * 根据掩码获取掩码位
+     *
      * @param maskBit
      * @return
      */
-    public static String getMaskByMaskBit(int maskBit){
+    public static String getMaskByMaskBit(int maskBit) {
         int ip = 0xFFFFFFFF << (32 - maskBit);
         String binaryStr = Integer.toBinaryString(ip);
         StringBuffer buffer = new StringBuffer();
@@ -145,12 +148,11 @@ public class Ipv4Utils {
     }
 
     /**
-     *
      * @param mask
      * @return
      */
-    public static int getHostNum(Integer mask){
-        if(mask != null){
+    public static int getHostNum(Integer mask) {
+        if (mask != null) {
             int number = (int) Math.pow(2, 32 - mask);
             return number;
         }
@@ -158,23 +160,23 @@ public class Ipv4Utils {
     }
 
 
-
     /**
      * 获取主机地址
+     *
      * @param ip
      * @param mask
      * @return
      */
-    public List<String> getHost(String ip, String mask){
-        if(ip != null && mask != null){
+    public List<String> getHost(String ip, String mask) {
+        if (ip != null && mask != null) {
             int bitByMask = getMaskBitByMask(mask);
             String[] ipList = ip.split("\\.");
             String ip_host = "";
             StringBuffer ip_network = new StringBuffer();
             for (int n = 0; n < ipList.length; n++) {
-                if(n == 3){
+                if (n == 3) {
                     ip_host = ipList[n];
-                }else{
+                } else {
                     ip_network.append(ipList[n] + ".");
                 }
             }
@@ -185,16 +187,16 @@ public class Ipv4Utils {
             // 最后一个主机ip为广播地址
             // 其他主机ip为主机地址
             int length = getHostNum(bitByMask);
-            if(length > 0){
+            if (length > 0) {
                 double host = Math.ceil(Integer.parseInt(ip_host) / length) * length;
                 int doubleValue = new Double(host).intValue();
                 String networkAddress = ip_network + String.valueOf(doubleValue);
                 doubleValue = new Double(host).intValue() + 1;
                 List list = new ArrayList<>();
                 int n = 0;
-                for (int i = doubleValue ; i < length + doubleValue - 2; i ++){
+                for (int i = doubleValue; i < length + doubleValue - 2; i++) {
                     list.add(ip_net + (doubleValue + n));
-                    n ++;
+                    n++;
                 }
                 return list;
             }
@@ -203,24 +205,26 @@ public class Ipv4Utils {
     }
 
     @Test
-    public void test(){
+    public void test() {
         System.out.println(getNetworkAddress("192.168.6.2", 24));
     }
+
     /**
      * 获取网络地址
+     *
      * @param ip
      * @param mask
      * @return
      */
-    public static String getNetworkAddress(String ip, Integer mask){
-        if(ip != null && mask != null){
+    public static String getNetworkAddress(String ip, Integer mask) {
+        if (ip != null && mask != null) {
             String[] ipList = ip.split("\\.");
             String ip_host = "";
             StringBuffer ip_network = new StringBuffer();
             for (int n = 0; n < ipList.length; n++) {
-                if(n == 3){
+                if (n == 3) {
                     ip_host = ipList[n];
-                }else{
+                } else {
                     ip_network.append(ipList[n] + ".");
                 }
             }
@@ -229,7 +233,7 @@ public class Ipv4Utils {
             // 最后一个主机ip为广播地址
             // 其他主机ip为主机地址
             int length = getHostNum(mask);
-            if(length > 0){
+            if (length > 0) {
                 double host = Math.ceil(Integer.parseInt(ip_host) / length) * length;
                 int doubleValue = new Double(host).intValue();
                 String networkAddress = ip_network + String.valueOf(doubleValue);
@@ -240,13 +244,13 @@ public class Ipv4Utils {
     }
 
     // 获取网络地址
-    public static Map<String, String> getNetworkIpDec(String address, String netmask){
+    public static Map<String, String> getNetworkIpDec(String address, String netmask) {
         Map<String, String> map = new HashMap<String, String>();
         String network = new String();
         String broadcast = new String();
         String[] addresses = address.split("\\.");
         String[] masks = netmask.split("\\.");
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int opmasksegement = ~Integer.parseInt(masks[i]) & 0xFF;
             //此处有坑，正常的int有32位，
             // 如果此数没有32位的话，就会用0填充前面的数，
@@ -264,7 +268,7 @@ public class Ipv4Utils {
     }
 
     @Test
-    public void toNumericTest(){
+    public void toNumericTest() {
         String ip = "192.168.5.1";
         Long ipDecimalism = toDecimalism(ip);
         System.out.println(ipDecimalism);
@@ -280,13 +284,13 @@ public class Ipv4Utils {
 
 
     // 获取网络地址
-    public static Map<String, String> getNetworkIp(String address, String netmask){
+    public static Map<String, String> getNetworkIp(String address, String netmask) {
         Map<String, String> map = new HashMap<String, String>();
         String network = new String();
         String broadcast = new String();
         String[] addresses = address.split("\\.");
         String[] masks = netmask.split("\\.");
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int opmasksegement = ~Integer.parseInt(masks[i]) & 0xFF;
             //此处有坑，正常的int有32位，
             // 如果此数没有32位的话，就会用0填充前面的数，
@@ -302,7 +306,7 @@ public class Ipv4Utils {
     }
 
     @Test
-    public void test2(){
+    public void test2() {
         String ip = "192.168.5.191";
         String mask = "24";
         System.out.println(getNetwork(ip, "255.255.0.0"));
@@ -310,15 +314,16 @@ public class Ipv4Utils {
 
     /**
      * 获取IpV4网络地址
+     *
      * @param address Ip地址
-     * @param mask 掩码
+     * @param mask    掩码
      * @return 网络地址
      */
-    public static String getNetwork(String address, String mask){
+    public static String getNetwork(String address, String mask) {
         String network = new String();
         String[] addresses = address.split("\\.");
         String[] masks = mask.split("\\.");
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int opmasksegement = ~Integer.parseInt(masks[i]) & 0xFF;
             //此处有坑，正常的int有32位，
             // 如果此数没有32位的话，就会用0填充前面的数，
@@ -333,15 +338,16 @@ public class Ipv4Utils {
 
     /**
      * 获取IpV4网络地址
+     *
      * @param address Ip地址
-     * @param mask 掩码
+     * @param mask    掩码
      * @return 广播地址
      */
-    public static String getBroadcast(String address, String mask){
+    public static String getBroadcast(String address, String mask) {
         String broadcast = new String();
         String[] addresses = address.split("\\.");
         String[] masks = mask.split("\\.");
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int opmasksegement = ~Integer.parseInt(masks[i]) & 0xFF;
             //此处有坑，正常的int有32位，
             // 如果此数没有32位的话，就会用0填充前面的数，
@@ -374,7 +380,7 @@ public class Ipv4Utils {
 
     // ip地址排序
     @Test
-    public void ipSortTest(){
+    public void ipSortTest() {
         List<String> ips = new ArrayList();
         ips.add("192.168.5.1.5");
         ips.add("192.168.5.1.3");
@@ -385,7 +391,7 @@ public class Ipv4Utils {
         System.out.println(set);
     }
 
-    public SortedSet ipSort(List<String> list){
+    public SortedSet ipSort(List<String> list) {
         Comparator<String> ipComparator = new Comparator<String>() {
             @Override
             public int compare(String obj1, String obj2) {
@@ -394,7 +400,7 @@ public class Ipv4Utils {
             }
         };
         SortedSet<String> ips = new TreeSet<>(ipComparator);
-        for (String object : list){
+        for (String object : list) {
             ips.add(object);
         }
         return ips;
@@ -403,10 +409,11 @@ public class Ipv4Utils {
 
     /**
      * 子网掩码位数转子网掩码
+     *
      * @param x
      * @return
      */
-    public static String bitMaskConvertMask(int x){
+    public static String bitMaskConvertMask(int x) {
         int ip = 0xFFFFFFFF << (32 - x);
         String binaryStr = Integer.toBinaryString(ip);
         StringBuffer buffer = new StringBuffer();
@@ -419,13 +426,13 @@ public class Ipv4Utils {
 
 
     @Test
-    public void getMaskBitByMaskTest(){
+    public void getMaskBitByMaskTest() {
         System.out.println(("255.255.128.0"));
     }
 
 
     @Test
-    public void ipIsInNetTest(){
+    public void ipIsInNetTest() {
         String ip = "192.162.5.5";
         String subnet = "192.168.5.1/17";
         System.out.println(ipIsInNet(ip, subnet));
@@ -438,8 +445,7 @@ public class Ipv4Utils {
      * @return
      */
     /**
-     *
-     * @param ip 192.168.5.101
+     * @param ip     192.168.5.101
      * @param ipArea 192.168.5.0/24
      * @return
      */
@@ -478,7 +484,7 @@ public class Ipv4Utils {
                     | (Integer.parseInt(cidrIps[2]) << 8)
                     | Integer.parseInt(cidrIps[3]);
 
-            if((ipAddress & mask) == (cidrIpAddr & mask)){
+            if ((ipAddress & mask) == (cidrIpAddr & mask)) {
                 return true;
             }
             continue;
@@ -489,6 +495,7 @@ public class Ipv4Utils {
 
     /**
      * 判断Ip地址范围大小
+     *
      * @param ip1
      * @param ip2
      * @return
@@ -536,25 +543,26 @@ public class Ipv4Utils {
 
     /**
      * ip地址转十进制
+     *
      * @param
      */
-    public static String ipConvertDec(String ip){
-        if(ip == null || ip.equals("")){
+    public static String ipConvertDec(String ip) {
+        if (ip == null || ip.equals("")) {
             return null;
         }
-        if(ip.equals("0.0.0.0")){
+        if (ip.equals("0.0.0.0")) {
 
-        }else{
+        } else {
             boolean isIp = verifyIp(ip);
-            if(!isIp){
+            if (!isIp) {
                 return null;
             }
         }
         String[] split = ip.split("\\.");
-        Long rs=0L;
-        for(int i=0,j=split.length-1;i<split.length;j--,i++){
-            Long intIp=Long.parseLong(split[i]) << 8 * j;
-            rs=rs | intIp;
+        Long rs = 0L;
+        for (int i = 0, j = split.length - 1; i < split.length; j--, i++) {
+            Long intIp = Long.parseLong(split[i]) << 8 * j;
+            rs = rs | intIp;
         }
         return rs.toString();
     }
@@ -562,10 +570,10 @@ public class Ipv4Utils {
     /**
      * 十进制转ip
      */
-    public static String decConvertIp(Long rs){
+    public static String decConvertIp(Long rs) {
 //        Long rs=3232235777L;
         String[] ipString = new String[4];
-        for (int i = 0,j=3; i <4; j--,i++) {
+        for (int i = 0, j = 3; i < 4; j--, i++) {
             // 每 8 位为一段，这里取当前要处理的最高位的位置
             int pos = i * 8;
             // 取当前处理的 ip 段的值   rs=3232235777
@@ -578,9 +586,9 @@ public class Ipv4Utils {
     }
 
     // 获取子网列表
-    public  static String[] getSubnetList(String ip, int mask){
-        if(!StringUtil.isEmpty(ip) && mask >= 1 && mask <= 32){
-            SubnetUtils utils = new SubnetUtils(ip + "/" +  mask);
+    public static String[] getSubnetList(String ip, int mask) {
+        if (!StringUtil.isEmpty(ip) && mask >= 1 && mask <= 32) {
+            SubnetUtils utils = new SubnetUtils(ip + "/" + mask);
             String[] allIps = utils.getInfo().getAllAddresses();
             return allIps;
         }

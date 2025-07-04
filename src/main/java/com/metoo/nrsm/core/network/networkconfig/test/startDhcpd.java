@@ -13,6 +13,7 @@ public class startDhcpd {
 
     /**
      * 控制 DHCP 服务状态 startdhcpd.py
+     *
      * @param action 操作命令 (start/stop/restart等)
      * @return "True" 操作成功 | "False" 操作失败
      */
@@ -20,8 +21,8 @@ public class startDhcpd {
         try {
             // 构建进程命令（参数安全分割）
             ProcessBuilder pb = new ProcessBuilder()
-                .command("systemctl", action, "isc-dhcp-server")
-                .redirectErrorStream(true); // 合并错误流到标准输出
+                    .command("systemctl", action, "isc-dhcp-server")
+                    .redirectErrorStream(true); // 合并错误流到标准输出
 
             // 启动进程并等待完成
             Process process = pb.start();
@@ -29,8 +30,8 @@ public class startDhcpd {
 
             // 读取命令输出（调试用）
             try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(process.getInputStream()))) {
-                
+                    new InputStreamReader(process.getInputStream()))) {
+
                 StringBuilder output = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -49,11 +50,11 @@ public class startDhcpd {
 
 
     public static void main(String[] args) {
-        String action="status";  //status  stop  restart  start
+        String action = "status";  //status  stop  restart  start
         Session session = null;
         ChannelExec channel = null;
         try {
-            session= SnmpHelper.createSession();
+            session = SnmpHelper.createSession();
             // 创建一个执行频道
             channel = (ChannelExec) session.openChannel("exec");
             String command = "systemctl " + action + " isc-dhcp-server";
@@ -71,9 +72,9 @@ public class startDhcpd {
             // 6. 处理执行结果
             int exitStatus = channel.getExitStatus();
             String output = outputBuffer.toString();
-            if (exitStatus==0){
+            if (exitStatus == 0) {
                 System.out.println("True");
-            }else {
+            } else {
                 System.out.println("False");
             }
 

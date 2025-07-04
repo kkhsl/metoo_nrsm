@@ -15,9 +15,9 @@ public class IsIpv6Demo {
                 "public@123"};
         SSHExecutor sshExecutor = new SSHExecutor();
         String result = sshExecutor.exec(path, params);
-        if(Boolean.valueOf(result)){
+        if (Boolean.valueOf(result)) {
             System.out.println(true);
-        }else{
+        } else {
             System.out.println(false);
         }
     }

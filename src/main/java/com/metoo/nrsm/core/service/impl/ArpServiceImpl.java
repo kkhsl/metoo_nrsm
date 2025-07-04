@@ -56,7 +56,6 @@ public class ArpServiceImpl implements IArpService {
     }
 
 
-
     @Override
     public boolean writeArp() {
         try {
@@ -184,9 +183,9 @@ public class ArpServiceImpl implements IArpService {
         }
     }
 
-    public void writerArp(Date date){
+    public void writerArp(Date date) {
         List<Arp> arps = this.arpMapper.joinSelectObjAndIpv6();
-        if(arps.size() > 0) {
+        if (arps.size() > 0) {
             for (Arp arp : arps) {
                 arp.setAddTime(date);
                 List<Ipv6> ipv6s = arp.getIpv6List();
@@ -196,7 +195,7 @@ public class ArpServiceImpl implements IArpService {
                     } else {
                         for (int i = 0; i < ipv6s.size(); i++) {
                             String v6ip = "v6ip";
-                            if(i > 0){
+                            if (i > 0) {
                                 v6ip = "v6ip" + i;
                             }
                             Field[] fields = Arp.class.getDeclaredFields();

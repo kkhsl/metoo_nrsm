@@ -1,11 +1,23 @@
 package com.metoo.nrsm.core.network.snmp4j.example;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
+import com.metoo.nrsm.core.utils.py.ssh.SSHExecutor;
+import com.metoo.nrsm.entity.NetworkElement;
+import com.metoo.nrsm.entity.Port;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.junit.Test;
+import org.snmp4j.security.SecurityLevel;
 
 import java.io.IOException;
+import java.util.List;
 
 // 测试通过snmp获取
 @Slf4j
@@ -71,6 +83,11 @@ public class SnmpV3Example {
                 .community("hnccsroot_read")
                 .build();
 
+        System.out.println(SNMPv3Request.getPortTable(snmpParams));
+        System.out.println(SNMPv3Request.getDeviceName(snmpParams));
+
+
+//        SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement))
         System.out.println(SNMPv3Request.getPortTable(snmpParams));
 
 /*
@@ -159,6 +176,4 @@ public class SnmpV3Example {
         String deviceName3 = SNMPv3Request.getDeviceName(snmpv3Params);
         System.out.println(deviceName3);*/
     }
-
-
 }

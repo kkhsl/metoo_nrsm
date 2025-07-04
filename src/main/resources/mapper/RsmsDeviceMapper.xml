@@ -19,7 +19,7 @@
         <result column="project_name" property="projectName"></result>
         <result column="department_id" property="departmentId"></result>
     </resultMap>
-    
+
     <sql id="Base_Column_List">
         id, addTime, `name`, ip, device_type_id, plant_room_id, user_id, rack_id, start,
         `size`, description, device_type_name, plant_room_name, rack_name,rear, asset_number, host_name,
@@ -32,19 +32,21 @@
         rd.size, rd.description, rd.device_type_name,
         rpr.name plant_room_name, rr.name rack_name, rd.rear, rd.asset_number, rd.host_name,
         rd.online, rd.model, rd.purchase_time, rd.warranty_time, rd.price, rd.serial_number, rd.duty, rd.change_reasons,
-		rd.vendor_id, rd.vendor_name, uuid,
-		mp.id project_id, mp.name project_name, mac, location, department_id
+        rd.vendor_id, rd.vendor_name, uuid,
+        mp.id project_id, mp.name project_name, mac, location, department_id
     </sql>
 
     <select id="getObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM
-          rsms_device
+        rsms_device
         where id = #{id, jdbcType=BIGINT}
     </select>
 
     <select id="getObjByUuid" parameterType="java.lang.String" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM
         rsms_device
         where uuid = #{uuid}
@@ -57,36 +59,36 @@
         rd.rear, rd.asset_number, rd.host_name,
         rd.online, rd.model, rd.purchase_time, rd.warranty_time, rd.price, rd.serial_number, rd.duty,
         rd.change_reasons,
-		rd.vendor_id, rd.vendor_name, uuid,
-		mp.id project_id, mp.name project_name
+        rd.vendor_id, rd.vendor_name, uuid,
+        mp.id project_id, mp.name project_name
         FROM
-         rsms_device rd
+        rsms_device rd
         LEFT JOIN
-          metoo_project mp
+        metoo_project mp
         ON
-          rd.project_id = mp.id
+        rd.project_id = mp.id
         where
         rd.id = #{id, jdbcType=BIGINT}
     </select>
 
 
     <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.RsmsDeviceDTO" resultMap="Base_Result_Map">
-            SELECT
-               <include refid="Join_Column_List"/>
-            FROM
-              rsms_device rd
-            LEFT JOIN
-             rsms_plant_room rpr
-            ON
-              rd.plant_room_id = rpr.id
-            LEFT JOIN
-              rsms_rack rr
-            ON
-             rd.rack_id = rr.id
-            LEFT JOIN
-             metoo_project mp
-            ON
-              rd.project_id = mp.id
+        SELECT
+        <include refid="Join_Column_List"/>
+        FROM
+        rsms_device rd
+        LEFT JOIN
+        rsms_plant_room rpr
+        ON
+        rd.plant_room_id = rpr.id
+        LEFT JOIN
+        rsms_rack rr
+        ON
+        rd.rack_id = rr.id
+        LEFT JOIN
+        metoo_project mp
+        ON
+        rd.project_id = mp.id
         <where>
             <if test="filter != null and filter != ''">
                 AND rd.name LIKE CONCAT('%', #{filter}, '%')
@@ -141,7 +143,7 @@
             </if>
             <if test="departmentIds != null and departmentIds.size() > 0">
                 AND rd.department_id in
-                <foreach collection="departmentIds" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="departmentIds" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -152,10 +154,10 @@
                 AND rd.warranty_time BETWEEN #{start_warranty_time} AND #{end_warranty_time}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
@@ -163,10 +165,10 @@
     <select id="selectNameByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.core.vo.RsmsDeviceVo">
         SELECT rsms_device.id, rsms_device.`name`
         FROM
-          rsms_device
+        rsms_device
         LEFT JOIN
-            rsms_device_type
-            on rsms_device.device_type_id = rsms_device_type.id
+        rsms_device_type
+        on rsms_device.device_type_id = rsms_device_type.id
         <where>
             <if test="rsms_device_type != null">
                 AND rsms_device_type.type = #{rsms_device_type}
@@ -179,9 +181,9 @@
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
-          <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         FROM
-          rsms_device
+        rsms_device
         <where>
             <if test="uuid != null and uuid != ''">
                 AND `uuid` = #{uuid}
@@ -190,7 +192,7 @@
                 AND id = #{id}
             </if>
             <if test="ids != null and ids.size() > 0">
-              AND id in
+                AND id in
                 <foreach collection="ids" item="item" open="(" close=")" separator=",">
                     #{item}
                 </foreach>
@@ -496,7 +498,7 @@
                 purchase_time = #{purchase_time},
             </if>
             <if test="warranty_time != null">
-                warranty_time =  #{warranty_time},
+                warranty_time = #{warranty_time},
             </if>
             <if test="price != null">
                 price = #{price},
@@ -550,40 +552,40 @@
     </delete>
 
     <insert id="batchInsert" parameterType="java.util.List">
-        INSERT INTO  rsms_device(addTime, uuid, `name`, host_name, asset_number, online, ip,
-         device_type_id, device_type_name,  vendor_id, vendor_name,
-         model, project_id, project_name, plant_room_id, plant_room_name, rack_id, rack_name, start, `size`,
-         duty, user_id, purchase_time, warranty_time, mac, location, department_id)
+        INSERT INTO rsms_device(addTime, uuid, `name`, host_name, asset_number, online, ip,
+        device_type_id, device_type_name, vendor_id, vendor_name,
+        model, project_id, project_name, plant_room_id, plant_room_name, rack_id, rack_name, start, `size`,
+        duty, user_id, purchase_time, warranty_time, mac, location, department_id)
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
-                #{item.addTime},
-                #{item.uuid},
-                #{item.name},
-                #{item.host_name},
-                #{item.asset_number},
-                #{item.online},
-                #{item.ip},
-                #{item.deviceTypeId},
-                #{item.deviceTypeName},
-                #{item.vendorId},
-                #{item.vendorName},
-                #{item.model},
-                #{item.projectId},
-                #{item.projectName},
-                #{item.plantRoomId},
-                #{item.plantRoomName},
-                #{item.rackId},
-                #{item.rackName},
-                #{item.start},
-                #{item.size},
-                #{item.duty},
-                #{item.userId},
-                #{item.purchase_time},
-                #{item.warranty_time},
-                #{item.mac},
-                #{item.location},
-                #{item.departmentId}
+            #{item.addTime},
+            #{item.uuid},
+            #{item.name},
+            #{item.host_name},
+            #{item.asset_number},
+            #{item.online},
+            #{item.ip},
+            #{item.deviceTypeId},
+            #{item.deviceTypeName},
+            #{item.vendorId},
+            #{item.vendorName},
+            #{item.model},
+            #{item.projectId},
+            #{item.projectName},
+            #{item.plantRoomId},
+            #{item.plantRoomName},
+            #{item.rackId},
+            #{item.rackName},
+            #{item.start},
+            #{item.size},
+            #{item.duty},
+            #{item.userId},
+            #{item.purchase_time},
+            #{item.warranty_time},
+            #{item.mac},
+            #{item.location},
+            #{item.departmentId}
             )
         </foreach>
     </insert>

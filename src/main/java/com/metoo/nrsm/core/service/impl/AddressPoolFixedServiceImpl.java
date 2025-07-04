@@ -69,7 +69,7 @@ public class AddressPoolFixedServiceImpl implements IAddressPoolFixedService {
 
     @Override
     public int save(AddressPoolFixed instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 instance.setAddTime(new Date());
                 int i = this.addressPoolFixedMapper.save(instance);
@@ -82,12 +82,12 @@ public class AddressPoolFixedServiceImpl implements IAddressPoolFixedService {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
 
                 AddressPoolFixed obj = this.addressPoolFixedMapper.selectObjById(instance.getId());
                 boolean flag = Md5Crypt.getDiffrent(obj, instance);
-                if(!flag){
+                if (!flag) {
                     // 更新应用按钮
                     SysConfig sysconfig = this.sysConfigService.select();
                     sysconfig.setV4_status(true);
@@ -109,7 +109,7 @@ public class AddressPoolFixedServiceImpl implements IAddressPoolFixedService {
         try {
             AddressPoolFixed obj = this.addressPoolFixedMapper.selectObjById(instance.getId());
             boolean flag = Md5Crypt.getDiffrent(obj, instance);
-            if(!flag){
+            if (!flag) {
                 // 更新应用按钮
                 SysConfig sysconfig = this.sysConfigService.select();
                 sysconfig.setV4_status(true);
@@ -150,9 +150,9 @@ public class AddressPoolFixedServiceImpl implements IAddressPoolFixedService {
             sysconfig.setV4_status(false);
             this.sysConfigService.update(sysconfig);
 
-            if(flag){
+            if (flag) {
                 String dhcpd = this.dhcpService.checkdhcpd("dhcpd");
-                if(Boolean.valueOf(dhcpd)){
+                if (Boolean.valueOf(dhcpd)) {
                     this.dhcpService.dhcpdop("restart", "dhcpd");
                 }
             }

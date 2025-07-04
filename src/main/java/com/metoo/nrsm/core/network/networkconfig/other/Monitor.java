@@ -57,7 +57,7 @@ public class Monitor {
                 long totalMem = hardware.getMemory().getTotal();
                 long availableMem = hardware.getMemory().getAvailable();
                 double memUsage = (totalMem - availableMem) * 100.0 / totalMem;
-                logger.info("[状态] - CPU: {}%, Memory: {}%",cpuUsage,memUsage);
+                logger.info("[状态] - CPU: {}%, Memory: {}%", cpuUsage, memUsage);
                 // 存储数据
                 try (PreparedStatement ps = conn.prepareStatement(
                         "INSERT INTO metoo_performance(cpu_percent,memory_percent,uptime) VALUES(?,?,?)")) {

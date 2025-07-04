@@ -14,22 +14,22 @@ import java.util.concurrent.*;
  * 1. 当前方案的问题
  * (1) 线程池与 Semaphore 的冗余控制
  * 你同时使用了：
- *
+ * <p>
  * Executors.newFixedThreadPool(10)：限制线程数=10。
- *
+ * <p>
  * Semaphore(50)：限制并发任务数=50。
- *
+ * <p>
  * 矛盾点：
- *
+ * <p>
  * 线程池只能同时运行 10 个任务，但 Semaphore 允许提交 50 个任务到队列，导致 队列堆积（最多积压 40 个任务）。
- *
+ * <p>
  * Semaphore 的 acquire() 会阻塞，但线程池队列满时也会阻塞（取决于 RejectedExecutionHandler）。
- *
+ * <p>
  * (2) 资源浪费
  * CountDownLatch 的计数器大小为 subnetSize - 2（如 /24 子网需等待 254 次），可能引发内存问题（大子网时）。
- *
+ * <p>
  * 线程池的 shutdown() 和 awaitTermination() 逻辑可能无法及时释放资源。
- *
+ * <p>
  * (3) 异常处理不足
  * PingTask 内部的异常未被捕获，可能导致 Semaphore 未释放或 CountDownLatch 未计数。
  */
@@ -62,6 +62,7 @@ public class PingSubnet {
 
     /**
      * 控制并发ip数量
+     *
      * @param ip
      * @param mask
      */
@@ -74,7 +75,7 @@ public class PingSubnet {
             long subnetSize = (long) Math.pow(2, 32 - mask);
 
             // 使用CountDownLatch等待所有任务完成
-            CountDownLatch latch = new CountDownLatch((int)(subnetSize - 2));
+            CountDownLatch latch = new CountDownLatch((int) (subnetSize - 2));
 
             for (long i = 1; i < subnetSize - 1; i++) { // 排除网络地址和广播地址
                 limiter.acquire(); // 控制并发
@@ -108,6 +109,7 @@ public class PingSubnet {
             }
         }
     }
+
     static class PingTask implements Runnable {
         private final String ip;
 
@@ -125,7 +127,7 @@ public class PingSubnet {
                 boolean isAlive = parsePingOutput(os, process);
                 log.info("Pinging {} - {}", ip, isAlive ? "Success" : "Failed");
             } catch (Exception e) {
-                 log.info("Ping error: " + e.getMessage());
+                log.info("Ping error: " + e.getMessage());
             }
         }
 

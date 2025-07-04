@@ -85,7 +85,7 @@ public class DownLoadFileUtil {
         }
     }
 
-    public static boolean downloadTemplate(String filePath, String fileName, HttpServletResponse response){
+    public static boolean downloadTemplate(String filePath, String fileName, HttpServletResponse response) {
         OutputStream out = null;
         InputStream in = null;
         ByteArrayOutputStream bos = null;

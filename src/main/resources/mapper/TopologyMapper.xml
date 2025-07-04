@@ -26,7 +26,8 @@
     </sql>
 
     <sql id="List_Column_List">
-        id, addTime, deleteStatus, concat(ifnull(name, ''), if(suffix is null, '', ' '), ifnull(suffix, '')) as name, updateTime, is_default, description, group_id,
+        id, addTime, deleteStatus, concat(ifnull(name, ''), if(suffix is null, '', ' '), ifnull(suffix, '')) as name,
+        updateTime, is_default, description, group_id,
         group_name, user_id, user_name, base_url, suffix, st_x(point) latitude, st_y(point) longitude, nf, `location`
     </sql>
 

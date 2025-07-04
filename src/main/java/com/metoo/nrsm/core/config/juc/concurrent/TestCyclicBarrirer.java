@@ -22,7 +22,7 @@ public class TestCyclicBarrirer {
 
         ExecutorService service = Executors.newFixedThreadPool(2);
 
-        CyclicBarrier cyclicBarrier = new CyclicBarrier(2, () ->{
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(2, () -> {
             log.debug("task end.......");
         });
 

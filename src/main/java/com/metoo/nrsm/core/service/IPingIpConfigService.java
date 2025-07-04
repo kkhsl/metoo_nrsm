@@ -17,6 +17,7 @@ public interface IPingIpConfigService {
 
     /**
      * 检查程序状态
+     *
      * @return
      */
     boolean status();

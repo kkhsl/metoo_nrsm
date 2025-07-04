@@ -13,16 +13,16 @@ import java.util.List;
 
 /**
  * <p>
- *  Titlte: User.java
+ * Titlte: User.java
  * </p>
  *
  * <p>
- *  Description: 用户类，所有用户都由该类管理，包括普通用户，商家，管理员
+ * Description: 用户类，所有用户都由该类管理，包括普通用户，商家，管理员
  * </p>
  *
  * <p>
- *  author: hkk
- *
+ * author: hkk
+ * <p>
  * CHAR：CHAR
  * VARCHAR：VARCHAR
  * LONGVARCHAR：LONGVARCHAR

@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.utils.unbound.strategy.impl;
 
 import com.metoo.nrsm.core.utils.unbound.strategy.ConfigUpdateStrategy;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;

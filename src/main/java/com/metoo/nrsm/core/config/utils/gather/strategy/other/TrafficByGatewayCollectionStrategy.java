@@ -200,7 +200,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
                                 if (nestedObject.containsKey(rule)) {
-                                    if(StringUtil.isNotEmpty(nestedObject.getString(rule))){
+                                    if (StringUtil.isNotEmpty(nestedObject.getString(rule))) {
                                         ipv4Inbound1 += Double.parseDouble(nestedObject.getString(rule));
                                     }
                                 }
@@ -215,7 +215,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                                 if (nestedObject.containsKey(rule)) {
 
 
-                                    if(StringUtil.isNotEmpty(nestedObject.getString(rule))){
+                                    if (StringUtil.isNotEmpty(nestedObject.getString(rule))) {
 
                                         ipv4Outbound1 += Double.parseDouble(nestedObject.getString(rule));
                                         ipv4Outbound2 += Double.parseDouble(nestedObject.getString(String.valueOf(Integer.parseInt(rule) + 1)));
@@ -237,7 +237,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
 
 //                                    ipv6Inbound1 += Double.parseDouble(nestedObject.getString(rule));
 
-                                    if(StringUtil.isNotEmpty(nestedObject.getString(rule))){
+                                    if (StringUtil.isNotEmpty(nestedObject.getString(rule))) {
 
                                         ipv6Inbound1 += Double.parseDouble(nestedObject.getString(rule));
                                     }
@@ -257,7 +257,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
 //                                    ipv6Outbound1 += Double.parseDouble(nestedObject.getString(rule));
 //                                    ipv6Outbound2 += Double.parseDouble(nestedObject.getString(String.valueOf(Integer.parseInt(rule) + 1)));
 
-                                    if(StringUtil.isNotEmpty(nestedObject.getString(rule))){
+                                    if (StringUtil.isNotEmpty(nestedObject.getString(rule))) {
 
                                         ipv6Outbound1 += Double.parseDouble(nestedObject.getString(rule));
                                         ipv6Outbound2 += Double.parseDouble(nestedObject.getString(String.valueOf(Integer.parseInt(rule) + 1)));
@@ -341,7 +341,6 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                     traffic.setVsixFlow(formattedVsixFlow);
                     traffic.setUnitName(unit.getUnitName());
                     int i = trafficService.save(traffic);
-
 
 
                     log.info("traffic=================================end" + i + "num");

@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherIpV6Runnable implements Runnable{
+public class GatherIpV6Runnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -46,7 +46,6 @@ public class GatherIpV6Runnable implements Runnable{
     }
 
 
-
     /**
      * When an object implementing interface <code>Runnable</code> is used
      * to create a thread, starting the thread causes the object's
@@ -63,13 +62,13 @@ public class GatherIpV6Runnable implements Runnable{
 
         try {
             PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
-            String path = Global.PYPATH +  "getarpv6.py";
+            String path = Global.PYPATH + "getarpv6.py";
             String[] params = {networkElement.getIp(), networkElement.getVersion(),
                     networkElement.getCommunity()};
             String result = pythonExecUtils.exec(path, params);
-            if(StringUtil.isNotEmpty(result)){
+            if (StringUtil.isNotEmpty(result)) {
                 List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
-                if(array.size()>0){
+                if (array.size() > 0) {
                     array.forEach(e -> {
                         e.setDeviceIp(networkElement.getIp());
                         e.setDeviceName(networkElement.getDeviceName());
@@ -82,7 +81,7 @@ public class GatherIpV6Runnable implements Runnable{
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(latch != null){
+            if (latch != null) {
                 latch.countDown();
             }
         }

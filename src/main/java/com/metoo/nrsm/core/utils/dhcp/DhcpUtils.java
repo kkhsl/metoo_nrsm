@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @Component
 public class DhcpUtils {
 
-    public static String getKey(String lineText){
+    public static String getKey(String lineText) {
 
         String[] beginHeads = {"lease", "starts", "ends", "tstp", "cltt", "binding state", "next binding state", "rewind binding state",
                 "hardware ethernet", "uid", "client-hostname", "set vendor-class-identifier ="};
@@ -29,21 +29,21 @@ public class DhcpUtils {
                 break;
             }
         }
-        if(eleFlag){
+        if (eleFlag) {
             for (String key : beginHeads) {
 
                 String patten = "^" + key;
 
                 boolean flag = parseLineBeginWith(lineText, patten);
 
-                if(flag){
+                if (flag) {
                     // 保存结果
 //                 public void parseLineText(String lineText, Map data, int startIndex, int subIndex, String symbol){
 //                if(key.equals("lease")){
 //                    parseLineText(lineText, );
 //                }
                     return key;
-                }else{
+                } else {
                     continue;
                 }
             }
@@ -51,8 +51,8 @@ public class DhcpUtils {
         return "";
     }
 
-    public static void parseValue(String key, String lineText, Map data){
-        switch (key){
+    public static void parseValue(String key, String lineText, Map data) {
+        switch (key) {
             case "lease":
                 parseLineText(lineText, data, 1, 0, "{");
                 break;
@@ -66,7 +66,7 @@ public class DhcpUtils {
                 parseLineText(lineText, data, 2, 1, ";");
                 break;
             case "cltt":
-                parseLineText(lineText, data, 2, 1,";");
+                parseLineText(lineText, data, 2, 1, ";");
                 break;
             case "binding state":
                 parseLineText(lineText, data, 2, 0, ";");
@@ -94,31 +94,31 @@ public class DhcpUtils {
         }
     }
 
-    public  static  boolean parseLineBeginWith(String lineText, String head){
+    public static boolean parseLineBeginWith(String lineText, String head) {
 
-        if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
+        if (StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)) {
             String patten = "^" + head;
 
             Pattern compiledPattern = Pattern.compile(patten);
 
             Matcher matcher = compiledPattern.matcher(lineText);
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 return true;
             }
         }
         return false;
     }
 
-    public static void parseLineText(String lineText, Map data, int startIndex, int subIndex, String symbol){
+    public static void parseLineText(String lineText, Map data, int startIndex, int subIndex, String symbol) {
 
         String text = myEscapeExprSpecialWord(lineText, symbol);
 
-        int index1 =  MyStringUtils.acquireCharacterPositions(text, " ", startIndex);
+        int index1 = MyStringUtils.acquireCharacterPositions(text, " ", startIndex);
 
         String text1 = text.substring(0, index1);
 
-        int index2 =  MyStringUtils.acquireCharacterPositions(text,  "\\" + symbol, 1);
+        int index2 = MyStringUtils.acquireCharacterPositions(text, "\\" + symbol, 1);
 
         String text2 = text.substring(text1.length(), index2 - 1);
 

@@ -8,7 +8,7 @@
     </sql>
 
     <select id="query" resultType="com.metoo.nrsm.entity.License">
-      SELECT * FROM metoo_license
+        SELECT * FROM metoo_license
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.License">
@@ -44,11 +44,11 @@
     </insert>
 
     <update id="update" parameterType="com.metoo.nrsm.entity.License">
-      UPDATE metoo_license
+        UPDATE metoo_license
         <set>
-          <if test="systemSN != null">
-              systemSN = #{systemSN},
-          </if>
+            <if test="systemSN != null">
+                systemSN = #{systemSN},
+            </if>
             <if test="from != null">
                 `from` = #{from},
             </if>
@@ -60,7 +60,7 @@
             </if>
         </set>
         <where>
-            <if test = "id != null">
+            <if test="id != null">
                 id=#{id}
             </if>
         </where>

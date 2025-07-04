@@ -12,6 +12,7 @@ public interface RoleMapper {
 
     /**
      * 根据角色id查询指定角色
+     *
      * @param id
      * @return
      */
@@ -23,6 +24,7 @@ public interface RoleMapper {
 
     /**
      * 根据角色类型，查询所有角色
+     *
      * @return
      */
     default List<Role> findRoleByType() {
@@ -31,13 +33,15 @@ public interface RoleMapper {
 
     /**
      * 根据角色类型，查询所有角色
+     *
      * @param type
      * @return
      */
     List<Role> findRoleByType(String type);
 
     /**
-     *根据用户id查询用所有角色信息
+     * 根据用户id查询用所有角色信息
+     *
      * @param user_id
      * @return
      */
@@ -50,6 +54,7 @@ public interface RoleMapper {
 
     /**
      * 根据权限ID查询角色集合
+     *
      * @param id
      * @return
      */
@@ -58,6 +63,7 @@ public interface RoleMapper {
     /**
      * 方式一：
      * 根据角色Id集合查询角色
+     *
      * @param list
      * @return
      */
@@ -67,6 +73,7 @@ public interface RoleMapper {
 
     /**
      * 根据角色类型查询角色， 目前只有一种角色，默认使用“ADMIN”
+     *
      * @return
      */
     List<Role> query(RoleDto dto);
@@ -81,6 +88,7 @@ public interface RoleMapper {
 
     /**
      * 批量修改
+     *
      * @param map
      * @return
      */

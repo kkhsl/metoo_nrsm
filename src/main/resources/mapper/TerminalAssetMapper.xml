@@ -5,10 +5,11 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.TerminalAssetMapper">
 
     <select id="selectObjById" resultType="com.metoo.nrsm.entity.TerminalAsset">
-                select * from metoo_terminal_asset where id = #{id}
+        select * from metoo_terminal_asset where id = #{id}
     </select>
 
-    <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalAssetDTO" resultType="com.metoo.nrsm.entity.TerminalAsset">
+    <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalAssetDTO"
+            resultType="com.metoo.nrsm.entity.TerminalAsset">
         select * from metoo_terminal_asset terminal
         <where>
             <if test="filter != null and filter != ''">
@@ -16,19 +17,19 @@
                 OR terminal.v4ip
                 like
                 concat(concat('%',#{filter}),'%')
-                or  terminal.v4ip1
+                or terminal.v4ip1
                 like concat(concat('%',#{filter}),'%')
-                or  terminal.v4ip2
+                or terminal.v4ip2
                 like concat(concat('%',#{filter}),'%')
-                or  terminal.v4ip3
+                or terminal.v4ip3
                 like concat(concat('%',#{filter}),'%')
-                or  terminal.v6ip
+                or terminal.v6ip
                 like concat(concat('%',#{filter}),'%')
-                or  terminal.v6ip1
+                or terminal.v6ip1
                 like concat(concat('%',#{filter}),'%')
-                or  terminal.v6ip2
+                or terminal.v6ip2
                 like concat(concat('%',#{filter}),'%')
-                or  terminal.v6ip3
+                or terminal.v6ip3
                 like concat(concat('%',#{filter}),'%')
                 or terminal.name
                 like concat(concat('%',#{filter}),'%')
@@ -111,13 +112,13 @@
             </if>
             <if test="tags != null">
                 AND tag in
-                <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="tags" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="notTerminalAssetSet != null">
                 AND mac not in
-                <foreach collection="notTerminalAssetSet" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="notTerminalAssetSet" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -164,426 +165,426 @@
 
     <select id="selectObjIntersection" resultType="com.metoo.nrsm.entity.TerminalAsset">
         SELECT
-            terminal.id, mac.*
+        terminal.id, mac.*
         FROM
-            (
-                SELECT
-                    *,
-                IF (
-                    mac.v4ip IS NOT NULL,
-                    (
-                        SELECT
+        (
+        SELECT
+        *,
+        IF (
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
 
-                        IF (COUNT(*) > 0, 1, 0)
-                        FROM
-                            metoo_dhcp dhcp
-                        WHERE
-                            dhcp.lease = mac.v4ip
-                    ),
-                    0
-                ) AS v4ipDynamic,
-
-            IF (
-                mac.v4ip1 IS NOT NULL,
-                (
-                    SELECT
-
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip1
-                ),
-                0
-            ) AS v4ip1Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        ),
+        0
+        ) AS v4ipDynamic,
 
         IF (
-            mac.v4ip2 IS NOT NULL,
-            (
-                SELECT
+        mac.v4ip1 IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip2
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip1
+        ),
+        0
+        ) AS v4ip1Dynamic,
+
+        IF (
+        mac.v4ip2 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip2
+        ),
+        0
         ) AS v4ip2Dynamic,
 
         IF (
-            mac.v4ip3 IS NOT NULL,
-            (
-                SELECT
+        mac.v4ip3 IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip3
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip3
+        ),
+        0
         ) AS v4ip3Dynamic,
 
         IF (
-            mac.v6ip IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip
+        ),
+        0
         ) AS v6ipDynamic,
 
         IF (
-            mac.v6ip1 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip1 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip1
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip1
+        ),
+        0
         ) AS v6ip1Dynamic,
 
         IF (
-            mac.v6ip2 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip2 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip2
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip2
+        ),
+        0
         ) AS v6ip2Dynamic,
 
         IF (
-            mac.v6ip3 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip3 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip3
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip3
+        ),
+        0
         ) AS v6ip3Dynamic,
 
         IF (
-            mac.v4ip IS NOT NULL,
-            (
-                SELECT
-                    client_hostname
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip
-                LIMIT 1
-            ),
-            NULL
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
+        client_hostname
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        LIMIT 1
+        ),
+        NULL
         ) AS client_hostname
         FROM
-            metoo_mac mac
+        metoo_mac mac
         WHERE
-            tag = 'DT') mac
+        tag = 'DT') mac
 
         join
 
         metoo_terminal_asset terminal on terminal.mac = mac.mac
-         and terminal.port = mac.port
+        and terminal.port = mac.port
     </select>
 
     <select id="selectObjLeftdifference" resultType="com.metoo.nrsm.entity.TerminalAsset">
         SELECT
-            *
+        *
         FROM
-            (
-                SELECT
-                    *,
-                IF (
-                    mac.v4ip IS NOT NULL,
-                    (
-                        SELECT
+        (
+        SELECT
+        *,
+        IF (
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
 
-                        IF (COUNT(*) > 0, 1, 0)
-                        FROM
-                            metoo_dhcp dhcp
-                        WHERE
-                            dhcp.lease = mac.v4ip
-                    ),
-                    0
-                ) AS v4ipDynamic,
-
-            IF (
-                mac.v4ip1 IS NOT NULL,
-                (
-                    SELECT
-
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip1
-                ),
-                0
-            ) AS v4ip1Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        ),
+        0
+        ) AS v4ipDynamic,
 
         IF (
-            mac.v4ip2 IS NOT NULL,
-            (
-                SELECT
+        mac.v4ip1 IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip2
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip1
+        ),
+        0
+        ) AS v4ip1Dynamic,
+
+        IF (
+        mac.v4ip2 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip2
+        ),
+        0
         ) AS v4ip2Dynamic,
 
         IF (
-            mac.v4ip3 IS NOT NULL,
-            (
-                SELECT
+        mac.v4ip3 IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip3
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip3
+        ),
+        0
         ) AS v4ip3Dynamic,
 
         IF (
-            mac.v6ip IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip
+        ),
+        0
         ) AS v6ipDynamic,
 
         IF (
-            mac.v6ip1 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip1 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip1
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip1
+        ),
+        0
         ) AS v6ip1Dynamic,
 
         IF (
-            mac.v6ip2 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip2 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip2
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip2
+        ),
+        0
         ) AS v6ip2Dynamic,
 
         IF (
-            mac.v6ip3 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip3 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip3
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip3
+        ),
+        0
         ) AS v6ip3Dynamic,
 
         IF (
-            mac.v4ip IS NOT NULL,
-            (
-                SELECT
-                    client_hostname
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip
-                LIMIT 1
-            ),
-            NULL
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
+        client_hostname
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        LIMIT 1
+        ),
+        NULL
         ) AS client_hostname
         FROM
-            metoo_mac mac
+        metoo_mac mac
         WHERE
-            tag = 'DT'
-            ) mac
+        tag = 'DT'
+        ) mac
         LEFT JOIN metoo_terminal_asset terminal ON terminal.mac = mac.mac
         WHERE
-            terminal.mac IS NULL
+        terminal.mac IS NULL
     </select>
 
     <select id="selectObjRightdifference" resultType="com.metoo.nrsm.entity.TerminalAsset">
         SELECT
-            terminal.id, mac.*
+        terminal.id, mac.*
         FROM
-            (
-                SELECT
-                    *,
-                IF (
-                    mac.v4ip IS NOT NULL,
-                    (
-                        SELECT
+        (
+        SELECT
+        *,
+        IF (
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
 
-                        IF (COUNT(*) > 0, 1, 0)
-                        FROM
-                            metoo_dhcp dhcp
-                        WHERE
-                            dhcp.lease = mac.v4ip
-                    ),
-                    0
-                ) AS v4ipDynamic,
-
-            IF (
-                mac.v4ip1 IS NOT NULL,
-                (
-                    SELECT
-
-                    IF (COUNT(*) > 0, 1, 0)
-                    FROM
-                        metoo_dhcp dhcp
-                    WHERE
-                        dhcp.lease = mac.v4ip1
-                ),
-                0
-            ) AS v4ip1Dynamic,
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        ),
+        0
+        ) AS v4ipDynamic,
 
         IF (
-            mac.v4ip2 IS NOT NULL,
-            (
-                SELECT
+        mac.v4ip1 IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip2
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip1
+        ),
+        0
+        ) AS v4ip1Dynamic,
+
+        IF (
+        mac.v4ip2 IS NOT NULL,
+        (
+        SELECT
+
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip2
+        ),
+        0
         ) AS v4ip2Dynamic,
 
         IF (
-            mac.v4ip3 IS NOT NULL,
-            (
-                SELECT
+        mac.v4ip3 IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip3
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip3
+        ),
+        0
         ) AS v4ip3Dynamic,
 
         IF (
-            mac.v6ip IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip IS NOT NULL,
+        (
+        SELECT
 
-                IF (COUNT(*) > 0, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip
-            ),
-            0
+        IF (COUNT(*) > 0, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip
+        ),
+        0
         ) AS v6ipDynamic,
 
         IF (
-            mac.v6ip1 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip1 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip1
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip1
+        ),
+        0
         ) AS v6ip1Dynamic,
 
         IF (
-            mac.v6ip2 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip2 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip2
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip2
+        ),
+        0
         ) AS v6ip2Dynamic,
 
         IF (
-            mac.v6ip3 IS NOT NULL,
-            (
-                SELECT
+        mac.v6ip3 IS NOT NULL,
+        (
+        SELECT
 
-                IF (iaaddr IS NOT NULL, 1, 0)
-                FROM
-                    metoo_dhcp6 dhcp6
-                WHERE
-                    dhcp6.iaaddr = mac.v6ip3
-            ),
-            0
+        IF (iaaddr IS NOT NULL, 1, 0)
+        FROM
+        metoo_dhcp6 dhcp6
+        WHERE
+        dhcp6.iaaddr = mac.v6ip3
+        ),
+        0
         ) AS v6ip3Dynamic,
 
         IF (
-            mac.v4ip IS NOT NULL,
-            (
-                SELECT
-                    client_hostname
-                FROM
-                    metoo_dhcp dhcp
-                WHERE
-                    dhcp.lease = mac.v4ip
-                LIMIT 1
-            ),
-            NULL
+        mac.v4ip IS NOT NULL,
+        (
+        SELECT
+        client_hostname
+        FROM
+        metoo_dhcp dhcp
+        WHERE
+        dhcp.lease = mac.v4ip
+        LIMIT 1
+        ),
+        NULL
         ) AS client_hostname
         FROM
-            metoo_mac mac
+        metoo_mac mac
         WHERE
-            tag = 'DT'
-            ) mac
+        tag = 'DT'
+        ) mac
 
         right join
 
@@ -598,13 +599,15 @@
     </resultMap>
 
     <select id="terminalCount" resultMap="Count_Result_Map">
-        select DISTINCT(interfaceIndex), (select count(*) from metoo_terminal_asset where (v4ip is not null and v6ip is null)
+        select DISTINCT(interfaceIndex), (select count(*) from metoo_terminal_asset where (v4ip is not null and v6ip is
+        null)
         ) as v4ip_count, (select count(*) from metoo_terminal_asset where (v6ip is not null and v4ip is null)
         ) as v6ip_count,(select count(*) from metoo_terminal_asset where (v6ip is not null and v4ip is not null)
-        )as v4ip_v6ip_count  from metoo_terminal_asset /*where (v6ip is not null and v4ip is not null)*/
+        )as v4ip_v6ip_count from metoo_terminal_asset /*where (v6ip is not null and v4ip is not null)*/
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.TerminalAsset" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.TerminalAsset" keyProperty="id" keyColumn="id"
+            useGeneratedKeys="true">
         INSERT INTO metoo_terminal_asset
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -1078,7 +1081,7 @@
         deviceTypeId
         )
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
             #{item.addTime},
             #{item.mac},

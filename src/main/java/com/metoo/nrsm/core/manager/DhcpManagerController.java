@@ -39,26 +39,26 @@ public class DhcpManagerController {
     private IDhcpService dhcpService;
 
     @PostMapping("/list")
-    public Result list(@RequestBody DhcpDto dto){
+    public Result list(@RequestBody DhcpDto dto) {
         Page<Dhcp> page = this.dhcpService.selectConditionQuery(dto);
-        if(page.getResult().size() > 0) {
+        if (page.getResult().size() > 0) {
             return ResponseUtil.ok(new PageInfo<Dhcp>(page));
         }
         return ResponseUtil.ok();
     }
 
     @GetMapping("getdhcp")
-    public Result internet(){
-       String result = this.dhcpService.getdhcp();
+    public Result internet() {
+        String result = this.dhcpService.getdhcp();
 //       JSONArray array = JSONObject.parseArray(result);
 //       if(array != null && !array.isEmpty()){
 //           return ResponseUtil.ok(JSONObject.toJSONString(array.get(0)));
 //       }
-       return ResponseUtil.ok(result);
+        return ResponseUtil.ok(result);
     }
 
     @RequestMapping("checkdhcpd")
-    public Result checkdhcpd(){
+    public Result checkdhcpd() {
         Map result = new HashMap();
         try {
             String dhcpd = this.dhcpService.checkdhcpd("dhcpd");
@@ -76,21 +76,21 @@ public class DhcpManagerController {
     }
 
     @RequestMapping("modifydhcp")
-    public Result internet(@RequestBody Internet internet){
+    public Result internet(@RequestBody Internet internet) {
         String result = this.dhcpService.modifydhcp(internet);
         try {
-            if(Boolean.valueOf(internet.getV4status())){
+            if (Boolean.valueOf(internet.getV4status())) {
                 this.dhcpService.dhcpdop("restart", "dhcpd");
-            }else{
+            } else {
                 this.dhcpService.dhcpdop("stop", "dhcpd");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         try {
-            if(Boolean.valueOf(internet.getV6status())){
+            if (Boolean.valueOf(internet.getV6status())) {
                 this.dhcpService.dhcpdop("restart", "dhcpd6");
-            }else{
+            } else {
                 this.dhcpService.dhcpdop("stop", "dhcpd6");
             }
         } catch (Exception e) {
@@ -113,12 +113,12 @@ public class DhcpManagerController {
                 Map<String, String> data = null;
                 List<Map<String, String>> dataList = new ArrayList();
                 while ((line = reader.readLine()) != null) {
-                    if(StringUtil.isNotEmpty(line)){
+                    if (StringUtil.isNotEmpty(line)) {
                         line = line.trim();
                         String key = DhcpUtils.getKey(line);
-                        if(StringUtil.isNotEmpty(key)){
-                            if(key.equals("lease")){
-                                if(data != null){
+                        if (StringUtil.isNotEmpty(key)) {
+                            if (key.equals("lease")) {
+                                if (data != null) {
                                     dataList.add(data);
                                 }
                                 data = new HashMap();
@@ -130,11 +130,11 @@ public class DhcpManagerController {
 
                 }
                 // 最后一个
-                if(data != null && StringUtils.isNotBlank(data.get("lease"))){
+                if (data != null && StringUtils.isNotBlank(data.get("lease"))) {
                     dataList.add(data);
                 }
 
-                if(dataList.size() > 0){
+                if (dataList.size() > 0) {
 //                    System.out.println(dataList);
 //                    List l =dataList.stream().map(e -> e.keySet().stream()
 //                            .map(r -> r.contains(" ") ? r.replaceAll(" ", "_") : r)).collect(Collectors.toList());
@@ -142,14 +142,14 @@ public class DhcpManagerController {
 
                     for (Map<String, String> map : dataList) {
                         Map<String, String> modifiedMap = new HashMap();
-                        Set<Map.Entry<String, String>> set =  map.entrySet();
+                        Set<Map.Entry<String, String>> set = map.entrySet();
                         for (Map.Entry<String, String> entry : set) {
 
-                            if(entry.getKey().contains(" ")){
+                            if (entry.getKey().contains(" ")) {
                                 modifiedMap.put(entry.getKey().replaceAll(" ", "_"), entry.getValue());
-                            }else if(entry.getKey().contains("-")){
+                            } else if (entry.getKey().contains("-")) {
                                 modifiedMap.put(entry.getKey().replaceAll("-", "_"), entry.getValue());
-                            } else{
+                            } else {
                                 modifiedMap.put(entry.getKey(), entry.getValue());
                             }
                         }

@@ -8,17 +8,18 @@
         SELECT *
         FROM metoo_dhcp_history
         WHERE
-          id = #{id}
+        id = #{id}
     </select>
 
     <select id="selectObjByLease" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Dhcp">
         SELECT *
         FROM metoo_dhcp_history
         WHERE
-          lease = #{lease}
+        lease = #{lease}
     </select>
 
-    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DhcpDto" resultType="com.metoo.nrsm.entity.Dhcp">
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DhcpDto"
+            resultType="com.metoo.nrsm.entity.Dhcp">
         SELECT *
         FROM metoo_dhcp_history
         <where>
@@ -231,13 +232,14 @@
     </update>
 
     <sql id="Copy_Column_List">
-         addTime, lease, starts, ends, tstp, cltt, binding_state, next_binding_state, rewind_binding_state, hardware_ethernet,
-         uid, client_hostname
+        addTime, lease, starts, ends, tstp, cltt, binding_state, next_binding_state, rewind_binding_state,
+        hardware_ethernet,
+        uid, client_hostname
     </sql>
 
     <insert id="batchInsert">
         INSERT INTO
-          metoo_dhcp_history
+        metoo_dhcp_history
         (<include refid="Copy_Column_List"/>)
         SELECT
         <include refid="Copy_Column_List"/>

@@ -25,53 +25,53 @@ public class ProjectManagerController {
     private IProjectService projectService;
 
     @RequestMapping("/list")
-    public Object list(@RequestBody(required = false) ProjectDTO dto){
+    public Object list(@RequestBody(required = false) ProjectDTO dto) {
         Page<Project> page = this.projectService.selectObjConditionQuery(dto);
-        if(page.getResult().size() > 0){
+        if (page.getResult().size() > 0) {
             return ResponseUtil.ok(new PageInfo<Project>(page));
         }
         return ResponseUtil.ok();
     }
 
     @GetMapping
-    public Object update(@RequestParam(value = "id") Long id){
+    public Object update(@RequestParam(value = "id") Long id) {
         Project project = this.projectService.selectObjById(id);
-        if(project != null){
+        if (project != null) {
             return ResponseUtil.ok(project);
         }
         return ResponseUtil.badArgument();
     }
 
     @PostMapping
-    public Object save(@RequestBody Project instance){
+    public Object save(@RequestBody Project instance) {
         // 校验参数
         Map params = new HashMap();
         params.put("projectId", instance.getId());
         params.put("name", instance.getName());
         List<Project> projectList = this.projectService.selectObjByMap(params);
-        if(projectList.size() > 0){
+        if (projectList.size() > 0) {
             return ResponseUtil.badArgument("项目名称重复");
         }
-        if(instance.getStartTime() != null && instance.getAcceptTime() != null){
-            if(instance.getStartTime().after(instance.getAcceptTime())){
+        if (instance.getStartTime() != null && instance.getAcceptTime() != null) {
+            if (instance.getStartTime().after(instance.getAcceptTime())) {
                 return ResponseUtil.badArgument("项目启动时间需小于项目验收时间");
             }
         }
         int result = this.projectService.save(instance);
-        if(result >= 1){
+        if (result >= 1) {
             return ResponseUtil.ok();
-        }else{
+        } else {
             return ResponseUtil.error();
         }
     }
 
     @DeleteMapping
-    public Object delete(@RequestParam(value = "ids") String ids){
-        for (String id : ids.split(",")){
+    public Object delete(@RequestParam(value = "ids") String ids) {
+        for (String id : ids.split(",")) {
             Project project = this.projectService.selectObjById(Long.parseLong(id));
-            if(project != null){
+            if (project != null) {
                 this.projectService.delete(Long.parseLong(id));
-            }else{
+            } else {
                 return ResponseUtil.error();
             }
         }

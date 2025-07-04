@@ -59,8 +59,8 @@ public class DnsLogServiceImpl implements IDnsLogService {
     @Override
     public void parseLargeLog() {
         try {
-            String curTime=DateUtil.offsetDay(DateUtil.date(),-1).toDateStr();
-            List<MappedByteBuffer> chunks = splitFile(logFilePath+StrUtil.DASHED+curTime);
+            String curTime = DateUtil.offsetDay(DateUtil.date(), -1).toDateStr();
+            List<MappedByteBuffer> chunks = splitFile(logFilePath + StrUtil.DASHED + curTime);
             ExecutorService executor = ThreadUtil.newExecutor(THREAD_COUNT);
             List<CompletableFuture<Void>> futures = chunks.stream()
                     .map(chunk -> CompletableFuture.runAsync(() ->
@@ -121,15 +121,15 @@ public class DnsLogServiceImpl implements IDnsLogService {
                         int nextLineStart = i + 1;
                         int nextLineEnd = findNextLineEnd(nextLineStart, charBuffer);
                         String nextLine = charBuffer.subSequence(nextLineStart, nextLineEnd).toString();
-                        processNextLine(nextLine,0);
+                        processNextLine(nextLine, 0);
                     }
-                }else if(cacheMatcher.find()){
+                } else if (cacheMatcher.find()) {
                     // 缓存命中，提取并处理下一行
                     if (i + 1 < charBuffer.limit()) {
                         int nextLineStart = i + 1;
                         int nextLineEnd = findNextLineEnd(nextLineStart, charBuffer);
                         String nextLine = charBuffer.subSequence(nextLineStart, nextLineEnd).toString();
-                        processNextLine(nextLine,1);
+                        processNextLine(nextLine, 1);
                     }
                 }
                 lineStart = i + 1;
@@ -142,7 +142,7 @@ public class DnsLogServiceImpl implements IDnsLogService {
      *
      * @param dataLine
      */
-    private void processNextLine(String dataLine,Integer isCache) {
+    private void processNextLine(String dataLine, Integer isCache) {
         try {
             Matcher dataMatcher = dataPattern.matcher(dataLine);
             if (dataMatcher.find()) {
@@ -191,13 +191,13 @@ public class DnsLogServiceImpl implements IDnsLogService {
 
     @Override
     public void deleteDnsFile() {
-        String curTime=DateUtil.offsetDay(DateUtil.date(),-1).toDateStr();
-        String filePath=logFilePath+StrUtil.DASHED+curTime;
-        File file=new File(filePath);
-        if(file.delete()){
-            log.info("删除dns日志文件成功:{}",filePath);
-        }else{
-            log.error("删除dns日志文件失败:{}",filePath);
+        String curTime = DateUtil.offsetDay(DateUtil.date(), -1).toDateStr();
+        String filePath = logFilePath + StrUtil.DASHED + curTime;
+        File file = new File(filePath);
+        if (file.delete()) {
+            log.info("删除dns日志文件成功:{}", filePath);
+        } else {
+            log.error("删除dns日志文件失败:{}", filePath);
         }
     }
 }

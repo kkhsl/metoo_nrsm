@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class RandomRangeUtils {
 
-    public static double getRandomRange(){
+    public static double getRandomRange() {
         Random random = new Random();
 
         int number = 1;

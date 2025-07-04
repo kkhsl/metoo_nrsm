@@ -105,16 +105,16 @@
                 mappedAddress = #{mappedAddress},
             </if>
             <if test="zoneName != null">
-                zoneName =  #{zoneName},
+                zoneName = #{zoneName},
             </if>
             <if test="zoneType != null">
-                zoneType =  #{zoneType},
+                zoneType = #{zoneType},
             </if>
             <if test="localData != null">
-                localData =  #{localData},
+                localData = #{localData},
             </if>
             <if test="localZone != null">
-                localZone =  #{localZone},
+                localZone = #{localZone},
             </if>
         </set>
         where id = #{id}
@@ -123,20 +123,20 @@
     <delete id="delete" parameterType="java.lang.Long">
         UPDATE metoo_unbound
         SET
-            localZone = NULL,
-            localData = NULL,
-            hostName = NULL,
-            recordType = NULL,
-            mappedAddress = NULL,
-            zoneName = NULL,
-            zoneType = NULL
+        localZone = NULL,
+        localData = NULL,
+        hostName = NULL,
+        recordType = NULL,
+        mappedAddress = NULL,
+        zoneName = NULL,
+        zoneType = NULL
         where id = #{id}
     </delete>
 
     <delete id="deleteDNS" parameterType="java.lang.Long">
         UPDATE metoo_unbound
         SET
-            forwardAddress = NULL
+        forwardAddress = NULL
         where id = #{id}
     </delete>
 

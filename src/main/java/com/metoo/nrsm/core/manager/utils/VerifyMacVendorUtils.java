@@ -8,6 +8,7 @@ import java.util.Map;
 public class VerifyMacVendorUtils {
 
     private static final Map<String, String> VENDOR_MAP_DEVICESCAN = new HashMap<>();
+
     static {
         VENDOR_MAP_DEVICESCAN.put("Tenda", "Tenda");
         VENDOR_MAP_DEVICESCAN.put("h3c", "h3c");
@@ -34,12 +35,13 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_DEVICESCAN.put("Extreme", "Extreme");
         VENDOR_MAP_DEVICESCAN.put("ProCurve", "ProCurve");
         VENDOR_MAP_DEVICESCAN.put("Maipu", "Maipu");
-        VENDOR_MAP_DEVICESCAN.put("Venustech", "Venustech");;
+        VENDOR_MAP_DEVICESCAN.put("Venustech", "Venustech");
+        ;
         VENDOR_MAP_DEVICESCAN.put("SHENZHEN FAST", "SHENZHEN FAST");
     }
 
-    public static String toDevice(String vendor){
-        if(StringUtils.isNotEmpty(vendor)){
+    public static String toDevice(String vendor) {
+        if (StringUtils.isNotEmpty(vendor)) {
             String lowerVendor = vendor.toLowerCase();
             for (Map.Entry<String, String> entry : VENDOR_MAP_DEVICESCAN.entrySet()) {
                 if (lowerVendor.contains(entry.getKey().toLowerCase())) {

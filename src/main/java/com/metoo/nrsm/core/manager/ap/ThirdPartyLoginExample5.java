@@ -39,7 +39,7 @@ public class ThirdPartyLoginExample5 {
 
 
     @PostMapping("aaa")
-    public void get(@RequestBody AcAction instance){
+    public void get(@RequestBody AcAction instance) {
 
         JSONObject jsonObject = GecossApiUtil.getCall(GecossApiUtil.parseParam(instance, "apsearch"));
         System.out.println(jsonObject);

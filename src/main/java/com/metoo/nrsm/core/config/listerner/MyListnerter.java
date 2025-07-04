@@ -12,7 +12,7 @@ import javax.servlet.annotation.WebListener;
 
 /**
  * 系统基础监听器， 用来生成sn申请码；该监听器会在系统启动时进行数据加载；
- *  容器初始化时调用contextInitialized（）方法
+ * 容器初始化时调用contextInitialized（）方法
  */
 @WebListener
 public class MyListnerter implements ServletContextListener {
@@ -24,10 +24,9 @@ public class MyListnerter implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         context = WebApplicationContextUtils.getWebApplicationContext(servletContextEvent.getServletContext());
-        ILicenseService licenseService = (ILicenseService)context.getBean("licenseServiceImpl");
+        ILicenseService licenseService = (ILicenseService) context.getBean("licenseServiceImpl");
         licenseService.detection();
     }
-
 
 
     @Override

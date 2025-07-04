@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
-* @author leo
-* @description 针对表【metoo_mac】的数据库操作Service实现
-* @createDate 2024-09-14 14:45:58
-*/
+ * @author leo
+ * @description 针对表【metoo_mac】的数据库操作Service实现
+ * @createDate 2024-09-14 14:45:58
+ */
 @Service
 public class TerminalMacIpv6ServiceImpl implements ITerminalMacIpv6Service {
 
@@ -21,8 +21,8 @@ public class TerminalMacIpv6ServiceImpl implements ITerminalMacIpv6Service {
     private TerminalMacIpv6Mapper metooMacMapper;
 
     @Override
-    public int insertMac(String mac,int isIPv6) {
-        return metooMacMapper.insertMac(mac,isIPv6);
+    public int insertMac(String mac, int isIPv6) {
+        return metooMacMapper.insertMac(mac, isIPv6);
     }
 
     public List<TerminalMacIpv6> getAllMacs() {
@@ -34,8 +34,8 @@ public class TerminalMacIpv6ServiceImpl implements ITerminalMacIpv6Service {
         return metooMacMapper.getMacByMacAddress(mac);
     }
 
-    public void updateMac(String mac,int isIPv6) {
-        metooMacMapper.updateMac(mac,isIPv6);
+    public void updateMac(String mac, int isIPv6) {
+        metooMacMapper.updateMac(mac, isIPv6);
     }
 
     public void deleteMac(String mac) {

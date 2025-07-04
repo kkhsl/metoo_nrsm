@@ -42,7 +42,8 @@ public class SNMPCommandHandler {
     /**
      * 动态获取方法名
      * 根据 vendor 和 command 获取对应的 SNMP 方法名
-     * @param vendor 设备厂商
+     *
+     * @param vendor  设备厂商
      * @param command 要执行的命令
      * @return 对应的 SNMP 方法名
      */

@@ -38,10 +38,10 @@ public class IpV4DetailServiceImpl implements Ipv4DetailService {
 
     @Override
     public int save(Ipv4Detail instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
             return this.ipv4DetailMapper.save(instance);
-        }else{
+        } else {
             return this.ipv4DetailMapper.update(instance);
         }
     }

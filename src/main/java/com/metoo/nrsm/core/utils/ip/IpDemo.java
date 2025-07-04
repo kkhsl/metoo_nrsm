@@ -19,7 +19,7 @@ public class IpDemo {
 //        String networkAddress = IpV4Util.getNetworkAddress("192.168.5.0",  23);
 //        System.out.println(networkAddress);
 
-        Map<String, String> a = Ipv4Util.getNetworkIp("192.168.5.0",  mask);
+        Map<String, String> a = Ipv4Util.getNetworkIp("192.168.5.0", mask);
         System.out.println(a.get("network"));
 
     }

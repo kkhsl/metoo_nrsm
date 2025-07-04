@@ -13,15 +13,15 @@ import java.util.List;
 
 /**
  * <p>
- *     Title: Role.java
+ * Title: Role.java
  * </p>
  *
  * <p>
- *     Description: 角色管理；
+ * Description: 角色管理；
  * </p>
  *
  * <author>
- *     HKK
+ * HKK
  * </author>
  */
 @Data

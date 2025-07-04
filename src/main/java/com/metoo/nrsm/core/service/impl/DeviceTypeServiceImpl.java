@@ -125,11 +125,11 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
 
     @Override
     public int save(DeviceType instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             instance.setUuid(UUID.randomUUID().toString());
         }
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
 
             //设置回滚点,只回滚以下异常
             Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
@@ -142,7 +142,7 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
                 TransactionAspectSupport.currentTransactionStatus().rollbackToSavepoint(savePoint);
                 return 0;
             }
-        }else{
+        } else {
             try {
                 return this.deviceTypeMapper.update(instance);
             } catch (Exception e) {
@@ -185,16 +185,16 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
     @Override
     public Object saveAndUpload(DeviceType instance, MultipartFile onlineFile, MultipartFile offlineFile) {
         String uuid = UUID.randomUUID().toString();
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             instance.setUuid(uuid);
-        }else{
+        } else {
             DeviceType deviceType = this.deviceTypeMapper.selectObjById(instance.getId());
             uuid = deviceType.getUuid();
         }
         //设置回滚点,只回滚以下异常
         Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 this.deviceTypeMapper.save(instance);
             } catch (Exception e) {
@@ -202,7 +202,7 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
                 TransactionAspectSupport.currentTransactionStatus().rollbackToSavepoint(savePoint);
                 return ResponseUtil.error("保存失败");
             }
-        }else{
+        } else {
             try {
                 this.deviceTypeMapper.update(instance);
             } catch (Exception e) {
@@ -211,8 +211,8 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
                 return ResponseUtil.error("保存失败");
             }
         }
-        if(uuid != null){
-            if(onlineFile != null){
+        if (uuid != null) {
+            if (onlineFile != null) {
                 try {
                     uploadFileUtil.uploadFile(onlineFile, uuid, Global.WEBTERMINALPATH);
                 } catch (Exception e) {
@@ -222,17 +222,17 @@ public class DeviceTypeServiceImpl implements IDeviceTypeService {
                     return ResponseUtil.badArgument("在线图片上传失败");
                 }
             }
-           if(offlineFile != null){
-               try {
-                   uploadFileUtil.uploadFile(offlineFile, uuid + "_0", Global.WEBTERMINALPATH);
-               } catch (Exception e) {
-                   e.printStackTrace();
-                   TransactionAspectSupport.currentTransactionStatus().rollbackToSavepoint(savePoint);
-                   this.uploadFileUtil.deleteFile(uuid, Global.WEBTERMINALPATH);
-                   this.uploadFileUtil.deleteFile(uuid + "_0", Global.WEBTERMINALPATH);
-                   return ResponseUtil.badArgument("离线图片上传失败");
-               }
-           }
+            if (offlineFile != null) {
+                try {
+                    uploadFileUtil.uploadFile(offlineFile, uuid + "_0", Global.WEBTERMINALPATH);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    TransactionAspectSupport.currentTransactionStatus().rollbackToSavepoint(savePoint);
+                    this.uploadFileUtil.deleteFile(uuid, Global.WEBTERMINALPATH);
+                    this.uploadFileUtil.deleteFile(uuid + "_0", Global.WEBTERMINALPATH);
+                    return ResponseUtil.badArgument("离线图片上传失败");
+                }
+            }
         }
         return ResponseUtil.ok();
     }

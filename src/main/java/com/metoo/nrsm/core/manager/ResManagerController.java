@@ -56,7 +56,7 @@ public class ResManagerController {
         if (dto == null) {
             dto = new ResDto();
         }
-        if(dto.getCurrentPage() < 1){
+        if (dto.getCurrentPage() < 1) {
             dto.setCurrentPage(0);
         }
         Map params = new HashMap();
@@ -67,7 +67,7 @@ public class ResManagerController {
         data.put("currentPage", dto.getCurrentPage());
         data.put("pageSize", ResList.size());
         return ResponseUtil.ok(data);
-     }
+    }
     /*public Object list(@RequestBody ResDto dto){
         if(dto.getCurrentPage() == null || dto.getCurrentPage().equals("")){
             dto.setCurrentPage(1);
@@ -84,7 +84,7 @@ public class ResManagerController {
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @ApiOperation("权限添加")
     @PostMapping("/add")
-    public Object add(){
+    public Object add() {
         Map data = new HashMap();
         // 查询所有父级
         Map params = new HashMap();
@@ -102,10 +102,10 @@ public class ResManagerController {
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @ApiOperation("权限更新")
     @PostMapping("/update")
-    public Object update(@RequestBody ResDto dto){
+    public Object update(@RequestBody ResDto dto) {
         Map data = new HashMap();
         Res res = this.resService.findResUnitRoleByResId(dto.getId());
-        if(res != null){
+        if (res != null) {
             data.put("obj", res);
             // 查询所有父级
             Map params = new HashMap();
@@ -119,13 +119,13 @@ public class ResManagerController {
         return ResponseUtil.badArgument();
     }
 
-//    @ApiOperation("权限信息查询")
+    //    @ApiOperation("权限信息查询")
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @RequestMapping("/query")
-    public Object query(@RequestBody ResDto dto){
-        if(dto.getId() != null){
+    public Object query(@RequestBody ResDto dto) {
+        if (dto.getId() != null) {
             Res res = this.resService.findObjById(dto.getId());
-            if(res != null){
+            if (res != null) {
                 Map params = new HashMap();
                 params.put("parentId", res.getId());
                 List<Res> resList = this.resService.findPermissionByMap(params);
@@ -135,9 +135,9 @@ public class ResManagerController {
         return ResponseUtil.badArgument();
     }
 
-    public Object verify(ResDto dto){
+    public Object verify(ResDto dto) {
         String name = dto.getName();
-        if(name == null || name.equals("")){
+        if (name == null || name.equals("")) {
             return ResponseUtil.badArgument();
         }
         return null;
@@ -146,45 +146,45 @@ public class ResManagerController {
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @ApiOperation("权限保存")
     @PostMapping("/save")
-    public Object save(@RequestBody ResDto dto){
-        if(dto != null){
+    public Object save(@RequestBody ResDto dto) {
+        if (dto != null) {
             Object error = this.verify(dto);
-            if(error != null){
+            if (error != null) {
                 return error;
             }
-            if(dto.getParentId() != null && StringUtil.isEmpty(dto.getValue())){
+            if (dto.getParentId() != null && StringUtil.isEmpty(dto.getValue())) {
                 return ResponseUtil.badArgument("资源信息为空");
             }
             boolean flag = true;
             Map map = new HashMap();
             map.put("name", dto.getName());
-            if(dto.getParentId() != null){
+            if (dto.getParentId() != null) {
 //                Res parent = this.resService.findObjById(dto.getParentId());
                 map.put("level", 1);
-            }else{
+            } else {
                 map.put("level", 0);
             }
             Res res = this.resService.findObjByNameAndLevel(map);
-            if(res != null) {
+            if (res != null) {
                 flag = false;
                 Res res2 = this.resService.findObjById(dto.getId());
-                if(res2 != null){
+                if (res2 != null) {
                     if (res2 != null && !res.getName().equals(res2.getName())) {
                         flag = false;
-                    }else{
+                    } else {
                         flag = true;
                     }
                 }
             }
-                if(flag){
-                if(dto.getParentId() != null){
+            if (flag) {
+                if (dto.getParentId() != null) {
                     Res resParent = this.resService.findObjById(dto.getParentId());
-                    if(resParent == null){
+                    if (resParent == null) {
                         return ResponseUtil.badArgument("填写正确的父级ID");
                     }
                     dto.setLevel(1);
                 }
-                if(this.resService.save(dto)){
+                if (this.resService.save(dto)) {
                     return ResponseUtil.ok();
                 }
             }
@@ -196,27 +196,27 @@ public class ResManagerController {
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @ApiOperation("权限删除")
     @PostMapping("/delete")
-    public Object delete(@RequestBody ResDto dto){
+    public Object delete(@RequestBody ResDto dto) {
         // 递归删除
         Res res = this.resService.findObjById(dto.getId());
-        if(res != null){
+        if (res != null) {
             Map params = new HashMap();
             params.put("parentId", res.getId());
             List<Res> resList = this.resService.findPermissionByMap(params);
-            if(resList.size() > 0){
+            if (resList.size() > 0) {
                 // ** 可优化为批量删除，首先获取所有子集IdList
-                for(Res obj : resList){
+                for (Res obj : resList) {
                     params.clear();
                     params.put("parentId", obj.getId());
-                    if(resList.size() > 0){
-                        for(Res obj1 : resList){
+                    if (resList.size() > 0) {
+                        for (Res obj1 : resList) {
                             this.resService.delete(obj1.getId());
                         }
                     }
                     this.resService.delete(obj.getId());
                 }
             }
-            if(this.resService.delete(res.getId())){
+            if (this.resService.delete(res.getId())) {
                 return ResponseUtil.ok();
             }
             return ResponseUtil.error();

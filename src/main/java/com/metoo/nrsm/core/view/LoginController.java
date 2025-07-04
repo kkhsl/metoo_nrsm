@@ -49,7 +49,7 @@ public class LoginController {
     @ApiOperation("登录")
     @RequestMapping("/login")
     public Object login(HttpServletRequest request, HttpServletResponse response,
-                        String username, String password, @ApiParam("验证码") String captcha, String isRememberMe){
+                        String username, String password, @ApiParam("验证码") String captcha, String isRememberMe) {
         String msg = "";
         // 通过安全工具类获取 Subject
         Subject subject = SecurityUtils.getSubject();
@@ -59,31 +59,31 @@ public class LoginController {
         log.info("SESSIONID：" + session.getId());
         String sessionCaptcha = (String) session.getAttribute("captcha");
         session.getStartTimestamp();
-        if(StringUtils.isEmpty(username)){
+        if (StringUtils.isEmpty(username)) {
             return ResponseUtil.badArgument("用户名必填");
         }
-        if(StringUtils.isEmpty(password)){
+        if (StringUtils.isEmpty(password)) {
             return ResponseUtil.badArgument("密码必填");
         }
-        if(StringUtils.isEmpty(captcha)){
+        if (StringUtils.isEmpty(captcha)) {
             return ResponseUtil.badArgument("验证码必填");
         }
-        if(!org.springframework.util.StringUtils.isEmpty(captcha) && !StringUtils.isEmpty(sessionCaptcha)){
-            if(sessionCaptcha.toUpperCase().equals(captcha.toUpperCase())){
+        if (!org.springframework.util.StringUtils.isEmpty(captcha) && !StringUtils.isEmpty(sessionCaptcha)) {
+            if (sessionCaptcha.toUpperCase().equals(captcha.toUpperCase())) {
                 boolean flag = true;// 当前用户是否已登录
-                if(subject.getPrincipal() != null && subject.isAuthenticated()){
+                if (subject.getPrincipal() != null && subject.isAuthenticated()) {
                     String userName = subject.getPrincipal().toString();
-                    if(userName.equals(username)){
+                    if (userName.equals(username)) {
                         flag = false;
                     }
                 }
-                if(flag){
-                    UsernamePasswordToken token = new UsernamePasswordToken(username,password);
+                if (flag) {
+                    UsernamePasswordToken token = new UsernamePasswordToken(username, password);
                     try {
-                        if(isRememberMe != null && isRememberMe.equals("1")){
+                        if (isRememberMe != null && isRememberMe.equals("1")) {
                             token.setRememberMe(true);
                             // 或 UsernamePasswordToken token = new UsernamePasswordToken(username,password,true);
-                        }else{
+                        } else {
                             token.setRememberMe(false);
                         }
                         subject.login(token);
@@ -113,21 +113,21 @@ public class LoginController {
                         msg = "用户名错误";
                         System.out.println("用户名错误");
                         return new Result(410, msg);
-                    } catch (IncorrectCredentialsException e){
+                    } catch (IncorrectCredentialsException e) {
                         e.printStackTrace();
                         msg = "密码错误";
                         System.out.println("密码错误");
                         return new Result(420, msg);
                     }
-                }else{
+                } else {
                     User user = this.userService.findByUserName(username);
                     return new Result(200, "用户已登录", user.getId());
                 }
-            }else{
+            } else {
                 return new Result(430, "验证码错误");
             }
-        }else{
-            return new Result(400,  "验证码已过期");
+        } else {
+            return new Result(400, "验证码已过期");
         }
     }
 
@@ -183,15 +183,15 @@ public class LoginController {
     }
 
     @RequestMapping("/logout")
-    public Object logout(HttpServletRequest request, HttpServletResponse response){
+    public Object logout(HttpServletRequest request, HttpServletResponse response) {
         Subject subject = SecurityUtils.getSubject();
-        if(subject.getPrincipal() != null){
+        if (subject.getPrincipal() != null) {
             // 清除cookie
             subject.logout(); // 退出登录
             CookieUtil.removeCookie(request, response, "JSESSIONID");
             return ResponseUtil.ok();
-        }else{
-            return new Result(401,"log in");
+        } else {
+            return new Result(401, "log in");
         }
     }
 

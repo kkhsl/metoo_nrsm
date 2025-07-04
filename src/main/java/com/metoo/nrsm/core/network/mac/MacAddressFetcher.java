@@ -38,7 +38,10 @@ public class MacAddressFetcher {
                     macAddress = new String(buffer, 0, bytesRead);
                 }
                 if (channel.isClosed()) break;
-                try { Thread.sleep(1000); } catch (Exception ee) {}
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception ee) {
+                }
             }
             channel.disconnect();
             session.disconnect();

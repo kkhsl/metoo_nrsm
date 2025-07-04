@@ -29,7 +29,7 @@ public class Terminal extends IdEntity {
     private String mac;
     private String port;
 
-//    @ApiModelProperty("类型 0: 采集终端 1：资产终端 3 从外部学习到的mac")
+    //    @ApiModelProperty("类型 0: 采集终端 1：资产终端 3 从外部学习到的mac")
 //    private String type;
 //
     @ApiModelProperty("类型 0: 普通终端 1：资产终端")
@@ -137,16 +137,16 @@ public class Terminal extends IdEntity {
 
 
     @ApiModelProperty("采购时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchase_time;
 
     @ApiModelProperty("过保时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date warranty_time;
 
-    @JSONField(name="price",serializeUsing = DoubleSerializer.class)
+    @JSONField(name = "price", serializeUsing = DoubleSerializer.class)
     @ApiModelProperty("价格")
     private Double price;
 

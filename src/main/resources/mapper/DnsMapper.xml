@@ -7,13 +7,13 @@
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Dns">
         select * from metoo_dns
         <where>
-            <if test="rtype != null and rtype != ''" >
+            <if test="rtype != null and rtype != ''">
                 AND rtype = #{rtype}
             </if>
-            <if test="qname != null and qname != ''" >
+            <if test="qname != null and qname != ''">
                 AND qname = #{qname}
             </if>
-            <if test="address != null and address != ''" >
+            <if test="address != null and address != ''">
                 AND address = #{address}
             </if>
         </where>
@@ -26,49 +26,49 @@
     </select>
 
     <select id="selectObjByPrimaryDomain" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Dns">
-       SELECT
-            *
+        SELECT
+        *
         FROM
-            (
-                SELECT
-                    *, SUBSTR(qname, LOCATE('.', qname) + 1) primaryDomain
-                FROM
-                    metoo_dns
-                WHERE
-                    qname IS NOT NULL
-            ) dns
+        (
+        SELECT
+        *, SUBSTR(qname, LOCATE('.', qname) + 1) primaryDomain
+        FROM
+        metoo_dns
         WHERE
-            primaryDomain = #{primaryDomain}
+        qname IS NOT NULL
+        ) dns
+        WHERE
+        primaryDomain = #{primaryDomain}
 
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Dns">
         INSERT INTO metoo_dns
         <trim prefix="(" suffixOverrides="," suffix=")">
-            <if test="addTime != null" >
+            <if test="addTime != null">
                 addTime,
             </if>
-            <if test="rtype != null and rtype != ''" >
+            <if test="rtype != null and rtype != ''">
                 rtype,
             </if>
-            <if test="qname != null and qname != ''" >
+            <if test="qname != null and qname != ''">
                 qname,
             </if>
-            <if test="address != null and address != ''" >
+            <if test="address != null and address != ''">
                 address,
             </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
-            <if test="addTime != null" >
+            <if test="addTime != null">
                 #{addTime},
             </if>
-            <if test="rtype != null and rtype != ''" >
+            <if test="rtype != null and rtype != ''">
                 #{rtype},
             </if>
-            <if test="qname != null and qname != ''" >
+            <if test="qname != null and qname != ''">
                 #{qname},
             </if>
-            <if test="address != null and address != ''" >
+            <if test="address != null and address != ''">
                 #{address},
             </if>
         </trim>
@@ -77,16 +77,16 @@
     <update id="update" parameterType="com.metoo.nrsm.entity.Dns">
         update metoo_dns
         <set>
-            <if test="addTime != null" >
+            <if test="addTime != null">
                 addTime = #{addTime},
             </if>
-            <if test="rtype != null and rtype != ''" >
+            <if test="rtype != null and rtype != ''">
                 rtype = #{rtype},
             </if>
-            <if test="qname != null and qname != ''" >
+            <if test="qname != null and qname != ''">
                 qname = #{qname},
             </if>
-            <if test="address != null and address != ''" >
+            <if test="address != null and address != ''">
                 address = #{address},
             </if>
         </set>

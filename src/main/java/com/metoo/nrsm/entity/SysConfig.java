@@ -7,15 +7,15 @@ import lombok.*;
 
 /**
  * <p>
- *     Title：系统配置
+ * Title：系统配置
  * </p>
  *
  * <p>
- *     Description: 系统配置管理类；系统基础配置。
+ * Description: 系统配置管理类；系统基础配置。
  * </p>
  *
  * <author>
- *     HKK
+ * HKK
  * </author>
  */
 

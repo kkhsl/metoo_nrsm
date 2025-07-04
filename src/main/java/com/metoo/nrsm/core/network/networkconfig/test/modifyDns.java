@@ -6,6 +6,7 @@ public class modifyDns {
 
     /**
      * modifydns.py
+     *
      * @param dns1
      * @param dns2
      */

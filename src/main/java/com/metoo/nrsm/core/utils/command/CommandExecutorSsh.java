@@ -17,15 +17,15 @@ public class CommandExecutorSsh {
 
     public static void main(String[] args) {
         String restart = execCommand("sudo systemctl restart unbound");
-        if("".contains(restart)){
+        if ("".contains(restart)) {
             System.out.println("启动成功");
-        }else{
+        } else {
             System.out.println("启动失败");
         }
         String status = execCommand("sudo systemctl status unbound");
-        if(status.contains("Active: active (running)")){
+        if (status.contains("Active: active (running)")) {
             System.out.println("启动成功");
-        }else{
+        } else {
             System.out.println("启动失败");
         }
     }
@@ -64,10 +64,10 @@ public class CommandExecutorSsh {
             e.printStackTrace();
             return e.getMessage();
         } finally {
-            if(session != null){
+            if (session != null) {
                 session.close(); // 关闭会话
             }
-            if(conn != null){
+            if (conn != null) {
                 conn.close();
             }
         }

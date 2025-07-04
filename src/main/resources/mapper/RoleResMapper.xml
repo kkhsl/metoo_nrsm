@@ -3,7 +3,7 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.RoleResMapper">
 
     <insert id="insert" parameterType="com.metoo.nrsm.entity.RoleRes" keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO  metoo_role_res
+        INSERT INTO metoo_role_res
         (role_id, res_id)
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">

@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class DeviceConfigServiceImpl implements IDeviceConfigService {
     @Autowired
     private DeviceConfigMapper deviceConfigMapper;
+
     @Override
     public Page<DeviceConfig> selectAll(DeviceConfigDTO instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new DeviceConfigDTO();
         }
         Page<DeviceConfig> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());

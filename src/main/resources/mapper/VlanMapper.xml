@@ -18,17 +18,20 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, addTime, deleteStatus, `name`, description, editDate, group_id, domain_id, subnet, subnet_id, `number`, ipv6_subnet_id
+        id, addTime, deleteStatus, `name`, description, editDate, group_id, domain_id, subnet, subnet_id, `number`,
+        ipv6_subnet_id
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_vlan
         where id = #{id}
     </select>
 
     <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.VlanDTO" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_vlan
         <where>
             <if test="groupId != null and groupId != ''">
@@ -36,7 +39,7 @@
             </if>
             <if test="groupIds != null and groupIds != ''">
                 AND group_id in
-                <foreach collection="groupIds" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="groupIds" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -44,7 +47,8 @@
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_vlan
         <where>
             <if test="id != null and id != ''">
@@ -70,7 +74,7 @@
             </if>
             <if test="groupIds != null and groupIds != ''">
                 AND group_id in
-                <foreach collection="groupIds" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="groupIds" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -84,10 +88,10 @@
                 AND `hidden` = #{hidden}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>

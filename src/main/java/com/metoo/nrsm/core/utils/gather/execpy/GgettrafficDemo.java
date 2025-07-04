@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class GgettrafficDemo {
 
 
-
     public static void main(String[] args) {
         String path = "/opt/nrsm/py/gettraffic.py";
         String[] params = {"192.168.5.51", "v2c",
@@ -24,7 +23,7 @@ public class GgettrafficDemo {
         SSHExecutor sshExecutor = new SSHExecutor();
 
         String result = sshExecutor.exec(path, params);
-        if(StringUtil.isNotEmpty(result)){
+        if (StringUtil.isNotEmpty(result)) {
             System.out.println(result);
         }
     }
@@ -39,7 +38,7 @@ public class GgettrafficDemo {
                 "public@123", in, out};
         SSHExecutor sshExecutor = new SSHExecutor();
         String result = sshExecutor.exec(path, params);
-        if(StringUtil.isNotEmpty(result)){
+        if (StringUtil.isNotEmpty(result)) {
             return result;
         }
         return null;

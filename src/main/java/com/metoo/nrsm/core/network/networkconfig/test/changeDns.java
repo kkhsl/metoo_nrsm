@@ -6,6 +6,7 @@ public class changeDns {
 
     /**
      * changedns.py
+     *
      * @param dns1
      * @param dns2
      */

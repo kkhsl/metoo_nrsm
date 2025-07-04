@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
  * @date 2024-02-20 11:36
  */
 @Component
-public class GatherPortIpv6SNMPRunnable implements Runnable{
+public class GatherPortIpv6SNMPRunnable implements Runnable {
 
 
     private NetworkElement networkElement;
@@ -52,13 +52,14 @@ public class GatherPortIpv6SNMPRunnable implements Runnable{
 //            SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
 //            JSONArray result = SNMPv2Request.getPortTable(snmpParams);
             JSONArray result = SNMPv3Request.getPortTableV6(SNMPParamFactory.createSNMPParam(networkElement));
-            if(result != null && result.length() > 0){
+            if (result != null && result.length() > 0) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<PortIpv6> ports = objectMapper.readValue(result.toString(), new TypeReference<List<PortIpv6>>(){});
+                List<PortIpv6> ports = objectMapper.readValue(result.toString(), new TypeReference<List<PortIpv6>>() {
+                });
                 ports.forEach(e -> {
                     e.setDeviceUuid(networkElement.getUuid());
                     e.setAddTime(date);
-                    if(e.getIpv6().toLowerCase().startsWith("fe80")){
+                    if (e.getIpv6().toLowerCase().startsWith("fe80")) {
                         e.setIpv6_local(true);
                     }
                 });
@@ -67,8 +68,8 @@ public class GatherPortIpv6SNMPRunnable implements Runnable{
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(latch != null){
+        } finally {
+            if (latch != null) {
                 latch.countDown();
             }
         }

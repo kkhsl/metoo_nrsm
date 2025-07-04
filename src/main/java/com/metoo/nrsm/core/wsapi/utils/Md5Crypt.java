@@ -15,7 +15,7 @@ import java.util.Map;
 @Component
 public class Md5Crypt {
 
-    public static String md5(String str){
+    public static String md5(String str) {
         Md5Hash md5Hash = new Md5Hash(str);
         return md5Hash.toHex();
     }
@@ -32,7 +32,7 @@ public class Md5Crypt {
     public static boolean getDiffrent(Object o1, Object o2) {
         long st = System.currentTimeMillis();
         /** 使用Security的md5方法进行加密 */
-        if(o1 instanceof ArrayList && o2 instanceof ArrayList) {
+        if (o1 instanceof ArrayList && o2 instanceof ArrayList) {
             String str = md5(o1.toString());
             String str1 = md5(o2.toString());
             System.out.println("消耗时间为： " + (System.currentTimeMillis() - st));

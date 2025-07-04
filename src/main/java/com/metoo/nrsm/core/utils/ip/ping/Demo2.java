@@ -18,7 +18,7 @@ public class Demo2 {
         ping(param);
     }
 
-    public static void ping(String param){
+    public static void ping(String param) {
 //        String host = "192.168.5.101"; // 替换为你想要ping的主机
 //        ProcessBuilder builder = new ProcessBuilder("ipscanner", host, "-t"); // 修改参数以符合你的需求
 
@@ -28,7 +28,7 @@ public class Demo2 {
             Process process = builder.start();
 
             // 读取ping命令的输出
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("GBK") ));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("GBK")));
 
             String line;
 

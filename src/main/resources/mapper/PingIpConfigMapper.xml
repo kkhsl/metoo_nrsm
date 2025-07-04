@@ -5,7 +5,7 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.PingIpConfigMapper">
 
 
-    <select id="selectOneObj"  resultType="com.metoo.nrsm.entity.PingIpConfig">
+    <select id="selectOneObj" resultType="com.metoo.nrsm.entity.PingIpConfig">
         SELECT * FROM metoo_pingipconfig limit 1
     </select>
 

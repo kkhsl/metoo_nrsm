@@ -21,7 +21,7 @@ public class Link extends IdEntity {
     private Integer transmitter;
     @ApiModelProperty("类型 0：物理链路 1：逻辑链路")
     private Integer type;
-//    @ApiModelProperty("带宽 单位（b：字节）")
+    //    @ApiModelProperty("带宽 单位（b：字节）")
 //    private int bandwidth;
     private String bandwidth;
     @ApiModelProperty("状态 0：Actice 1:Not actice")

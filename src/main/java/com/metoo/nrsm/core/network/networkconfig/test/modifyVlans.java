@@ -21,12 +21,13 @@ public class modifyVlans {
 
     /**
      * 修改VLAN配置
+     *
      * @param parentInterface 父接口名称 (如 enp2s0f1)
      * @param vlanId          VLAN ID
-     * @param ipv4Address    IPv4地址（含掩码），空表示删除
-     * @param ipv6Address    IPv6地址（含掩码），空表示删除
-     * @param gateway4       IPv4网关，空表示删除
-     * @param gateway6       IPv6网关，空表示删除
+     * @param ipv4Address     IPv4地址（含掩码），空表示删除
+     * @param ipv6Address     IPv6地址（含掩码），空表示删除
+     * @param gateway4        IPv4网关，空表示删除
+     * @param gateway6        IPv6网关，空表示删除
      * @return 操作结果状态码
      */
     public static int modifyVlanConfig(String parentInterface, String vlanId,

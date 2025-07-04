@@ -12,13 +12,14 @@ public class CollectionsUtil {
 
     /**
      * 根据值进行排序
-     * @param param 入参集合
+     *
+     * @param param  入参集合
      * @param isdesc 指定升序 降序
+     * @return java.utils.Map<java.lang.String   ,       java.lang.Integer>
      * @author HKK
      * @date 2022/08/22
-     * @return java.utils.Map<java.lang.String, java.lang.Integer>
      */
-    public static Map<String, Integer> mapSortByVaslue(Map<String, Integer> param, boolean isdesc){
+    public static Map<String, Integer> mapSortByVaslue(Map<String, Integer> param, boolean isdesc) {
         Preconditions.checkNotNull(param);
         Set<Map.Entry<String, Integer>> sortedSet = param.entrySet();
         Preconditions.checkNotNull(sortedSet);

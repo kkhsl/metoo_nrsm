@@ -42,6 +42,7 @@ public class TerminalDiagnosisImpl implements ITerminalDiagnosisService {
 
     @Value("${ai.difyAi.token}")
     private String token;
+
     public Flux<String> processSseStream(String terminalId) {
         Terminal terminal = terminalService.selectObjById(Long.parseLong(terminalId));
         // 2. 获取IPv4地址
@@ -76,21 +77,24 @@ public class TerminalDiagnosisImpl implements ITerminalDiagnosisService {
 
     /**
      * 构建请求参数
+     *
      * @param ipv4
      * @return
      */
     private AiDifyRequest buildDifyAiRequest(String ipv4) {
         AiDifyRequest vo = new AiDifyRequest();
-        vo.addData("input_text","根据ipv6改造建议的文档逻辑，结合终端表、端口表、ipv6端口表、动态内容表、出口ipv6是否通表。结合给出ipv4地址为"+ipv4+"的最终结果");
-        vo.addData("Multisentiment","True");
+        vo.addData("input_text", "根据ipv6改造建议的文档逻辑，结合终端表、端口表、ipv6端口表、动态内容表、出口ipv6是否通表。结合给出ipv4地址为" + ipv4 + "的最终结果");
+        vo.addData("Multisentiment", "True");
         vo.addData("terminal", networkDataMapper.getTerminalTable());
         vo.addData("ipv6Port", networkDataMapper.getIpv6PortTable());
         vo.addData("ping", networkDataMapper.getIpv6Connectivity());
         vo.addData("port", networkDataMapper.getPortTable());
         return vo;
     }
+
     /**
      * ipv改造建议
+     *
      * @param terminalId
      * @return
      */
@@ -100,11 +104,11 @@ public class TerminalDiagnosisImpl implements ITerminalDiagnosisService {
         String ipv4Address = terminal.getV4ip();
         AiDifyRequest requestBody = buildDifyAiRequest(ipv4Address);
         WebClient webClient = WebClient.create(difyUrl);
-        String tokenKey="Bearer "+token;
+        String tokenKey = "Bearer " + token;
         return webClient.post()
                 .uri("/run")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization",tokenKey)
+                .header("Authorization", tokenKey)
                 .bodyValue(requestBody)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .acceptCharset(StandardCharsets.UTF_8)

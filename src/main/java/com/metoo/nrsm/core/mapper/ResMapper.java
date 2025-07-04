@@ -12,6 +12,7 @@ public interface ResMapper {
 
     /**
      * 根据角色id查询权限集合
+     *
      * @param id
      * @return
      */
@@ -27,10 +28,11 @@ public interface ResMapper {
 
     List<Res> findPermissionByJoin(Map map);
 
-    Res  findResUnitRoleByResId(Long id);
+    Res findResUnitRoleByResId(Long id);
 
     /**
      * 根据权限ID查询权限对象
+     *
      * @param id
      * @return
      */
@@ -42,6 +44,7 @@ public interface ResMapper {
 
     /**
      * 保存一个系统资源
+     *
      * @param instance
      * @return
      */
@@ -49,6 +52,7 @@ public interface ResMapper {
 
     /**
      * 更新一个系统资源对象
+     *
      * @param instance
      * @return
      */
@@ -56,6 +60,7 @@ public interface ResMapper {
 
     /**
      * 根据系统资源ID删除一个系统资源对象
+     *
      * @param id
      * @return
      */

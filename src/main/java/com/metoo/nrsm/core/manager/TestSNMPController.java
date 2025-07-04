@@ -37,7 +37,7 @@ public class TestSNMPController {
 
 
     @GetMapping("/getHostName")
-    public void getHostName(){
+    public void getHostName() {
 
         List<Callable<String>> tasks = new ArrayList<>();
 

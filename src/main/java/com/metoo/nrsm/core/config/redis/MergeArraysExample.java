@@ -54,7 +54,7 @@ public class MergeArraysExample {
     }
 
     @Test
-    public void linux2(){
+    public void linux2() {
 
         // 使用多线程处理数据
         ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -123,9 +123,8 @@ public class MergeArraysExample {
     }
 
 
-
-    public static void genericList(List<String> listStr){
-        if(listStr.size() > 0){
+    public static void genericList(List<String> listStr) {
+        if (listStr.size() > 0) {
 
             // 聚合数据
             Map<String, Map<String, Set<String>>> aggregatedData = new HashMap<>();
@@ -133,18 +132,19 @@ public class MergeArraysExample {
             for (String data : listStr) {
                 String[][] parse2 = JSON.parseObject(data, String[][].class);
                 List<List<String>> towDimensional = JSON.parseObject(JSON.toJSONString(parse2),
-                        new TypeReference<List<List<String>>>() {});
-                if(towDimensional.size() > 0){
+                        new TypeReference<List<List<String>>>() {
+                        });
+                if (towDimensional.size() > 0) {
                     for (List<String> tow : towDimensional) {
                         String domain = tow.get(0);
                         String ip = tow.get(1);
                         // 判断value是IPv4还是IPv6
                         String ipType;
-                        if(Ipv6Util.verifyIpv6(ip)){
+                        if (Ipv6Util.verifyIpv6(ip)) {
                             ipType = "IPv6";
-                        }else if (Ipv4Util.verifyIp(ip)){
+                        } else if (Ipv4Util.verifyIp(ip)) {
                             ipType = "IPv4";
-                        }else {
+                        } else {
                             ipType = "Unknown";
                         }
 
@@ -160,7 +160,6 @@ public class MergeArraysExample {
             System.out.println(aggregatedData);
         }
     }
-
 
 
     @Test
@@ -191,7 +190,7 @@ public class MergeArraysExample {
                 jedis.rpush(pair[0], pair[1]);
             }
 
-        }finally {
+        } finally {
 
         }
     }

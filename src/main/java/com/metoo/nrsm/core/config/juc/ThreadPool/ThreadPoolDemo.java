@@ -56,8 +56,8 @@ public class ThreadPoolDemo {
         test2();
     }
 
-    public static void test1(){
-        for (int i = 1; i <= 10; i++){
+    public static void test1() {
+        for (int i = 1; i <= 10; i++) {
             exe.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -68,16 +68,16 @@ public class ThreadPoolDemo {
         }
     }
 
-    public static void test2(){
+    public static void test2() {
 
         int POOL_SIZE = Integer.max(Runtime.getRuntime().availableProcessors(), 0);
         ExecutorService exe = Executors.newFixedThreadPool(POOL_SIZE);
 
 
-        AtomicInteger num =  new AtomicInteger();
-        AtomicInteger num1 =  new AtomicInteger();
+        AtomicInteger num = new AtomicInteger();
+        AtomicInteger num1 = new AtomicInteger();
         List list = new ArrayList();
-        for (int i = 1; i <= 20; i++){
+        for (int i = 1; i <= 20; i++) {
             exe.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -101,10 +101,10 @@ public class ThreadPoolDemo {
             });
         }
 
-        if(exe != null){
+        if (exe != null) {
             exe.shutdown();
         }
-        while (true){
+        while (true) {
             if (exe.isTerminated()) {
                 System.out.println("关闭");
                 System.out.println(list);
@@ -114,9 +114,9 @@ public class ThreadPoolDemo {
     }
 
     @GetMapping("/test3")
-    public void test3(){
+    public void test3() {
         List list = new ArrayList();
-        for (int i = 1; i <= 10; i++){
+        for (int i = 1; i <= 10; i++) {
             list.add(i);
             System.out.println("Thread-2: " + i);
         }
@@ -125,11 +125,11 @@ public class ThreadPoolDemo {
 
 
     @Test
-    public void test4(){
-        AtomicInteger num =  new AtomicInteger();
-        AtomicInteger num1 =  new AtomicInteger();
+    public void test4() {
+        AtomicInteger num = new AtomicInteger();
+        AtomicInteger num1 = new AtomicInteger();
         List list = new ArrayList();
-        for (int i = 1; i <= 3; i++){
+        for (int i = 1; i <= 3; i++) {
             exe.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -153,10 +153,10 @@ public class ThreadPoolDemo {
             });
         }
 
-        if(exe != null){
+        if (exe != null) {
             exe.shutdown();
         }
-        while (true){
+        while (true) {
             if (exe.isTerminated()) {
                 System.out.println("关闭");
                 System.out.println(list);
@@ -170,10 +170,10 @@ public class ThreadPoolDemo {
      * 遍历创建线程池，查看线程的名称
      */
     @Test
-    public void test5(){
+    public void test5() {
         ExecutorService exe = Executors.newFixedThreadPool(POOL_SIZE);
         List list = new ArrayList();
-        for (int i = 1; i <= 2; i++){
+        for (int i = 1; i <= 2; i++) {
             System.out.println("循环 " + i);
             final CountDownLatch countDownLatch = new CountDownLatch(2);
 
@@ -194,7 +194,7 @@ public class ThreadPoolDemo {
                 System.out.println("等待结束" + i);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 System.out.println(list);
             }
         }
@@ -205,7 +205,7 @@ public class ThreadPoolDemo {
     public void test6() throws ExecutionException, InterruptedException {
         ExecutorService exe = Executors.newFixedThreadPool(POOL_SIZE);
 
-        for (int i = 1; i <= 2; i++){
+        for (int i = 1; i <= 2; i++) {
             System.out.println("循环 " + i);
             final CountDownLatch countDownLatch = new CountDownLatch(2);
 
@@ -222,20 +222,20 @@ public class ThreadPoolDemo {
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 System.out.println("等待结束" + i);
             }
         }
     }
 
     @Test
-    public void test7(){
+    public void test7() {
         ExecutorService exe = Executors.newFixedThreadPool(POOL_SIZE);
         List list = new ArrayList();
         //Future 相当于是用来存放Executor执行的结果的一种容器
         ArrayList<Future<Integer>> results = new ArrayList<Future<Integer>>();
 
-        for (int i = 1; i <= 2; i++){
+        for (int i = 1; i <= 2; i++) {
             System.out.println("循环 " + i);
             final CountDownLatch countDownLatch = new CountDownLatch(2);
 
@@ -271,14 +271,14 @@ public class ThreadPoolDemo {
 
     // 测试使用线程池，每个线程对list集合操作两次添加动作
     @Test
-    public void test8(){
+    public void test8() {
         ExecutorService exe = Executors.newFixedThreadPool(POOL_SIZE);
         List<Integer> list = new ArrayList();
         for (int i = 0; i < 5000000; i++) {
             exe.execute(new Runnable() {
                 @Override
                 public void run() {
-                    synchronized (list){
+                    synchronized (list) {
                         list.add(1);
                         list.add(1);
 
@@ -291,13 +291,13 @@ public class ThreadPoolDemo {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        int sum =list.stream()
+        int sum = list.stream()
                 .mapToInt(e -> e).sum();
         System.out.println(sum);
     }
 
     @Test
-    public void test9(){
+    public void test9() {
         ExecutorService exe = Executors.newFixedThreadPool(POOL_SIZE);
         List<Integer> list = new Vector<>();
         List<Integer> num = new ArrayList();
@@ -306,26 +306,28 @@ public class ThreadPoolDemo {
         }
         final CountDownLatch countDownLatch = new CountDownLatch(5000000);
 
-        num.stream().forEach(e ->{
+        num.stream().forEach(e -> {
             exe.execute(new Runnable() {
                 @Override
                 public void run() {
-                    list.add(1);   list.add(1);
+                    list.add(1);
+                    list.add(1);
                     countDownLatch.countDown();
                 }
             });
         });
         try {
             countDownLatch.await();
-            int sum =list.stream()
+            int sum = list.stream()
                     .mapToInt(e -> e).sum();
             System.out.println(sum);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
+
     @Test
-    public void test10(){
+    public void test10() {
         ExecutorService exe = Executors.newFixedThreadPool(POOL_SIZE);
         List<Integer> list = new Vector<>();
         List<Integer> num = new ArrayList();
@@ -334,7 +336,7 @@ public class ThreadPoolDemo {
         }
         final CountDownLatch countDownLatch = new CountDownLatch(500000000);
 
-        num.parallelStream().forEach(e ->{
+        num.parallelStream().forEach(e -> {
             exe.execute(new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -342,10 +344,10 @@ public class ThreadPoolDemo {
                     countDownLatch.countDown();
                 }
             }));
-         });
+        });
         try {
             countDownLatch.await();
-            int sum =list.stream()
+            int sum = list.stream()
                     .mapToInt(e -> e).sum();
             System.out.println(sum);
         } catch (InterruptedException e) {

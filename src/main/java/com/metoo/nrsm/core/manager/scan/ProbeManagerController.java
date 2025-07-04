@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,14 +65,14 @@ public class ProbeManagerController {
             log.info("chuangfa result size ---------------------------：" + probeDataList.size());
             if (probeDataList.size() > 0) {
                 for (Probe probe : probeDataList) {
-                    if(Ipv6Utils.isValidIPv6(probe.getIp_addr())){
+                    if (Ipv6Utils.isValidIPv6(probe.getIp_addr())) {
                         probe.setIpv6(probe.getIp_addr());
                         probe.setIp_addr(null);
                     }
 //                    // 根据ip地址查询arp表数据获取mac、ipv6等信息
-                    if(StrUtil.isNotEmpty(probe.getIp_addr()) || StrUtil.isNotEmpty(probe.getIpv6())) {
+                    if (StrUtil.isNotEmpty(probe.getIp_addr()) || StrUtil.isNotEmpty(probe.getIpv6())) {
                         List<Arp> arpList = arpService.selectObjByMap(MapUtil.of("v4ip", probe.getIp_addr()));
-                        if(CollUtil.isNotEmpty(arpList)){
+                        if (CollUtil.isNotEmpty(arpList)) {
                             probe.setIp_addr(arpList.get(0).getV4ip());
                             probe.setIpv6(arpList.get(0).getV6ip());
                             probe.setMac(arpList.get(0).getMac());

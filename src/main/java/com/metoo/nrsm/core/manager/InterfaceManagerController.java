@@ -36,7 +36,7 @@ import java.util.*;
 @RequestMapping("/admin/interface")
 @RestController
 public class InterfaceManagerController {
-    
+
     @Autowired
     private IInterfaceService interfaceService;
     @Autowired
@@ -57,25 +57,25 @@ public class InterfaceManagerController {
             return ResponseUtil.badArgument("名称不能为空");
         }
         // 校验Ipv4地址
-        if(!Ipv4Util.verifyCidr(instance.getIpv4Address())){
+        if (!Ipv4Util.verifyCidr(instance.getIpv4Address())) {
             return ResponseUtil.badArgument("Ipv4格式错误，不符合CIDR格式");
         }
-        if(!Ipv4Util.verifyIp(instance.getGateway4())){
+        if (!Ipv4Util.verifyIp(instance.getGateway4())) {
             return ResponseUtil.badArgument("Ipv4网关格式错误");
         }
-        if(!Ipv6Util.verifyCidr(instance.getIpv6Address())){
+        if (!Ipv6Util.verifyCidr(instance.getIpv6Address())) {
             return ResponseUtil.badArgument("Ipv6格式错误，不符合CIDR格式");
         }
-        if(!Ipv6Util.verifyIpv6(instance.getGateway6())){
+        if (!Ipv6Util.verifyIpv6(instance.getGateway6())) {
             return ResponseUtil.badArgument("Ipv6网关格式错误");
         }
         boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4Address(), instance.getGateway4());
 
-        if(!ipv4){
+        if (!ipv4) {
             return ResponseUtil.badArgument("Ipv4地址和网关不一致");
         }
         boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6Address(), instance.getGateway6());
-        if(!ipv6){
+        if (!ipv6) {
             return ResponseUtil.badArgument("Ipv6地址和网关不一致");
         }
         int i = this.interfaceService.save(instance);
@@ -85,10 +85,11 @@ public class InterfaceManagerController {
 
 
     @GetMapping({"/restart"})
-    public boolean restart()  {
+    public boolean restart() {
         boolean flag = RestartUnboundUtils.restartUnboundService();
         return flag;
     }
+
     @GetMapping({"/writeUnbound"})
     public String writeUnbound() throws Exception {
         Unbound unbound = this.unboundService.selectObjByOne(Collections.EMPTY_MAP);
@@ -97,12 +98,12 @@ public class InterfaceManagerController {
 //        String path = Global.PYPATH + "getnetintf.py";
 //        String result = pythonExecUtils.exec(path);
         String result = SNMPv2Request.getNetworkInterfaces();
-        if(!"".equals(result)){
+        if (!"".equals(result)) {
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {
                 Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
-                if(inteface.getIsup().equals("up")){
-                    if(Ipv6Util.verifyCidr(inteface.getIpv6Address())){
+                if (inteface.getIsup().equals("up")) {
+                    if (Ipv6Util.verifyCidr(inteface.getIpv6Address())) {
                         list.add(inteface.getIpv6Address());
                     }
                 }
@@ -111,7 +112,7 @@ public class InterfaceManagerController {
             boolean flag = UnboundConfUtil.updateInterfaceFile(Global.unboundPath, unbound);
             if (!flag) {
                 return "文件更新失败";
-            }else{
+            } else {
                 boolean result1 = RestartUnboundUtils.restartUnboundService();
                 return "文件更新成功";
             }
@@ -124,13 +125,13 @@ public class InterfaceManagerController {
         List<Interface> list = new ArrayList<>();
 
         try {
-            String[] args = new String[] {
+            String[] args = new String[]{
                     "python", "E:\\python\\project\\djangoProject\\app01\\TestAbstrack.py"};
 
             Process proc = Runtime.getRuntime().exec(args);// 执行py文件
 
             StringBuffer sb = new StringBuffer();
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(),"gb2312"));//解决中文乱码，参数可传中文
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
             String line = null;
             while ((line = in.readLine()) != null) {
                 sb.append(line);
@@ -172,35 +173,35 @@ public class InterfaceManagerController {
     @PostMapping({"/modify/ip"})
     public Object modifyIp(@RequestBody Interface instance) {
         if (StringUtil.isEmpty(instance.getName())) {
-            return ResponseUtil.badArgument ("网络接口不能为空");
+            return ResponseUtil.badArgument("网络接口不能为空");
         }
         // 校验Ipv4地址
-        if(StringUtils.isNotEmpty(instance.getIpv4Address()) &&!Ipv4Util.verifyCidr(instance.getIpv4Address())){
+        if (StringUtils.isNotEmpty(instance.getIpv4Address()) && !Ipv4Util.verifyCidr(instance.getIpv4Address())) {
             return ResponseUtil.badArgument("Ipv4格式错误，不符合CIDR格式");
         }
-        if(StringUtils.isNotEmpty(instance.getGateway4()) && !Ipv4Util.verifyIp(instance.getGateway4())){
+        if (StringUtils.isNotEmpty(instance.getGateway4()) && !Ipv4Util.verifyIp(instance.getGateway4())) {
             return ResponseUtil.badArgument("Ipv4网关格式错误");
         }
 
-        if(StringUtils.isNotEmpty(instance.getIpv6Address()) && !Ipv6Util.verifyCidr(instance.getIpv6Address())){
+        if (StringUtils.isNotEmpty(instance.getIpv6Address()) && !Ipv6Util.verifyCidr(instance.getIpv6Address())) {
             return ResponseUtil.badArgument("Ipv6格式错误，不符合CIDR格式");
         }
 
-        if(StringUtils.isNotEmpty(instance.getGateway6()) &&!Ipv6Util.verifyIpv6(instance.getGateway6())){
+        if (StringUtils.isNotEmpty(instance.getGateway6()) && !Ipv6Util.verifyIpv6(instance.getGateway6())) {
             return ResponseUtil.badArgument("Ipv6网关格式错误");
         }
 
-        if(StringUtils.isNotEmpty(instance.getIpv4Address()) && StringUtils.isNotEmpty(instance.getGateway4())){
+        if (StringUtils.isNotEmpty(instance.getIpv4Address()) && StringUtils.isNotEmpty(instance.getGateway4())) {
             boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4Address(), instance.getGateway4());
-            if(!ipv4){
+            if (!ipv4) {
                 return ResponseUtil.badArgument("Ipv4地址和网关不一致");
             }
         }
 
-        if(StringUtils.isNotEmpty(instance.getIpv6Address()) && StringUtils.isNotEmpty(instance.getGateway6())){
+        if (StringUtils.isNotEmpty(instance.getIpv6Address()) && StringUtils.isNotEmpty(instance.getGateway6())) {
             boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6Address(), instance.getGateway6());
 
-            if(!ipv6){
+            if (!ipv6) {
                 return ResponseUtil.badArgument("Ipv6地址和网关不一致");
             }
         }
@@ -208,11 +209,11 @@ public class InterfaceManagerController {
         boolean i = this.interfaceService.modify_ip(instance);
 
 
-         boolean flag = i ? true : false;
+        boolean flag = i ? true : false;
 
-         if(flag){
-             unbound();
-         }
+        if (flag) {
+            unbound();
+        }
 
         return flag ? ResponseUtil.ok() : ResponseUtil.badArgument("配置失败");
     }
@@ -220,9 +221,9 @@ public class InterfaceManagerController {
     @ApiOperation("子接口")
     @PostMapping({"/modify/vlans"})
     public Object modifyVlans(@RequestBody Interface instance) {
-        boolean flag=false;
+        boolean flag = false;
         if (StringUtil.isEmpty(instance.getName())) {
-            return ResponseUtil.badArgument ("网络接口不能为空");
+            return ResponseUtil.badArgument("网络接口不能为空");
         }
         // TODO Vlan改用Interface
         for (Interface vlan : instance.getVlans()) {
@@ -260,7 +261,7 @@ public class InterfaceManagerController {
             flag = i ? true : false;
         }
 
-        if(flag){
+        if (flag) {
             unbound();
         }
 
@@ -275,12 +276,12 @@ public class InterfaceManagerController {
 //        String path = Global.PYPATH + "getnetintf.py";
 //        String result = pythonExecUtils.exec(path);
         String result = SNMPv2Request.getNetworkInterfaces();
-        if(!"".equals(result)){
+        if (!"".equals(result)) {
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {
                 Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
-                if(inteface.getIsup().equals("up")){
-                    if(Ipv6Util.verifyCidr(inteface.getIpv6Address())){
+                if (inteface.getIsup().equals("up")) {
+                    if (Ipv6Util.verifyCidr(inteface.getIpv6Address())) {
                         String[] cidr = inteface.getIpv6Address().split("/");
                         list.add(cidr[0]);
                     }
@@ -291,7 +292,7 @@ public class InterfaceManagerController {
                 boolean flag = UnboundConfUtil.updateInterfaceFile(Global.unboundPath, unbound);
                 if (!flag) {
                     return flag;
-                }else{
+                } else {
                     boolean result1 = RestartUnboundUtils.restartUnboundService();
                     return result1;
                 }
@@ -302,7 +303,7 @@ public class InterfaceManagerController {
         return false;
     }
 
-    public boolean isIPAddressMatchingGateway(String ip, String gateway){
+    public boolean isIPAddressMatchingGateway(String ip, String gateway) {
         try {
             CIDRUtils cidrUtils = new CIDRUtils(ip);
             return cidrUtils.isInRange(gateway);
@@ -311,7 +312,8 @@ public class InterfaceManagerController {
         }
         return false;
     }
-    public boolean isIPAddressv6MatchingGateway(String ip, String gateway){
+
+    public boolean isIPAddressv6MatchingGateway(String ip, String gateway) {
         try {
             Ipv6CIDRUtils ipv6CIDRUtils = new Ipv6CIDRUtils(ip);
             return ipv6CIDRUtils.isInRange(gateway);
@@ -328,7 +330,7 @@ public class InterfaceManagerController {
             String[] var2 = ids.split(",");
             int var3 = var2.length;
 
-            for(int var4 = 0; var4 < var3; ++var4) {
+            for (int var4 = 0; var4 < var3; ++var4) {
                 String id = var2[var4];
                 Map params = new HashMap();
                 params.put("id", Long.parseLong(id));
@@ -337,7 +339,7 @@ public class InterfaceManagerController {
                     return ResponseUtil.badArgument();
                 }
 
-                Interface addressPool = (Interface)addressPools.get(0);
+                Interface addressPool = (Interface) addressPools.get(0);
 
                 try {
                     int var9 = this.interfaceService.delete(Long.parseLong(id));

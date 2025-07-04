@@ -48,5 +48,4 @@ public class RoleDto extends PageDto<Role> {
     private String component;
 
 
-
 }

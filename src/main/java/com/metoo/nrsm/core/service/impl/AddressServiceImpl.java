@@ -40,10 +40,10 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public int save(Address instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
         }
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
                 int i = this.addressMapper.save(instance);
                 return i;
@@ -51,7 +51,7 @@ public class AddressServiceImpl implements IAddressService {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 int i = this.addressMapper.update(instance);
                 return i;

@@ -43,14 +43,14 @@ public class RadvdManagerController {
     public Object list(@RequestBody RadvdDTO dto) {
         // 开启分页
         Page<Radvd> page = this.radvdService.selectObjConditionQuery(dto);
-        if(page.getResult().size() > 0){
+        if (page.getResult().size() > 0) {
             for (Radvd radvd : page.getResult()) {
-                if(radvd.getInterfaceId() != null){
+                if (radvd.getInterfaceId() != null) {
                     Interface obj = this.interfaceService.selectObjById(radvd.getInterfaceId());
-                    if(obj != null){
+                    if (obj != null) {
                         radvd.setInterfaceName(obj.getName());
-                        if(obj.getParentId() != null){
-                            radvd.setInterfaceName(obj.getName()+"."+obj.getVlanNum());
+                        if (obj.getParentId() != null) {
+                            radvd.setInterfaceName(obj.getName() + "." + obj.getVlanNum());
                         }
                     }
                 }
@@ -82,7 +82,7 @@ public class RadvdManagerController {
         // 基本参数验证
         if (radvd.getName() == null || radvd.getName().trim().isEmpty()) {
             return ResponseUtil.badArgument("名称不能为空");
-        }else{
+        } else {
             Map params = new HashMap();
             params.put("name", radvd.getName());
             params.put("excludeId", radvd.getId());
@@ -93,9 +93,9 @@ public class RadvdManagerController {
 
         if (radvd.getIpv6Prefix() == null || radvd.getIpv6Prefix().trim().isEmpty()) {
             return ResponseUtil.badArgument("请输入IPv6前缀");
-        }else{
+        } else {
             boolean isCIDR = Ipv6CIDRUtils.verifyCIDR(radvd.getIpv6Prefix());
-            if(!isCIDR){
+            if (!isCIDR) {
                 return ResponseUtil.badArgument("IPv6前缀格式错误");
             }
         }
@@ -103,20 +103,20 @@ public class RadvdManagerController {
         // 校验端口
         // 如果用户同时选择了一个接口的主接口和子接口，返回错误信息，让用户重新填写
         Interface instance = this.interfaceService.selectObjById(radvd.getInterfaceId());
-        if(instance == null){
+        if (instance == null) {
             return ResponseUtil.badArgument("请选择接口");
-        }else{
+        } else {
             radvd.setInterfaceParentId(instance.getParentId());
             Result result = verifyInterface(radvd.getInterfaceId(), instance.getParentId(), radvd.getId());
-            if(result != null){
-               return result;
+            if (result != null) {
+                return result;
             }
             // 如果接口没问题，判断radvd ipv6前缀和接口ipv6地址是否在同一个网段
             String ipv6Address = instance.getIpv6Address();
-            if(ipv6Address != null && StringUtil.isNotEmpty(ipv6Address)){
+            if (ipv6Address != null && StringUtil.isNotEmpty(ipv6Address)) {
                 String radvdPrefix = radvd.getIpv6Prefix();
                 boolean checkSubnet = IPv6SubnetCheck.isInSameSubnet(radvdPrefix, instance.getIpv6Address());
-                if(!checkSubnet){
+                if (!checkSubnet) {
                     return ResponseUtil.badArgument("IPv6前缀和接口IPv6网段不匹配");
                 }
             }
@@ -136,26 +136,26 @@ public class RadvdManagerController {
     }
 
 
-    public Result verifyInterface(Long interfaceId, Long interfaceParentId, Long id){
+    public Result verifyInterface(Long interfaceId, Long interfaceParentId, Long id) {
         Map params = new HashMap();
         // 如果主接口Id不为空，查询是否存在主接口
-        if(interfaceParentId != null){
+        if (interfaceParentId != null) {
             params.clear();
             params.put("interfaceId", interfaceParentId);
             params.put("excludeId", id);
             List<Radvd> radvds = this.radvdService.selectObjByMap(params);
             // 如果主接口已存在，则不允许子接口选择
-            if(radvds.size() > 0){
+            if (radvds.size() > 0) {
                 return ResponseUtil.badArgument("不能同时选择主接口和它的子接口");
             }
-        }else{
+        } else {
             // 如果选择的是主接口，查询是否存在子接口
             params.clear();
             params.put("interfaceParentId", interfaceId);
             params.put("excludeId", id);
             List<Radvd> radvds = this.radvdService.selectObjByMap(params);
             // 如果子接口已存在，则不允许主接口选择
-            if(radvds.size() > 0){
+            if (radvds.size() > 0) {
                 return ResponseUtil.badArgument("不能同时选择主接口和它的子接口");
             }
         }

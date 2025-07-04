@@ -44,11 +44,11 @@ public class AddressPoolVO implements Serializable {
     }
 
     public void setName(String name) {
-        if(StringUtils.isNotEmpty(name)){
-            name = name.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(name)) {
+            name = name.replaceAll("\\s*|\r|\n|\t", "");
             this.name = "#" + name + " \n";
-        }else{
-            this.name =  name;
+        } else {
+            this.name = name;
         }
     }
 
@@ -58,14 +58,14 @@ public class AddressPoolVO implements Serializable {
 
     public void setSubnetAddresses(String subnetAddresses) {
 
-        if(StringUtils.isNotEmpty(subnetAddresses)){
-            if(subnetAddresses.contains("/")){
-                subnetAddresses = subnetAddresses.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(subnetAddresses)) {
+            if (subnetAddresses.contains("/")) {
+                subnetAddresses = subnetAddresses.replaceAll("\\s*|\r|\n|\t", "");
                 String ip = subnetAddresses.substring(0, subnetAddresses.indexOf("/"));
                 String mask = subnetAddresses.substring(subnetAddresses.indexOf("/") + 1);
                 this.subnetAddresses = "subnet " + ip + " netmask " + Ipv4Util.getMaskByMaskBit(Integer.parseInt(mask)) + " { \n";
             }
-        }else{
+        } else {
             this.subnetAddresses = subnetAddresses;
         }
 
@@ -77,11 +77,11 @@ public class AddressPoolVO implements Serializable {
     }
 
     public void setDefaultGateway(String defaultGateway) {
-        if(StringUtils.isNotEmpty(defaultGateway)){
-            defaultGateway = defaultGateway.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(defaultGateway)) {
+            defaultGateway = defaultGateway.replaceAll("\\s*|\r|\n|\t", "");
             this.defaultGateway = "        option routers " + defaultGateway + ";\n";
-        }else{
-            this.defaultGateway =  defaultGateway;
+        } else {
+            this.defaultGateway = defaultGateway;
         }
     }
 
@@ -90,12 +90,12 @@ public class AddressPoolVO implements Serializable {
     }
 
     public void setAddressPoolRange(String addressPoolRange) {
-        if(StringUtils.isNotEmpty(addressPoolRange)){
-            addressPoolRange = addressPoolRange.replaceAll("\r|\n|\t","");
+        if (StringUtils.isNotEmpty(addressPoolRange)) {
+            addressPoolRange = addressPoolRange.replaceAll("\r|\n|\t", "");
             addressPoolRange = addressPoolRange.replaceAll("-", " ");
             this.addressPoolRange = "        range " + addressPoolRange + ";\n";
-        }else{
-            this.addressPoolRange =  addressPoolRange;
+        } else {
+            this.addressPoolRange = addressPoolRange;
         }
     }
 
@@ -104,7 +104,7 @@ public class AddressPoolVO implements Serializable {
     }
 
     public void setDNS(String DNS) {
-        if(StringUtils.isNotEmpty(DNS)){
+        if (StringUtils.isNotEmpty(DNS)) {
 //            DNS = DNS.replaceAll("\\s*|\r|\n|\t","");
 //            this.DNS = "        option domain-name-servers " + DNS + ";\n";
 
@@ -113,10 +113,10 @@ public class AddressPoolVO implements Serializable {
             // 解析dns
             try {
                 List<String> dns = MyStringUtils.str2list(DNS);
-                if(dns.size() >= 0){
-                    if(dns.size() == 1){
+                if (dns.size() >= 0) {
+                    if (dns.size() == 1) {
                         this.DNS = "        option domain-name-servers " + DNS + ";\n";
-                    }else{
+                    } else {
                         StringBuffer sb = new StringBuffer();
                         for (String str : dns) {
                             sb.append(str).append(",");
@@ -128,8 +128,8 @@ public class AddressPoolVO implements Serializable {
                 e.printStackTrace();
             }
 
-        }else{
-            this.DNS =  DNS;
+        } else {
+            this.DNS = DNS;
         }
     }
 
@@ -154,11 +154,11 @@ public class AddressPoolVO implements Serializable {
     }
 
     public void setDefaultLeaseTime(String defaultLeaseTime) {
-        if(StringUtils.isNotEmpty(defaultLeaseTime)){
-            defaultLeaseTime = defaultLeaseTime.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(defaultLeaseTime)) {
+            defaultLeaseTime = defaultLeaseTime.replaceAll("\\s*|\r|\n|\t", "");
             this.defaultLeaseTime = "        default-lease-time " + defaultLeaseTime + ";\n";
-        }else{
-            this.defaultLeaseTime =  defaultLeaseTime;
+        } else {
+            this.defaultLeaseTime = defaultLeaseTime;
         }
     }
 

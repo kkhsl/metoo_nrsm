@@ -3,7 +3,6 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.UserMapper">
 
 
-
     <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.User">
         <id column="mu_id" property="id"/>
         <result column="mu_addTime" property="addTime"></result>
@@ -38,12 +37,14 @@
 
     <sql id="User_Role_Column_List">
         mu.id mu_id,mu.addTime mu_addTime, mu.username mu_username, mu.password mu_password, mu.sex mu_sex,
-        mu.age mu_age,mu.userRole mu_userRole, mu.email mu_email, mu.mobile mu_mobile, mu.note mu_note, mu.groupId mu_groupId, mu.groupName mu_groupName,
+        mu.age mu_age,mu.userRole mu_userRole, mu.email mu_email, mu.mobile mu_mobile, mu.note mu_note, mu.groupId
+        mu_groupId, mu.groupName mu_groupName,
         mr.id mr_id
     </sql>
 
     <select id="findRolesByUserName" parameterType="String" resultMap="User_Role_Result_Map">
-        SELECT <include refid="User_Role_Column_List" />
+        SELECT
+        <include refid="User_Role_Column_List"/>
         FROM metoo_user mu
         LEFT JOIN metoo_user_role mur on mu.id=mur.user_id
         LEFT JOIN metoo_role mr on mr.id=mur.role_id
@@ -65,16 +66,16 @@
         <result column="mu_groupName" property="groupName"></result>
         <result column="mu_groupId" property="groupId"></result>
         <result column="mu_unitId" property="unitId"></result>
-       <collection property="roleIds" column="mr_id" ofType="java.lang.Long">
-           <id column="mr_id" property="roleIds"></id>
-       </collection>
+        <collection property="roleIds" column="mr_id" ofType="java.lang.Long">
+            <id column="mr_id" property="roleIds"></id>
+        </collection>
     </resultMap>
-
 
 
     <sql id="Unit_Column_List">
         mu.id mu_id,mu.addTime mu_addTime, mu.username mu_username, mu.password mu_password, mu.sex mu_sex,
-        mu.age mu_age,mu.userRole mu_userRole, mu.email mu_email, mu.mobile mu_mobile, mu.note mu_note, mu.groupId mu_groupId, mu.groupName mu_groupName,
+        mu.age mu_age,mu.userRole mu_userRole, mu.email mu_email, mu.mobile mu_mobile, mu.note mu_note, mu.groupId
+        mu_groupId, mu.groupName mu_groupName,
         mr.id mr_id
     </sql>
 
@@ -194,19 +195,19 @@
 
     <select id="findByUserName" parameterType="String" resultType="com.metoo.nrsm.entity.User">
         SELECT
-            id,
-            username,
-            password,
-            salt,
-            userRole,
-            sex,
-            age,
-            groupLevel,
-            groupName,
-            groupId,
-            unitId
+        id,
+        username,
+        password,
+        salt,
+        userRole,
+        sex,
+        age,
+        groupLevel,
+        groupName,
+        groupId,
+        unitId
         FROM
-            metoo_user
+        metoo_user
         WHERE
         username=#{username}
         AND
@@ -215,7 +216,7 @@
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
-          <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List"/>
         FROM metoo_user
         <where>
             <choose>
@@ -235,7 +236,8 @@
         </where>
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UserDto" resultType="com.metoo.nrsm.entity.User">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UserDto"
+            resultType="com.metoo.nrsm.entity.User">
         SELECT *
         FROM metoo_user
         <where>
@@ -260,7 +262,8 @@
     </select>
 
     <select id="query" parameterType="com.metoo.nrsm.core.dto.UserDto" resultType="com.metoo.nrsm.core.vo.UserVo">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_user mu
         WHERE
         mu.deleteStatus = 0
@@ -269,23 +272,26 @@
     </select>
 
     <select id="selectPrimaryKey" resultType="com.metoo.nrsm.entity.User">
-        SELECT <include refid="Base_Column_List" />
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_user mu
         WHERE id=#{id, jdbcType=BIGINT}
     </select>
 
     <sql id="update_Column_List">
         mu.id mu_id,mu.addTime mu_addTime, mu.username mu_username, mu.sex mu_sex,
-        mu.age mu_age,mu.userRole mu_userRole, mu.email mu_email, mu.mobile mu_mobile, mu.note mu_note, mu.groupId mu_groupId, mu.groupName mu_groupName,
+        mu.age mu_age,mu.userRole mu_userRole, mu.email mu_email, mu.mobile mu_mobile, mu.note mu_note, mu.groupId
+        mu_groupId, mu.groupName mu_groupName,
         mr.id mr_id, mu.unitId mu_unitId
     </sql>
 
     <select id="findUserUpdate" parameterType="java.lang.Long" resultMap="Base_Update_Map">
-       SELECT <include refid="update_Column_List" />
-       FROM metoo_user mu
-       LEFT JOIN metoo_user_role mur ON mur.user_id = mu.id
-       LEFT JOIN metoo_role mr ON mr.id = mur.role_id
-       WHERE mu.id=#{id}
+        SELECT
+        <include refid="update_Column_List"/>
+        FROM metoo_user mu
+        LEFT JOIN metoo_user_role mur ON mur.user_id = mu.id
+        LEFT JOIN metoo_role mr ON mr.id = mur.role_id
+        WHERE mu.id=#{id}
     </select>
 
     <select id="findObjByIds" resultType="com.metoo.nrsm.entity.User">
@@ -307,7 +313,8 @@
 
     <!--根据 Level查询用户-->
     <select id="getObjsByLevel" parameterType="String" resultType="com.metoo.nrsm.entity.User">
-        SELECT <include refid="Base_Update_Info" />
+        SELECT
+        <include refid="Base_Update_Info"/>
         FROM metoo_user
         WHERE
         deleteStatus = 0
@@ -322,19 +329,19 @@
     <update id="update" parameterType="com.metoo.nrsm.entity.User">
         UPDATE metoo_user
         <set>
-            <if test = "username != null and username != ''">
+            <if test="username != null and username != ''">
                 username=#{username},
             </if>
-            <if test = "password != null and password != ''">
+            <if test="password != null and password != ''">
                 password=#{password},
             </if>
-            <if test = "sex != null">
+            <if test="sex != null">
                 sex=#{sex},
             </if>
-            <if test = "age != null">
+            <if test="age != null">
                 age=#{age},
             </if>
-            <if test = "salt != null">
+            <if test="salt != null">
                 salt=#{salt},
             </if>
             <if test="userRole != null">
@@ -369,35 +376,35 @@
             </if>
         </set>
         <where>
-            <if test = "id != null">
+            <if test="id != null">
                 id=#{id}
             </if>
         </where>
     </update>
 
     <update id="allocation" parameterType="java.util.List">
-      <foreach collection="list" item="item" index="index" open="" close="" separator=";">
-          UPDATE metoo_user
-          <set>
-              <if test = "item.groupId != null">
-                  groupId = #{item.groupId},
-              </if>
-              <if test = "item.groupLevel != null">
-                  groupLevel = #{item.groupLevel},
-              </if>
-          </set>
-          where id = #{item.id, jdbcType=BIGINT}
-      </foreach>
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            UPDATE metoo_user
+            <set>
+                <if test="item.groupId != null">
+                    groupId = #{item.groupId},
+                </if>
+                <if test="item.groupLevel != null">
+                    groupLevel = #{item.groupLevel},
+                </if>
+            </set>
+            where id = #{item.id, jdbcType=BIGINT}
+        </foreach>
     </update>
 
     <delete id="deleteByLevel" parameterType="java.lang.String">
-       DELETE FROM metoo_user
-       WHERE groupLevel = #{level}
+        DELETE FROM metoo_user
+        WHERE groupLevel = #{level}
     </delete>
 
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM metoo_user
         WHERE id=#{id, jdbcType=BIGINT}
     </delete>
-    
+
 </mapper>

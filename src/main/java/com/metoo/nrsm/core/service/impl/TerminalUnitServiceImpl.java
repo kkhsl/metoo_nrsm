@@ -28,10 +28,10 @@ public class TerminalUnitServiceImpl implements ITerminalUnitService {
     public List<TerminalUnit> selectObjAll() {
         List<TerminalUnit> terminalUnits = terminalUnitMapper.selectObjAll();
         for (TerminalUnit terminalUnit : terminalUnits) {
-            if (terminalUnitMapper.selectV4ObjByTerminalUnitId(terminalUnit.getId())!=null){
+            if (terminalUnitMapper.selectV4ObjByTerminalUnitId(terminalUnit.getId()) != null) {
                 terminalUnit.setTerminaV4lList(terminalUnitMapper.selectV4ObjByTerminalUnitId(terminalUnit.getId()));
             }
-            if (terminalUnitMapper.selectV6ObjByTerminalUnitId(terminalUnit.getId())!=null){
+            if (terminalUnitMapper.selectV6ObjByTerminalUnitId(terminalUnit.getId()) != null) {
                 terminalUnit.setTerminaV6lList(terminalUnitMapper.selectV6ObjByTerminalUnitId(terminalUnit.getId()));
             }
         }
@@ -77,6 +77,7 @@ public class TerminalUnitServiceImpl implements ITerminalUnitService {
     public int deleteV4(Long id) {
         return terminalUnitMapper.deleteTerminalUnitV4(id);
     }
+
     @Override
     public int deleteV6(Long id) {
         return terminalUnitMapper.deleteTerminalUnitV6(id);

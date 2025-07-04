@@ -9,36 +9,37 @@
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Radvd">
-       SELECT
+        SELECT
         <include refid="Base_Column_List"/>
-       FROM  metoo_radvd
-       WHERE id = #{id}
+        FROM metoo_radvd
+        WHERE id = #{id}
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Radvd">
-       SELECT
-        <include refid="Base_Column_List"/>
-       FROM  metoo_radvd
-       <where>
-           <if test="name != null and name != ''">
-               AND name = #{name}
-           </if>
-           <if test="interfaceId != null">
-               AND interfaceId = #{interfaceId}
-           </if>
-           <if test="interfaceParentId != null">
-               AND interfaceParentId = #{interfaceParentId}
-           </if>
-           <if test="excludeId != null">
-               AND id != #{excludeId}
-           </if>
-       </where>
-    </select>
-
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.RadvdDTO" resultType="com.metoo.nrsm.entity.Radvd">
         SELECT
         <include refid="Base_Column_List"/>
-        FROM  metoo_radvd
+        FROM metoo_radvd
+        <where>
+            <if test="name != null and name != ''">
+                AND name = #{name}
+            </if>
+            <if test="interfaceId != null">
+                AND interfaceId = #{interfaceId}
+            </if>
+            <if test="interfaceParentId != null">
+                AND interfaceParentId = #{interfaceParentId}
+            </if>
+            <if test="excludeId != null">
+                AND id != #{excludeId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.RadvdDTO"
+            resultType="com.metoo.nrsm.entity.Radvd">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM metoo_radvd
         <where>
             <if test="name != null and name != ''">
                 AND name = #{name}

@@ -40,7 +40,7 @@ class MyCallableTask implements Callable {
 
     private int variable;
 
-    public MyCallableTask(int variable){
+    public MyCallableTask(int variable) {
         this.variable = variable;
     }
 

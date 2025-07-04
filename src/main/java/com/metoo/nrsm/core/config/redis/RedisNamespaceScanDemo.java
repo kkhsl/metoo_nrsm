@@ -26,7 +26,7 @@ public class RedisNamespaceScanDemo {
         // 创建Jedis对象
         try (Jedis jedis = new Jedis(redisHost, redisPort)) {
             // 如果Redis服务器需要密码，请设置密码
-             jedis.auth("123456");
+            jedis.auth("123456");
 
             // 检查连接是否成功
             String pingResponse = jedis.ping();
@@ -54,7 +54,7 @@ public class RedisNamespaceScanDemo {
     }
 
     @Test
-    public void linux(){
+    public void linux() {
         // 远程Redis服务器的IP地址和端口
         String redisHost = "192.168.5.205"; // 替换为你的Redis服务器地址
         int redisPort = 6379; // Redis默认端口

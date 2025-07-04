@@ -13,7 +13,7 @@
         select * from metoo_nswitch order by `index` desc
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.Nswitch" >
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Nswitch">
         insert into metoo_nswitch
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="index != null">

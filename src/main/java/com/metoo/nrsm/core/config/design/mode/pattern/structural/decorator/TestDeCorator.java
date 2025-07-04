@@ -7,9 +7,7 @@ import org.slf4j.LoggerFactory;
  * @author HKK
  * @version 1.0
  * @date 2024-03-29 16:37
- *
  * @title 装饰器模式（结构型模式）
- *
  */
 public class TestDeCorator {
 

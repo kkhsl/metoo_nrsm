@@ -27,6 +27,7 @@ public class CIDRContainsCheck {
 
     /**
      * 判断地址1是否包含地址2
+     *
      * @param cidr1
      * @param cidr2
      * @return
@@ -49,7 +50,7 @@ public class CIDRContainsCheck {
     }
 
     @Test
-    public void test(){
+    public void test() {
         System.out.println(checkCIDRInclusion("192.168.0.3/25", "192.168.0.1/24"));
 
         // IPv6测试用例

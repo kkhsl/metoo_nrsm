@@ -35,7 +35,7 @@ public class PyExecUtils {
         String result = "";
         if ("dev".equals(Global.env)) {
             result = this.sshUtils.executeCommand(pyCommand.toParamsString());
-        }else {
+        } else {
             if (pyCommand.getName().contains(".py")) {
                 result = this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
             } else if (pyCommand.getName().contains(".exe")) {
@@ -75,8 +75,6 @@ public class PyExecUtils {
         ProcessExecutorCFScanner.ExecutionResult executionResult = ProcessExecutorCFScanner.executeBinary(pyCommand.getPath(), pyCommand.getName(), pyCommand.toStringArrayReomveName());
         return executionResult.getOutput();
     }
-
-
 
 
 }

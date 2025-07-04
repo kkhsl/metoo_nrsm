@@ -26,7 +26,7 @@ public class TerminalMacVendorController {
     }
 
     @GetMapping("/delete")
-    public Object deleteTerminalMacVendor(String vendor){
+    public Object deleteTerminalMacVendor(String vendor) {
         try {
             terminalMacVendorMapper.deleteByVendor(vendor);
             return ResponseUtil.ok("MacVendor deleted successfully: " + vendor);
@@ -46,9 +46,9 @@ public class TerminalMacVendorController {
     }
 
     @GetMapping("/updateByType")
-    public Object updateByType(int oldType,int newType){
+    public Object updateByType(int oldType, int newType) {
         try {
-            terminalMacVendorMapper.updateByMacType(oldType,newType);
+            terminalMacVendorMapper.updateByMacType(oldType, newType);
             return ResponseUtil.ok("MacType updated successfully: ");
         } catch (Exception e) {
             return ResponseUtil.error("Failed to updated MacType: " + e.getMessage());

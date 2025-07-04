@@ -30,16 +30,19 @@ public class AddressPoolIpv6ConcurrentUtil {
 
     private static AddressPoolIpv6ConcurrentUtil addressPoolIpv6ConcurrentUtil = new AddressPoolIpv6ConcurrentUtil();
 
-    private AddressPoolIpv6ConcurrentUtil(){};
+    private AddressPoolIpv6ConcurrentUtil() {
+    }
 
-    public static AddressPoolIpv6ConcurrentUtil getInstance(){
+    ;
+
+    public static AddressPoolIpv6ConcurrentUtil getInstance() {
         return addressPoolIpv6ConcurrentUtil;
     }
 
-    public synchronized boolean write(List<AddressPoolIpv6VO> addressPoolIpv6VOS){
+    public synchronized boolean write(List<AddressPoolIpv6VO> addressPoolIpv6VOS) {
         IAddressPoolV6FixedService addressPoolV6FixedService = (IAddressPoolV6FixedService) ApplicationContextUtils.getBean("addressPoolV6FixedServiceImpl");
 
-        if(addressPoolIpv6VOS.size() > 0){
+        if (addressPoolIpv6VOS.size() > 0) {
             AddressPoolIpv6VO default_ipv6 = new AddressPoolIpv6VO();
             default_ipv6.getDefault();
             addressPoolIpv6VOS.add(0, default_ipv6);
@@ -62,31 +65,31 @@ public class AddressPoolIpv6ConcurrentUtil {
                         field.setAccessible(true);
                         String fieldName = field.getName();
                         Object value = field.get(entity);
-                        if(value != null){
+                        if (value != null) {
                             map.put(fieldName, value);
                         }
                     }
                     Collection<Object> values = map.values();
-                    for (Object value: values){
-                        if(value != null && !value.equals("")){
+                    for (Object value : values) {
+                        if (value != null && !value.equals("")) {
                             byte[] bytes = value.toString().getBytes();
                             fos.write(bytes);
                         }
                     }
                     // 固定地址池
-                    if(map.get("subnetAddresses") != null && !"".equals(map.get("subnetAddresses"))){
+                    if (map.get("subnetAddresses") != null && !"".equals(map.get("subnetAddresses"))) {
                         String subnetAddresses = String.valueOf(map.get("subnetAddresses"));
-                        subnetAddresses = subnetAddresses.replaceAll("\\s*|\r|\n|\t|\\n","")
-                                .replaceAll("subnet6|\\{","").replaceAll("netmask", "/");
+                        subnetAddresses = subnetAddresses.replaceAll("\\s*|\r|\n|\t|\\n", "")
+                                .replaceAll("subnet6|\\{", "").replaceAll("netmask", "/");
 //                        String subnet = subnetAddresses.substring(0, subnetAddresses.indexOf("/"));
 //                        String subnetMask = subnetAddresses.substring(subnetAddresses.indexOf("/") + 1);
                         List<AddressPoolV6Fixed> addressPoolV6Fixeds = addressPoolV6FixedService.selectObjByMap(null);
                         List<AddressPoolV6FixedVO> list = new ArrayList();
                         int index = 1;
                         for (AddressPoolV6Fixed addressPoolV6Fixed : addressPoolV6Fixeds) {
-                            if(StringUtil.isNotEmpty(addressPoolV6Fixed.getFixed_address6())){
+                            if (StringUtil.isNotEmpty(addressPoolV6Fixed.getFixed_address6())) {
                                 boolean flag = IPv6SubnetCheck.isInSubnet(addressPoolV6Fixed.getFixed_address6(), subnetAddresses);
-                                if(flag){
+                                if (flag) {
                                     AddressPoolV6FixedVO addressPoolV6FixedVO = new AddressPoolV6FixedVO(addressPoolV6Fixed.getHost(), index,
                                             addressPoolV6Fixed.getHost_identifier_option_dhcp6_client_id(), addressPoolV6Fixed.getFixed_address6());
 //                                    BeanUtils.copyProperties(addressPoolV6Fixed, addressPoolV6FixedVO);
@@ -99,7 +102,7 @@ public class AddressPoolIpv6ConcurrentUtil {
                         List<AddressPoolV6FixedVO> addressPoolFixeds = list.stream()
                                 .filter(e -> e != null && !e.getHost().isEmpty()) // 这里根据需要自定义判断条件
                                 .collect(Collectors.toList());
-                        if(filteredEntities.size() > 0){
+                        if (filteredEntities.size() > 0) {
                             for (AddressPoolV6FixedVO addressPoolFixed : addressPoolFixeds) {
                                 // 有序
                                 LinkedHashMap<String, Object> map_fixed = new LinkedHashMap<>();
@@ -108,14 +111,14 @@ public class AddressPoolIpv6ConcurrentUtil {
                                     field.setAccessible(true);
                                     String fieldName = field.getName();
                                     Object value = field.get(addressPoolFixed);
-                                    if(value != null){
+                                    if (value != null) {
                                         map_fixed.put(fieldName, value);
                                     }
                                 }
                                 Collection<Object> values_fixed = map_fixed.values();
 //                                String annotation = "#" + map_fixed.get("host").toString().getBytes();
-                                for (Object value: values_fixed){
-                                    if(value != null && !value.equals("")){
+                                for (Object value : values_fixed) {
+                                    if (value != null && !value.equals("")) {
                                         value = "        " + value;
                                         byte[] bytes = value.toString().getBytes();
                                         fos.write(bytes);
@@ -126,9 +129,9 @@ public class AddressPoolIpv6ConcurrentUtil {
                         }
                     }
 
-                    if(StringUtils.isNotEmpty(entity.getName())){
+                    if (StringUtils.isNotEmpty(entity.getName())) {
                         fos.write("}\n\n".getBytes());
-                    }else{
+                    } else {
                         fos.write("\n".getBytes());
                     }
                 }
@@ -148,9 +151,9 @@ public class AddressPoolIpv6ConcurrentUtil {
 
     public static void main(String[] args) {
         String a = "subnet192.168.6.0netmask255.255.255.0{";
-        System.out.println(a.replaceAll("subnet|\\{",""));
+        System.out.println(a.replaceAll("subnet|\\{", ""));
 
-        System.out.println(a.replaceAll("subnet|\\{","").replaceAll("netmask", "/"));
+        System.out.println(a.replaceAll("subnet|\\{", "").replaceAll("netmask", "/"));
 
     }
 }

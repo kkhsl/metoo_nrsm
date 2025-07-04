@@ -8,7 +8,8 @@
         select * from metoo_terminal where id = #{id}
     </select>
 
-    <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalDTO" resultType="com.metoo.nrsm.entity.Terminal">
+    <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.TerminalDTO"
+            resultType="com.metoo.nrsm.entity.Terminal">
         SELECT * FROM metoo_terminal terminal
         <where>
             <!-- 默认条件 -->
@@ -71,7 +72,6 @@
         </where>
         ORDER BY ISNULL(v4ip),v4ip = '', INET_ATON(v4ip) ASC
     </select>
-
 
 
     <sql id="Base_Column_Sql">
@@ -146,19 +146,19 @@
             </if>
             <if test="tags != null and tags.size() > 0">
                 AND tag in
-                <foreach collection="tags" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="tags" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="notTerminalSet != null and notTerminalSet.size() > 0">
                 AND mac not in
-                <foreach collection="notTerminalSet" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="notTerminalSet" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="notInIps != null and notInIps.size() > 0">
                 AND v4ip not in
-                <foreach collection="notInIps" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="notInIps" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -193,17 +193,17 @@
 
     <select id="selectV4ipIsNullAndV6ipIsNull" resultType="com.metoo.nrsm.entity.Terminal">
         SELECT
-            terminal.*
+        terminal.*
         FROM
-            (
-                SELECT
-                    *
-                FROM
-                    metoo_mac
-                WHERE
-                    v4ip IS NULL
-                AND v6ip IS NULL
-            ) mac
+        (
+        SELECT
+        *
+        FROM
+        metoo_mac
+        WHERE
+        v4ip IS NULL
+        AND v6ip IS NULL
+        ) mac
         JOIN metoo_terminal terminal ON mac.mac = terminal.mac
         where terminal.type = 0
     </select>
@@ -260,53 +260,54 @@
         WHERE deviceUuid2 = #{deviceUuid}
         AND deviceTypeId = 34
         AND online = 1
-       AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
+        AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
         OR (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
     </select>
 
-    <select id="selectPartitionTerminalHistory" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+    <select id="selectPartitionTerminalHistory" parameterType="java.util.Map"
+            resultType="com.metoo.nrsm.entity.Terminal">
         SELECT
-            *
+        *
         FROM
-            metoo_terminal_history
+        metoo_terminal_history
         WHERE
-            deviceUuid = #{deviceUuid}
+        deviceUuid = #{deviceUuid}
         AND ONLINE = 1
         AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
         OR (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
         AND `time` = (
-            SELECT
-                time
-            FROM
-                metoo_terminal_history
-            WHERE
-                `time` &lt;= #{time}
-            ORDER BY
-                `time` DESC
-            LIMIT 1
+        SELECT
+        time
+        FROM
+        metoo_terminal_history
+        WHERE
+        `time` &lt;= #{time}
+        ORDER BY
+        `time` DESC
+        LIMIT 1
         )
         UNION
-            SELECT
-                *
-            FROM
-                metoo_terminal_history
-            WHERE
-                deviceUuid2 = #{deviceUuid}
-            AND deviceTypeId = 34
-            AND ONLINE = 1
-            AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
-            OR (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
-            AND `time` = (
-                SELECT
-                    `time`
-                FROM
-                    metoo_terminal_history
-                WHERE
-                    `time` &lt;= #{time}
-                ORDER BY
-                    `time` DESC
-                limit 1
-          )
+        SELECT
+        *
+        FROM
+        metoo_terminal_history
+        WHERE
+        deviceUuid2 = #{deviceUuid}
+        AND deviceTypeId = 34
+        AND ONLINE = 1
+        AND ((v4ip IS NOT NULL AND v4ip != '' AND TRIM(v4ip) != '')
+        OR (v6ip IS NOT NULL AND v6ip != '' AND TRIM(v6ip) != ''))
+        AND `time` = (
+        SELECT
+        `time`
+        FROM
+        metoo_terminal_history
+        WHERE
+        `time` &lt;= #{time}
+        ORDER BY
+        `time` DESC
+        limit 1
+        )
     </select>
 
     <select id="selectObjIntersection" resultType="com.metoo.nrsm.entity.Terminal">
@@ -321,13 +322,13 @@
         FROM metoo_mac mac
         WHERE mac.tag = 'RT'
         AND NOT EXISTS (
-            SELECT 1 FROM metoo_mac m2
-            WHERE m2.mac = mac.mac
-            AND m2.tag IN ('DT', 'VDT')
+        SELECT 1 FROM metoo_mac m2
+        WHERE m2.mac = mac.mac
+        AND m2.tag IN ('DT', 'VDT')
         )
-    )
+        )
 
-    SELECT
+        SELECT
         terminal.id,
         terminal.deviceTypeId,
         terminal.type,
@@ -345,23 +346,23 @@
         mac.v4ip3,
         -- 独立判断每个IPv4是否为动态
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp
-            WHERE lease = mac.v4ip AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp
+        WHERE lease = mac.v4ip AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v4ipDynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp
-            WHERE lease = mac.v4ip1 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp
+        WHERE lease = mac.v4ip1 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v4ip1Dynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp
-            WHERE lease = mac.v4ip2 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp
+        WHERE lease = mac.v4ip2 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v4ip2Dynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp
-            WHERE lease = mac.v4ip3 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp
+        WHERE lease = mac.v4ip3 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v4ip3Dynamic,
 
         mac.v6ip,
@@ -371,41 +372,41 @@
 
         -- 独立判断每个IPv6是否为动态
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp6
-            WHERE iaaddr = mac.v6ip AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp6
+        WHERE iaaddr = mac.v6ip AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v6ipDynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp6
-            WHERE iaaddr = mac.v6ip1 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp6
+        WHERE iaaddr = mac.v6ip1 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v6ip1Dynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp6
-            WHERE iaaddr = mac.v6ip2 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp6
+        WHERE iaaddr = mac.v6ip2 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v6ip2Dynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp6
-            WHERE iaaddr = mac.v6ip3 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp6
+        WHERE iaaddr = mac.v6ip3 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v6ip3Dynamic,
 
         -- 获取客户端主机名（优先取v4ip的hostname）
         (
-            SELECT MAX(client_hostname) FROM (
-                SELECT client_hostname FROM metoo_dhcp
-                WHERE lease = mac.v4ip AND binding_state = 'active'
-                UNION ALL
-                SELECT client_hostname FROM metoo_dhcp
-                WHERE lease = mac.v4ip1 AND binding_state = 'active'
-                UNION ALL
-                SELECT client_hostname FROM metoo_dhcp
-                WHERE lease = mac.v4ip2 AND binding_state = 'active'
-                UNION ALL
-                SELECT client_hostname FROM metoo_dhcp
-                WHERE lease = mac.v4ip3 AND binding_state = 'active'
-            ) t WHERE client_hostname IS NOT NULL
-            LIMIT 1
+        SELECT MAX(client_hostname) FROM (
+        SELECT client_hostname FROM metoo_dhcp
+        WHERE lease = mac.v4ip AND binding_state = 'active'
+        UNION ALL
+        SELECT client_hostname FROM metoo_dhcp
+        WHERE lease = mac.v4ip1 AND binding_state = 'active'
+        UNION ALL
+        SELECT client_hostname FROM metoo_dhcp
+        WHERE lease = mac.v4ip2 AND binding_state = 'active'
+        UNION ALL
+        SELECT client_hostname FROM metoo_dhcp
+        WHERE lease = mac.v4ip3 AND binding_state = 'active'
+        ) t WHERE client_hostname IS NOT NULL
+        LIMIT 1
         ) AS client_hostname,
 
         mac.deviceUuid AS deviceUuid2,
@@ -413,33 +414,33 @@
         mac.deviceIp2,
         mac.macVendor,
         mac.devicePort2
-    FROM prioritized_mac mac
-    JOIN metoo_terminal terminal ON terminal.mac = mac.mac
-    ORDER BY mac.priority, mac.mac
+        FROM prioritized_mac mac
+        JOIN metoo_terminal terminal ON terminal.mac = mac.mac
+        ORDER BY mac.priority, mac.mac
     </select>
 
     <select id="selectObjLeftdifference" resultType="com.metoo.nrsm.entity.Terminal">
-       WITH filtered_mac AS (
+        WITH filtered_mac AS (
         SELECT
-            m.*,
-            ROW_NUMBER() OVER(
-                PARTITION BY mac
-                ORDER BY CASE
-                    WHEN tag IN ('DT', 'VDT') THEN 1
-                    WHEN tag = 'RT' THEN 2
-                    ELSE 3
-                END
-            ) AS priority_rank
+        m.*,
+        ROW_NUMBER() OVER(
+        PARTITION BY mac
+        ORDER BY CASE
+        WHEN tag IN ('DT', 'VDT') THEN 1
+        WHEN tag = 'RT' THEN 2
+        ELSE 3
+        END
+        ) AS priority_rank
         FROM metoo_mac m
         WHERE tag IN ('DT', 'VDT', 'RT')
-    ),
-    distinct_mac AS (
+        ),
+        distinct_mac AS (
         SELECT *
         FROM filtered_mac
         WHERE priority_rank = 1
-    )
+        )
 
-    SELECT
+        SELECT
         mac.addTime,
         mac.mac,
         mac.port,
@@ -455,23 +456,23 @@
         mac.v4ip3,
         -- IPv4动态标记（每个IP独立判断）
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp
-            WHERE lease = mac.v4ip AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp
+        WHERE lease = mac.v4ip AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v4ipDynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp
-            WHERE lease = mac.v4ip1 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp
+        WHERE lease = mac.v4ip1 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v4ip1Dynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp
-            WHERE lease = mac.v4ip2 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp
+        WHERE lease = mac.v4ip2 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v4ip2Dynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp
-            WHERE lease = mac.v4ip3 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp
+        WHERE lease = mac.v4ip3 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v4ip3Dynamic,
 
         mac.v6ip,
@@ -481,41 +482,41 @@
 
         -- IPv6动态标记（每个IP独立判断）
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp6
-            WHERE iaaddr = mac.v6ip AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp6
+        WHERE iaaddr = mac.v6ip AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v6ipDynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp6
-            WHERE iaaddr = mac.v6ip1 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp6
+        WHERE iaaddr = mac.v6ip1 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v6ip1Dynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp6
-            WHERE iaaddr = mac.v6ip2 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp6
+        WHERE iaaddr = mac.v6ip2 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v6ip2Dynamic,
 
         CASE WHEN EXISTS (
-            SELECT 1 FROM metoo_dhcp6
-            WHERE iaaddr = mac.v6ip3 AND binding_state = 'active'
+        SELECT 1 FROM metoo_dhcp6
+        WHERE iaaddr = mac.v6ip3 AND binding_state = 'active'
         ) THEN 1 ELSE 0 END AS v6ip3Dynamic,
 
         -- 获取客户端主机名（优先取v4ip的hostname）
         (
-            SELECT MAX(client_hostname) FROM (
-                SELECT client_hostname FROM metoo_dhcp
-                WHERE lease = mac.v4ip AND binding_state = 'active'
-                UNION ALL
-                SELECT client_hostname FROM metoo_dhcp
-                WHERE lease = mac.v4ip1 AND binding_state = 'active'
-                UNION ALL
-                SELECT client_hostname FROM metoo_dhcp
-                WHERE lease = mac.v4ip2 AND binding_state = 'active'
-                UNION ALL
-                SELECT client_hostname FROM metoo_dhcp
-                WHERE lease = mac.v4ip3 AND binding_state = 'active'
-            ) t WHERE client_hostname IS NOT NULL
-            LIMIT 1
+        SELECT MAX(client_hostname) FROM (
+        SELECT client_hostname FROM metoo_dhcp
+        WHERE lease = mac.v4ip AND binding_state = 'active'
+        UNION ALL
+        SELECT client_hostname FROM metoo_dhcp
+        WHERE lease = mac.v4ip1 AND binding_state = 'active'
+        UNION ALL
+        SELECT client_hostname FROM metoo_dhcp
+        WHERE lease = mac.v4ip2 AND binding_state = 'active'
+        UNION ALL
+        SELECT client_hostname FROM metoo_dhcp
+        WHERE lease = mac.v4ip3 AND binding_state = 'active'
+        ) t WHERE client_hostname IS NOT NULL
+        LIMIT 1
         ) AS client_hostname,
 
         mac.macVendor,
@@ -523,14 +524,14 @@
         mac.deviceName2,
         mac.deviceIp2,
         mac.devicePort2
-    FROM distinct_mac mac
-    LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
-    WHERE terminal.mac IS NULL order by v4ip desc
+        FROM distinct_mac mac
+        LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
+        WHERE terminal.mac IS NULL order by v4ip desc
     </select>
 
     <select id="selectObjRightdifference" resultType="com.metoo.nrsm.entity.Terminal">
 
-    WITH prioritized_mac AS (
+        WITH prioritized_mac AS (
         -- 优先查询DT和VDT条目
         SELECT mac, 1 as priority
         FROM metoo_mac
@@ -542,19 +543,19 @@
         FROM metoo_mac
         WHERE tag = 'RT'
         AND NOT EXISTS (
-            SELECT 1 FROM metoo_mac m2
-            WHERE m2.mac = metoo_mac.mac
-            AND m2.tag IN ('DT', 'VDT')
+        SELECT 1 FROM metoo_mac m2
+        WHERE m2.mac = metoo_mac.mac
+        AND m2.tag IN ('DT', 'VDT')
         )
-    )
+        )
 
-    SELECT
+        SELECT
         terminal.id
-    FROM
+        FROM
         metoo_terminal terminal
-    LEFT JOIN
+        LEFT JOIN
         prioritized_mac mac ON terminal.mac = mac.mac
-    WHERE
+        WHERE
         mac.mac IS NULL
 
     </select>
@@ -566,41 +567,42 @@
     </resultMap>
 
     <select id="terminalCount" resultMap="Count_Result_Map">
-       /* select DISTINCT(interfaceIndex), (select count(*) from metoo_terminal where (v4ip is not null and v6ip is null)
+        /* select DISTINCT(interfaceIndex), (select count(*) from metoo_terminal where (v4ip is not null and v6ip is
+        null)
         ) as v4ip_count, (select count(*) from metoo_terminal where (v6ip is not null and v4ip is null)
         ) as v6ip_count,(select count(*) from metoo_terminal where (v6ip is not null and v4ip is not null)
-        )as v4ip_v6ip_count  from metoo_terminal *//*where (v6ip is not null and v4ip is not null)*/
+        )as v4ip_v6ip_count from metoo_terminal *//*where (v6ip is not null and v4ip is not null)*/
 
-         SELECT DISTINCT
+        SELECT DISTINCT
         (interfaceIndex),
         (
-            SELECT
-                count(*)
-            FROM
-                metoo_terminal
-            WHERE
-                (v4ip IS NOT NULL AND v6ip IS NULL) and deviceTypeId not in(10, 24)
+        SELECT
+        count(*)
+        FROM
+        metoo_terminal
+        WHERE
+        (v4ip IS NOT NULL AND v6ip IS NULL) and deviceTypeId not in(10, 24)
         ) AS v4ip_count,
         (
-            SELECT
-                count(*)
-            FROM
-                metoo_terminal
-            WHERE
-                (v6ip IS NOT NULL AND v4ip IS NULL) and deviceTypeId not in(10, 24)
+        SELECT
+        count(*)
+        FROM
+        metoo_terminal
+        WHERE
+        (v6ip IS NOT NULL AND v4ip IS NULL) and deviceTypeId not in(10, 24)
         ) AS v6ip_count,
         (
-            SELECT
-                count(*)
-            FROM
-                metoo_terminal
-            WHERE
-                (
-                    v6ip IS NOT NULL
-                    AND v4ip IS NOT NULL and deviceTypeId not in(10, 24)
-                )
+        SELECT
+        count(*)
+        FROM
+        metoo_terminal
+        WHERE
+        (
+        v6ip IS NOT NULL
+        AND v4ip IS NOT NULL and deviceTypeId not in(10, 24)
+        )
         ) AS v4ip_v6ip_count
-    FROM
+        FROM
         metoo_terminal
     </select>
 
@@ -617,23 +619,23 @@
     </select>
 
     <select id="selectObjByNeIp" resultType="com.metoo.nrsm.entity.Terminal">
-       SELECT
-            terminal.id, 0 as deviceType
+        SELECT
+        terminal.id, 0 as deviceType
         FROM
-            metoo_terminal terminal
+        metoo_terminal terminal
         JOIN metoo_ne ne ON terminal.v4ip = ne.ip
     </select>
 
     <select id="selectObjByVM" resultType="com.metoo.nrsm.entity.Terminal">
         SELECT deviceName,
-               CASE
-                   WHEN macVendor LIKE '%VMware%' THEN 'VMware'
-                   ELSE 'Other'
-               END AS macVendorCategory,
-               COUNT(*) AS count,
-                v4ip
+        CASE
+        WHEN macVendor LIKE '%VMware%' THEN 'VMware'
+        ELSE 'Other'
+        END AS macVendorCategory,
+        COUNT(*) AS count,
+        v4ip
         FROM metoo_terminal
-        where  macVendor IS NOT NULL AND v4ip IS NOT NULL
+        where macVendor IS NOT NULL AND v4ip IS NOT NULL
         GROUP BY deviceName, macVendorCategory
         HAVING (macVendorCategory = 'Other' AND COUNT(*) = 1)
     </select>
@@ -704,84 +706,84 @@
     </resultMap>
 
     <select id="selectNSwitchToTopology" parameterType="java.util.Map" resultMap="NSwitch_Result_Map">
-          WITH distinct_d1 AS(
-            SELECT * FROM metoo_terminal
-            WHERE deviceUuid2 = #{deviceUuid}
-            AND deviceTypeId NOT IN(34, 9)
-            AND deviceName LIKE 'NSwitch%'
-            AND online = 1
-            GROUP BY deviceUuid2 -- 保持deviceUuid去重
+        WITH distinct_d1 AS(
+        SELECT * FROM metoo_terminal
+        WHERE deviceUuid2 = #{deviceUuid}
+        AND deviceTypeId NOT IN(34, 9)
+        AND deviceName LIKE 'NSwitch%'
+        AND online = 1
+        GROUP BY deviceUuid2 -- 保持deviceUuid去重
         )
         SELECT
-            d1.id,
-            NULL AS deviceIp,
-            d1.deviceName,
-            d1.deviceUuid,
-            d1.deviceUuid2,
-            d1.deviceTypeId,
-            d1.v4ip,
-            d1.v4ip1,
-            d1.v4ip2,
-            d1.v4ip3,
-            d1.v6ip,
-            d1.v6ip1,
-            d1.v6ip2,
-            d1.v6ip3,
-            d1.mac,
-            d1.vlan,
-            d1.macVendor,
-            d1.remoteDevice,
-            d1.remotePort,
-            d1.location,
-            d1.duty,
-            3 AS deviceType,
-            d1.online,
-            d2.id AS d2_id,
-            NULL AS d2_deviceIp,
-            d2.deviceName AS d2_deviceName,
-            d2.deviceUuid AS d2_deviceUuid,
-            d2.deviceUuid2 AS d2_deviceUuid2,
-            d2.deviceTypeId AS d2_deviceTypeId,
-            d2.v4ip AS d2_v4ip,
-            d2.v4ip1 AS d2_v4ip1,
-            d2.v4ip2 AS d2_v4ip2,
-            d2.v4ip3 AS d2_v4ip3,
-            d2.v6ip AS d2_v6ip,
-            d2.v6ip1 AS d2_v6ip1,
-            d2.v6ip2 AS d2_v6ip2,
-            d2.v6ip3 AS d2_v6ip3,
-            d2.mac AS d2_mac,
-            d2.vlan AS d2_vlan,
-            d2.macVendor AS d2_macVendor,
-            d2.remoteDevice AS d2_remoteDevice,
-            d2.remotePort AS d2_remotePort,
-            d2.location AS d2_location,
-            d2.duty AS d2_duty,
-            d2.deviceType AS d2_deviceType,
-            d2.os AS d2_os,
-            d2.online AS d2_online,
-            d2.unitId AS d2_unitId,
-            d2.unitName AS d2_unitName,
-            d2.name AS d2_name,
-            d2.scan_port_number AS d2_scan_port_number,
-            d2.scan_vendor AS d2_scan_vendor,
-            d2.scan_os_famify AS d2_scan_os_famify,
-            d2.scan_os_gen AS d2_scan_os_gen,
-            d2.scan_application_protocol AS d2_scan_application_protocol,
-            d2.combined_port_protocol AS d2_combined_port_protocol,
-            d2.combined_vendor_gen_family AS d2_combined_vendor_gen_family
+        d1.id,
+        NULL AS deviceIp,
+        d1.deviceName,
+        d1.deviceUuid,
+        d1.deviceUuid2,
+        d1.deviceTypeId,
+        d1.v4ip,
+        d1.v4ip1,
+        d1.v4ip2,
+        d1.v4ip3,
+        d1.v6ip,
+        d1.v6ip1,
+        d1.v6ip2,
+        d1.v6ip3,
+        d1.mac,
+        d1.vlan,
+        d1.macVendor,
+        d1.remoteDevice,
+        d1.remotePort,
+        d1.location,
+        d1.duty,
+        3 AS deviceType,
+        d1.online,
+        d2.id AS d2_id,
+        NULL AS d2_deviceIp,
+        d2.deviceName AS d2_deviceName,
+        d2.deviceUuid AS d2_deviceUuid,
+        d2.deviceUuid2 AS d2_deviceUuid2,
+        d2.deviceTypeId AS d2_deviceTypeId,
+        d2.v4ip AS d2_v4ip,
+        d2.v4ip1 AS d2_v4ip1,
+        d2.v4ip2 AS d2_v4ip2,
+        d2.v4ip3 AS d2_v4ip3,
+        d2.v6ip AS d2_v6ip,
+        d2.v6ip1 AS d2_v6ip1,
+        d2.v6ip2 AS d2_v6ip2,
+        d2.v6ip3 AS d2_v6ip3,
+        d2.mac AS d2_mac,
+        d2.vlan AS d2_vlan,
+        d2.macVendor AS d2_macVendor,
+        d2.remoteDevice AS d2_remoteDevice,
+        d2.remotePort AS d2_remotePort,
+        d2.location AS d2_location,
+        d2.duty AS d2_duty,
+        d2.deviceType AS d2_deviceType,
+        d2.os AS d2_os,
+        d2.online AS d2_online,
+        d2.unitId AS d2_unitId,
+        d2.unitName AS d2_unitName,
+        d2.name AS d2_name,
+        d2.scan_port_number AS d2_scan_port_number,
+        d2.scan_vendor AS d2_scan_vendor,
+        d2.scan_os_famify AS d2_scan_os_famify,
+        d2.scan_os_gen AS d2_scan_os_gen,
+        d2.scan_application_protocol AS d2_scan_application_protocol,
+        d2.combined_port_protocol AS d2_combined_port_protocol,
+        d2.combined_vendor_gen_family AS d2_combined_vendor_gen_family
         FROM distinct_d1 d1
         JOIN metoo_terminal d2 ON d2.deviceName = d1.deviceName
         AND d2.id != d1.id
         AND d2.online = 1
         AND (
-                (d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
-                OR
-                (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != '')
+        (d2.v4ip IS NOT NULL AND d2.v4ip != '' AND TRIM(d2.v4ip) != '')
+        OR
+        (d2.v6ip IS NOT NULL AND d2.v6ip != '' AND TRIM(d2.v6ip) != '')
         )
     </select>
 
-    <select id="selectHistoryNSwitchToTopology" parameterType="java.util.Map"  resultMap="NSwitch_Result_Map">
+    <select id="selectHistoryNSwitchToTopology" parameterType="java.util.Map" resultMap="NSwitch_Result_Map">
         WITH latest_time AS (
         SELECT `time`
         FROM metoo_terminal_history
@@ -885,7 +887,8 @@
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
     </select>
 
-    <select id="selectCustomPartitionHistoryByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Terminal">
+    <select id="selectCustomPartitionHistoryByMap" parameterType="java.util.Map"
+            resultType="com.metoo.nrsm.entity.Terminal">
         select * from metoo_terminal_history
         <where>
             <if test="deviceIp != null and deviceIp != ''">
@@ -924,7 +927,8 @@
         ORDER BY ISNULL(v4ip) or v4ip = '', INET_ATON(v4ip) ASC
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.Terminal" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.Terminal" keyProperty="id" keyColumn="id"
+            useGeneratedKeys="true">
         INSERT INTO metoo_terminal
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -1424,111 +1428,112 @@
     </update>
 
     <update id="updateVMHostDeviceType">
-         UPDATE metoo_terminal d1
-            JOIN (
-               SELECT
-                    deviceName,
-                    deviceUuid2,
-                    PORT,
-                    v4ip,
-                    COUNT(
-                        CASE
-                        WHEN macVendor LIKE 'VMware%' THEN
-                            1
-                        END
-                    ) AS vmwareCount,
-                    COUNT(
-                        CASE
-                        WHEN macVendor NOT LIKE 'VMware%' OR macVendor IS NULL
-                        THEN 1
-                        END
-                    ) AS otherCount
-                FROM
-                    metoo_terminal
-                GROUP BY
-                    deviceName,
-                    PORT
-                HAVING
-                    vmwareCount >= 1 -- 至少有一条包含 'VMware' 的记录
-                AND otherCount = 1
-            ) AS d2
-            ON d1.deviceName = d2.deviceName AND d1.port = d2.port
-            -- 只更新符合条件的记录
-            SET d1.deviceTypeId = 34,  d1.deviceUuid = d1.deviceUuid2
-            WHERE d1.macVendor NOT LIKE 'VMware%' OR macVendor IS NULL;
+        UPDATE metoo_terminal d1
+        JOIN (
+        SELECT
+        deviceName,
+        deviceUuid2,
+        PORT,
+        v4ip,
+        COUNT(
+        CASE
+        WHEN macVendor LIKE 'VMware%' THEN
+        1
+        END
+        ) AS vmwareCount,
+        COUNT(
+        CASE
+        WHEN macVendor NOT LIKE 'VMware%' OR macVendor IS NULL
+        THEN 1
+        END
+        ) AS otherCount
+        FROM
+        metoo_terminal
+        GROUP BY
+        deviceName,
+        PORT
+        HAVING
+        vmwareCount >= 1 -- 至少有一条包含 'VMware' 的记录
+        AND otherCount = 1
+        ) AS d2
+        ON d1.deviceName = d2.deviceName AND d1.port = d2.port
+        -- 只更新符合条件的记录
+        SET d1.deviceTypeId = 34, d1.deviceUuid = d1.deviceUuid2
+        WHERE d1.macVendor NOT LIKE 'VMware%' OR macVendor IS NULL;
     </update>
 
     <update id="updateVMDeviceType">
-         UPDATE metoo_terminal d1
-         JOIN (
-                SELECT *
-                FROM metoo_terminal
-                WHERE macVendor
-                LIKE 'VMware%'
-            )d2
+        UPDATE metoo_terminal d1
+        JOIN (
+        SELECT *
+        FROM metoo_terminal
+        WHERE macVendor
+        LIKE 'VMware%'
+        )d2
         ON d1.id = d2.id
         SET d1.deviceTypeId = 9;
---       update metoo_terminal d1 where EXISTS(select 1 from metoo_terminal d2 where d2.macVendor like 'VMware%' and d1.id = d2.id);
+        -- update metoo_terminal d1 where EXISTS(select 1 from metoo_terminal d2 where d2.macVendor like 'VMware%' and
+        d1.id = d2.id);
     </update>
 
     <update id="updateVMDeviceIp">
---         UPDATE metoo_terminal d1
---             JOIN (
---                 SELECT deviceName, v4ip
---                 -- 子查询：选择所有 macVendor 为非 'VMware' 的记录，排除空值，确保 v4ip 是唯一的
---                 FROM metoo_terminal
---                 WHERE macVendor NOT LIKE '%VMware%' AND macVendor IS NOT NULL AND v4ip IS NOT NULL
---                 GROUP BY deviceName, port, v4ip
---                 HAVING COUNT(*) = 1
---             ) AS d2
---             ON d1.deviceName = d2.deviceName
---             -- 仅更新 macVendor 为 'VMware' 的条目
---             SET d1.deviceIp = d2.v4ip, d1.deviceName = null, d1.hostname = null, d1.deviceTypeId = 9, d1.tag = 'VDT'
---             WHERE d1.macVendor LIKE '%VMware%';
+        -- UPDATE metoo_terminal d1
+        -- JOIN (
+        -- SELECT deviceName, v4ip
+        -- -- 子查询：选择所有 macVendor 为非 'VMware' 的记录，排除空值，确保 v4ip 是唯一的
+        -- FROM metoo_terminal
+        -- WHERE macVendor NOT LIKE '%VMware%' AND macVendor IS NOT NULL AND v4ip IS NOT NULL
+        -- GROUP BY deviceName, port, v4ip
+        -- HAVING COUNT(*) = 1
+        -- ) AS d2
+        -- ON d1.deviceName = d2.deviceName
+        -- -- 仅更新 macVendor 为 'VMware' 的条目
+        -- SET d1.deviceIp = d2.v4ip, d1.deviceName = null, d1.hostname = null, d1.deviceTypeId = 9, d1.tag = 'VDT'
+        -- WHERE d1.macVendor LIKE '%VMware%';
         -- 所有操作在同一个 SQL 块中执行
         BEGIN;
 
         -- 创建临时表
         CREATE TEMPORARY TABLE tmp_table AS
---         SELECT deviceName, port, v4ip
---         FROM metoo_terminal t1
---         WHERE t1.macVendor NOT LIKE 'VMware%'
---           AND EXISTS (
---               SELECT 1
---               FROM metoo_terminal t2
---               WHERE t1.deviceName = t2.deviceName
---                 AND t1.port = t2.port
---               GROUP BY t2.deviceName, t2.port
---               HAVING COUNT(CASE WHEN t2.macVendor LIKE 'VMware%' THEN 1 END) >= 1
---                  AND COUNT(CASE WHEN t2.macVendor NOT LIKE 'VMware%' OR t2.macVendor IS NULL THEN 1 END) = 1
---         );
+        -- SELECT deviceName, port, v4ip
+        -- FROM metoo_terminal t1
+        -- WHERE t1.macVendor NOT LIKE 'VMware%'
+        -- AND EXISTS (
+        -- SELECT 1
+        -- FROM metoo_terminal t2
+        -- WHERE t1.deviceName = t2.deviceName
+        -- AND t1.port = t2.port
+        -- GROUP BY t2.deviceName, t2.port
+        -- HAVING COUNT(CASE WHEN t2.macVendor LIKE 'VMware%' THEN 1 END) >= 1
+        -- AND COUNT(CASE WHEN t2.macVendor NOT LIKE 'VMware%' OR t2.macVendor IS NULL THEN 1 END) = 1
+        -- );
 
         SELECT * FROM(
-                SELECT *
-                FROM metoo_terminal t1
-                WHERE
-                  EXISTS (
-                      SELECT 1
-                      FROM metoo_terminal t2
-                      WHERE t1.deviceName = t2.deviceName
-                        AND t1.port = t2.port
-                      GROUP BY t2.deviceName, t2.port
-                      HAVING COUNT(CASE WHEN t2.macVendor LIKE 'VMware%' THEN 1 END) >= 1
-                         AND COUNT(CASE WHEN t2.macVendor NOT LIKE 'VMware%' OR t2.macVendor IS NULL THEN 1 END) = 1
-                )ORDER BY deviceName DESC
-            )t3
-         WHERE t3.macVendor NOT LIKE 'VMware%' OR t3.macVendor IS NULL;
+        SELECT *
+        FROM metoo_terminal t1
+        WHERE
+        EXISTS (
+        SELECT 1
+        FROM metoo_terminal t2
+        WHERE t1.deviceName = t2.deviceName
+        AND t1.port = t2.port
+        GROUP BY t2.deviceName, t2.port
+        HAVING COUNT(CASE WHEN t2.macVendor LIKE 'VMware%' THEN 1 END) >= 1
+        AND COUNT(CASE WHEN t2.macVendor NOT LIKE 'VMware%' OR t2.macVendor IS NULL THEN 1 END) = 1
+        )ORDER BY deviceName DESC
+        )t3
+        WHERE t3.macVendor NOT LIKE 'VMware%' OR t3.macVendor IS NULL;
 
 
         -- 执行更新操作
         UPDATE metoo_terminal d1
         JOIN tmp_table d2 ON d1.deviceName = d2.deviceName
-            AND d1.port = d2.port
+        AND d1.port = d2.port
         SET
-            d1.deviceIp = d2.v4ip,
---             d1.deviceName = NULL,
---             d1.hostname = NULL,
-            d1.tag = 'VDT'
+        d1.deviceIp = d2.v4ip,
+        -- d1.deviceName = NULL,
+        -- d1.hostname = NULL,
+        d1.tag = 'VDT'
         WHERE d1.macVendor LIKE 'VMware%';
 
         -- 删除临时表
@@ -1579,7 +1584,7 @@
         `time`
         )
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
             #{item.addTime},
             #{item.mac},

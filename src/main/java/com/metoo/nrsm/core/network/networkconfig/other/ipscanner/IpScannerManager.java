@@ -40,7 +40,7 @@ public class IpScannerManager {
     }
 
     @Test
-    public void test(){
+    public void test() {
         String subnet = "192.168.8.0/24";
 
         scanTarget(subnet);
@@ -97,13 +97,14 @@ public class IpScannerManager {
                 PingThreadPool.execute(new NmapScanner(target, latch));
             }
             // 等待扫描任务完成
-           if(latch != null){
-               latch.await();
-           }
+            if (latch != null) {
+                latch.await();
+            }
         } catch (Exception e) {
             log.error("Error during scan: {}", e.getMessage());
         }
     }
+
     // IP地址转换工具方法
     private static long ipToLong(InetAddress ip) {
         byte[] octets = ip.getAddress();

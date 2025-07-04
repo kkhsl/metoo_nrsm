@@ -10,6 +10,7 @@ public interface UserRoleMapper {
 
     /**
      * 批量添加角色
+     *
      * @param userRoles
      * @return
      */
@@ -17,6 +18,7 @@ public interface UserRoleMapper {
 
     /**
      * 批量删除用户角色
+     *
      * @param id
      * @return
      */

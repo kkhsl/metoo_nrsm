@@ -11,25 +11,26 @@ public class ModifyDhcp {
 
     /**
      * 保存 DHCP 接口配置   modifydhcp.py
+     *
      * @param v4status 是否启用IPv4服务 ("true"/"false")
-     * @param v4int     IPv4接口名称
-     * @param v6status  是否启用IPv6服务 ("true"/"false")
-     * @param v6int     IPv6接口名称
+     * @param v4int    IPv4接口名称
+     * @param v6status 是否启用IPv6服务 ("true"/"false")
+     * @param v6int    IPv6接口名称
      */
-    public static void dhcpsave(String v4status, String v4int, 
-                               String v6status, String v6int) throws IOException {
+    public static void dhcpsave(String v4status, String v4int,
+                                String v6status, String v6int) throws IOException {
         // 1. 读取当前配置状态
         Map<String, String> current = parseCurrentConfig();
 
         // 2. 处理 IPv4 配置变更
         processInterface(current,
-                         "v4", v4status, v4int,
-                         current.get("v4status"), current.get("v4int"));
+                "v4", v4status, v4int,
+                current.get("v4status"), current.get("v4int"));
 
         // 3. 处理 IPv6 配置变更
         processInterface(current,
-                         "v6", v6status, v6int,
-                         current.get("v6status"), current.get("v6int"));
+                "v6", v6status, v6int,
+                current.get("v6status"), current.get("v6int"));
     }
 
     /**
@@ -76,11 +77,11 @@ public class ModifyDhcp {
      * 处理单个协议版本配置变更
      */
     private static void processInterface(Map<String, String> current,
-                                        String version,
-                                        String newStatus, String newInt,
-                                        String oldStatus, String oldInt) throws IOException {
+                                         String version,
+                                         String newStatus, String newInt,
+                                         String oldStatus, String oldInt) throws IOException {
         String prefix = "INTERFACES" + version;
-        
+
         if ("true".equals(newStatus)) {
             if ("true".equals(oldStatus)) {
                 if (!newInt.equals(oldInt)) {
@@ -106,7 +107,7 @@ public class ModifyDhcp {
 
         for (String line : lines) {
             if (line.trim().startsWith(prefix + "=") ||
-                line.trim().startsWith("#" + prefix + "=")) {
+                    line.trim().startsWith("#" + prefix + "=")) {
                 String newLine = prefix + "=\"" + newInt + "\"";
                 newLines.add(comment ? "#" + newLine : newLine);
             } else {
@@ -141,7 +142,7 @@ public class ModifyDhcp {
         if (!modified) {
             newLines.add(prefix + "=\"" + newInt + "\"");
         }
-        
+
         writeConfig(newLines);
     }
 
@@ -159,7 +160,7 @@ public class ModifyDhcp {
                 newLines.add(line);
             }
         }
-        
+
         writeConfig(newLines);
     }
 
@@ -169,9 +170,9 @@ public class ModifyDhcp {
     private static void writeConfig(List<String> lines) throws IOException {
         Path temp = Files.createTempFile("isc-dhcp-server", ".tmp");
         Files.write(temp, lines);
-        Files.move(temp, Paths.get(DHCP_CONFIG_PATH), 
-                  StandardCopyOption.REPLACE_EXISTING,
-                  StandardCopyOption.ATOMIC_MOVE);
+        Files.move(temp, Paths.get(DHCP_CONFIG_PATH),
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.ATOMIC_MOVE);
     }
 
     public static void main(String[] args) {

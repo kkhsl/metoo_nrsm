@@ -21,7 +21,7 @@ public class FlowUtils {
     }
 
     // 周末和（工作日21:30-7:30）按实际数据
-    public static boolean checkCurrentTime(LocalDateTime now){
+    public static boolean checkCurrentTime(LocalDateTime now) {
 
 //        LocalDateTime now = LocalDateTime.now(); // 当前日期时间
 
@@ -29,14 +29,14 @@ public class FlowUtils {
 
         boolean flag2 = TimeRangeChecker.isWithinTimeRange(now);
 
-        if(flag1 || flag2){
+        if (flag1 || flag2) {
             return true;
         }
         return false;
     }
 
     @Test
-    public void calulateFlowTest(){
+    public void calulateFlowTest() {
         double ipv4Inbound1 = 0.0000000000000000000005; // 示例输入值
         double result = calculateFlow(ipv4Inbound1);
         System.out.println("Processed flow value: " + result);
@@ -45,6 +45,7 @@ public class FlowUtils {
 
     /**
      * 计算并返回处理后的流量值，保留两位小数
+     *
      * @param ipv4Inbound1 输入值
      * @return 处理后的流量值
      */
@@ -75,10 +76,10 @@ public class FlowUtils {
 
     public static void main(String[] args) {
 
-        LocalDateTime time1 = LocalDateTime.of(2024,8,27,22, 0);  // 22:00
-        LocalDateTime time2 = LocalDateTime.of(2024,8,27,6, 0);   // 06:00
-        LocalDateTime time3 = LocalDateTime.of(2024,8,27,8, 0);   // 08:00
-        LocalDateTime time4 = LocalDateTime.of(2024,8,31,21, 30); // 21:30
+        LocalDateTime time1 = LocalDateTime.of(2024, 8, 27, 22, 0);  // 22:00
+        LocalDateTime time2 = LocalDateTime.of(2024, 8, 27, 6, 0);   // 06:00
+        LocalDateTime time3 = LocalDateTime.of(2024, 8, 27, 8, 0);   // 08:00
+        LocalDateTime time4 = LocalDateTime.of(2024, 8, 31, 21, 30); // 21:30
 
         System.out.println(time1 + " is within range? " + checkCurrentTime(time1)); // true
         System.out.println(time2 + " is within range? " + checkCurrentTime(time2)); // true

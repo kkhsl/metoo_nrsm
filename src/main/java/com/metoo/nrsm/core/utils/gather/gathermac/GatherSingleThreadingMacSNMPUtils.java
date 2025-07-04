@@ -65,7 +65,7 @@ public class GatherSingleThreadingMacSNMPUtils {
 
     // 单线程采集
     public Map gatherMac(List<NetworkElement> networkElements, Date date) {
-        if(networkElements.size() <= 0){
+        if (networkElements.size() <= 0) {
             macService.truncateTable();
             macService.truncateTableGather();
             return null;
@@ -107,7 +107,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     }
 
 
-    public String getHostName(NetworkElement networkElement){
+    public String getHostName(NetworkElement networkElement) {
 
         String path = Global.PYPATH + "gethostname.py";
 
@@ -119,7 +119,7 @@ public class GatherSingleThreadingMacSNMPUtils {
         return hostName;
     }
 
-    public String getHostNameSNMP(NetworkElement networkElement){
+    public String getHostNameSNMP(NetworkElement networkElement) {
         log.info("gethostname ===== {}", networkElement.getIp());
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         String hostName = SNMPv2Request.getDeviceName(snmpParams);
@@ -127,7 +127,7 @@ public class GatherSingleThreadingMacSNMPUtils {
 
     }
 
-    public void getLldpData(NetworkElement networkElement, String hostName, Date date){
+    public void getLldpData(NetworkElement networkElement, String hostName, Date date) {
 
         String path = Global.PYPATH + "getlldp.py";
 
@@ -152,7 +152,8 @@ public class GatherSingleThreadingMacSNMPUtils {
             org.json.JSONArray result = SNMPv2Request.getLldp(snmpParams);
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>(){});
+                List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>() {
+                });
                 this.setRemoteDevice(networkElement, lldps, hostName, date);
             }
         } catch (JsonMappingException e) {
@@ -163,7 +164,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     }
 
 
-    public void getMacData(NetworkElement networkElement, String hostName, Date date){
+    public void getMacData(NetworkElement networkElement, String hostName, Date date) {
 
         String path = Global.PYPATH + "getmac.py";
 
@@ -172,19 +173,19 @@ public class GatherSingleThreadingMacSNMPUtils {
 
         String result = pythonExecUtils.exec2(path, getMacParams);
 
-        if (StringUtil.isNotEmpty(result))
-        {
+        if (StringUtil.isNotEmpty(result)) {
             processMacData(networkElement, hostName, date, result);
         }
     }
 
-    public void getMacDataSNMP(NetworkElement networkElement, String hostName, Date date){
+    public void getMacDataSNMP(NetworkElement networkElement, String hostName, Date date) {
         try {
             SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
             org.json.JSONArray result = SNMPv2Request.getMac(snmpParams);
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
+                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>() {
+                });
                 processMacDataSNMP(networkElement, hostName, date, macList);
             }
         } catch (JsonMappingException e) {
@@ -258,7 +259,7 @@ public class GatherSingleThreadingMacSNMPUtils {
         }
     }
 
-    public void getPortMacData(NetworkElement networkElement, String hostName, Date date){
+    public void getPortMacData(NetworkElement networkElement, String hostName, Date date) {
 
         String path = Global.PYPATH + "getportmac.py";
 
@@ -273,7 +274,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     }
 
 
-    public void getPortMacDataSNMP(NetworkElement networkElement, String hostName, Date date){
+    public void getPortMacDataSNMP(NetworkElement networkElement, String hostName, Date date) {
 
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         // 处理数据并返回结果
@@ -281,7 +282,8 @@ public class GatherSingleThreadingMacSNMPUtils {
             org.json.JSONArray result = SNMPv2Request.getPortMac(snmpParams);
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
+                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>() {
+                });
                 processPortMacDataSNMP(networkElement, hostName, date, macList);
             }
         } catch (JsonMappingException e) {
@@ -341,9 +343,9 @@ public class GatherSingleThreadingMacSNMPUtils {
     }
 
 
-
     /**
      * 更新终端表
+     *
      * @param date
      */
     public void updateTerminal(Date date) {
@@ -371,6 +373,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     /**
      * 更新终端信息
      * （deviceType|deviceName|tag|网元display）
+     *
      * @param date
      */
     private void updateTerminalInfo(Date date) {
@@ -403,14 +406,14 @@ public class GatherSingleThreadingMacSNMPUtils {
     /**
      * deviceType 为1的终端设置为傻瓜交换机
      */
-    private void updateTerminalDeviceTypeToNSwitch(){
+    private void updateTerminalDeviceTypeToNSwitch() {
         Map params = new HashMap();
         params.put("type", 0);
         params.put("deviceType", 1);
         params.put("notDeviceTypeId", 36);
         params.put("online", true);
         List<Terminal> terminalList = this.terminalService.selectObjByMap(params);
-        if(terminalList != null && !terminalList.isEmpty()){
+        if (terminalList != null && !terminalList.isEmpty()) {
             for (Terminal terminal : terminalList) {
                 terminal.setDeviceTypeId(36L);
                 this.terminalService.update(terminal);
@@ -422,13 +425,13 @@ public class GatherSingleThreadingMacSNMPUtils {
         params.put("online", true);
         params.put("notDeviceTypeId", 36);
         List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-        if(terminals != null && !terminals.isEmpty()){
+        if (terminals != null && !terminals.isEmpty()) {
 
             DeviceType deviceType1 = this.deviceTypeService.selectObjByType(14);
             DeviceType deviceType2 = this.deviceTypeService.selectObjByType(27);
 
             for (Terminal terminal : terminals) {
-                if(StringUtils.isNotEmpty(terminal.getCombined_port_protocol())){
+                if (StringUtils.isNotEmpty(terminal.getCombined_port_protocol())) {
                     JSONArray jsonArray = JSONArray.parseArray(terminal.getCombined_port_protocol());
                     // 用于存储所有的端口号
                     Set<String> portNumbers = new HashSet<>();
@@ -448,24 +451,24 @@ public class GatherSingleThreadingMacSNMPUtils {
                     } else if (portNumbers.size() > 4) {
                         // 如果包含 23 端口，认为是网络设备，更新设备类型 ID
                         terminal.setDeviceTypeId(16L);  // NEW_NETWORK_DEVICE_TYPE_ID 是新增的网络设备 typeid
-                    } else  if (portNumbers.contains("22")) {
+                    } else if (portNumbers.contains("22")) {
                         // 如果包含 23 端口，认为是网络设备，更新设备类型 ID
                         terminal.setDeviceTypeId(16L);  // NEW_NETWORK_DEVICE_TYPE_ID 是新增的网络设备 typeid
                     } else if (portNumbers.contains("515")) {
                         // 如果包含 23 端口，认为是网络设备，更新设备类型 ID
                         terminal.setDeviceTypeId(19L);  // NEW_NETWORK_DEVICE_TYPE_ID 是新增的网络设备 typeid
                     } else {
-                    // 恢复为普通终端
-                    if (terminal.getType() == null || terminal.getType() == 0) {
-                        if (StringUtils.isEmpty(terminal.getV4ip()) && StringUtils.isEmpty(terminal.getV6ip())) {
-                            terminal.setDeviceTypeId(deviceType2.getId());
-                        } else {
-                            if(terminal.getDeviceTypeId() == null){
-                                terminal.setDeviceTypeId(deviceType1.getId());
+                        // 恢复为普通终端
+                        if (terminal.getType() == null || terminal.getType() == 0) {
+                            if (StringUtils.isEmpty(terminal.getV4ip()) && StringUtils.isEmpty(terminal.getV6ip())) {
+                                terminal.setDeviceTypeId(deviceType2.getId());
+                            } else {
+                                if (terminal.getDeviceTypeId() == null) {
+                                    terminal.setDeviceTypeId(deviceType1.getId());
+                                }
                             }
                         }
                     }
-                }
                     this.terminalService.update(terminal);
                 }
 
@@ -475,13 +478,13 @@ public class GatherSingleThreadingMacSNMPUtils {
 
     }
 
-    private void updateTerminalDeviceTypeTo(){
+    private void updateTerminalDeviceTypeTo() {
         Map params = new HashMap();
         params.put("deviceType", 1);
         params.put("notDeviceTypeId", 36);
         params.put("online", true);
         List<Terminal> terminalList = this.terminalService.selectObjByMap(params);
-        if(terminalList != null && !terminalList.isEmpty()){
+        if (terminalList != null && !terminalList.isEmpty()) {
             for (Terminal terminal : terminalList) {
                 terminal.setDeviceTypeId(36L);
                 this.terminalService.update(terminal);
@@ -542,7 +545,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     }
 
 
-    private void setRemoteDevice(NetworkElement networkElement, List<Map> lldps, String hostname, Date date){
+    private void setRemoteDevice(NetworkElement networkElement, List<Map> lldps, String hostname, Date date) {
 
         // 判断 llpd 数据是否有效
         if (CollectionUtils.isNotEmpty(lldps)) {
@@ -566,7 +569,7 @@ public class GatherSingleThreadingMacSNMPUtils {
      * @param lldp     对端设备信息
      * @param hostname 主机名
      * @param date     当前时间
-     * @return         Mac 对象
+     * @return Mac 对象
      */
     private Mac createMac(NetworkElement e, Map<String, String> lldp, String hostname, Date date) {
         Mac mac = new Mac();

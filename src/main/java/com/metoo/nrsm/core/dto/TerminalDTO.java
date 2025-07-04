@@ -86,7 +86,6 @@ public class TerminalDTO extends PageDto<Terminal> {
     private Boolean online;
 
 
-
     @ApiModelProperty("设备类型")
     private Long deviceTypeId;
 
@@ -129,16 +128,16 @@ public class TerminalDTO extends PageDto<Terminal> {
     private String host_name;
 
     @ApiModelProperty("采购时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchase_time;
 
     @ApiModelProperty("过保时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date warranty_time;
 
-    @JSONField(name="price",serializeUsing = DoubleSerializer.class)
+    @JSONField(name = "price", serializeUsing = DoubleSerializer.class)
     @ApiModelProperty("价格")
     private Double price;
 
@@ -170,15 +169,14 @@ public class TerminalDTO extends PageDto<Terminal> {
     private String model;
 
 
-
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date start_purchase_time;
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date end_purchase_time;
     @ApiModelProperty("过保时间")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date start_warranty_time;
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date end_warranty_time;
 
     private Long unitId;

@@ -45,25 +45,26 @@ public class GatherMultithreadingMacUtils {
     public GatherMultithreadingMacUtils(GatherDataThreadPool threadPool) {
         this.threadPool = threadPool;
     }
+
     public void gatherMacThread(List<NetworkElement> networkElements, Date date) {
 
         log.info("Mac start =========");
 
-        if(networkElements.size() > 0){
+        if (networkElements.size() > 0) {
 
             this.terminalService.syncTerminal(date);
 
             // 统计终端ip数量
             try {
                 Map terminal = this.terminalService.terminalCount();
-                if(terminal != null){
+                if (terminal != null) {
                     TerminalCount count = new TerminalCount();
                     count.setAddTime(date);
                     count.setV4ip_count(Integer.parseInt(String.valueOf(terminal.get("v4ip_count"))));
                     count.setV6ip_count(Integer.parseInt(String.valueOf(terminal.get("v6ip_count"))));
                     count.setV4ip_v6ip_count(Integer.parseInt(String.valueOf(terminal.get("v4ip_v6ip_count"))));
                     terminalCountService.save(count);
-                }else{
+                } else {
                     TerminalCount count = new TerminalCount();
                     count.setAddTime(date);
                     count.setV4ip_count(0);
@@ -87,7 +88,7 @@ public class GatherMultithreadingMacUtils {
 
             for (NetworkElement networkElement : networkElements) {
 
-                if(StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())) {
                     latch.countDown();
                     continue;
                 }
@@ -112,7 +113,7 @@ public class GatherMultithreadingMacUtils {
         try {
 
             List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
-            if(networkElements.size() > 0){
+            if (networkElements.size() > 0) {
 
                 this.terminalService.syncTerminal(date);
 

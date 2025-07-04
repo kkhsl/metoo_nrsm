@@ -32,7 +32,7 @@ public class GatherManagerController {
 
 
     @GetMapping("start")
-    public void scanByTerminal(){
+    public void scanByTerminal() {
         executorService = ThreadUtil.newSingleExecutor();
         Callable<Void> task = () -> {
             if (Thread.currentThread().isInterrupted()) {

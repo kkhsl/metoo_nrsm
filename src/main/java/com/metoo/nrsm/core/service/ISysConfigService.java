@@ -6,7 +6,7 @@ public interface ISysConfigService {
 
     SysConfig findObjById(Long id);
 
-    SysConfig  select();
+    SysConfig select();
 
     int modify(SysConfig instance);
 

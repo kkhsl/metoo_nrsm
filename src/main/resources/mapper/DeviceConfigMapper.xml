@@ -4,11 +4,11 @@
 
     <insert id="insertDeviceConfig" parameterType="com.metoo.nrsm.entity.DeviceConfig">
         INSERT INTO metoo_device_config (
-            name, time, type, content
+        name, time, type, content
         )
         VALUES (
-                   #{name}, #{time}, #{type}, #{content}
-               )
+        #{name}, #{time}, #{type}, #{content}
+        )
     </insert>
 
     <select id="countByName" resultType="Integer">
@@ -66,7 +66,7 @@
     <!-- 根据ID查询备份记录 -->
     <select id="selectById" resultType="com.metoo.nrsm.entity.DeviceConfig">
         SELECT
-            id, name, time, type, content
+        id, name, time, type, content
         FROM metoo_device_config
         WHERE id = #{id}
     </select>

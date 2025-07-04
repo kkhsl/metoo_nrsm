@@ -15,8 +15,8 @@ public class PingScanner implements Runnable {
     public void run() {
         try {
             String[] cmd = System.getProperty("os.name").toLowerCase().contains("win")
-                    ? new String[] { "ping", "-n", "1", ip }
-                    : new String[] { "ping", "-c", "1", ip };
+                    ? new String[]{"ping", "-n", "1", ip}
+                    : new String[]{"ping", "-c", "1", ip};
 
             Process process = new ProcessBuilder(cmd).start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));

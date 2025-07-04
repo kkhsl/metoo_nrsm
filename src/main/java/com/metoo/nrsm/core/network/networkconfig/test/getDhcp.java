@@ -15,7 +15,8 @@ public class getDhcp {
 
     /**
      * getdhcp.py
-     * @return  {"v6int":"","v4int":"","v6status":"true","v4status":"true"}
+     *
+     * @return {"v6int":"","v4int":"","v6status":"true","v4status":"true"}
      */
     public static String getDhcpStatus() {
         Map<String, String> status = new HashMap<>();
@@ -46,6 +47,7 @@ public class getDhcp {
 
     /**
      * 解析接口配置行，提取状态和接口名
+     *
      * @param line    配置行（如 INTERFACESv4="eth0"）
      * @param version 协议版本标识（"v4" 或 "v6"）
      * @param status  存储结果的Map

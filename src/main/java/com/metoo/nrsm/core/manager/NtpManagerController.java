@@ -33,7 +33,6 @@ public class NtpManagerController {
     private String password;
 
 
-
     @GetMapping("/select")
     public Result selectTime() throws Exception {
         Map<String, List<String>> map = ntpService.select();
@@ -53,15 +52,15 @@ public class NtpManagerController {
     public Result openTime(Boolean flag) throws Exception {
         boolean open = ntpService.open(flag);
         if (flag) {
-            if (open){
+            if (open) {
                 return ResponseUtil.ok("打开成功");
-            }else {
+            } else {
                 return ResponseUtil.error("打开失败");
             }
-        }else {
-            if (open){
+        } else {
+            if (open) {
                 return ResponseUtil.error("关闭失败");
-            }else {
+            } else {
                 return ResponseUtil.ok("关闭成功");
             }
         }
@@ -70,13 +69,13 @@ public class NtpManagerController {
     @GetMapping("/saveTime")
     public Result saveTime(String instance) throws Exception {
         boolean flag = ntpService.saveTime(instance);
-        if (flag){
-            if (ntpService.env()){
+        if (flag) {
+            if (ntpService.env()) {
                 return ResponseUtil.ok("启动成功");
-            }else {
+            } else {
                 return ResponseUtil.error("启动失败");
             }
-        }else {
+        } else {
             return ResponseUtil.ok("保存失败");
         }
     }
@@ -85,9 +84,9 @@ public class NtpManagerController {
     @GetMapping("/synchronous")
     public Result synchronous() throws Exception {
         boolean flag = ntpService.synchronous();
-        if (flag){
+        if (flag) {
             return ResponseUtil.ok("同步成功");
-        }else {
+        } else {
             return ResponseUtil.ok("同步失败");
         }
     }
@@ -95,24 +94,24 @@ public class NtpManagerController {
     @GetMapping("/openNtp")
     public Result startNtp(Boolean flag) throws Exception {
         boolean open = ntpService.openNtp(flag);
-        if (flag){
+        if (flag) {
             if (open) {
-                if (ntpService.env()){
+                if (ntpService.env()) {
                     return ResponseUtil.ok("打开成功");
-                }else {
+                } else {
                     return ResponseUtil.error("启动失败");
                 }
-            }else {
+            } else {
                 return ResponseUtil.error("打开失败");
             }
-        }else {
+        } else {
             if (open) {
-                if (ntpService.env()){
+                if (ntpService.env()) {
                     return ResponseUtil.ok("关闭成功");
-                }else {
+                } else {
                     return ResponseUtil.error("启动失败");
                 }
-            }else {
+            } else {
                 return ResponseUtil.error("关闭失败");
             }
         }
@@ -121,13 +120,13 @@ public class NtpManagerController {
     @PostMapping("/saveNtp")
     public Result saveNtp(@RequestBody List<String> instance) throws Exception {
         boolean flag = ntpService.saveNtp(instance);
-        if (flag){
-            if (ntpService.env()){
+        if (flag) {
+            if (ntpService.env()) {
                 return ResponseUtil.ok("启动成功");
-            }else {
+            } else {
                 return ResponseUtil.error("启动失败");
             }
-        }else {
+        } else {
             return ResponseUtil.error("保存失败");
         }
     }

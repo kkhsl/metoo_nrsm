@@ -12,10 +12,10 @@ public class FutureDemo2 {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-          int POOL_SIZE = Integer.max(Runtime.getRuntime().availableProcessors(), 0);
-          ExecutorService staticExe = Executors.newFixedThreadPool(POOL_SIZE);
+        int POOL_SIZE = Integer.max(Runtime.getRuntime().availableProcessors(), 0);
+        ExecutorService staticExe = Executors.newFixedThreadPool(POOL_SIZE);
 
-        for (int i = 0; i < 2; i++){
+        for (int i = 0; i < 2; i++) {
             Future<Integer> future = null;
             try {
                 future = staticExe.submit(new Callable() {

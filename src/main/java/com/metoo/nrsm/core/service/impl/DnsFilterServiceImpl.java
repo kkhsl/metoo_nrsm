@@ -48,7 +48,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
             boolean isUpdate = dnsFilter.getId() != null;
 
             // 检查域名冲突（新增时）
-            if (!isUpdate && dnsFilterMapper.selectByDomainName(dnsFilter.getDomainName())!=null) {
+            if (!isUpdate && dnsFilterMapper.selectByDomainName(dnsFilter.getDomainName()) != null) {
                 return false;
             }
 
@@ -159,9 +159,9 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
                 throw new IllegalArgumentException("DNS过滤规则不存在");
             }
 
-            if (enable){
+            if (enable) {
                 dnsFilter.setStatus(1);
-            }else {
+            } else {
                 dnsFilter.setStatus(0);
             }
             // 更新数据库状态
@@ -179,9 +179,6 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
     }
 
 
-
-
-
     @Override
     public DnsFilter updateDNSFilter(Long id) {
         DnsFilter dnsFilter = dnsFilterMapper.selectById(id);
@@ -195,7 +192,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
 
 
     public boolean writeDnsFilter(DnsFilter newConfig, String oldDomain) throws Exception {
-        boolean flag = UnboundConfUtil.writeConfigFile(Global.dnsFilterPath, newConfig,oldDomain);
+        boolean flag = UnboundConfUtil.writeConfigFile(Global.dnsFilterPath, newConfig, oldDomain);
         if (!flag) {
             throw new IOException("Failed to write config file");
         }
@@ -205,7 +202,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
     // 配置文件删除逻辑
     private boolean removeFromConfigFile(Set<String> domain) throws IOException {
 
-        boolean flag = UnboundConfUtil.deleteConfigFile(Global.dnsFilterPath,domain);
+        boolean flag = UnboundConfUtil.deleteConfigFile(Global.dnsFilterPath, domain);
         if (!flag) {
             throw new IOException("Failed to write config file");
         }
@@ -214,7 +211,7 @@ public class DnsFilterServiceImpl implements IDnsFilterService {
     }
 
     public boolean updateConfigFileState(DnsFilter config, boolean enable) throws Exception {
-        boolean flag = UnboundConfUtil.writeConfigFile(Global.dnsFilterPath, config,enable);
+        boolean flag = UnboundConfUtil.writeConfigFile(Global.dnsFilterPath, config, enable);
         if (!flag) {
             throw new IOException("Failed to write config file");
         }

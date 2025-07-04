@@ -29,7 +29,7 @@ public class TaskController {
     private final IProbeService probeService;
     private final ISurveyingLogService surveyingLogService;
 
-    public TaskController(IProbeService probeService, ISurveyingLogService surveyingLogService){
+    public TaskController(IProbeService probeService, ISurveyingLogService surveyingLogService) {
         this.probeService = probeService;
         this.surveyingLogService = surveyingLogService;
     }
@@ -40,6 +40,7 @@ public class TaskController {
 
     /**
      * 启动测绘
+     *
      * @return
      */
     @GetMapping("/start")
@@ -53,18 +54,18 @@ public class TaskController {
             surveyingLogService.deleteTable();
 
             int cjLogId = surveyingLogService.createSureyingLog("采集模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null, 1);
-            if(!CFScanner()){
-                surveyingLogService .updateSureyingLog(cjLogId, LogStatusType.FAIL.getCode());
+            if (!CFScanner()) {
+                surveyingLogService.updateSureyingLog(cjLogId, LogStatusType.FAIL.getCode());
                 throw new Exception("采集模块检测出错");
-            }else{
+            } else {
                 Thread.sleep(5000);
                 surveyingLogService.updateSureyingLog(cjLogId, LogStatusType.SUCCESS.getCode());
             }
             int scLogId = surveyingLogService.createSureyingLog("扫描模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null, 2);
-            if(!existOSScannerFile()){
+            if (!existOSScannerFile()) {
                 surveyingLogService.updateSureyingLog(scLogId, LogStatusType.FAIL.getCode());
                 throw new Exception("扫描模块检测出错");
-            }else{
+            } else {
                 Thread.sleep(5000);
                 surveyingLogService.updateSureyingLog(scLogId, LogStatusType.SUCCESS.getCode());
             }
@@ -105,7 +106,7 @@ public class TaskController {
     }
 
     // 检测扫描设备是否可用
-    public boolean CFScanner(){
+    public boolean CFScanner() {
         // 1.查询程序是否存在
         // 2.判断程序是否可用
         String filePath = Global.cf_scanner_path;
@@ -134,20 +135,20 @@ public class TaskController {
      * 停止任务
      */
     @GetMapping("/stop")
-    public String stopTask(){
-        synchronized (taskLock){
-            if(!isTaskRunning()){
+    public String stopTask() {
+        synchronized (taskLock) {
+            if (!isTaskRunning()) {
                 return "没有任务在执行";
             }
 
             // 尝试取消任务（true表示终端正在执行的任务）
             boolean cancelled = runningTask.cancel(true);
-            if(cancelled){
+            if (cancelled) {
                 log.info("任务取消成功");
-            }else{
+            } else {
                 log.warn("任务取消失败");
             }
-            runningTask =  null;
+            runningTask = null;
             return "已发送停止请求";
         }
     }
@@ -155,13 +156,13 @@ public class TaskController {
     /**
      * 查看任务状态
      */
-    public boolean isTaskRunning(){
+    public boolean isTaskRunning() {
         return runningTask != null && !runningTask.isDone();
     }
 
 
     // 查询文件是否存在
-    public boolean fileExists(String filePath, String fileName){
+    public boolean fileExists(String filePath, String fileName) {
         return Files.exists(Paths.get(filePath).resolve(fileName)); // 安全拼接路径
     }
 }

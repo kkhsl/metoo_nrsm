@@ -26,7 +26,7 @@ public class Ipv6Util {
 
 //        240e:380:11d:2::/64
         String ipv6Cidr = "240e:380:11d:2:adx:/64";
-        if(ipv6Cidr.contains("/")){
+        if (ipv6Cidr.contains("/")) {
             String subnet = ipv6Cidr.split("/")[0];
 
             System.out.println("subnet 格式 ：" + Ipv6Util.verifyIpv6(subnet));
@@ -48,6 +48,7 @@ public class Ipv6Util {
 
     /**
      * 校验Ipv6地址
+     *
      * @param ipv6Address
      * @return
      * @throws RuntimeException
@@ -82,15 +83,12 @@ public class Ipv6Util {
     private static final Pattern pattern = Pattern.compile(IPV6_CIDR_PATTERN);
 
 
-
-
     public static boolean verifyCidr(String ipv6Cidr) {
 //        String regex = "^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}/\\d{1,3}$";
 //        return ipv6Cidr.matches(regex);
 
         return pattern.matcher(ipv6Cidr).matches();
     }
-
 
 
 //
@@ -126,7 +124,7 @@ public class Ipv6Util {
 //    }
 
     @Test
-    public void convertMaskBitsToMaskTest(){
+    public void convertMaskBitsToMaskTest() {
         int maskBits = 64; // 例如，64位掩码
         String mask = convertMaskBitsToMask(maskBits);
         System.out.println("Mask (bits): " + maskBits + " - Mask (hex): " + mask);
@@ -153,8 +151,6 @@ public class Ipv6Util {
     }
 
 
-
-
     private static byte[] applyMask(byte[] ipBytes, int mask) {
         byte[] masked = new byte[16];
         System.arraycopy(ipBytes, 0, masked, 0, 16);
@@ -178,8 +174,9 @@ public class Ipv6Util {
 
     /**
      * 校验是否为合法IPv6网络地址（主机位全0）
+     *
      * @param fullIPv6 完整格式IPv6地址（如 20010db8000000000000000000000000）
-     * @param mask 掩码位数
+     * @param mask     掩码位数
      * @return 是否满足网络地址规则
      */
     public static boolean isNetworkAddress(String fullIPv6, int mask) {

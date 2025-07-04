@@ -28,14 +28,14 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class MacManager {
 
-    public void getMac(NetworkElement networkElement, Date date){
+    public void getMac(NetworkElement networkElement, Date date) {
         String hostName = getHostName(networkElement);
-        if(!StringUtils.isEmpty(hostName)){
+        if (!StringUtils.isEmpty(hostName)) {
             processNetworkElementData(networkElement, hostName, date);
         }
     }
 
-    private String getHostName(NetworkElement networkElement){
+    private String getHostName(NetworkElement networkElement) {
 //        String hostName = SNMPv2Request.getDeviceName(new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()));
         String hostName = SNMPv3Request.getDeviceName(SNMPParamFactory.createSNMPParam(networkElement));
         return hostName;
@@ -57,7 +57,8 @@ public class MacManager {
             JSONArray result = SNMPv3Request.getLldp(SNMPParamFactory.createSNMPParam(networkElement));
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>(){});
+                List<Map> lldps = objectMapper.readValue(result.toString(), new TypeReference<List<Map>>() {
+                });
                 this.setRemoteDevice(networkElement, lldps, hostName, date);
             }
         } catch (JsonMappingException e) {
@@ -68,12 +69,13 @@ public class MacManager {
     }
 
 
-    public void getMac2(NetworkElement networkElement, Date date){
+    public void getMac2(NetworkElement networkElement, Date date) {
         String hostName = getHostName(networkElement);
-        if(!StringUtils.isEmpty(hostName)){
+        if (!StringUtils.isEmpty(hostName)) {
             processNetworkElementDataFuture(networkElement, hostName, date);
         }
     }
+
     // 处理网络元素数据
     private void processNetworkElementDataFuture(NetworkElement networkElement, String hostName, Date date) {
         log.info("Processing data for network element: {}", networkElement.getIp());
@@ -103,14 +105,15 @@ public class MacManager {
         log.info("Finished processing data for network element: {}", networkElement.getIp());
     }
 
-    public void getMacData(NetworkElement networkElement, Date date, String hostName){
+    public void getMacData(NetworkElement networkElement, Date date, String hostName) {
         try {
             SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
 //            JSONArray result = SNMPv2Request.getMac(snmpParams);
             JSONArray result = SNMPv3Request.getMac(SNMPParamFactory.createSNMPParam(networkElement));
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
+                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>() {
+                });
                 processMacData(networkElement, date, macList, hostName);
             }
         } catch (JsonMappingException e) {
@@ -120,14 +123,15 @@ public class MacManager {
         }
     }
 
-    public void getPortMacData(NetworkElement networkElement, Date date, String hostName){
+    public void getPortMacData(NetworkElement networkElement, Date date, String hostName) {
         SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
         try {
 //            JSONArray result = SNMPv2Request.getPortMac(snmpParams);
             JSONArray result = SNMPv3Request.getPortMac(SNMPParamFactory.createSNMPParam(networkElement));
             if (!result.isEmpty()) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>(){});
+                List<Mac> macList = objectMapper.readValue(result.toString(), new TypeReference<List<Mac>>() {
+                });
                 processPortMacData(networkElement, date, hostName, macList);
             }
         } catch (JsonMappingException e) {
@@ -203,7 +207,7 @@ public class MacManager {
         }
     }
 
-    private void setRemoteDevice(NetworkElement networkElement, List<Map> lldps, String hostname, Date date){
+    private void setRemoteDevice(NetworkElement networkElement, List<Map> lldps, String hostname, Date date) {
         IMacService macService = (IMacService) ApplicationContextUtils.getBean("macServiceImpl");
         // 判断 llpd 数据是否有效
         if (CollectionUtils.isNotEmpty(lldps)) {
@@ -227,7 +231,7 @@ public class MacManager {
      * @param lldp     对端设备信息
      * @param hostname 主机名
      * @param date     当前时间
-     * @return         Mac 对象
+     * @return Mac 对象
      */
     private Mac createMac(NetworkElement e, Map<String, String> lldp, String hostname, Date date) {
         Mac mac = new Mac();

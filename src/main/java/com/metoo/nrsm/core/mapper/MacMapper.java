@@ -46,7 +46,7 @@ public interface MacMapper {
 
     List<Mac> selectXToUTByMap(Map params);
 
-    List<Mac>  selectUToRTByMap(Map params);
+    List<Mac> selectUToRTByMap(Map params);
 
     List<Mac> selectRTToDTByMap(Map params);
 
@@ -76,16 +76,16 @@ public interface MacMapper {
 
     /**
      * <!--
-     * 	     collection 指定要遍历的集合
-     * 	         list类型的参数会特殊处理封装在map中，map的key就叫list
-     * 	      item 将当前遍历出的元素赋值给指定 的变量
-     * 	      #{变量名} 就能取出变量的值也就是当前遍历
-     * 	      separator 每个元素之间的分隔符
-     * 	      open 遍历出所有结果拼接一个开始的字符
-     * 	      close: 遍历出所有结果拼接一个结束的字符
-     * 	      index : 索引  遍历list的时候index是索引  ,item就是当前值
-     * 	                 遍历map的时候index表示的就是map的key    item就是map的值
-     * 	    -->
+     * collection 指定要遍历的集合
+     * list类型的参数会特殊处理封装在map中，map的key就叫list
+     * item 将当前遍历出的元素赋值给指定 的变量
+     * #{变量名} 就能取出变量的值也就是当前遍历
+     * separator 每个元素之间的分隔符
+     * open 遍历出所有结果拼接一个开始的字符
+     * close: 遍历出所有结果拼接一个结束的字符
+     * index : 索引  遍历list的时候index是索引  ,item就是当前值
+     * 遍历map的时候index表示的就是map的key    item就是map的值
+     * -->
      *
      * @param ids collection
      * @return

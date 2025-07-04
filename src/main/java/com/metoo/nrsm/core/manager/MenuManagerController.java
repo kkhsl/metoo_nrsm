@@ -21,7 +21,7 @@ public class MenuManagerController {
 
     @RequestMapping(value = "/test", headers = "api-version=1")
     @ResponseBody
-    public Object test(HttpRequest request, HttpServletRequest request1){
+    public Object test(HttpRequest request, HttpServletRequest request1) {
         Collection<String> res = this.resService.findPermissionByUserId(Long.parseLong("23"));
         /*List<Map> params = new ArrayList();
         Cookie[] cookies = request1.getCookies();
@@ -41,12 +41,12 @@ public class MenuManagerController {
         UUID uuid = UUID.randomUUID();
         data.put("uuid", uuid);
 
-       return data;
+        return data;
     }
 
     @RequestMapping(value = "/test", headers = "api-version=2")
     @ResponseBody
-    public Object test2(HttpRequest request, HttpServletRequest request1){
+    public Object test2(HttpRequest request, HttpServletRequest request1) {
         Collection<String> res = this.resService.findPermissionByUserId(Long.parseLong("23"));
         /*List<Map> params = new ArrayList();
         Cookie[] cookies = request1.getCookies();

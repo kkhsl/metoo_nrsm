@@ -14,12 +14,12 @@ public class TestThread {
     Logger log = LoggerFactory.getLogger(TestThread.class);
 
     public static void main(String[] args) {
-        for (int i = 1; i <= 3; i++){
+        for (int i = 1; i <= 3; i++) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     int sum = 0;
-                    for (int i = 0; i <= 10; i ++){
+                    for (int i = 0; i <= 10; i++) {
                         sum += i;
                         System.out.println(Thread.currentThread().getName() + " num: " + i);
                     }
@@ -51,6 +51,7 @@ public class TestThread {
 
     /**
      * 主线程成等待线程池内子线程完成在执行
+     *
      * @throws ExecutionException
      * @throws InterruptedException
      */

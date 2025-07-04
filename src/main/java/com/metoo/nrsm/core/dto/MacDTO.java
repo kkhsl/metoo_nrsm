@@ -53,7 +53,6 @@ public class MacDTO extends PageDto<Mac> {
     private String v6ip3Dynamic;
 
 
-
     private String status;
 
     @ApiModelProperty("设备名称")

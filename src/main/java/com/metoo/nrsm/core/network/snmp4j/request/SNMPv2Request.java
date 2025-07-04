@@ -107,7 +107,7 @@ public class SNMPv2Request {
             if (responsePDU == null) {
                 System.err.println("无响应(超时或目标不可达) ");
             }
-            if(responsePDU != null && responsePDU.getErrorStatus() != PDU.noError){
+            if (responsePDU != null && responsePDU.getErrorStatus() != PDU.noError) {
                 System.err.println("无响应(超时或目标不可达) 或者SNMP 错误" + responsePDU.getErrorStatusText());
             }
             return responsePDU;
@@ -177,6 +177,7 @@ public class SNMPv2Request {
         }
         return arpResultMap;
     }
+
     private static Map<String, String> sendStrGETNEXTRequest(SNMPParams snmpParams, String snmpOid) {
         // 用于存储最终的 ARP 表项
         Map<String, String> arpResultMap = new HashMap<>();
@@ -587,7 +588,6 @@ public class SNMPv2Request {
     }
 
 
-
     public static String getRoute(SNMPParams snmpParams) {
         // 获取原始SNMP数据
         Map<String, String> destNetworkMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Destination_network);
@@ -599,7 +599,7 @@ public class SNMPv2Request {
         Map<String, String> protoTypeMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Proto_type);
 //        Map<String, String> PreferenceMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Proto_type);
         // 3. 转换为JSON返回
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap,costMap,protoTypeMap,portMap));
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap, costMap, protoTypeMap, portMap));
     }
 
 
@@ -609,11 +609,11 @@ public class SNMPv2Request {
         return SNMPDataParser.parseIsV6(isV6);
     }
 
-    public static String getTraffic(SNMPParams snmpParams,String oid1,String oid2) {
+    public static String getTraffic(SNMPParams snmpParams, String oid1, String oid2) {
         // 调用 sendArpRequest 方法进行 SNMP 请求
         PDU in = sendStrRequest(snmpParams, oid1);
-        PDU out = sendStrRequest(snmpParams,oid2);
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseTraffic(in,out));
+        PDU out = sendStrRequest(snmpParams, oid2);
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseTraffic(in, out));
     }
 
 
@@ -656,7 +656,6 @@ public class SNMPv2Request {
         JSONArray resultArray = SNMPDataParser.parseDeviceArpV6(arpV6Map, portJson);
         return resultArray;
     }
-
 
 
     public static JSONArray getPortMac(SNMPParams snmpParams) {
@@ -932,69 +931,66 @@ public class SNMPv2Request {
     }
 
     // dhcp
-    public static String getDhcpStatus(){
+    public static String getDhcpStatus() {
         return DHCPUtil.getDhcpStatus();
     }
 
     // 根据type参数，指定获取dhcp或dhcp6进程状态
-    public static String checkdhcpd(String type){
+    public static String checkdhcpd(String type) {
         return DHCPUtil.checkdhcpd(type);
     }
 
-    public static String processOperation(String operation, String service){
+    public static String processOperation(String operation, String service) {
         return DHCPUtil.processOperation(operation, service);
     }
 
     public static String modifyDHCP(String v4status, String v4int,
-                                    String v6status, String v6int){
+                                    String v6status, String v6int) {
         DHCPUtil.modifyDHCP(v4status, v4int, v6status, v6int);
         return "modifyDHCP";
     }
 
 
-    public static String getDnsSettings(){
+    public static String getDnsSettings() {
         return DHCPUtil.getDnsSettings();
     }
 
 
-    public static String modifyDns(String dns1, String dns2){
-        DHCPUtil.modifyDNS(dns1,dns2);
+    public static String modifyDns(String dns1, String dns2) {
+        DHCPUtil.modifyDNS(dns1, dns2);
         return "modifyDNS";
     }
 
-    public static String getNetworkInterfaces(){
+    public static String getNetworkInterfaces() {
         return DHCPUtil.getNetworkInterfaces();
     }
 
 
     public static String modifyIp(String iface, String ipv4address, String ipv6address,
-                                  String gateway4, String gateway6){
-        return String.valueOf(DHCPUtil.modifyIp(iface,ipv4address,ipv6address,gateway4,gateway6));
+                                  String gateway4, String gateway6) {
+        return String.valueOf(DHCPUtil.modifyIp(iface, ipv4address, ipv6address, gateway4, gateway6));
     }
 
     public static String modifyVlans(String parentInterface, String vlanId, String ipv4Address,
-                                     String ipv6Address, String gateway4,String gateway6){
-        return String.valueOf(DHCPUtil.modifyVlans(parentInterface,vlanId,ipv4Address,ipv6Address,gateway4,gateway6));
+                                     String ipv6Address, String gateway4, String gateway6) {
+        return String.valueOf(DHCPUtil.modifyVlans(parentInterface, vlanId, ipv4Address, ipv6Address, gateway4, gateway6));
     }
 
-    public static String pingOp(String action, String service){
-        return DHCPUtil.pingOp(action,service);
+    public static String pingOp(String action, String service) {
+        return DHCPUtil.pingOp(action, service);
     }
 
-    public static void pingTest(String network, int mask){
-        DHCPUtil.pingSubnet(network,mask);
+    public static void pingTest(String network, int mask) {
+        DHCPUtil.pingSubnet(network, mask);
     }
 
-    public static void pingSubnet(String network, int mask){
-        DHCPUtil.pingSubnet(network,mask);
+    public static void pingSubnet(String network, int mask) {
+        DHCPUtil.pingSubnet(network, mask);
     }
 
-    public static void pingSubnetConcurrent(String network, int mask){
-        DHCPUtil.pingSubnetConcurrent(network,mask);
+    public static void pingSubnetConcurrent(String network, int mask) {
+        DHCPUtil.pingSubnetConcurrent(network, mask);
     }
-
-
-
 
 
 }

@@ -7,7 +7,7 @@ package com.metoo.nrsm.core.config.design.mode.pattern.creational.prototype;
  */
 public class Rectangle extends Shape {
 
-    public Rectangle(){
+    public Rectangle() {
         type = "Rectangle";
     }
 

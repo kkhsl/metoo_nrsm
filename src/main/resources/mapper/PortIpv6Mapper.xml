@@ -6,7 +6,7 @@
 
     <select id="selectObjByDeviceUuid" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.PortIpv6">
         SELECT
-         *
+        *
         FROM
         metoo_port_ipv6
         WHERE deviceUuid = #{deviceUuid}
@@ -16,7 +16,7 @@
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.PortIpv6">
         SELECT
-         *
+        *
         FROM
         metoo_port_ipv6
         <where>
@@ -42,13 +42,13 @@
 
     <select id="selectIpv6Cidrs" resultType="string">
         SELECT
-            CONCAT( TRIM( ipv6 ) ) AS cidr
+        CONCAT( TRIM( ipv6 ) ) AS cidr
         FROM
-            metoo_port_ipv6
+        metoo_port_ipv6
         WHERE
-            ipv6 IS NOT NULL
+        ipv6 IS NOT NULL
         GROUP BY
-            cidr
+        cidr
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.PortIpv6">
@@ -103,26 +103,26 @@
 
     <insert id="batchSaveGather" parameterType="java.util.List">
         INSERT INTO `metoo_port_ipv6_gather` (
-            addTime,
-            port,
-            ipv6,
-            deviceUuid,
-            ipv6_local
-          )
+        addTime,
+        port,
+        ipv6,
+        deviceUuid,
+        ipv6_local
+        )
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
-                #{item.addTime},
-                #{item.port},
-                #{item.ipv6},
-                #{item.deviceUuid},
-                #{item.ipv6_local}
+            #{item.addTime},
+            #{item.port},
+            #{item.ipv6},
+            #{item.deviceUuid},
+            #{item.ipv6_local}
             )
         </foreach>
     </insert>
-    
+
     <update id="truncateTableGather">
-         TRUNCATE TABLE metoo_port_ipv6_gather
+        TRUNCATE TABLE metoo_port_ipv6_gather
     </update>
 
     <delete id="deleteTable">

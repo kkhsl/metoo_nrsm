@@ -182,14 +182,14 @@ public class SshGetTrafficTest {
 
         // 定时任务配置
         scheduler.scheduleAtFixedRate(
-            () -> {
-                try {
-                    getTraffic(10);
-                } catch (Exception e) {
-                    logger.error("Scheduled task execution failed: {}", e.getMessage());
-                }
-            },
-            0, 1, TimeUnit.MINUTES
+                () -> {
+                    try {
+                        getTraffic(10);
+                    } catch (Exception e) {
+                        logger.error("Scheduled task execution failed: {}", e.getMessage());
+                    }
+                },
+                0, 1, TimeUnit.MINUTES
         );
 
         // 优雅关闭处理

@@ -39,8 +39,9 @@ public class AddressPoolFixedVO implements Serializable {
 //        }else{
 //            this.host =  host;
 //        }
-        this.host =  host;
-        this.annotation =  "# " + host + "\n";;
+        this.host = host;
+        this.annotation = "# " + host + "\n";
+        ;
     }
 
     public String getHardware_ethernet() {
@@ -48,11 +49,11 @@ public class AddressPoolFixedVO implements Serializable {
     }
 
     public void setHardware_ethernet(String hardware_ethernet) {
-        if(StringUtils.isNotEmpty(hardware_ethernet)){
-            hardware_ethernet = hardware_ethernet.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(hardware_ethernet)) {
+            hardware_ethernet = hardware_ethernet.replaceAll("\\s*|\r|\n|\t", "");
             this.hardware_ethernet = "        hardware ethernet " + hardware_ethernet + ";\n";
-        }else{
-            this.hardware_ethernet =  hardware_ethernet;
+        } else {
+            this.hardware_ethernet = hardware_ethernet;
         }
     }
 
@@ -61,15 +62,15 @@ public class AddressPoolFixedVO implements Serializable {
     }
 
     public void setFixed_address(String fixed_address) {
-        if(StringUtils.isNotEmpty(fixed_address)){
-            fixed_address = fixed_address.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(fixed_address)) {
+            fixed_address = fixed_address.replaceAll("\\s*|\r|\n|\t", "");
             this.fixed_address = "        fixed-address " + fixed_address + ";\n";
-            if(StringUtils.isNotEmpty(host)){
-                host = host.replaceAll("\\s*|\r|\n|\t","");
+            if (StringUtils.isNotEmpty(host)) {
+                host = host.replaceAll("\\s*|\r|\n|\t", "");
                 this.host = "host " + fixed_address + "{\n";
             }
-        }else{
-            this.fixed_address =  fixed_address;
+        } else {
+            this.fixed_address = fixed_address;
         }
     }
 }

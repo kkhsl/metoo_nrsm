@@ -25,7 +25,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherIpV6SNMPRunnable implements Runnable{
+public class GatherIpV6SNMPRunnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -48,7 +48,6 @@ public class GatherIpV6SNMPRunnable implements Runnable{
     }
 
 
-
     /**
      * When an object implementing interface <code>Runnable</code> is used
      * to create a thread, starting the thread causes the object's
@@ -66,13 +65,14 @@ public class GatherIpV6SNMPRunnable implements Runnable{
         Ipv6ServiceImpl ipv6Service = (Ipv6ServiceImpl) ApplicationContextUtils.getBean("ipv6ServiceImpl");
         // 处理数据并返回结果
         try {
-    //        SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
+            //        SNMPParams snmpParams = new SNMPParams(networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity());
 //            JSONArray result = SNMPv2Request.getArp(snmpParams);
             JSONArray result = SNMPv3Request.getArpV6(SNMPParamFactory.createSNMPParam(networkElement));
-            if(result != null && result.length() > 0) {
+            if (result != null && result.length() > 0) {
                 // 使用 Jackson 将 JSON 字符串转换为 List<Ipv4>
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Ipv6> ipv6s = objectMapper.readValue(result.toString(), new TypeReference<List<Ipv6>>(){});
+                List<Ipv6> ipv6s = objectMapper.readValue(result.toString(), new TypeReference<List<Ipv6>>() {
+                });
                 if (ipv6s.size() > 0) {
                     ipv6s.forEach(e -> {
                         e.setDeviceIp(networkElement.getIp());
@@ -85,7 +85,7 @@ public class GatherIpV6SNMPRunnable implements Runnable{
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(latch != null){
+            if (latch != null) {
                 latch.countDown();
             }
         }

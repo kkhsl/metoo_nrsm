@@ -8,17 +8,18 @@
         SELECT *
         FROM metoo_dhcp
         WHERE
-          id = #{id}
+        id = #{id}
     </select>
 
     <select id="selectObjByLease" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Dhcp">
         SELECT *
         FROM metoo_dhcp
         WHERE
-          lease = #{lease}
+        lease = #{lease}
     </select>
 
-    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DhcpDto" resultType="com.metoo.nrsm.entity.Dhcp">
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.DhcpDto"
+            resultType="com.metoo.nrsm.entity.Dhcp">
         SELECT *
         FROM metoo_dhcp
         <where>
@@ -97,7 +98,7 @@
             </if>
             <if test="lease_array != '' and lease_array != null">
                 AND lease in
-                <foreach collection="lease_array" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="lease_array" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>

@@ -15,7 +15,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherMacSNMPRunnable2 implements Runnable{
+public class GatherMacSNMPRunnable2 implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -49,7 +49,7 @@ public class GatherMacSNMPRunnable2 implements Runnable{
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(latch != null){
+            if (latch != null) {
                 latch.countDown();
             }
         }

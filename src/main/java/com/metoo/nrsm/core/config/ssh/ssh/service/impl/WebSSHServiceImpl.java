@@ -45,7 +45,7 @@ public class WebSSHServiceImpl implements WebSSHService {
     @Override
     public void close(WebSocketSession session) {
         String userId = String.valueOf(session.getAttributes().get("user_uuid"));
-        SSHConnectInfo sshConnectInfo = (SSHConnectInfo)ConstantPool.SSHMAP.get(userId);
+        SSHConnectInfo sshConnectInfo = (SSHConnectInfo) ConstantPool.SSHMAP.get(userId);
         if (sshConnectInfo != null && sshConnectInfo.getChannel() != null) {
             sshConnectInfo.getChannel().disconnect();
         }

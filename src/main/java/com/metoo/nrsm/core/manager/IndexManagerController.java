@@ -46,7 +46,7 @@ public class IndexManagerController {
     private SnmpStatusUtils snmpStatusUtils;
 
     @GetMapping("/flux/device")
-    public Object device(){
+    public Object device() {
 //        Map params = new HashMap();
 //        params.put("isipv6", true);
 //        List<NetworkElement> v4ip_v6ip_count = networkElementService.selectObjByMap(params);
@@ -108,16 +108,16 @@ public class IndexManagerController {
     }
 
     // 获取需要采集的设备
-    public List<NetworkElement> getGatherDevice(){
+    public List<NetworkElement> getGatherDevice() {
         List<NetworkElement> networkElements = new ArrayList<>();
         Set<String> uuids = this.snmpStatusUtils.getOnlineDevice();
-        if(uuids.size() > 0){
+        if (uuids.size() > 0) {
             for (String uuid : uuids) {
                 NetworkElement networkElement = this.networkElementService.selectObjByUuid(uuid);
-                if(networkElement != null
+                if (networkElement != null
                         && StringUtils.isNotBlank(networkElement.getIp())
                         && StringUtils.isNotBlank(networkElement.getVersion())
-                        && StringUtils.isNotBlank(networkElement.getCommunity())){
+                        && StringUtils.isNotBlank(networkElement.getCommunity())) {
                     networkElements.add(networkElement);
                 }
             }
@@ -126,7 +126,7 @@ public class IndexManagerController {
     }
 
     @GetMapping("/flux/statistics")
-    public Object statistics(){
+    public Object statistics() {
         Map params = new HashMap();
         params.put("startOfDay", DateTools.getStartOfDay());
         params.put("endOfDay", DateTools.getEndOfDay());
@@ -136,7 +136,7 @@ public class IndexManagerController {
 
     @ApiOperation("系统导航")
     @RequestMapping("/nav")
-    public Object nav(){
+    public Object nav() {
         Map map = new HashMap();
         User user = ShiroUserHolder.currentUser();
         map.put("obj", this.indexService.findMenu(user.getId()));
@@ -145,7 +145,7 @@ public class IndexManagerController {
         map.put("domain", configs.getDomain());
         List<License> licenses = this.licenseService.query();
         map.put("licenseAC", false);
-        if(licenses.size() > 0){
+        if (licenses.size() > 0) {
             try {
                 String licenseInfo = this.aesEncryptUtils.decrypt(licenses.get(0).getLicense());
                 LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);

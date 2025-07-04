@@ -8,6 +8,7 @@ public class IPv6Validator {
 
     /**
      * 验证 IPv6 地址格式（带前缀长度）
+     *
      * @param ipv6Address 要验证的地址（如 "fc00:1000:0:4::1/64"）
      * @return 验证结果（错误信息为null表示格式正确）
      */

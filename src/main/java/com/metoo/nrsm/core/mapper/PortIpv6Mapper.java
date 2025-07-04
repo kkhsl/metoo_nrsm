@@ -15,8 +15,10 @@ import java.util.Map;
 public interface PortIpv6Mapper {
 
     List selectObjByMap(Map params);
+
     /**
      * 获取标准格式的IPv6地址列表
+     *
      * @return CIDR格式列表（例：240e:380:11d::/64）
      */
     List<String> selectIpv6Cidrs();

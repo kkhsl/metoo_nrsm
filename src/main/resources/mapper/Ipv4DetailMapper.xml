@@ -24,19 +24,22 @@
 
 
     <select id="selectObjByIp" parameterType="java.lang.String" resultMap="Base_Result_Map">
-        SELECT <include refid="Ntoa_Column_List"/>
+        SELECT
+        <include refid="Ntoa_Column_List"/>
         FROM metoo_ip_detail
         where ip = #{ip}
     </select>
 
     <select id="selectObjByMac" parameterType="java.lang.String" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_ip_detail
         where mac = #{mac}
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_ip_detail
         <where>
             <if test="ipSegment != null">
@@ -87,9 +90,9 @@
     <insert id="save" parameterType="com.metoo.nrsm.entity.Ipv4Detail">
         INSERT INTO metoo_ip_detail
         <trim prefix="(" suffixOverrides="," suffix=")">
-              <if test="addTime != null">
-                  addTime,
-              </if>
+            <if test="addTime != null">
+                addTime,
+            </if>
             <if test="ip != null">
                 ip,
             </if>

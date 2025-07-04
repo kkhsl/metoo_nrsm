@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @Configuration
 public class SNMPTaskUtils {
 
-//    @Value("${task.switch.is-open}")
+    //    @Value("${task.switch.is-open}")
 //    private boolean flag;
     @Autowired
     private DeviceManager deviceManager;
@@ -26,7 +26,7 @@ public class SNMPTaskUtils {
 
     // 获取主机名,判断主机是否可用,并记录状态到redis
     public void getDeviceNameByIpAndCommunityVersion() {
-        if(FLAG){
+        if (FLAG) {
             Long time = System.currentTimeMillis();
             log.info("Snmp status start......");
             try {
@@ -39,14 +39,13 @@ public class SNMPTaskUtils {
     }
 
 
-
     public void ipv4() {
-        Long time=System.currentTimeMillis();
+        Long time = System.currentTimeMillis();
         try {
             gatherService.gatherIpv4Thread(DateTools.gatherDate(), new ArrayList<>());
         } catch (Exception e) {
         }
-        log.info("Ipv4 End......" + (System.currentTimeMillis()-time));
+        log.info("Ipv4 End......" + (System.currentTimeMillis() - time));
     }
 
     public void port() {
@@ -55,7 +54,7 @@ public class SNMPTaskUtils {
             gatherService.gatherPort(DateTools.gatherDate(), new ArrayList<>());
         } catch (Exception e) {
         }
-        log.info("Port End......" + (System.currentTimeMillis()-time));
+        log.info("Port End......" + (System.currentTimeMillis() - time));
     }
 
 }

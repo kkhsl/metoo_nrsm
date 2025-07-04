@@ -12,12 +12,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HuaweiTrafficCollector {
-    
+
     private static final Gson gson = new Gson();
-    
+
     public static void main(String[] args) {
         Map<String, String> params = new HashMap<>();
-        params.put("brand","huawei");
+        params.put("brand", "huawei");
         params.put("host", "192.168.6.101");
         params.put("method", "ssh");
         params.put("port", "22");
@@ -41,18 +41,21 @@ public class HuaweiTrafficCollector {
 
     // 新增方向解析方法
     private static String parseDirection(String type) {
-        switch(type) {
-            case "0": return "outbound";
-            case "1": return "inbound";
-            default: throw new IllegalArgumentException("无效的类型参数: " + type);
+        switch (type) {
+            case "0":
+                return "outbound";
+            case "1":
+                return "inbound";
+            default:
+                throw new IllegalArgumentException("无效的类型参数: " + type);
         }
     }
 
     // SSH/Telnet连接实现
     private static Session connectDevice(Map<String, String> params) throws JSchException {
         JSch jsch = new JSch();
-        String method = "telnet".equals(params.get("method")) ? 
-            "telnet" : "ssh";
+        String method = "telnet".equals(params.get("method")) ?
+                "telnet" : "ssh";
         Session session = jsch.getSession(params.get("username"), params.get("host"), Integer.parseInt(params.get("port")));
         session.setPassword(params.get("password"));
         session.setConfig("StrictHostKeyChecking", "no");
@@ -62,7 +65,7 @@ public class HuaweiTrafficCollector {
             session.setConfig("protocol", "telnet");
             session.setConfig("PreferredAuthentications", "password");
         }
-        
+
         session.connect(15000); // 15秒超时
         return session;
     }
@@ -74,10 +77,8 @@ public class HuaweiTrafficCollector {
         channel = (ChannelExec) session.openChannel("exec");
 
 
-
-
         // 根据方向参数构建命令
-       // String command = String.format("dis traffic-policy statistics interface vlanif %s %s rule-base\n", vlan, direction);
+        // String command = String.format("dis traffic-policy statistics interface vlanif %s %s rule-base\n", vlan, direction);
         command = String.format("cat test_out.txt");
         channel.setCommand(command);
         channel.setInputStream(null);
@@ -94,18 +95,18 @@ public class HuaweiTrafficCollector {
                 output.append(line).append("\n");
             }
             return parseTrafficData(output.toString(), direction);
-        }catch (Exception e) {
-        System.err.println("Error during remote connection: " + e.getMessage());
-        e.printStackTrace();
-    } finally {
-        // 关闭频道和会话
-        if (channel != null) {
-            channel.disconnect();
+        } catch (Exception e) {
+            System.err.println("Error during remote connection: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // 关闭频道和会话
+            if (channel != null) {
+                channel.disconnect();
+            }
+            if (session != null) {
+                session.disconnect();
+            }
         }
-        if (session != null) {
-            session.disconnect();
-        }
-    }
         return null;
     }
 
@@ -163,24 +164,24 @@ public class HuaweiTrafficCollector {
 
     // 辅助方法：统计关键词出现次数
     private static int countOccurrences(String source, String target) {
-        return source.split(target, -1).length -1;
+        return source.split(target, -1).length - 1;
     }
 
     // 解析槽位数据
     private static void processSlots(Map<String, Object> policy, String content) {
         int slotCount = countOccurrences(content, "Slot:");
         int pos = -1;
-        
+
         for (int j = 0; j < slotCount; j++) {
-            pos = content.indexOf("Slot:", pos +1);
-            String slotId = content.substring(pos +5)
-                .split("\\s", 2)[0].trim();
-            
+            pos = content.indexOf("Slot:", pos + 1);
+            String slotId = content.substring(pos + 5)
+                    .split("\\s", 2)[0].trim();
+
             Map<String, String> rules = new HashMap<>();
-            String slotContent = (j != slotCount -1) ? 
-                content.substring(pos, content.indexOf("Slot:", pos +1)) :
-                content.substring(pos);
-            
+            String slotContent = (j != slotCount - 1) ?
+                    content.substring(pos, content.indexOf("Slot:", pos + 1)) :
+                    content.substring(pos);
+
             processRules(rules, slotContent);
             policy.put(slotId, rules);
         }
@@ -190,12 +191,12 @@ public class HuaweiTrafficCollector {
     private static void processRules(Map<String, String> rules, String content) {
         Pattern rulePattern = Pattern.compile("rule (\\d+)");
         Matcher matcher = rulePattern.matcher(content);
-        
+
         while (matcher.find()) {
             String ruleId = matcher.group(1);
             int bpsPos = content.indexOf("Passed bps", matcher.end());
-            String bps = content.substring(bpsPos +10)
-                .split("\\s", 2)[0].trim();
+            String bps = content.substring(bpsPos + 10)
+                    .split("\\s", 2)[0].trim();
             rules.put(ruleId, bps);
         }
     }

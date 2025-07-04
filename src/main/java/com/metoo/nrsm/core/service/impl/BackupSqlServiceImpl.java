@@ -33,7 +33,7 @@ public class BackupSqlServiceImpl implements IBackupSqlService {
 
     @Override
     public Page<BackupSql> selectObjConditionQuery(BackupSqlDTO dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new BackupSqlDTO();
         }
         Page<BackupSql> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
@@ -48,18 +48,18 @@ public class BackupSqlServiceImpl implements IBackupSqlService {
 
     @Override
     public int save(BackupSql instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
         }
 
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 return this.backupSqlMapper.save(instance);
             } catch (Exception e) {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 return this.backupSqlMapper.update(instance);
             } catch (Exception e) {

@@ -32,7 +32,7 @@ public class TerminalAssetServiceImpl implements ITerminalAssetService {
 
     @Override
     public Page<TerminalAsset> selectObjByConditionQuery(TerminalAssetDTO instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new TerminalAssetDTO();
         }
         Page<TerminalAsset> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
@@ -47,14 +47,14 @@ public class TerminalAssetServiceImpl implements ITerminalAssetService {
 
     @Override
     public boolean save(TerminalAsset instance) {
-        if(instance.getId() == null){
-            if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null) {
+            if (instance.getId() == null || instance.getId().equals("")) {
                 instance.setAddTime(new Date());
                 instance.setFrom(1);
                 instance.setTag("DT");
                 instance.setUuid(UUID.randomUUID().toString());
-            }else{
-                if(instance.getFrom() != null && Strings.isBlank(instance.getFrom().toString())){
+            } else {
+                if (instance.getFrom() != null && Strings.isBlank(instance.getFrom().toString())) {
                     instance.setFrom(1);
                 }
             }
@@ -65,7 +65,7 @@ public class TerminalAssetServiceImpl implements ITerminalAssetService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.TerminalAssetMapper.update(instance);
                 return true;

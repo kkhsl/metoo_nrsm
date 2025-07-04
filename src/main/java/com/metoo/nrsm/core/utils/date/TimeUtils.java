@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  */
 public class TimeUtils {
 
-//    private static final String DATE_PATTERN = "^\\d{4}/\\d{2}/\\d{2}$";
+    //    private static final String DATE_PATTERN = "^\\d{4}/\\d{2}/\\d{2}$";
     private static final String DATE_PATTERN = "^\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}$";
 
 
@@ -37,14 +37,14 @@ public class TimeUtils {
 
 
     @Test
-    public void addZoneTest(){
+    public void addZoneTest() {
         addZone("2024/01/15 02:39:27");
     }
 
     // 增加8个时区
-    public static String addZone(String time){
+    public static String addZone(String time) {
         boolean flag = validateDate(time);
-        if(flag){
+        if (flag) {
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 //        String currentTime = "2024/01/15 02:44:01";
             try {
@@ -88,11 +88,11 @@ public class TimeUtils {
 
     /**
      * 获取当前时间
-     *  传统方式：Date/Calendar
-     *  java8引入的新的日期时间API：LocalDateTime/Instant/ZoneDateTime等
+     * 传统方式：Date/Calendar
+     * java8引入的新的日期时间API：LocalDateTime/Instant/ZoneDateTime等
      */
     @Test
-    public void date(){
+    public void date() {
         // 获取当前时间
         Calendar calendar = Calendar.getInstance();
 
@@ -101,7 +101,7 @@ public class TimeUtils {
     }
 
     @Test
-    public void calendar(){
+    public void calendar() {
         // 获取当前时间
         Calendar calendar = Calendar.getInstance();
 
@@ -111,7 +111,7 @@ public class TimeUtils {
 
     // 2024-05-28T02:59:59 这种格式是 ISO 8601 标准日期和时间的表示形式
     @Test
-    public void localDateTime(){
+    public void localDateTime() {
 
         // 创建一个 LocalDateTime 实例
         LocalDateTime dateTime = LocalDateTime.of(2024, 5, 28, 2, 59, 59, 0);
@@ -133,7 +133,7 @@ public class TimeUtils {
     }
 
     @Test
-    public void instant(){
+    public void instant() {
         // 获取当前时间的时间戳
         Instant now = Instant.now();
 
@@ -142,7 +142,7 @@ public class TimeUtils {
     }
 
     @Test
-    public void zonedDateTime(){
+    public void zonedDateTime() {
         // 获取当前时间及其时区
         ZonedDateTime now = ZonedDateTime.now();
 

@@ -19,7 +19,6 @@ import java.util.Arrays;
 public class PythonScriptRunner2 {
 
     /**
-     *
      * @param scriptPath
      * @param args
      * @return

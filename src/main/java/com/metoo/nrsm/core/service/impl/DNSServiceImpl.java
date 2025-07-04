@@ -32,10 +32,10 @@ public class DNSServiceImpl implements IDNSService {
 
     @Override
     public boolean save(Dns instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
         }
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
                 this.dnsMapper.save(instance);
                 return true;
@@ -43,7 +43,7 @@ public class DNSServiceImpl implements IDNSService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.dnsMapper.update(instance);
                 return true;
@@ -88,7 +88,7 @@ public class DNSServiceImpl implements IDNSService {
     public String modifydns(String[] params) {
 //        String path = Global.PYPATH + "modifydns.py";
 //        String result = pythonExecUtils.exec(path, params);
-        String result = SNMPv2Request.modifyDns(params[0],params[1]);
+        String result = SNMPv2Request.modifyDns(params[0], params[1]);
         return result;
     }
 }

@@ -8,17 +8,18 @@
         SELECT *
         FROM metoo_dhcp6_history
         WHERE
-          id = #{id}
+        id = #{id}
     </select>
 
     <select id="selectObjByLease" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Dhcp6">
         SELECT *
         FROM metoo_dhcp6_history
         WHERE
-          lease = #{lease}
+        lease = #{lease}
     </select>
 
-    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.Dhcp6Dto" resultType="com.metoo.nrsm.entity.Dhcp6">
+    <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.Dhcp6Dto"
+            resultType="com.metoo.nrsm.entity.Dhcp6">
         SELECT *
         FROM metoo_dhcp6_history
         <where>
@@ -135,7 +136,7 @@
     </update>
 
     <sql id="Copy_Column_List">
-         addTime, ia_na, cltt, iaaddr, binding_state, preferred_life, max_life, ends
+        addTime, ia_na, cltt, iaaddr, binding_state, preferred_life, max_life, ends
     </sql>
 
     <insert id="batchInsert">

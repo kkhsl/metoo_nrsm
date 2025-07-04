@@ -5,6 +5,7 @@ import redis.clients.jedis.JedisPool;
 
 /**
  * 读取数据，并清空数据库（原子操作）
+ *
  * @author HKK
  * @version 1.0
  * @date 2024-05-23 15:58
@@ -18,7 +19,7 @@ public class RedisTransactionExample {
             System.out.println("连接成功");
 
             // 如果Redis服务器有密码，可以使用如下方式连接：
-             jedis.auth("123456");
+            jedis.auth("123456");
 
             // 选择第0个数据库
             jedis.select(5);

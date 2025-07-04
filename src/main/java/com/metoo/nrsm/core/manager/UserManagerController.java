@@ -53,7 +53,7 @@ public class UserManagerController {
         if (page.getResult().size() > 0) {
             for (User user : page.getResult()) {
                 Unit unit2 = this.unitService.selectObjById(user.getUnitId());
-                if(unit2 != null){
+                if (unit2 != null) {
                     user.setUnitName(unit2.getUnitName());
                 }
             }
@@ -147,11 +147,11 @@ public class UserManagerController {
                     dto.setSalt(sale);
                     dto.setFlag(true);
                 }
-                if(dto.getUnitId() == null || "".equals(dto.getUnitId())){
+                if (dto.getUnitId() == null || "".equals(dto.getUnitId())) {
                     return ResponseUtil.badArgument("请选择所属单位");
-                }else{
+                } else {
                     Unit unit = this.unitService.selectObjById(dto.getUnitId());
-                    if(unit == null){
+                    if (unit == null) {
                         return ResponseUtil.badArgument("选择所属单位不存在");
                     }
                 }
@@ -165,7 +165,7 @@ public class UserManagerController {
         return ResponseUtil.badArgument("参数错误");
     }
 
-//    @RequiresPermissions(value = {"LK:USER:MANAGER"})
+    //    @RequiresPermissions(value = {"LK:USER:MANAGER"})
     @ApiOperation("创建用户")
     @PostMapping("/create")
     public Object persionalSave(@RequestBody UserDto dto) {
@@ -220,11 +220,11 @@ public class UserManagerController {
                 }
             }
 
-            if(dto.getUnitId() == null || "".equals(dto.getUnitId())){
+            if (dto.getUnitId() == null || "".equals(dto.getUnitId())) {
                 return ResponseUtil.badArgument("请选择所属单位");
-            }else{
+            } else {
                 Unit unit = this.unitService.selectObjById(dto.getUnitId());
-                if(unit == null){
+                if (unit == null) {
                     return ResponseUtil.badArgument("选择所属单位不存在");
                 }
             }
@@ -279,7 +279,7 @@ public class UserManagerController {
             return ResponseUtil.unlogin();
         }
         Unit unit2 = this.unitService.selectObjById(user.getUnitId());
-        if(unit2 != null){
+        if (unit2 != null) {
             user.setUnitName(unit2.getUnitName());
         }
         return ResponseUtil.ok(user);

@@ -25,12 +25,12 @@ public class SubnetIpv6ManagerController {
     private ISubnetIpv6Service subnetIpv6Service;
 
     @GetMapping("/comb")
-    public Object comb(){
+    public Object comb() {
         return this.subnetIpv6Service.getSubnet();
     }
 
     @GetMapping("list")
-    public Result list(){
+    public Result list() {
         // 获取所有子网一级
         List<SubnetIpv6> parentList = this.subnetIpv6Service.selectSubnetByParentId(null);
         if (parentList.size() > 0) {
@@ -71,7 +71,7 @@ public class SubnetIpv6ManagerController {
 
 
     @PutMapping
-    public Result update(@RequestBody SubnetIpv6 instance){
+    public Result update(@RequestBody SubnetIpv6 instance) {
         return this.subnetIpv6Service.update(instance);
     }
 }

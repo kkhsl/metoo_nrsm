@@ -70,14 +70,13 @@ public class DataFileWrite {
 //        Path filePath = uploadDir.resolve("unencrypt.txt");
         Path filePath = uploadDir.resolve(fileName);
 
-       // 将字符串数据写入文件
+        // 将字符串数据写入文件
 
         // 将字符串数据写入文件
 //        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile(), StandardCharsets.UTF_8))) {
         // 使用 BufferedWriter 和 OutputStreamWriter 写入文件
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(filePath.toFile()), StandardCharsets.UTF_8))) {
-
 
 
             // 使用 Gson 库来格式化 JSON 字符串
@@ -109,7 +108,7 @@ public class DataFileWrite {
     public static void clearFile(int number) {
         for (int i = 1; i <= number; i++) {
 
-           String filePath = Global.os_scanner_result_path
+            String filePath = Global.os_scanner_result_path
                     + i
                     + File.separator;
 
@@ -141,7 +140,6 @@ public class DataFileWrite {
             }
         }
     }
-
 
 
     public static void clearFilesInDirectory(String directoryPath) {

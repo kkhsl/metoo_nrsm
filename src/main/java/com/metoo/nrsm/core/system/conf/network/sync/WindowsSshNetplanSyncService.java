@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -78,6 +79,7 @@ public class WindowsSshNetplanSyncService {
 
     /**
      * 不用考虑更新，不用考虑更新主接口其他数据
+     *
      * @param interfaces
      */
 
@@ -89,7 +91,7 @@ public class WindowsSshNetplanSyncService {
             params.put("name", anInterface.getName());
             params.put("parentId", true);
             List<Interface> intf = this.interfaceService.selectObjByMap(params);
-            if(intf.size() <= 0){
+            if (intf.size() <= 0) {
                 interfaceService.save(anInterface);
             }
         }

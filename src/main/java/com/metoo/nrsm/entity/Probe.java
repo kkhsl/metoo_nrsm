@@ -12,7 +12,7 @@ import java.util.Date;
  * @author HKK
  * @version 1.0
  * @date 2024-06-25 22:30
- *
+ * <p>
  * 双缓冲方案（高可用方案）避免读取和写入出现空窗期
  */
 @Data
@@ -82,6 +82,7 @@ public class Probe {
     @ApiModelProperty("mac地址")
     private String mac;
     private String mac_vendor;
+
     public Probe(String port_num) {
         this.port_num = port_num;
     }

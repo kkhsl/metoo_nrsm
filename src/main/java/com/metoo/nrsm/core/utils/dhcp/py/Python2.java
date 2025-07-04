@@ -20,13 +20,13 @@ import java.util.Map;
 public class Python2 {
 
     @Test
-    public void test(){
+    public void test() {
         StringBuffer sb = new StringBuffer();
         sb.append(0);
         StringBuffer sb2 = new StringBuffer();
-        if(sb.toString().equals("0")){
+        if (sb.toString().equals("0")) {
             System.out.println(1);
-        }else{
+        } else {
             System.out.println(0);
         }
 
@@ -40,7 +40,7 @@ public class Python2 {
 //            String[] args1 = new String[] {
 //                    "python", "C:\\Users\\Administrator\\Desktop\\q\\getarp.py"};
 
-            String[] args1 = new String[] {
+            String[] args1 = new String[]{
                     "python", "E:\\python\\project\\djangoProject\\app01\\TestAbstrack.py"};
 //            String[] args1 = new String[] {
 //                    "python3", "/opt/nrsm/py/getnetintf.py"};
@@ -51,9 +51,9 @@ public class Python2 {
 
             for (int i = 0; i < mergedArray.length; i++) {
 
-                if(i < args1Len){
+                if (i < args1Len) {
                     mergedArray[i] = args1[i];
-                }else{
+                } else {
                     mergedArray[i] = args[i - args1Len];
                 }
             }
@@ -62,16 +62,16 @@ public class Python2 {
 
             StringBuffer sb = new StringBuffer();
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(),"gb2312"));//解决中文乱码，参数可传中文
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
             String line = null;
             while ((line = in.readLine()) != null) {
 //                System.out.println(line);
                 sb.append(line);
             }
 
-            if(sb.equals("0")){
+            if (sb.equals("0")) {
                 System.out.println(1);
-            }else{
+            } else {
                 System.out.println(0);
             }
             List list = new ArrayList<>();
@@ -107,21 +107,21 @@ public class Python2 {
 
 
     @Test
-    public void getdhcp(){
-        String[] args = new String[] {
+    public void getdhcp() {
+        String[] args = new String[]{
                 "python", "E:\\python\\project\\djangoProject\\app01\\nrsm\\getdhcp.py"};
         Process proc = null;// 执行py文件
         StringBuffer sb = new StringBuffer();
         try {
             proc = Runtime.getRuntime().exec(args);
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(),"gb2312"));//解决中文乱码，参数可传中文
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
             String line = null;
             while ((line = in.readLine()) != null) {
                 sb.append(line);
             }
             System.out.println(sb);
             JSONArray array = JSONObject.parseArray(JSONObject.toJSONString(sb));
-            if(array.size() > 0){
+            if (array.size() > 0) {
                 System.out.println(JSONObject.toJSONString(array.get(0)));
             }
         } catch (IOException e) {
@@ -130,14 +130,14 @@ public class Python2 {
     }
 
     @Test
-    public void getdns(){
-        String[] args = new String[] {
+    public void getdns() {
+        String[] args = new String[]{
                 "python", "E:\\python\\project\\djangoProject\\app01\\nrsm\\getdns.py"};
         Process proc = null;// 执行py文件
         StringBuffer sb = new StringBuffer();
         try {
             proc = Runtime.getRuntime().exec(args);
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(),"gb2312"));//解决中文乱码，参数可传中文
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
             String line = null;
             while ((line = in.readLine()) != null) {
                 sb.append(line);

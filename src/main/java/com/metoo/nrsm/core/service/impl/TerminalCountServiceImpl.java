@@ -40,7 +40,7 @@ public class TerminalCountServiceImpl implements ITerminalCountService {
 
     @Override
     public boolean save(TerminalCount instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
                 this.terminalCountMapper.save(instance);
                 return true;
@@ -48,7 +48,7 @@ public class TerminalCountServiceImpl implements ITerminalCountService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.terminalCountMapper.update(instance);
                 return true;

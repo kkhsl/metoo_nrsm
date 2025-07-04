@@ -49,7 +49,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
 
     @Override
     public Page<Dhcp6> selectConditionQuery(Dhcp6Dto dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new Dhcp6Dto();
         }
         Page<Dhcp6> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
@@ -64,7 +64,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
 
     @Override
     public boolean save(Dhcp6 instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
                 this.dhcp6Mapper.save(instance);
                 return true;
@@ -72,7 +72,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.dhcp6Mapper.update(instance);
                 return true;
@@ -128,7 +128,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
     }
 
     @Override
-    public void gather(Date time)  {
+    public void gather(Date time) {
 
         this.deleteTable();
 
@@ -141,7 +141,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(lines == null || lines.isEmpty()){
+        if (lines == null || lines.isEmpty()) {
             return;
         }
         for (String line : lines) {
@@ -155,7 +155,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
                         }
                         data = new HashMap();
                     }
-                    if(data != null){
+                    if (data != null) {
                         Dhcp6Utils.parseValue(key, line, data);
                     }
                 }
@@ -168,16 +168,16 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
             dataList.add(data);
         }
 
-        if(dataList.size() > 0){
+        if (dataList.size() > 0) {
             for (Map<String, String> map : dataList) {
                 Map<String, String> modifiedMap = new HashMap();
-                Set<Map.Entry<String, String>> set =  map.entrySet();
+                Set<Map.Entry<String, String>> set = map.entrySet();
                 for (Map.Entry<String, String> entry : set) {
-                    if(entry.getKey().contains(" ")){
+                    if (entry.getKey().contains(" ")) {
                         modifiedMap.put(entry.getKey().replaceAll(" ", "_"), entry.getValue());
-                    }else if(entry.getKey().contains("-")){
+                    } else if (entry.getKey().contains("-")) {
                         modifiedMap.put(entry.getKey().replaceAll("-", "_"), entry.getValue());
-                    } else{
+                    } else {
                         modifiedMap.put(entry.getKey(), entry.getValue());
                     }
                 }
@@ -192,7 +192,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
     }
 
     @Override
-    public void gather2(Date time)  {
+    public void gather2(Date time) {
         try {
 
             this.deleteTable();
@@ -220,7 +220,7 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
                                     }
                                     data = new HashMap();
                                 }
-                                if(data != null){
+                                if (data != null) {
                                     Dhcp6Utils.parseValue(key, line, data);
                                 }
                             }
@@ -233,16 +233,16 @@ public class Dhcp6ServiceImpl implements IDhcp6Service {
                         dataList.add(data);
                     }
 
-                    if(dataList.size() > 0){
+                    if (dataList.size() > 0) {
                         for (Map<String, String> map : dataList) {
                             Map<String, String> modifiedMap = new HashMap();
-                            Set<Map.Entry<String, String>> set =  map.entrySet();
+                            Set<Map.Entry<String, String>> set = map.entrySet();
                             for (Map.Entry<String, String> entry : set) {
-                                if(entry.getKey().contains(" ")){
+                                if (entry.getKey().contains(" ")) {
                                     modifiedMap.put(entry.getKey().replaceAll(" ", "_"), entry.getValue());
-                                }else if(entry.getKey().contains("-")){
+                                } else if (entry.getKey().contains("-")) {
                                     modifiedMap.put(entry.getKey().replaceAll("-", "_"), entry.getValue());
-                                } else{
+                                } else {
                                     modifiedMap.put(entry.getKey(), entry.getValue());
                                 }
                             }

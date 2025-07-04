@@ -56,16 +56,16 @@ public class PingServiceServiceImpl implements IPingService {
     }
 
     @Override
-    public void exec(){
+    public void exec() {
 
         DnsRunStatus dnsRunStatus = this.dnsRunStatusService.selectOneObj();
 
         Ping ping = this.selectOneObj();
-        if(ping != null){
+        if (ping != null) {
             PingStartParam pingStartParam = this.pingStartServiceParam.selectOneObj();
             boolean checkdns = this.dnsRunStatusService.checkdns();
-            if(!checkdns){
-                if(ping.getV6isok().equals("0")){
+            if (!checkdns) {
+                if (ping.getV6isok().equals("0")) {
                     this.killDns();
                     this.startDns("1");
                     pingStartParam.setParam("1");
@@ -74,7 +74,7 @@ public class PingServiceServiceImpl implements IPingService {
                     this.dnsRunStatusService.update(dnsRunStatus);
 
                 }
-                if(ping.getV6isok().equals("1")){
+                if (ping.getV6isok().equals("1")) {
                     this.killDns();
                     this.startDns("0");
                     pingStartParam.setParam("0");
@@ -84,8 +84,8 @@ public class PingServiceServiceImpl implements IPingService {
 
                 }
             }
-            if(ping.getV6isok().equals("0")){
-                if("0".equals(pingStartParam.getParam())){
+            if (ping.getV6isok().equals("0")) {
+                if ("0".equals(pingStartParam.getParam())) {
                     this.killDns();
                     this.startDns("1");
                     pingStartParam.setParam("1");
@@ -94,8 +94,8 @@ public class PingServiceServiceImpl implements IPingService {
                     this.dnsRunStatusService.update(dnsRunStatus);
                 }
             }
-            if(ping.getV6isok().equals("1")){
-                if("1".equals(pingStartParam.getParam())){
+            if (ping.getV6isok().equals("1")) {
+                if ("1".equals(pingStartParam.getParam())) {
                     this.killDns();
                     this.startDns("0");
                     pingStartParam.setParam("0");

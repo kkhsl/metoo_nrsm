@@ -21,9 +21,9 @@
     </resultMap>
 
     <select id="queryRecordByTime" resultMap="Base_Result_Map">
-       select * from  metoo_dns_record
-       where record_time=#{queryTime}
-       order by num DESC
+        select * from metoo_dns_record
+        where record_time=#{queryTime}
+        order by num DESC
         limit #{topN}
     </select>
 </mapper>

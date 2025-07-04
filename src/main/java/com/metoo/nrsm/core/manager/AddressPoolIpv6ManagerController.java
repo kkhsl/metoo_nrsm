@@ -49,7 +49,7 @@ public class AddressPoolIpv6ManagerController {
     @GetMapping({"/write"})
     public Result writeDhcpd() {
         SysConfig sysconfig = this.sysConfigService.select();
-        if(sysconfig.isV6_status()){
+        if (sysconfig.isV6_status()) {
             this.addressPoolIpv6Service.write();
         }
         return ResponseUtil.ok();
@@ -57,7 +57,7 @@ public class AddressPoolIpv6ManagerController {
 
 
     @PostMapping("/list")
-    public Result list(@RequestBody AddressPoolIpv6DTO dto){
+    public Result list(@RequestBody AddressPoolIpv6DTO dto) {
 
         Page<AddressPoolIpv6> page = this.addressPoolIpv6Service.selectObjConditionQuery(dto);
         return ResponseUtil.ok(new PageInfo<AddressPool>(page));
@@ -208,15 +208,13 @@ public class AddressPoolIpv6ManagerController {
     }
 
 
-
-
     @DeleteMapping({"/delete"})
     public Object delete(String ids) {
         if (ids != null && !ids.equals("")) {
             String[] var2 = ids.split(",");
             int var3 = var2.length;
 
-            for(int var4 = 0; var4 < var3; ++var4) {
+            for (int var4 = 0; var4 < var3; ++var4) {
                 String id = var2[var4];
                 Map params = new HashMap();
                 params.put("id", Long.parseLong(id));

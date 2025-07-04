@@ -5,8 +5,8 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.TerminalMacVendorMapper">
 
     <resultMap id="BaseResultMap" type="com.metoo.nrsm.entity.TerminalMacVendor">
-            <result property="terminalTypeId" column="terminalTypeId" jdbcType="BIGINT"/>
-            <result property="vendor" column="vendor" jdbcType="VARCHAR"/>
+        <result property="terminalTypeId" column="terminalTypeId" jdbcType="BIGINT"/>
+        <result property="vendor" column="vendor" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -23,7 +23,7 @@
 
     <select id="selectAllVendor" resultType="com.metoo.nrsm.entity.TerminalMacVendor">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from metoo_terminal_mac_vendor
     </select>
 
@@ -39,12 +39,12 @@
     <insert id="insert" parameterType="com.metoo.nrsm.entity.TerminalMacVendor">
         insert into metoo_terminal_mac_vendor
         <trim prefix="(" suffix=")" suffixOverrides=",">
-                <if test="terminalTypeId != null">terminalTypeId,</if>
-                <if test="vendor != null">vendor,</if>
+            <if test="terminalTypeId != null">terminalTypeId,</if>
+            <if test="vendor != null">vendor,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-                <if test="terminalTypeId != null">#{terminalTypeId},</if>
-                <if test="vendor != null">#{vendor},</if>
+            <if test="terminalTypeId != null">#{terminalTypeId},</if>
+            <if test="vendor != null">#{vendor},</if>
         </trim>
     </insert>
 

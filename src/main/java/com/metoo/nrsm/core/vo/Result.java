@@ -12,13 +12,19 @@ public class Result /*extends HashMap<String, Object>*/ implements Serializable 
 
 
     private static final long serialVersionUID = 4267799476339238113L;
-    /** 状态码 */
+    /**
+     * 状态码
+     */
     private Integer code;
 
-    /** 提示信息 */
+    /**
+     * 提示信息
+     */
     private String msg;
 
-    /** 响应数据 */
+    /**
+     * 响应数据
+     */
     private Object data;
 
 //    private User user;

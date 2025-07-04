@@ -44,7 +44,7 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     public Page<Project> selectObjConditionQuery(ProjectDTO dto) {
-        if(dto == null){
+        if (dto == null) {
             dto = new ProjectDTO();
         }
 //        User user = ShiroUserHolder.currentUser();
@@ -64,17 +64,17 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     public int save(Project instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
         }
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
                 return this.projectMapper.save(instance);
             } catch (Exception e) {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 return this.projectMapper.update(instance);
             } catch (Exception e) {

@@ -7,7 +7,7 @@ package com.metoo.nrsm.core.config.design.mode.pattern.creational.prototype;
  */
 public class Circle extends Shape {
 
-    public Circle(){
+    public Circle() {
         type = "Circle";
     }
 

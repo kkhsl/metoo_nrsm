@@ -22,13 +22,13 @@ public class ShiroExceptionHandler {
     @ResponseBody
     public Object unauthenticatedHandler(AuthenticationException e) {
         logger.warn(e.getMessage(), e);
-        return new Result(401,"Log in");
+        return new Result(401, "Log in");
     }
 
     @ExceptionHandler(AuthorizationException.class)
     @ResponseBody
     public Object unauthorizedHandler(AuthorizationException e) {
         logger.warn("errorTest: " + e.getMessage(), e);
-        return new Result(403,"Insufficient authority");
+        return new Result(403, "Insufficient authority");
     }
 }

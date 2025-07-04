@@ -10,15 +10,15 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- *     Title: Accessory.java
+ * Title: Accessory.java
  * </p>
  *
  * <p>
- *     Description: 系统附件管理类，图片附件; 测试Mysql字段和实体类属性名不同案例；后续可更改为一直属性
+ * Description: 系统附件管理类，图片附件; 测试Mysql字段和实体类属性名不同案例；后续可更改为一直属性
  * </p>
  *
  * <author>
- *     HKK
+ * HKK
  * </author>
  */
 

@@ -23,7 +23,7 @@ public class JdbcExample {
 
     }
 
-    public static double getV6(){
+    public static double getV6() {
         String jdbcUrl = "jdbc:mysql://localhost:3306/nrsm";
         String username = "root";
         String password = "123456";

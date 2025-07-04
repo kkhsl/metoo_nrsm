@@ -45,7 +45,7 @@ public class UnboundServiceImpl implements IUnboundService {
     public boolean add(UnboundDTO instance) {
 
         Unbound unbound = this.selectObjByOne(Collections.emptyMap());
-        if(unbound == null){
+        if (unbound == null) {
             unbound = new Unbound();
             try {
                 String localData = new ObjectMapper().writeValueAsString(instance.getLocalData());
@@ -75,7 +75,7 @@ public class UnboundServiceImpl implements IUnboundService {
                 e.printStackTrace();
             }
             return this.save(unbound);
-        }else{
+        } else {
             try {
                 String localData = new ObjectMapper().writeValueAsString(instance.getLocalData());
                 unbound.setLocalData(localData);
@@ -108,7 +108,7 @@ public class UnboundServiceImpl implements IUnboundService {
                 unbound.setUpdateTime(new Date());
                 int i = this.unboundMapper.update(unbound);
                 boolean flag = writeUnbound();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -120,12 +120,13 @@ public class UnboundServiceImpl implements IUnboundService {
             }
         }
     }
+
     @Override
     @Transactional()
     public boolean addDNS(UnboundDTO instance) {
 
         Unbound unbound = this.selectObjByOne(Collections.emptyMap());
-        if(unbound == null){
+        if (unbound == null) {
             unbound = new Unbound();
             try {
                 String forwardAddressJson = new ObjectMapper().writeValueAsString(instance.getForwardAddress());
@@ -134,7 +135,7 @@ public class UnboundServiceImpl implements IUnboundService {
                 e.printStackTrace();
             }
             return this.saveDNS(unbound);
-        }else{
+        } else {
             try {
                 String forwardAddressJson = new ObjectMapper().writeValueAsString(instance.getForwardAddress());
                 unbound.setForwardAddress(forwardAddressJson);
@@ -146,7 +147,7 @@ public class UnboundServiceImpl implements IUnboundService {
                 unbound.setUpdateTime(new Date());
                 int i = this.unboundMapper.update(unbound);
                 boolean flag = writeUnboundDNS();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -165,17 +166,17 @@ public class UnboundServiceImpl implements IUnboundService {
     public boolean open(UnboundDTO instance) {
 
         Unbound unbound = this.selectObjByOne(Collections.emptyMap());
-        if(unbound == null){
+        if (unbound == null) {
             unbound = new Unbound();
             unbound.setPrivateAddress(instance.getPrivateAddress());
             return this.openAdress(unbound);
-        }else{
+        } else {
             unbound.setPrivateAddress(instance.getPrivateAddress());
             try {
                 unbound.setUpdateTime(new Date());
                 int i = this.unboundMapper.update(unbound);
                 boolean flag = writeUnboundAdress();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -191,18 +192,15 @@ public class UnboundServiceImpl implements IUnboundService {
     }
 
 
-
-
-
     @Override
     public boolean delete(Long id) {
         try {
             Unbound unbound = this.unboundMapper.selectObjByOne(Collections.EMPTY_MAP);
-            if (unbound.getLocalZone()!=null){
+            if (unbound.getLocalZone() != null) {
                 UnboundConfUtil.deleteConfigFile(Global.unboundPath, unbound);
                 this.unboundMapper.delete(id);
                 return true;
-            }else {
+            } else {
                 return false;
             }
         } catch (Exception e) {
@@ -217,11 +215,11 @@ public class UnboundServiceImpl implements IUnboundService {
             Unbound unbound = this.unboundMapper.selectObjByOne(Collections.EMPTY_MAP);
             UnboundDTO unboundDTO = new UnboundDTO();
             unboundDTO.setForwardAddress(new ArrayList<>());
-            if (unbound.getForwardAddress()!=null){
+            if (unbound.getForwardAddress() != null) {
                 addDNS(unboundDTO);
                 this.unboundMapper.deleteDNS(id);
                 return true;
-            }else {
+            } else {
                 return false;
             }
         } catch (Exception e) {
@@ -242,7 +240,6 @@ public class UnboundServiceImpl implements IUnboundService {
     }
 
 
-
     @Override
     public Unbound selectObjByOne(Map params) {
         return this.unboundMapper.selectObjByOne(params);
@@ -251,13 +248,13 @@ public class UnboundServiceImpl implements IUnboundService {
     @Override
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     public boolean save(Unbound instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             instance.setUpdateTime(new Date());
             try {
                 int i = this.unboundMapper.save(instance);
                 boolean flag = writeUnbound();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -267,12 +264,12 @@ public class UnboundServiceImpl implements IUnboundService {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return false;
             }
-        }else{
+        } else {
             try {
                 instance.setUpdateTime(new Date());
                 int i = this.unboundMapper.update(instance);
                 boolean flag = writeUnbound();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -289,13 +286,13 @@ public class UnboundServiceImpl implements IUnboundService {
     @Override
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     public boolean saveDNS(Unbound instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             instance.setUpdateTime(new Date());
             try {
                 int i = this.unboundMapper.save(instance);
                 boolean flag = writeUnboundDNS();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -305,12 +302,12 @@ public class UnboundServiceImpl implements IUnboundService {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return false;
             }
-        }else{
+        } else {
             try {
                 instance.setUpdateTime(new Date());
                 int i = this.unboundMapper.update(instance);
                 boolean flag = writeUnboundDNS();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -326,18 +323,18 @@ public class UnboundServiceImpl implements IUnboundService {
     @Override
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     public boolean savePort(List<Interface> instance) {
-            try {
-                boolean flag = writeUnboundPort(instance);
-                if(flag){
-                    return true;
-                }
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return false;
-            } catch (Exception e) {
-                e.printStackTrace();
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return false;
+        try {
+            boolean flag = writeUnboundPort(instance);
+            if (flag) {
+                return true;
             }
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
     }
 
     @Override
@@ -353,13 +350,13 @@ public class UnboundServiceImpl implements IUnboundService {
     @Override
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     public boolean openAdress(Unbound instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             instance.setUpdateTime(new Date());
             try {
                 int i = this.unboundMapper.save(instance);
                 boolean flag = writeUnboundDNS();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -369,12 +366,12 @@ public class UnboundServiceImpl implements IUnboundService {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return false;
             }
-        }else{
+        } else {
             try {
                 instance.setUpdateTime(new Date());
                 int i = this.unboundMapper.update(instance);
                 boolean flag = writeUnboundDNS();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -395,6 +392,7 @@ public class UnboundServiceImpl implements IUnboundService {
         }
         return flag;
     }
+
     public boolean writeUnboundDNS() throws Exception {
         Unbound unbound = this.unboundMapper.selectObjByOne(Collections.EMPTY_MAP);
         boolean flag = UnboundConfUtil.updateConfigDNSFile(Global.unboundPath, unbound);
@@ -427,7 +425,7 @@ public class UnboundServiceImpl implements IUnboundService {
     public boolean update(UnboundDTO instance) {
 
         Unbound unbound = this.selectObjByOne(Collections.emptyMap());
-        if(unbound == null){
+        if (unbound == null) {
             unbound = new Unbound();
             try {
                 String forwardAddressJson = new ObjectMapper().writeValueAsString(instance.getForwardAddress());
@@ -446,7 +444,7 @@ public class UnboundServiceImpl implements IUnboundService {
             }
             unbound.setPrivateAddress(instance.getPrivateAddress());
             return this.save(unbound);
-        }else{
+        } else {
             try {
                 String forwardAddressJson = new ObjectMapper().writeValueAsString(instance.getForwardAddress());
                 unbound.setForwardAddress(forwardAddressJson);
@@ -466,7 +464,7 @@ public class UnboundServiceImpl implements IUnboundService {
                 unbound.setUpdateTime(new Date());
                 int i = this.unboundMapper.update(unbound);
                 boolean flag = writeUnbound();
-                if(flag && i >= 1){
+                if (flag && i >= 1) {
                     return true;
                 }
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -478,9 +476,6 @@ public class UnboundServiceImpl implements IUnboundService {
             }
         }
     }
-
-
-
 
 
     public boolean restart() throws Exception {
@@ -596,6 +591,7 @@ public class UnboundServiceImpl implements IUnboundService {
             return false;
         }
     }
+
     public boolean status2() throws Exception {
         // 检查 Unbound 服务状态
         ProcessBuilder statusBuilder = new ProcessBuilder("systemctl", "status", "unbound");
@@ -633,6 +629,7 @@ public class UnboundServiceImpl implements IUnboundService {
 
         return isRunning;
     }
+
     public boolean stop2() throws Exception {
         // 停止 Unbound 服务
         ProcessBuilder stopBuilder = new ProcessBuilder("systemctl", "stop", "unbound");
@@ -691,14 +688,14 @@ public class UnboundServiceImpl implements IUnboundService {
         return statusOutput.contains("active (running)");
     }
 
-    public boolean start(){
+    public boolean start() {
         if ("test".equals(Global.env)) {
             try {
                 return true;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }else{
+        } else {
             try {
                 return restart2();
             } catch (Exception e) {
@@ -707,14 +704,14 @@ public class UnboundServiceImpl implements IUnboundService {
         }
     }
 
-    public boolean stop(){
+    public boolean stop() {
         if ("dev".equals(Global.env)) {
             try {
                 return stop1();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }else{
+        } else {
             try {
                 return stop2();
             } catch (Exception e) {
@@ -722,14 +719,15 @@ public class UnboundServiceImpl implements IUnboundService {
             }
         }
     }
-    public boolean status(){
+
+    public boolean status() {
         if ("dev".equals(Global.env)) {
             try {
                 return status1();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }else{
+        } else {
             try {
                 return status2();
             } catch (Exception e) {
@@ -738,14 +736,14 @@ public class UnboundServiceImpl implements IUnboundService {
         }
     }
 
-    public boolean radvdStatus(){
+    public boolean radvdStatus() {
         if ("TestAbstrack".equals(Global.env)) {
             try {
                 return radvdStatus1();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }else{
+        } else {
             try {
                 return radvdStatus2();
             } catch (Exception e) {
@@ -753,7 +751,6 @@ public class UnboundServiceImpl implements IUnboundService {
             }
         }
     }
-
 
 
     private String consumeInputStream(InputStream inputStream) throws IOException {
@@ -784,7 +781,6 @@ public class UnboundServiceImpl implements IUnboundService {
         // 判断服务状态
         return statusOutput.contains("Active: active (running)");
     }
-
 
 
 }

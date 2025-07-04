@@ -12,6 +12,7 @@ public interface IUserService {
 
     /**
      * 根据Username 查询一个User 对象
+     *
      * @param username
      * @return
      */
@@ -41,9 +42,9 @@ public interface IUserService {
 
     boolean allocation(List<User> list);
 
-    List<User> findObjByIds(Long[] ids) ;
+    List<User> findObjByIds(Long[] ids);
 
-    List<User> selectObjByMap(Map params) ;
+    List<User> selectObjByMap(Map params);
 
-    
+
 }

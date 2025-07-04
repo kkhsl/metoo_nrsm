@@ -713,7 +713,7 @@ public class SNMPv3Request {
         Map<String, String> protoTypeMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Proto_type);
 //        Map<String, String> PreferenceMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Proto_type);
         // 3. 转换为JSON返回
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap,costMap,protoTypeMap,portMap));
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap, costMap, protoTypeMap, portMap));
     }
 
 
@@ -837,7 +837,6 @@ public class SNMPv3Request {
             e.printStackTrace();
             log.error("设备{}数据解析错误", snmpParams.getHost());
         }
-
 
 
         // 创建结果数组

@@ -58,13 +58,13 @@ public class SshTracerouteDemo {
     }
 
     /**
-     *   消费inputstream，并返回
+     * 消费inputstream，并返回
      */
     public static String consumeInputStream(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String s ;
+        String s;
         StringBuilder sb = new StringBuilder();
-        while((s=br.readLine())!=null){
+        while ((s = br.readLine()) != null) {
             sb.append(s);
         }
         return sb.toString();
@@ -73,7 +73,7 @@ public class SshTracerouteDemo {
     public static void consumeInputStream2(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String line;
-        while((line = br.readLine())!=null){
+        while ((line = br.readLine()) != null) {
             System.out.println(line);
         }
     }

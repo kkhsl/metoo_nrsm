@@ -45,16 +45,16 @@ public class Dhcp6Demo {
                     dataList.add(data);
                 }
 
-                if(dataList.size() > 0){
+                if (dataList.size() > 0) {
                     for (Map<String, String> map : dataList) {
                         Map<String, String> modifiedMap = new HashMap();
-                        Set<Map.Entry<String, String>> set =  map.entrySet();
+                        Set<Map.Entry<String, String>> set = map.entrySet();
                         for (Map.Entry<String, String> entry : set) {
-                            if(entry.getKey().contains(" ")){
+                            if (entry.getKey().contains(" ")) {
                                 modifiedMap.put(entry.getKey().replaceAll(" ", "_"), entry.getValue());
-                            }else if(entry.getKey().contains("-")){
+                            } else if (entry.getKey().contains("-")) {
                                 modifiedMap.put(entry.getKey().replaceAll("-", "_"), entry.getValue());
-                            } else{
+                            } else {
                                 modifiedMap.put(entry.getKey(), entry.getValue());
                             }
                         }

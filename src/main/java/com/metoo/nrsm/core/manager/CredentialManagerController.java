@@ -21,12 +21,12 @@ public class CredentialManagerController {
 
     @ApiOperation("凭据列表")
     @PostMapping("/list")
-    public Object list(@RequestBody(required = true) CredentialDTO dto){
-        if(dto == null){
+    public Object list(@RequestBody(required = true) CredentialDTO dto) {
+        if (dto == null) {
             dto = new CredentialDTO();
         }
         Page<Credential> page = this.credentialService.selectObjByConditionQuery(dto);
-        if(page.getResult().size() > 0){
+        if (page.getResult().size() > 0) {
 
             return ResponseUtil.ok(new PageInfo<Credential>(page));
         }
@@ -35,50 +35,50 @@ public class CredentialManagerController {
 
     @ApiOperation("凭据添加")
     @PostMapping("/save")
-    public Object save(@RequestBody Credential instance){
-        if(StringUtils.isEmpty(instance.getName())){
+    public Object save(@RequestBody Credential instance) {
+        if (StringUtils.isEmpty(instance.getName())) {
             return ResponseUtil.badArgument("凭据名不能为空");
         }
-        if(StringUtils.isEmpty(instance.getLoginName())){
+        if (StringUtils.isEmpty(instance.getLoginName())) {
             return ResponseUtil.badArgument("登录名不能为空");
         }
 //        if(MyStringUtils.isEmpty(instance.getLoginPassword())){
 //            return ResponseUtil.badArgument("登录密码不能为空");
 //        }
-        if(instance.isTrafficPermit()){
-            if(StringUtil.isEmpty(instance.getEnableUserName())){
+        if (instance.isTrafficPermit()) {
+            if (StringUtil.isEmpty(instance.getEnableUserName())) {
                 return ResponseUtil.badArgument("通行用户名不能为空");
             }
-            if(StringUtil.isEmpty(instance.getEnablePassword())){
+            if (StringUtil.isEmpty(instance.getEnablePassword())) {
                 return ResponseUtil.badArgument("通行密码不能为空");
             }
-        }else{
+        } else {
             instance.setEnablePassword(null);
             instance.setEnableUserName(null);
         }
         int i = this.credentialService.save(instance);
-        if(i >= 1){
+        if (i >= 1) {
             return ResponseUtil.ok();
-        }else{
+        } else {
             return ResponseUtil.error();
         }
     }
 
     @ApiOperation("删除/批量删除")
     @DeleteMapping
-    public Object delete(@RequestParam(required = false, value = "id") Long id,@RequestParam(required = false, value = "ids") Long[] ids){
-        if(ids != null && ids.length > 0){
+    public Object delete(@RequestParam(required = false, value = "id") Long id, @RequestParam(required = false, value = "ids") Long[] ids) {
+        if (ids != null && ids.length > 0) {
             int i = this.credentialService.batchesDel(ids);
-            if(i >= 1){
+            if (i >= 1) {
                 return ResponseUtil.ok();
-            }else{
+            } else {
                 return ResponseUtil.error();
             }
-        }else  if(id != null && !id.equals("")){
+        } else if (id != null && !id.equals("")) {
             int i = this.credentialService.delete(id);
-            if(i >= 1){
+            if (i >= 1) {
                 return ResponseUtil.ok();
-            }else{
+            } else {
                 return ResponseUtil.error();
             }
         }

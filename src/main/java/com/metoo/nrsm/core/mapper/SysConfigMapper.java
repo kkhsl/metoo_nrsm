@@ -10,12 +10,14 @@ public interface SysConfigMapper {
 
     /**
      * 查询所有 配置
+     *
      * @return
      */
     SysConfig select();
 
     /**
      * 更新
+     *
      * @param instance
      * @return
      */

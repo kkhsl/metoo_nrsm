@@ -36,7 +36,6 @@ public class UnboundManagerController {
     private String password;
 
 
-
     @PostMapping("/save")
     private Result add(@RequestBody UnboundDTO instance) {
         boolean flag = this.unboundService.add(instance);
@@ -199,7 +198,7 @@ public class UnboundManagerController {
     public Result savePort(@RequestBody List<String> interfaceNames) throws Exception {
         List<Interface> instance = selectPort(interfaceNames);
         boolean flag = unboundService.savePort(instance);
-        if (flag){
+        if (flag) {
             try {
                 if (restart()) {
                     return ResponseUtil.ok();
@@ -222,10 +221,6 @@ public class UnboundManagerController {
     public Boolean stop() throws Exception {
         return unboundService.stop();
     }
-
-
-
-
 
 
 }

@@ -10,7 +10,7 @@ public class TestIpdb {
 
 
     @Test
-    public void test(){
+    public void test() {
 //        try {
 //            // City类可用于IPDB格式的IPv4免费库，
 //            City db = new City("ipv4_china3_cn.ipdb");

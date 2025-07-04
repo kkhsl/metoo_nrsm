@@ -34,7 +34,6 @@
     </select>
 
 
-
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.FlowStatistics">
         select * from metoo_flux_statistics
         <where>

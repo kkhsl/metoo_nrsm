@@ -119,16 +119,16 @@ public class TerminalAsset extends IdEntity {
 
 
     @ApiModelProperty("采购时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchase_time;
 
     @ApiModelProperty("过保时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date warranty_time;
 
-    @JSONField(name="price",serializeUsing = DoubleSerializer.class)
+    @JSONField(name = "price", serializeUsing = DoubleSerializer.class)
     @ApiModelProperty("价格")
     private Double price;
 

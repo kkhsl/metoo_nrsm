@@ -20,19 +20,19 @@ public class MyAccessControlFilter extends AccessControlFilter {
         //判断用户是通过记住我功能自动登录,此时session失效
 
         Subject subject = SecurityUtils.getSubject();
-        if(subject.getPrincipal() != null){
+        if (subject.getPrincipal() != null) {
             // 如果未认证并且未IsreMenmberMe(Session失效问题)
-            if(subject.isAuthenticated()/* || subject.isRemembered()*/){
+            if (subject.isAuthenticated()/* || subject.isRemembered()*/) {
                 return true;
-            }else{
+            } else {
                 response.setContentType("application/json;charset=utf-8");
-                response.getWriter().print(JSONObject.toJSONString(new Result(401,"Log in")));
+                response.getWriter().print(JSONObject.toJSONString(new Result(401, "Log in")));
                 return false;
             }
         }
 
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().print(JSONObject.toJSONString(new Result(401,"Log in")));
+        response.getWriter().print(JSONObject.toJSONString(new Result(401, "Log in")));
         return false;
     }
 

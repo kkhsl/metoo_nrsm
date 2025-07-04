@@ -41,7 +41,7 @@ public interface IDeviceTypeService {
 
     List<DeviceTypeVO> statistics();
 
-   int save(DeviceType instance);
+    int save(DeviceType instance);
 
     int update(DeviceType instance);
 
@@ -49,7 +49,7 @@ public interface IDeviceTypeService {
 
     int batcheDel(Long[] ids);
 
-//    String saveAndUpload(DeviceType instance, MultipartFile onlineFile, MultipartFile offlineFile);
+    //    String saveAndUpload(DeviceType instance, MultipartFile onlineFile, MultipartFile offlineFile);
     Object saveAndUpload(DeviceType instance, MultipartFile onlineFile, MultipartFile offlineFile);
 }
 

@@ -20,16 +20,17 @@ import java.util.concurrent.TimeUnit;
  * @author HKK
  * @version 1.0
  * @date 2024-04-19 16:06
- *
+ * <p>
  * 重复点击校验
- *
  */
 @Slf4j
 @Aspect
 @Component
 public class IdempotentAOP {
 
-    /** Redis前缀 */
+    /**
+     * Redis前缀
+     */
     private String API_IDEMPOTENT_CHECK = "API_IDEMPOTENT_CHECK:";
 
     @Resource
@@ -46,7 +47,7 @@ public class IdempotentAOP {
 
     /**
      * 在接口原有的方法执行前，将会首先执行此处的代码
-     *
+     * <p>
      * Redis通过其事务、分布式锁、原子操作和过期时间等特性
      */
     @Before("notRepeat()")
@@ -68,7 +69,7 @@ public class IdempotentAOP {
                     log.error(">>>>>>>>>> 【IDEMPOTENT】配置文件保存中，请稍后");
                     throw new MyIllegalArgumentException("配置保存中，请稍后");
 
-                } else  if (uri.contains("address/pool/ipv6/write")) {
+                } else if (uri.contains("address/pool/ipv6/write")) {
                     log.error(">>>>>>>>>> 【IDEMPOTENT】配置文件保存中，请稍后");
                     throw new MyIllegalArgumentException("配置保存中，请稍后");
                 }

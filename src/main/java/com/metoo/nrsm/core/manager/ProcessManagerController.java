@@ -25,7 +25,7 @@ public class ProcessManagerController {
 
 
     @GetMapping("/list")
-    private Result select(){
+    private Result select() {
         try {
             // 获取服务状态
             String dhcpdStatus = checkProcessStatus.checkProcessStatus("dhcpd");
@@ -36,7 +36,7 @@ public class ProcessManagerController {
             Map<String, String> statusMap = new LinkedHashMap<>(4);
             statusMap.put("dhcpdStatus", convertStringStatus(dhcpdStatus));
             statusMap.put("dhcpd6Status", convertStringStatus(dhcpd6Status));
-            statusMap.put("checkaliveipStatus", oldPingIpConfig.isEnabled()==true?"true": "false");
+            statusMap.put("checkaliveipStatus", oldPingIpConfig.isEnabled() == true ? "true" : "false");
             statusMap.put("dnsStatus", String.valueOf(dnsStatus).toLowerCase());
             statusMap.put("radvdStatus", String.valueOf(radvdStatus).toLowerCase());
 

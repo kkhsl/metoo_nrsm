@@ -10,7 +10,6 @@ import java.util.Map;
 public class Ipv6SubnetMap {
 
 
-
     public static Long findSubnetForIp(Map<String, Long> subnetMap, String ipAddress) throws UnknownHostException {
         for (String subnet : subnetMap.keySet()) {
             if (IPv6SubnetCheck.isInSubnet(ipAddress, subnet)) {

@@ -92,9 +92,8 @@ public class Ipv4ServiceImpl implements Ipv4Service {
 
     /**
      * 避免清表和写入之间存在空表时间
-     *
+     * <p>
      * 将清表和写入放到同一事务中，
-     *
      */
     @Override
     public boolean clearAndcopyGatherDataToIpv4() {

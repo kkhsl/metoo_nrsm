@@ -10,9 +10,14 @@ import java.util.Map;
 public interface DnsFilterMapper {
 
     List<DnsFilter> selectAll(Map params);
+
     DnsFilter selectById(Long id);
+
     DnsFilter selectByDomainName(String domainName);
+
     int save(DnsFilter instance);
+
     int update(DnsFilter instance);
+
     int delete(Long id);
 }
