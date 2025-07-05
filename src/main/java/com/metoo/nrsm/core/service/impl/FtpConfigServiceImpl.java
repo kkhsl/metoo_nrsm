@@ -56,7 +56,6 @@ public class FtpConfigServiceImpl {
 
 
     public Result selectAllQuery() {
-
         List<FtpConfig> configs = ftpConfigMapper.selectAllActive();
         return ResponseUtil.ok(configs);
     }

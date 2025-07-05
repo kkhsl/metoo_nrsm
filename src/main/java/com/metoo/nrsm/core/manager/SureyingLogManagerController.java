@@ -42,7 +42,7 @@ public class SureyingLogManagerController {
 
         if (surveyingLogList.size() > 0) {
             long count = surveyingLogList.stream().filter(surveyingLogVo -> surveyingLogVo.getType() != null
-                    && surveyingLogVo.getType() == 5 && (surveyingLogVo.getStatus() == 2 || surveyingLogVo.getStatus() == 3)).count();
+                    && surveyingLogVo.getType() == 3 && (surveyingLogVo.getStatus() == 2 || surveyingLogVo.getStatus() == 3)).count();
             if (count >= 1) {
                 finish = true;
             }
@@ -131,7 +131,7 @@ public class SureyingLogManagerController {
                 if (surveyingLogList != null && !surveyingLogList.isEmpty()) {
                     finish = surveyingLogList.stream()
                             .anyMatch(log -> log.getType() != null
-                                    && log.getType() == 4 && (log.getStatus() == 2 || log.getStatus() == 3));
+                                    && log.getType() == 5 && (log.getStatus() == 2 || log.getStatus() == 3));
                 }
 
                 // 计算当前日志列表的哈希值

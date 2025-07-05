@@ -1818,7 +1818,7 @@
         <!--join metoo_mac_vendor d2 on d1.mac LIKE CONCAT(d2.mac, '%');-->
 
         -- SELECT d1.addTime, d1.mac, d1.port, d1.deviceIp, d1.deviceName, d1.deviceUuid, d1.tag, d1.type,d1.hostname,
-        d1.remoteDevice, d1.remotePort, d2.vendor as macVendor
+--         d1.remoteDevice, d1.remotePort, d2.vendor as macVendor
         -- FROM metoo_mac_gather d1
         -- join metoo_mac_vendor d2 ON LEFT(d1.mac, LENGTH(d2.mac)) = d2.mac;
         INSERT INTO metoo_mac(

@@ -56,13 +56,13 @@ public class GatherMacUtils {
     @Autowired
     private MacTestServiceImpl macTestService;
 
-    //    @Transactional
+    @Transactional
     public void copyGatherData(Date date) {
         try {
             copyData(date);
             List<Mac> macs = this.macService.selectObjByMap(Collections.emptyMap());
             if (!macs.isEmpty()) {// 给mac条目打tag
-//                updateMacTag(date);
+                updateMacTag(date);
             }
         } catch (Exception e) {
             log.error("Error method copyGatherData: {}", date, e);
@@ -508,6 +508,7 @@ public class GatherMacUtils {
                             NetworkElement ne = new NetworkElement();
                             ne.setAddTime(new Date());
                             ne.setDisplay(true);
+                            ne.setNswitch(true);
                             ne.setDeviceName(nswitchName);
                             DeviceType deviceType = this.deviceTypeService.selectObjByType(29);
                             ne.setDeviceTypeId(deviceType.getId());

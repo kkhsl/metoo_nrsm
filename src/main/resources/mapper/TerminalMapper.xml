@@ -1473,7 +1473,7 @@
         ON d1.id = d2.id
         SET d1.deviceTypeId = 9;
         -- update metoo_terminal d1 where EXISTS(select 1 from metoo_terminal d2 where d2.macVendor like 'VMware%' and
-        d1.id = d2.id);
+--         d1.id = d2.id);
     </update>
 
     <update id="updateVMDeviceIp">

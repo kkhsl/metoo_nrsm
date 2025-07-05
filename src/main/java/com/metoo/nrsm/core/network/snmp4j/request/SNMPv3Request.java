@@ -720,16 +720,16 @@ public class SNMPv3Request {
     public static String getRoute6(SNMPV3Params snmpParams) {
         // 获取原始SNMP数据
         Map<String, String> destNetworkMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Destination_network6);
-        Map<String, String> maskMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Mask6);
-        Map<String, String> interfaceMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Interface6);
+//        Map<String, String> maskMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Destination_network);
+//        Map<String, String> interfaceMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Destination_network);
         Map<String, String> portMap = SNMPDataParser.parseDevicePort(sendGETNEXTRequest(snmpParams, SNMP_OID.PORT));
         Map<String, String> nextHopMap = sendGETNEXTRequest(snmpParams, SNMP_OID.NextHop6);
         Map<String, String> costMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Cost6);
         Map<String, String> protoTypeMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Proto_type6);
-        Map<String, String> PreferenceMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Preference);
+        Map<String, String> PreferenceMap = sendGETNEXTRequest(snmpParams, SNMP_OID.Preference6);
+
         // 3. 转换为JSON返回
-        //return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute(destNetworkMap,maskMap,interfaceMap,nextHopMap,costMap,protoTypeMap,portMap));
-        return null;
+        return SNMPDataParser.convertToJson(SNMPDataParser.parseRoute6(destNetworkMap,nextHopMap,costMap,protoTypeMap,portMap,PreferenceMap));
     }
 
 

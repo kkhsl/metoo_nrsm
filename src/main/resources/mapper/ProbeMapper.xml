@@ -26,7 +26,7 @@
         </where>
     </select>
 
-    <select id="selectProbeBackByMapinsert" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Probe">
+    <select id="selectProbeBackByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Probe">
         SELECT *
         FROM metoo_probe_bck
         <where>

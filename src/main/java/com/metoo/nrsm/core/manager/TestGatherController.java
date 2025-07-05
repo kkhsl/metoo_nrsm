@@ -76,6 +76,11 @@ public class TestGatherController {
         this.gatherSingleThreadingMacSNMPUtils.updateTerminal(DateTools.gatherDate());
     }
 
+    @GetMapping("/mac")
+    public void mac() {
+        this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
+    }
+
     @GetMapping("/writeTerminal")
     public void writeTerminal() {
         this.probeService.writeTerminal();

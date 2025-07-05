@@ -1,0 +1,2 @@
+ALTER TABLE metoo_ne
+ADD COLUMN nswitch TINYINT(2) DEFAULT 0  AFTER display;

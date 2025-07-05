@@ -367,6 +367,9 @@
             <if test="portTelnet != null">
                 portTelnet,
             </if>
+            <if test="nswitch != null">
+                nswitch,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -485,6 +488,9 @@
             </if>
             <if test="portTelnet != null">
                 #{portTelnet},
+            </if>
+            <if test="nswitch != null">
+                #{nswitch},
             </if>
         </trim>
     </insert>
@@ -651,12 +657,12 @@
         deviceTypeId = 34
         AND
         online = true
+        AND
+        nswitch = true
         GROUP BY
         deviceName
         ) AS d2 ON d1.device_name = d2.deviceName
         SET d1.display = 1;
-
-
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">
