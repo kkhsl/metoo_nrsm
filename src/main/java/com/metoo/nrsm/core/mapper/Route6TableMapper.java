@@ -18,4 +18,7 @@ public interface Route6TableMapper {
 
 
     List<Route6Entry> selectObjByDeviceUuid(String deviceIp);
+
+
+    void copyDataToRoute6History();
 }

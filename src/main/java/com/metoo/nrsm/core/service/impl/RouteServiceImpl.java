@@ -131,4 +131,10 @@ public class RouteServiceImpl {
         }
         return new ArrayList<>();
     }
+
+
+
+    public void copyDataToRouteHistory(){
+        routeTableMapper.copyDataToRouteHistory();
+    }
 }

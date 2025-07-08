@@ -20,6 +20,11 @@
             )
         </foreach>
     </insert>
+    <insert id="copyDataToRoute6History">
+        INSERT INTO metoo_route6_table_history
+        SELECT *
+        FROM metoo_route6_table
+    </insert>
     <select id="selectObjByDeviceUuid" resultType="com.metoo.nrsm.entity.Route6Entry">
         SELECT
             time,

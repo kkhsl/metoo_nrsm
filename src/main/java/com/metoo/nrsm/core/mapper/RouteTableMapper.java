@@ -18,4 +18,8 @@ public interface RouteTableMapper {
 
 
     List<RouteEntry> selectObjByDeviceUuid(String deviceIp);
+
+    void copyDataToRouteHistory();
+
+
 }

@@ -131,4 +131,9 @@ public class Route6ServiceImpl {
     }
 
 
+    public void copyDataToRoute6History(){
+        route6TableMapper.copyDataToRoute6History();
+    }
+
+
 }
