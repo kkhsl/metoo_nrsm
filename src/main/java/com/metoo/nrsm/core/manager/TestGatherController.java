@@ -45,6 +45,19 @@ public class TestGatherController {
         }
     }
 
+    @GetMapping("/gatherArp")
+    public void gatherArp() {
+        log.info("Arp采集任务开始");
+        try {
+            Long time = System.currentTimeMillis();
+            gatherService.gatherArp(DateTools.gatherDate());
+            log.info("Arp采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Arp采集任务异常: {}", e.getMessage());
+        }
+    }
+
     @GetMapping("/port")
     public void port() {
         log.info("Port采集任务开始");

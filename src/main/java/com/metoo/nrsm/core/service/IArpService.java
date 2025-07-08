@@ -43,4 +43,5 @@ public interface IArpService {
 
     boolean copyGatherDataToArp();
 
+    int copyDataToArpHistory();
 }

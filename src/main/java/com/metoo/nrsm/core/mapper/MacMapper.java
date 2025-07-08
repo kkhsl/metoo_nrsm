@@ -123,5 +123,6 @@ public interface MacMapper {
     // 查看锁
     int queryLock();
 
+    int copyDataToMacHistory();
 
 }

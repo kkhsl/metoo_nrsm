@@ -1844,4 +1844,9 @@
         show open tables where In_use > 0 and `Table` = 'metoo_mac_gather';
     </select>
 
+    <insert id="copyDataToMacHistory">
+        INSERT INTO metoo_mac_history
+        SELECT * FROM metoo_mac
+    </insert>
+
 </mapper>

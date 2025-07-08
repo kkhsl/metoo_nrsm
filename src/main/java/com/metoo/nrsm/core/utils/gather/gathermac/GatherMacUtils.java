@@ -64,6 +64,7 @@ public class GatherMacUtils {
             if (!macs.isEmpty()) {// 给mac条目打tag
                 updateMacTag(date);
             }
+            this.macService.copyDataToMacHistory();
         } catch (Exception e) {
             log.error("Error method copyGatherData: {}", date, e);
         }

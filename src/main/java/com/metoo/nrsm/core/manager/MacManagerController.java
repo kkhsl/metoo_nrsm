@@ -10,6 +10,8 @@ import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.DeviceType;
 import com.metoo.nrsm.entity.Mac;
 import com.metoo.nrsm.entity.NetworkElement;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
-
+@Api("mac管理")
 @RequestMapping("/admin/mac")
 @RestController
 public class MacManagerController {
@@ -29,6 +31,7 @@ public class MacManagerController {
     @Autowired
     private IDeviceTypeService deviceTypeService;
 
+    @ApiOperation("DE")
     @RequestMapping("de")
     public Result mac_de() {
         List<Mac> deMacList = this.macService.selectTagByDE();

@@ -832,4 +832,9 @@
         {call gather_arp(#{addTime,mode=IN})}
     </insert>
 
+    <insert id="copyDataToArpHistory">
+        INSERT INTO metoo_arp_history
+        SELECT * FROM metoo_arp
+    </insert>
+
 </mapper>

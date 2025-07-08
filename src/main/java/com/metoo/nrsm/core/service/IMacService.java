@@ -111,4 +111,6 @@ public interface IMacService {
 
     // 查看锁
     int queryLock();
+
+    int copyDataToMacHistory();
 }

@@ -175,12 +175,18 @@ public class ArpServiceImpl implements IArpService {
         try {
             this.arpMapper.gathreArp(date);
             this.copyGatherDataToArp();
+            copyDataToArpHistory();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return false;
         }
+    }
+
+    @Override
+    public int copyDataToArpHistory() {
+        return arpMapper.copyDataToArpHistory();
     }
 
     public void writerArp(Date date) {

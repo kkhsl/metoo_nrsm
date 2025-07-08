@@ -44,4 +44,6 @@ public interface ArpMapper {
     int copyGatherDataToArp();
 
     int gathreArp(Date date);
+
+    int copyDataToArpHistory();
 }

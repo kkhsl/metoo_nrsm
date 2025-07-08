@@ -185,7 +185,7 @@ public class GatherTaskScheduledUtil {
     private volatile boolean isRunningMAC = false;
 
     @Scheduled(fixedDelay = 180_000)
-    public void mac() {
+    public void gatherMac() {
         if (flag && !isRunningMAC) {
             log.info("MAC采集任务开始");
             isRunningMAC = true;

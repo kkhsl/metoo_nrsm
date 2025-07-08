@@ -583,6 +583,11 @@ public class MacServiceImpl implements IMacService {
         return this.macMapper.queryLock();
     }
 
+    @Override
+    public int copyDataToMacHistory() {
+        return this.macMapper.copyDataToMacHistory();
+    }
+
 
     // mac对端设备
 //    @Deprecation
