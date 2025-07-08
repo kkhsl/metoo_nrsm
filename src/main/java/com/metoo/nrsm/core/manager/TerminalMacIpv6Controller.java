@@ -26,7 +26,7 @@ public class TerminalMacIpv6Controller {
     }
 
     @GetMapping("/delete")
-    public Object deleteMac(String mac){
+    public Object deleteMac(String mac) {
         try {
             terminalMacIpv6Mapper.deleteMac(mac);
             return ResponseUtil.ok("MAC address deleted successfully: " + mac);

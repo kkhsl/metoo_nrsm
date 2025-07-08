@@ -14,6 +14,7 @@ public interface INetworkElementService {
     NetworkElement selectObjByUuid(String uuid);
 
     Page<NetworkElement> selectConditionQuery(NetworkElementDto instance);
+
     List<NetworkElement> selectConditionByIpQuery(List<String> instance);
 
     List<NetworkElement> selectObjByMap(Map params);

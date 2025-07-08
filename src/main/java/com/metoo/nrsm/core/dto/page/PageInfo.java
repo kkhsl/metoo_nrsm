@@ -13,14 +13,14 @@ public class PageInfo<T> implements Serializable {
     //当前页的数量
     private int size;
     // 由于startRow和endRow不常用，这里说个具体的用法
-   //  可以在页面中"显示startRow到endRow 共size条数据"
-   // 当前页面第一个元素在数据库中的行号
+    //  可以在页面中"显示startRow到endRow 共size条数据"
+    // 当前页面第一个元素在数据库中的行号
     private int startRow;
     //当前页面最后一个元素在数据库中的行号
     private int endRow;
     // 总记录数
     private long total;
-   // 总页数
+    // 总页数
     private int pages;
     // 结果集
     private List<T> list;
@@ -193,7 +193,7 @@ public class PageInfo<T> implements Serializable {
     public PageInfo() {
     }
 
-    public PageInfo(List<T> list,int pageSize) {
+    public PageInfo(List<T> list, int pageSize) {
         this.pageSize = pageSize;
         this.list = list;
     }

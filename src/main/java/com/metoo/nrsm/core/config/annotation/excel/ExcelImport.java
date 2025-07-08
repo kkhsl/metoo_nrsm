@@ -12,7 +12,9 @@ public @interface ExcelImport {
     // 表字段名
     String value();
 
-    /** 导出映射，格式如：0-未知;1-男;2-女 */
+    /**
+     * 导出映射，格式如：0-未知;1-男;2-女
+     */
     String kv() default "";
 
     // 是否必填字段（默认为非必填）

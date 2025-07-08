@@ -8,7 +8,8 @@
         SELECT * FROM metoo_operation_log where id = #{id}
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.OperationLogDTO" resultType="com.metoo.nrsm.entity.OperationLog">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.OperationLogDTO"
+            resultType="com.metoo.nrsm.entity.OperationLog">
         SELECT * FROM metoo_operation_log
         <where>
             <if test="account != null and account != ''">
@@ -30,10 +31,10 @@
                 AND `MC` = #{MC}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
@@ -70,7 +71,7 @@
                 `ip`,
             </if>
             <if test="MC != null and MC != ''">
-               `MC`,
+                `MC`,
             </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
@@ -105,7 +106,6 @@
     </insert>
 
 
-
     <update id="update" parameterType="com.metoo.nrsm.entity.OperationLog">
         UPDATE metoo_operation_log
         <set>
@@ -119,7 +119,7 @@
                 account = #{account},
             </if>
             <if test="name != null and name != ''">
-                 `name` = #{name},
+                `name` = #{name},
             </if>
             <if test="action != null and action != ''">
                 `action` = #{action},

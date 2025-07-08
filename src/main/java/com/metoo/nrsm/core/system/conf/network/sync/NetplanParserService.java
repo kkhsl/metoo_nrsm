@@ -36,10 +36,10 @@ public class NetplanParserService {
             try {
                 // 获取网络主接口的实时状态
                 NetworkInterface netIntf = NetworkInterface.getByName(intf.getName());
-                if(netIntf != null){
+                if (netIntf != null) {
                     boolean isUp = netIntf.isUp(); // 接口是否启用
                     intf.setIsup(isUp ? "up" : "dowm"); // 假设 Interface 类有 setIsUp 方法
-                }else{
+                } else {
                     intf.setIsup("dowm");
                 }
                 interfaceMap.put(intf.getName(), intf);

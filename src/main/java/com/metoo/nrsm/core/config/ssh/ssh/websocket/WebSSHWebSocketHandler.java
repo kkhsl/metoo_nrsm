@@ -32,7 +32,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
     public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) {
         if (webSocketMessage instanceof TextMessage) {
             this.logger.info("用户:{},发送命令:{}", webSocketSession.getAttributes().get("user_uuid"), webSocketMessage.toString());
-            this.webSSHService.recvHandle((String)((TextMessage)webSocketMessage).getPayload(), webSocketSession);
+            this.webSSHService.recvHandle((String) ((TextMessage) webSocketMessage).getPayload(), webSocketSession);
 
         } else if (!(webSocketMessage instanceof BinaryMessage) && !(webSocketMessage instanceof PongMessage)) {
             System.out.println("Unexpected WebSocket message type: " + webSocketMessage);

@@ -5,7 +5,8 @@
     <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.AddressPoolV6Fixed">
         <id column="id" property="id"></id>
         <result column="host" property="host"></result>
-        <result column="host_identifier_option_dhcp6_client_id" property="host_identifier_option_dhcp6_client_id"></result>
+        <result column="host_identifier_option_dhcp6_client_id"
+                property="host_identifier_option_dhcp6_client_id"></result>
         <result column="fixed_address6" property="fixed_address6"></result>
 
     </resultMap>
@@ -16,18 +17,20 @@
         WHERE id = #{id}
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolV6FixedDTO" resultMap="Base_Result_Map">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolV6FixedDTO"
+            resultMap="Base_Result_Map">
         SELECT *
         FROM metoo_address_pool_fixed_ipv6
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
 
-    <select id="selectObjToVOByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.core.vo.AddressPoolV6FixedVO">
+    <select id="selectObjToVOByMap" parameterType="java.util.Map"
+            resultType="com.metoo.nrsm.core.vo.AddressPoolV6FixedVO">
         SELECT *
         FROM metoo_address_pool_fixed_ipv6
         <where>

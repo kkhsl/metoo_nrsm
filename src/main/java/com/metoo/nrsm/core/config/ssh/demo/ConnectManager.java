@@ -22,7 +22,7 @@ public class ConnectManager {
         connectOnly("metoo@domain", "Metoo@89745000", "192.168.5.191", "show run");// 单次连接操作
     }
 
-    public static void connectOnly(){
+    public static void connectOnly() {
         Connection conn = new Connection("192.168.5.205", 22);
         try {
             conn.connect();
@@ -42,15 +42,15 @@ public class ConnectManager {
             InputStream is = new StreamGobbler(session.getStdout());
 
             int len = 0;//读取一个字节
-            while ((len = is.read())!=-1){
-                System.out.print((char)len);  //abc
+            while ((len = is.read()) != -1) {
+                System.out.print((char) len);  //abc
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void connectOnly(String username, String password, String host, String command){
+    public static void connectOnly(String username, String password, String host, String command) {
         Connection conn = new Connection(host);
         try {
             conn.connect();
@@ -70,8 +70,8 @@ public class ConnectManager {
             InputStream is = new StreamGobbler(session.getStdout());
 
             int len = 0;//读取一个字节
-            while ((len = is.read())!=-1){
-                System.out.print((char)len);  //abc
+            while ((len = is.read()) != -1) {
+                System.out.print((char) len);  //abc
             }
             session.close();
         } catch (IOException e) {
@@ -80,14 +80,14 @@ public class ConnectManager {
     }
 
     // 连续发送命令
-    public static void continuous(){
+    public static void continuous() {
 
     }
 
 
     @Scheduled(cron = "*/10 * * * * ?")
-    public void ExecutionTimer2(){
-        for (String key : clients.keySet()){// 校验用户是否已断开，或断开时删除该用户定时任务信息
+    public void ExecutionTimer2() {
+        for (String key : clients.keySet()) {// 校验用户是否已断开，或断开时删除该用户定时任务信息
             try {
                 Session session = clients.get(key);
                 session.execCommand(/*要执行的命令*/"ifconfig");
@@ -95,8 +95,8 @@ public class ConnectManager {
                 InputStream is = new StreamGobbler(session.getStdout());
 
                 int len = 0;//读取一个字节
-                while ((len = is.read())!=-1){
-                    System.out.print((char)len);  //abc
+                while ((len = is.read()) != -1) {
+                    System.out.print((char) len);  //abc
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -106,5 +106,4 @@ public class ConnectManager {
     }
 
 
-
-    }
+}

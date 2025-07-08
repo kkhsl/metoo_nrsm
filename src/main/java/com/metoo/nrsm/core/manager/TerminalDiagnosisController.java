@@ -38,6 +38,7 @@ public class TerminalDiagnosisController {
     private final ReentrantLock lock = new ReentrantLock();
 
     private final ExecutorService executor = Executors.newCachedThreadPool();
+
     //
     @GetMapping(
             value = "${sse.endpoint.terminal}/{terminalId}",
@@ -82,7 +83,7 @@ public class TerminalDiagnosisController {
                 emitter.onTimeout(() -> {
                     //
                 });
-            }finally {
+            } finally {
                 lock.unlock();
             }
         }
@@ -90,13 +91,12 @@ public class TerminalDiagnosisController {
     }
 
 
-
     @GetMapping
-    public Result diagnosis(String terminalId){
+    public Result diagnosis(String terminalId) {
         Terminal terminal = this.terminalService.selectObjById(Long.parseLong(terminalId));
-        if(terminal != null){
+        if (terminal != null) {
             TerminalDiagnosis terminalDiagnosis = terminalDiagnosisService.selectObjByType(terminal.getConfig());
-            if(terminalDiagnosis != null){
+            if (terminalDiagnosis != null) {
                 terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv4}", terminal.getV4ip() != null ? terminal.getV4ip() : ""));
                 terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv4_subnet}", terminal.getPortSubne() != null ? terminal.getPortSubne() : ""));
 
@@ -104,8 +104,8 @@ public class TerminalDiagnosisController {
                 terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{Vendor}", terminal.getVendor() != null ? terminal.getVendor() : ""));
 
                 String portIpv6Subnet = terminal.getPortIpv6Subnet();
-                if(portIpv6Subnet != null && !portIpv6Subnet.isEmpty()){
-                    if(portIpv6Subnet.contains("/")){
+                if (portIpv6Subnet != null && !portIpv6Subnet.isEmpty()) {
+                    if (portIpv6Subnet.contains("/")) {
                         String ip = portIpv6Subnet.split("/")[0];
                         String mask = portIpv6Subnet.split("/")[1];
                         terminalDiagnosis.setContent(terminalDiagnosis.getContent().replace("{IPv6}", ip));
@@ -115,14 +115,8 @@ public class TerminalDiagnosisController {
                 return ResponseUtil.ok(terminalDiagnosis);
             }
         }
-       return ResponseUtil.ok();
+        return ResponseUtil.ok();
     }
-
-
-
-
-
-
 
 
     @GetMapping(

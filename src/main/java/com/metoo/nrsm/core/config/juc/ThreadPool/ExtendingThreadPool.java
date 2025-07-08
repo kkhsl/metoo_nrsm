@@ -13,11 +13,11 @@ import java.util.concurrent.TimeUnit;
 public class ExtendingThreadPool {
 
     // 定义内部类
-    private static class MyTask implements Runnable{
+    private static class MyTask implements Runnable {
 
         private String name;
 
-        public MyTask(String name){
+        public MyTask(String name) {
             this.name = name;
         }
 
@@ -32,20 +32,20 @@ public class ExtendingThreadPool {
     public static void main(String[] args) {
         // 定义扩展线程池，可以定义线程池类继承ThreadPoolExecutor,在子类中重写beforeExecute()/afterExecute()方法
         // 也可以直接使用ThreadPoolExecutor的内部类
-        ExecutorService excutorService = new ThreadPoolExecutor(5, 5, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<>()){
+        ExecutorService excutorService = new ThreadPoolExecutor(5, 5, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<>()) {
             // 在内部类重写任务开始方法
             @Override
-            public void beforeExecute(Thread t, Runnable r){
-                System.out.println(t.getId() + "--" + "线程准备执行任务：" + ((MyTask)r).name);
+            public void beforeExecute(Thread t, Runnable r) {
+                System.out.println(t.getId() + "--" + "线程准备执行任务：" + ((MyTask) r).name);
             }
 
             @Override
-            protected void afterExecute(Runnable r, Throwable t){
-                System.out.println("任务执行完毕" +  ((MyTask)r).name);
+            protected void afterExecute(Runnable r, Throwable t) {
+                System.out.println("任务执行完毕" + ((MyTask) r).name);
             }
 
             @Override
-            protected void terminated(){
+            protected void terminated() {
                 System.out.println("线程退出");
             }
         };

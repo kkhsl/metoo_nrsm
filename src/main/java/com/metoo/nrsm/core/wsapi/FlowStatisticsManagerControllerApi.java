@@ -33,14 +33,13 @@ public class FlowStatisticsManagerControllerApi {
     private RedisResponseUtils redisResponseUtils;
 
     /**
-     *
      * @param requestParams
      * @return
      */
     @GetMapping
-    public NoticeWebsocketResp flow(@RequestParam(value = "requestParams") String requestParams){
+    public NoticeWebsocketResp flow(@RequestParam(value = "requestParams") String requestParams) {
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
-        if(requestParams != null && !requestParams.isEmpty()){
+        if (requestParams != null && !requestParams.isEmpty()) {
             Map param = JSONObject.parseObject(requestParams, Map.class);
             String sessionId = (String) param.get("sessionId");
             // 1.查询指定时间的流量数据

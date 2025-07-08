@@ -129,54 +129,55 @@ public class TerminalManagerControllerApi {
         return terminalList;
     }
 
-    public void completeTerminal(Terminal terminal){
+    public void completeTerminal(Terminal terminal) {
 
         DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
-        if(deviceType != null){
+        if (deviceType != null) {
             terminal.setDeviceTypeName(deviceType.getName());
             terminal.setDeviceTypeUuid(deviceType.getUuid());
         }
-        if(terminal.getVendorId() != null && !terminal.getVendorId().equals("")){
+        if (terminal.getVendorId() != null && !terminal.getVendorId().equals("")) {
             Vendor vendor = this.vendorService.selectObjById(terminal.getVendorId());
-            if(vendor != null){
+            if (vendor != null) {
                 terminal.setVendorName(vendor.getName());
             }
         }
-        if(StringUtil.isNotEmpty(terminal.getMac())){
+        if (StringUtil.isNotEmpty(terminal.getMac())) {
             TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-            if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
+            if (terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1) {
                 terminal.setIsIpv6(1);
-            }else{
+            } else {
                 terminal.setIsIpv6(0);
             }
         }
 
-        if(terminal.getV6ip() != null && terminal.getV6ip().toLowerCase().startsWith("fe80")){
+        if (terminal.getV6ip() != null && terminal.getV6ip().toLowerCase().startsWith("fe80")) {
             terminal.setV6ip(null);
         }
-        if(terminal.getV6ip1() != null && terminal.getV6ip1().toLowerCase().startsWith("fe80")){
+        if (terminal.getV6ip1() != null && terminal.getV6ip1().toLowerCase().startsWith("fe80")) {
             terminal.setV6ip1(null);
         }
-        if(terminal.getV6ip2() != null && terminal.getV6ip2().toLowerCase().startsWith("fe80")){
+        if (terminal.getV6ip2() != null && terminal.getV6ip2().toLowerCase().startsWith("fe80")) {
             terminal.setV6ip2(null);
         }
-        if(terminal.getV6ip3() != null && terminal.getV6ip3().toLowerCase().startsWith("fe80")){
+        if (terminal.getV6ip3() != null && terminal.getV6ip3().toLowerCase().startsWith("fe80")) {
             terminal.setV6ip3(null);
         }
     }
+
     /*
     {"noticeType":"102","userId":"1","time":"","params":{"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa":["6e:2e:10:93:cb:18"],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa2":["00:50:79:66:68:56","00:50:79:66:68:57"],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa3":[],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa4":[]}}
      */
     @ApiOperation("102：终端")
     @GetMapping("/partition")
-    public NoticeWebsocketResp partitionTerminal(@RequestParam(value = "requestParams", required = false) String requestParams){
+    public NoticeWebsocketResp partitionTerminal(@RequestParam(value = "requestParams", required = false) String requestParams) {
         Map<String, Object> requestParam = JSONObject.parseObject(requestParams, Map.class);
-                String sessionId = (String) requestParam.get("sessionId");
+        String sessionId = (String) requestParam.get("sessionId");
         Map<String, JSONArray> param = JSONObject.parseObject(String.valueOf(requestParam.get("params")), Map.class);
         Map result = new HashMap();
-        if(!param.isEmpty()){
+        if (!param.isEmpty()) {
             Map params = new HashMap();
-            if(param.get("time") == null || StringUtil.isEmpty(String.valueOf(param.get("time")))){
+            if (param.get("time") == null || StringUtil.isEmpty(String.valueOf(param.get("time")))) {
                 Set<Map.Entry<String, JSONArray>> keys = param.entrySet();
                 for (Map.Entry<String, JSONArray> entry : keys) {
                     if (entry.getValue() != null && entry.getValue().size() > 0) {
@@ -192,11 +193,11 @@ public class TerminalManagerControllerApi {
                                     terminal.setDeviceTypeName(deviceType.getName());
                                     terminal.setDeviceTypeUuid(deviceType.getUuid());
                                 }
-                                if(StringUtil.isNotEmpty(terminal.getMac())){
+                                if (StringUtil.isNotEmpty(terminal.getMac())) {
                                     TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                                    if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
+                                    if (terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1) {
                                         terminal.setIsIpv6(1);
-                                    }else{
+                                    } else {
                                         terminal.setIsIpv6(0);
                                     }
                                 }
@@ -206,7 +207,7 @@ public class TerminalManagerControllerApi {
                         result.put(entry.getKey(), list);
                     }
                 }
-            }else{
+            } else {
                 Set<Map.Entry<String, JSONArray>> keys = param.entrySet();
                 for (Map.Entry<String, JSONArray> entry : keys) {
                     if (entry.getValue() != null && entry.getValue().size() > 0) {
@@ -224,11 +225,11 @@ public class TerminalManagerControllerApi {
                                     terminal.setDeviceTypeUuid(deviceType.getUuid());
                                 }
 
-                                if(StringUtil.isNotEmpty(terminal.getMac())){
+                                if (StringUtil.isNotEmpty(terminal.getMac())) {
                                     TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                                    if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
+                                    if (terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1) {
                                         terminal.setIsIpv6(1);
-                                    }else{
+                                    } else {
                                         terminal.setIsIpv6(0);
                                     }
                                 }
@@ -256,14 +257,14 @@ public class TerminalManagerControllerApi {
     @ApiOperation("103：终端")
     @GetMapping("/count")
     public NoticeWebsocketResp count(@RequestParam(value = "requestParams", required = false)
-                                                 String requestParams){
+                                             String requestParams) {
         Map<String, Object> requestParam = JSONObject.parseObject(requestParams, Map.class);
         String sessionId = (String) requestParam.get("sessionId");
         Map params = new HashMap();
         TerminalCount terminalCount = null;
-        if(requestParam.get("time") == null || StringUtil.isEmpty(String.valueOf(requestParam.get("time")))){
+        if (requestParam.get("time") == null || StringUtil.isEmpty(String.valueOf(requestParam.get("time")))) {
             terminalCount = this.terminalCountService.selectObjByMap(Collections.emptyMap());
-        }else{
+        } else {
             params.clear();
             params.put("time", requestParam.get("time"));
             terminalCount = this.terminalCountService.selectHistoryObjByMap(params);
@@ -278,17 +279,17 @@ public class TerminalManagerControllerApi {
 
     @ApiOperation("104：单位分区终端")
     @GetMapping("/partition/unit/terminal")
-    public NoticeWebsocketResp unitPartitionTerminal(@RequestParam(value = "requestParams", required = false) String requestParams){
+    public NoticeWebsocketResp unitPartitionTerminal(@RequestParam(value = "requestParams", required = false) String requestParams) {
         Map<String, Object> requestParam = JSONObject.parseObject(requestParams, Map.class);
         String sessionId = (String) requestParam.get("sessionId");
         Map map = JSONObject.parseObject(String.valueOf(requestParams), Map.class);
         List<String> list = JSONObject.parseObject(String.valueOf(map.get("params")), List.class);
         Map result = new HashMap();
-        if(!map.isEmpty()){
+        if (!map.isEmpty()) {
             Map params = new HashMap();
             List<TerminalUnit> terminalUnitList = new ArrayList<>();
-            if(map.get("time") == null || StringUtil.isEmpty(String.valueOf(map.get("time")))){
-                if(list.size() > 0){
+            if (map.get("time") == null || StringUtil.isEmpty(String.valueOf(map.get("time")))) {
+                if (list.size() > 0) {
                     // 根据单位查询终端
                     params.clear();
                     params.put("ids", list);
@@ -297,11 +298,11 @@ public class TerminalManagerControllerApi {
                         int v6_number = 0;
                         int number = 0;
                         macUtils.terminalJoint(terminalUnit.getTerminalList());
-                        if(terminalUnit.getTerminalList().size() > 0){
+                        if (terminalUnit.getTerminalList().size() > 0) {
 
                             for (Terminal terminal : terminalUnit.getTerminalList()) {
 
-                                if(terminal.getDeviceTypeId() != null && terminal.getDeviceTypeId() != 24 && terminal.getDeviceTypeId() != 10){
+                                if (terminal.getDeviceTypeId() != null && terminal.getDeviceTypeId() != 24 && terminal.getDeviceTypeId() != 10) {
                                     number += 1;
                                 }
                                 DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
@@ -310,14 +311,14 @@ public class TerminalManagerControllerApi {
                                     terminal.setDeviceTypeUuid(deviceType.getUuid());
                                 }
 
-                                if(StringUtil.isNotEmpty(terminal.getMac())){
+                                if (StringUtil.isNotEmpty(terminal.getMac())) {
                                     TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                                    if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
+                                    if (terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1) {
                                         terminal.setIsIpv6(1);
-                                        if(terminal.getDeviceTypeId() != null && terminal.getDeviceTypeId() != 24 && terminal.getDeviceTypeId() != 10) {
+                                        if (terminal.getDeviceTypeId() != null && terminal.getDeviceTypeId() != 24 && terminal.getDeviceTypeId() != 10) {
                                             v6_number += 1;
                                         }
-                                    }else{
+                                    } else {
                                         terminal.setIsIpv6(0);
                                     }
                                 }
@@ -330,7 +331,7 @@ public class TerminalManagerControllerApi {
                             BigDecimal v6 = new BigDecimal(v6_number);
                             BigDecimal num = new BigDecimal(number);
                             // 计算百分比并保留两位小数
-                            percentage = v6.divide(num,  2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+                            percentage = v6.divide(num, 2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
                             // 去掉尾随的 .00
                             percentage = percentage.stripTrailingZeros();
                             System.out.println("v6_number 占 number 的百分比: " + percentage.setScale(2, RoundingMode.HALF_UP) + "%");
@@ -340,7 +341,7 @@ public class TerminalManagerControllerApi {
                     }
                 }
 
-            }else {
+            } else {
                 if (list.size() > 0) {
                     // 根据单位查询终端
                     params.clear();
@@ -365,7 +366,7 @@ public class TerminalManagerControllerApi {
 
                                 if (StringUtil.isNotEmpty(terminal.getMac())) {
                                     TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-                                    if(terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1){
+                                    if (terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1) {
                                         terminal.setIsIpv6(1);
                                         v6_number += 1;
                                     } else {

@@ -41,5 +41,4 @@ public class Port extends IdEntity {
     private String remoteIp;
 
 
-
 }

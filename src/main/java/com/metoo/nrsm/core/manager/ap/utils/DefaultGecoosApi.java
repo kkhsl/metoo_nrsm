@@ -210,6 +210,7 @@ public class DefaultGecoosApi implements GecoosApi {
             return encryptedString;
         } catch (Exception e) {
             e.printStackTrace();
-        }return "";
+        }
+        return "";
     }
 }

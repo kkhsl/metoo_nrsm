@@ -22,29 +22,30 @@ public class ThreadTest {
     }
 
     ExecutorService exe = Executors.newFixedThreadPool(5);
+
     /**
      * 测试主线程等待子线程执行结束
      */
     @Test
-    public void test(){
+    public void test() {
 
-        for (int i = 1; i <= 10; i ++){
+        for (int i = 1; i <= 10; i++) {
             int finalI = i;
             exe.execute(
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(3000);
-                            System.out.println(Thread.currentThread().getName() + " number " + finalI);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(3000);
+                                System.out.println(Thread.currentThread().getName() + " number " + finalI);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                })
+                    })
             );
         }
-        if(exe != null){
+        if (exe != null) {
             exe.shutdown();
         }
         while (true) {
@@ -54,7 +55,7 @@ public class ThreadTest {
         }
         System.out.println("running end......");
 
-        for (int i = 1; i <= 10; i ++){
+        for (int i = 1; i <= 10; i++) {
             int finalI = i;
             exe.execute(
                     new Thread(new Runnable() {
@@ -70,7 +71,7 @@ public class ThreadTest {
                     })
             );
         }
-        if(exe != null){
+        if (exe != null) {
             exe.shutdown();
         }
         while (true) {
@@ -84,9 +85,9 @@ public class ThreadTest {
 
 
     @Test
-    public void test2(){
+    public void test2() {
 //        ExecutorService exe = Executors.newFixedThreadPool(5);
-        for (int i = 1; i <= 10; i ++){
+        for (int i = 1; i <= 10; i++) {
             int finalI = i;
             exe.execute(
                     new Thread(new Runnable() {
@@ -102,7 +103,7 @@ public class ThreadTest {
                     })
             );
         }
-        if(exe != null){
+        if (exe != null) {
             exe.shutdown();
         }
         while (true) {
@@ -115,8 +116,8 @@ public class ThreadTest {
     }
 
     @Test
-    public void threadTest(){
-        Thread thread = new Thread(){
+    public void threadTest() {
+        Thread thread = new Thread() {
             @Override
             public void run() {
 //                System.out.println("runing");

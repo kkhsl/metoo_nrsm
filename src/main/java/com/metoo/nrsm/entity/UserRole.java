@@ -10,14 +10,12 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- *     Title: UserRole.java
+ * Title: UserRole.java
  * </p>
  *
  * <p>
- *     Description: 用户角色管理类；
+ * Description: 用户角色管理类；
  * </p>
- *
- *
  */
 
 @ApiModel("用户角色实体类")

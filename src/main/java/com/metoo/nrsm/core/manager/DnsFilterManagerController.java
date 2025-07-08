@@ -75,7 +75,7 @@ public class DnsFilterManagerController {
 
 
     @GetMapping("/toggleDnsFilter")
-    public Result toggleDnsFilter(@RequestParam String id,@RequestParam boolean enable) {
+    public Result toggleDnsFilter(@RequestParam String id, @RequestParam boolean enable) {
         boolean flag = dnsFilterService.toggleDnsFilter(Long.parseLong(id), enable);
         if (flag) {
             try {
@@ -94,7 +94,6 @@ public class DnsFilterManagerController {
     public Boolean restart() throws Exception {
         return dnsFilterService.start();
     }
-
 
 
 }

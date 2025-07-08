@@ -19,6 +19,7 @@ public class RestTemplateConfig {
 
     /**
      * 配置超时，避免调用创发api，避免阻塞程序
+     *
      * @return
      */
     @Bean

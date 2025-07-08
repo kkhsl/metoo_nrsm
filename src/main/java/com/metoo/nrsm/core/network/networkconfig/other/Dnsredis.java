@@ -61,7 +61,7 @@ public class Dnsredis {
         try {
             Properties prop = new Properties();
             prop.load(Dnsredis.class.getResourceAsStream("/application-test.properties"));
-            
+
             dnsPort = Integer.parseInt(prop.getProperty("dns.port", "53"));
             redisHost = prop.getProperty("spring.redis.redis.host");
             redisPassword = prop.getProperty("spring.redis.redis.password");
@@ -106,7 +106,7 @@ public class Dnsredis {
 
     private static void startServer() throws IOException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        
+
         try (DatagramSocket socket = new DatagramSocket(dnsPort)) {
             log.info("DNS server started on port {}", dnsPort);
             while (true) {
@@ -130,7 +130,7 @@ public class Dnsredis {
         public void run() {
             try (Jedis redis = jedisPool.getResource();
                  Connection mysqlConn = dataSource.getConnection()) {
-                
+
                 Message query = new Message(request.getData());
                 Record question = query.getQuestion();
                 String qname = question.getName().toString(true);
@@ -168,11 +168,11 @@ public class Dnsredis {
         private Message buildCachedResponse(String qname, int qtype, List<String> records) {
             Message response = new Message();
             response.getHeader().setFlag(Flags.QR);
-            
+
             records.stream()
-                .map(record -> parseDnsRecord(qname, record))
-                .filter(r -> r != null && r.getType() == qtype)
-                .forEach(r -> response.addRecord(r, Section.ANSWER));
+                    .map(record -> parseDnsRecord(qname, record))
+                    .filter(r -> r != null && r.getType() == qtype)
+                    .forEach(r -> response.addRecord(r, Section.ANSWER));
 
             return response;
         }
@@ -182,12 +182,12 @@ public class Dnsredis {
                 String[] parts = record.split(":", 2);
                 int type = Type.value(parts[0]);
                 return Record.fromString(
-                    Name.fromString(qname), 
-                    type, 
-                    DClass.IN, 
-                    CACHE_TTL_SECONDS, 
-                    parts[1], 
-                    Name.root
+                        Name.fromString(qname),
+                        type,
+                        DClass.IN,
+                        CACHE_TTL_SECONDS,
+                        parts[1],
+                        Name.root
                 );
             } catch (Exception e) {
                 log.warn("Invalid cache record: {}", record);
@@ -237,7 +237,7 @@ public class Dnsredis {
                 redis.rpush(qname, Type.string(record.getType()) + ":" + record.rdataToString());
             }
             redis.expire(qname, CACHE_TTL_SECONDS);
-            
+
             // 缓存淘汰策略
             if (redis.llen(qname) > MAX_CACHE_RECORDS) {
                 redis.ltrim(qname, 0, MAX_CACHE_RECORDS - 1);
@@ -247,10 +247,10 @@ public class Dnsredis {
         private void sendResponse(Message response) throws IOException {
             byte[] responseData = response.toWire();
             DatagramPacket responsePacket = new DatagramPacket(
-                responseData, 
-                responseData.length,
-                request.getAddress(),
-                request.getPort()
+                    responseData,
+                    responseData.length,
+                    request.getAddress(),
+                    request.getPort()
             );
             socket.send(responsePacket);
         }

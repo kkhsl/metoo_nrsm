@@ -24,10 +24,10 @@
             <if test=" ip != null and ip !=''">
                 ip=#{ip},
             </if>
-            <if test = "path != null and path !=''">
+            <if test="path != null and path !=''">
                 path=#{path},
             </if>
-            <if test = "domain != null and domain !=''">
+            <if test="domain != null and domain !=''">
                 `domain` =#{domain},
             </if>
             <if test=" videoAudit != null and videoAudit !=''">

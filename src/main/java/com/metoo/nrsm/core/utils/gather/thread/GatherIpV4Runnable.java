@@ -26,7 +26,7 @@ import java.util.concurrent.CountDownLatch;
  */
 //@Data
 //@Component
-public class GatherIpV4Runnable implements Runnable{
+public class GatherIpV4Runnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -51,7 +51,7 @@ public class GatherIpV4Runnable implements Runnable{
         String[] params = {networkElement.getIp(), networkElement.getVersion(), networkElement.getCommunity()};
         try {
             String result = pythonExecUtils.exec(path, params);
-            if(StringUtil.isNotEmpty(result)) {
+            if (StringUtil.isNotEmpty(result)) {
                 List<Ipv4> ipv4s = JSONObject.parseArray(result, Ipv4.class);
                 if (ipv4s != null && ipv4s.size() > 0) {
                     ipv4s.forEach(e -> {
@@ -66,7 +66,7 @@ public class GatherIpV4Runnable implements Runnable{
             System.out.println(e.getMessage());
             e.printStackTrace();
         } finally {
-            if(latch != null){
+            if (latch != null) {
                 latch.countDown();
             }
         }

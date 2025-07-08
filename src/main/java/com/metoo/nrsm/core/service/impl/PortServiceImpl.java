@@ -54,7 +54,7 @@ public class PortServiceImpl implements IPortService {
                 return false;
 
             }
-        }else{
+        } else {
             try {
                 this.portMapper.update(instance);
                 return true;
@@ -93,7 +93,8 @@ public class PortServiceImpl implements IPortService {
     @Override
     public boolean batchSaveGather(List<Port> instance) {
         try {
-            this.portMapper.batchSaveGather(instance);
+            int i = this.portMapper.batchSaveGather(instance);
+            System.out.println(i);
             return true;
         } catch (Exception e) {
             e.printStackTrace();

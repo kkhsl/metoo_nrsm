@@ -16,9 +16,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.ArrayList;
 
 /**
-
- Description: Swagger控制器; Swagger首页：
-
+ * Description: Swagger控制器; Swagger首页：
  */
 @Configuration
 @EnableSwagger2
@@ -26,17 +24,17 @@ public class SwaggerConfig {
 
 
     @Bean
-    public Docket docket1(Environment environment){
+    public Docket docket1(Environment environment) {
         Profiles profiles = Profiles.of("dev");
         boolean flag = environment.acceptsProfiles(profiles);
 
         // 获取项目环境
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("swagger") ;
+                .groupName("swagger");
     }
 
     @Bean
-    public Docket docket(Environment environment){
+    public Docket docket(Environment environment) {
         Profiles profiles = Profiles.of("dev");
         boolean flag = environment.acceptsProfiles(profiles);
 
@@ -51,7 +49,7 @@ public class SwaggerConfig {
                 .build();
     }
 
-    public ApiInfo apiInfo(){
+    public ApiInfo apiInfo() {
         Contact contact = new Contact("HKK", "httpclient://www.apache.org/licenses/LICENSE-2.0", "460751446@qq.com");
         return new ApiInfo(
                 "Metoo Api Decument"

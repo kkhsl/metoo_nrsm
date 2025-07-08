@@ -7,7 +7,7 @@
     <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.SubnetIpv6">
         SELECT *
         FROM metoo_subnet_ipv6
-        WHERE  id = #{id}
+        WHERE id = #{id}
     </select>
 
     <select id="selectSubnetByParentId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.SubnetIpv6">
@@ -86,6 +86,6 @@
     </update>
 
     <update id="truncateTable">
-         TRUNCATE TABLE metoo_subnet_ipv6
+        TRUNCATE TABLE metoo_subnet_ipv6
     </update>
 </mapper>

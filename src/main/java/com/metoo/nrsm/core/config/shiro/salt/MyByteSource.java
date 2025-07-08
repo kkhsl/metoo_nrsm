@@ -16,7 +16,7 @@ public class MyByteSource implements ByteSource, Serializable {
     private String cachedHex;
     private String cachedBase64;
 
-    public MyByteSource(){
+    public MyByteSource() {
     }
 
     public MyByteSource(byte[] bytes) {
@@ -83,7 +83,7 @@ public class MyByteSource implements ByteSource, Serializable {
         if (o == this) {
             return true;
         } else if (o instanceof ByteSource) {
-            ByteSource bs = (ByteSource)o;
+            ByteSource bs = (ByteSource) o;
             return Arrays.equals(this.getBytes(), bs.getBytes());
         } else {
             return false;

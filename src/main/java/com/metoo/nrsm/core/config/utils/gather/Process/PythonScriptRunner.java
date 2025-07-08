@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class PythonScriptRunner {
 
     @Test
-    public void test(){
+    public void test() {
         PyCommand pyCommand = new PyCommand();
         pyCommand.setName("main.py");
         pyCommand.setParams(new String[]{"h3c", "switch", "192.168.100.1", "ssh", "22", "metoo", "metoo89745000", "aliveint"});
@@ -30,7 +30,8 @@ public class PythonScriptRunner {
 
         String result = this.runPythonScript(command);
 
-        System.out.println(result);;
+        System.out.println(result);
+        ;
     }
 
     public String runPythonScript(String... args) {
@@ -55,7 +56,7 @@ public class PythonScriptRunner {
             reader.close();
 
             // 返回执行结果
-            log.info("执行结果:"+ output);
+            log.info("执行结果:" + output);
             return output;
 
         } catch (IOException | InterruptedException e) {
@@ -99,7 +100,7 @@ public class PythonScriptRunner {
 
         PythonScriptRunner runner = new PythonScriptRunner();
 
-        String result = runner.runPythonScript("python3","/opt/sqlite/script/main.py",
+        String result = runner.runPythonScript("python3", "/opt/sqlite/script/main.py",
                 "h3c", "switch", "192.168.100.1",
                 "ssh", "22", "metoo", "metoo89745000", "aliveint");
 
@@ -108,14 +109,13 @@ public class PythonScriptRunner {
 
 
     @Test
-    public void execTest(){
+    public void execTest() {
         String path = "/opt/netmap/os-scanner/os-scanner/";
         String commond = "cd /opt/netmap/os-scanner/os-scanner1/ && ./OS-scanner -i 192.168.6.1 -o 22 -c 1";
         this.exec(path, commond);
     }
 
     /**
-     *
      * @param scriptPath
      * @param args
      * @return

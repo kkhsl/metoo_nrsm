@@ -25,16 +25,14 @@ import java.util.Map;
 
 /**
  * 1. 网段所有终端无IPv6地址：
- *    1. 找到配有该网段地址的交换机端口
- *    2. 该端口是否有全局IPv6地址和本地链路地址
- *    3. 如果有全局IPv6地址，无本地链路地址，则提示本地链路地址配置问题，给出对应品牌交换机的正确配置
- *    4. 如果无全局IPv6地址，则提示端口未配置IPv6，给出相关正确配置
+ * 1. 找到配有该网段地址的交换机端口
+ * 2. 该端口是否有全局IPv6地址和本地链路地址
+ * 3. 如果有全局IPv6地址，无本地链路地址，则提示本地链路地址配置问题，给出对应品牌交换机的正确配置
+ * 4. 如果无全局IPv6地址，则提示端口未配置IPv6，给出相关正确配置
  * 2. 网段部分终端无IPv6地址：
- *    1. 找到配有该网段地址的交换机端口
- *    2. 端口IPv6掩码不为64位，提示前缀掩码不为64位，安卓终端无法生成IPv6地址
- *    3. 端口IPv6掩码为64位，找是否有该终端的本地链路地址，如果没有，则是终端未开启ipv6，提示不同系统的开启方法
- *
- *
+ * 1. 找到配有该网段地址的交换机端口
+ * 2. 端口IPv6掩码不为64位，提示前缀掩码不为64位，安卓终端无法生成IPv6地址
+ * 3. 端口IPv6掩码为64位，找是否有该终端的本地链路地址，如果没有，则是终端未开启ipv6，提示不同系统的开启方法
  */
 @Slf4j
 @Component
@@ -54,13 +52,13 @@ public class AnalysisTerminalUtils {
     }
 
     //根据终端ipv4地址，分析网段对应端口的ipv6情况
-    public void analyze(){
+    public void analyze() {
 
         // 清空所有在线终端分析标记以及数据
         Map params = new HashMap();
         params.put("online", true);
         List<Terminal> onlineTerminalList = this.terminalService.selectObjByMap(params);
-        if(!onlineTerminalList.isEmpty()){
+        if (!onlineTerminalList.isEmpty()) {
             for (Terminal terminal : onlineTerminalList) {
                 terminal.setConfig(0);
                 terminal.setPortName(null);
@@ -75,7 +73,7 @@ public class AnalysisTerminalUtils {
         params.put("status", 1);
         params.put("ipIsNotNull", true);
         List<Port> portList = this.portService.selectObjByMap(params);
-        if(portList.isEmpty()){
+        if (portList.isEmpty()) {
             return;
         }
         Map<String, String> portNetworkMap = new HashMap();
@@ -87,7 +85,7 @@ public class AnalysisTerminalUtils {
             if (ipv4 == null || mask == null) {
                 continue;
             }
-            String cidr = ipv4+"/"+mask;
+            String cidr = ipv4 + "/" + mask;
             portHostMap.put(port.getPort(), cidr);
         }
 
@@ -96,7 +94,7 @@ public class AnalysisTerminalUtils {
         params.put("v4IPIsNotNull", true);
         params.put("online", true);
         List<Terminal> terminalList = this.terminalService.selectObjByMap(params);
-        if(terminalList.isEmpty()){
+        if (terminalList.isEmpty()) {
             return;
         }
 
@@ -161,17 +159,17 @@ public class AnalysisTerminalUtils {
             params.clear();
             params.put("port", port);
             List<PortIpv6> portIpv6List = this.portIpv6Service.selectObjByMap(params);
-            if(portIpv6List.isEmpty()){
+            if (portIpv6List.isEmpty()) {
                 isv6 = false;
                 isfe80 = true;
-            }else{
+            } else {
                 isv6 = false;
                 for (PortIpv6 portIpv6 : portIpv6List) {
                     boolean hasFe80Ip = isFe80(portIpv6.getIpv6());
-                    if(hasFe80Ip){
+                    if (hasFe80Ip) {
                         isfe80 = true;
                     }
-                    if(isNoFe80(portIpv6.getIpv6())){
+                    if (isNoFe80(portIpv6.getIpv6())) {
                         isv6 = true;
                         ipv6Subnet = portIpv6.getIpv6();
                     }
@@ -182,9 +180,9 @@ public class AnalysisTerminalUtils {
             String portNetwork = portNetworkMap.get(port);
             String portHost = portHostMap.get(port);
             for (Terminal terminal : portTerminalMap.get(port)) {
-                if(!isv6){
+                if (!isv6) {
                     terminal.setConfig(1);
-                }else if(isv6 && !isfe80){
+                } else if (isv6 && !isfe80) {
                     terminal.setPortIpv6Subnet(ipv6Subnet);
                     terminal.setConfig(4);
                 }
@@ -202,7 +200,7 @@ public class AnalysisTerminalUtils {
             params.clear();
             params.put("port", port);
             List<PortIpv6> portIpv6List = this.portIpv6Service.selectObjByMap(params);
-            if(portIpv6List.isEmpty()){
+            if (portIpv6List.isEmpty()) {
                 continue;
             }
 
@@ -212,14 +210,14 @@ public class AnalysisTerminalUtils {
             String ipv6Subnet = "";
 
             for (PortIpv6 portIpv6 : portIpv6List) {
-                if(!portIpv6.isIpv6_local()){
+                if (!portIpv6.isIpv6_local()) {
                     ipv6Subnet = portIpv6.getIpv6();
                 }
-                if(portIpv6.getIpv6() != null && !portIpv6.getIpv6().isEmpty()){
-                    if(portIpv6.getIpv6().contains("/")){
+                if (portIpv6.getIpv6() != null && !portIpv6.getIpv6().isEmpty()) {
+                    if (portIpv6.getIpv6().contains("/")) {
                         String ipv6 = portIpv6.getIpv6().split("/")[0];
                         String mask = portIpv6.getIpv6().split("/")[1];
-                        if(Integer.parseInt(mask) == 64){
+                        if (Integer.parseInt(mask) == 64) {
                             withMask = true;
                             continue;
                         }
@@ -231,26 +229,26 @@ public class AnalysisTerminalUtils {
             String portNetwork = portNetworkMap.get(port);
             String portHost = portHostMap.get(port);
             for (Terminal terminal : portTerminalMap.get(port)) {
-                if(withMask){
+                if (withMask) {
                     boolean hasFe80Ip = isFe80(terminal.getV6ip()) ||
                             isFe80(terminal.getV6ip1()) ||
                             isFe80(terminal.getV6ip2()) ||
                             isFe80(terminal.getV6ip3());
-                    if(!hasFe80Ip){
+                    if (!hasFe80Ip) {
                         // 没有本地链路地址：则是终端未开启ipv6
                         terminal.setConfig(2);
-                    }else{
+                    } else {
                         // 有本地链路地址
                         // 出口IPv6是否通
                         Ping ping = this.pingService.selectOneObj();
                         System.out.println(Boolean.valueOf(ping.getV6isok()));
-                        if(ping != null && ping.getV6isok().equals("0")){
+                        if (ping != null && ping.getV6isok().equals("0")) {
                             terminal.setConfig(4);
-                        }else{
+                        } else {
                             // 暂无建议
                         }
                     }
-                }else if(withoutMask){
+                } else if (withoutMask) {
                     terminal.setConfig(3);
                 }
                 terminal.setPortIpv6Subnet(ipv6Subnet);
@@ -266,9 +264,10 @@ public class AnalysisTerminalUtils {
 
     /**
      * 根据IPv4地址和子网掩码计算网络地址（CIDR格式，如 "192.168.1.0/24"）
-//     * @param ip   IPv4地址（如 "192.168.1.100"）
-//     * @param mask   子网掩码（如 "255.255.255.0"）
-     * @param cidr  （如 "192.168.1.100/255.255.255.0"）
+     * //     * @param ip   IPv4地址（如 "192.168.1.100"）
+     * //     * @param mask   子网掩码（如 "255.255.255.0"）
+     *
+     * @param cidr （如 "192.168.1.100/255.255.255.0"）
      * @return 网络地址（如 "192.168.1.0/24"）
      */
     public static String getNetwork(String cidr) {

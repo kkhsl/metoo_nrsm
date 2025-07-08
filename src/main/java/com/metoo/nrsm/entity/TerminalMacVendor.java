@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 
  * @TableName metoo_terminal_mac_vendor
  */
 @Data

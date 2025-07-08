@@ -12,16 +12,16 @@ import java.util.List;
 
 /**
  * <p>
- *      Title: Res.java
+ * Title: Res.java
  * </p>
  *
  * <p>
- *     Description: 系统权限资源管理类；用于记录系统权限信息，使用shiro进行对系统资源的访问控制
+ * Description: 系统权限资源管理类；用于记录系统权限信息，使用shiro进行对系统资源的访问控制
  * </p>
  *
- *  <author>
- *      HKK
- *  </author>
+ * <author>
+ * HKK
+ * </author>
  */
 
 @Data
@@ -29,7 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("权限资源实体类")
-public class  Res extends IdEntity {
+public class Res extends IdEntity {
 
     @ApiModelProperty("资源名称")
     private String name;

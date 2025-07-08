@@ -26,9 +26,9 @@ public class PortManagerController {
     private IPortService portService;
 
     @GetMapping("all")
-    public Object all(){
+    public Object all() {
         Map params = new HashMap();
-        params.put("deviceUuid","126a9dbf-0082-43dd-be72-72c2e6c320de");
+        params.put("deviceUuid", "126a9dbf-0082-43dd-be72-72c2e6c320de");
         List<Port> portList = this.portService.selectObjByMap(params);
         Collections.sort(portList, (o1, o2) -> compareString(o1.getPort(), o2.getPort()));
         return portList;
@@ -49,16 +49,16 @@ public class PortManagerController {
                 return 0;
             }
             String str1 = null;
-            if (index < list1.size()){
+            if (index < list1.size()) {
                 str1 = list1.get(index);
-            }else{
-                str1 =  "";
+            } else {
+                str1 = "";
             }
             String str2 = null;
-            if (index < list2.size()){
+            if (index < list2.size()) {
                 str2 = list2.get(index);
-            }else{
-                str2 =  "";
+            } else {
+                str2 = "";
             }
             //字符串相等则继续判断下一组数据
             if (str1.equals(str2)) {
@@ -67,16 +67,16 @@ public class PortManagerController {
             }
             //是纯数字，比较数字大小
             if (isNum(str1) && isNum(str2)) {
-                if(Integer.parseInt(str1) < Integer.parseInt(str2)){
+                if (Integer.parseInt(str1) < Integer.parseInt(str2)) {
                     return -1;
-                }else{
+                } else {
                     return 1;
                 }
             }
             // 字符串比较大小
-            if(str1.compareTo(str2)>0){
+            if (str1.compareTo(str2) > 0) {
                 return -1;
-            }else{
+            } else {
                 return 1;
             }
         }
@@ -87,7 +87,7 @@ public class PortManagerController {
      * 输入：第5章第100节课
      * 返回：[第,5,章第,100,节课]
      */
-    private static List<String> splitString(String str){
+    private static List<String> splitString(String str) {
         Matcher matcher = Pattern.compile("([^0-9]+)|(\\d+)").matcher(str);
         List<String> list = new ArrayList<>();
         while (matcher.find()) {
@@ -95,13 +95,13 @@ public class PortManagerController {
         }
         return list;
     }
+
     /**
      * 是否是纯数字
      */
-    private static Boolean isNum(String str){
+    private static Boolean isNum(String str) {
         return Pattern.compile("\\d+").matcher(str).matches();
     }
-
 
 
 }

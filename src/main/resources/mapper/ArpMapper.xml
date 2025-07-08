@@ -6,7 +6,7 @@
 
     <select id="selectObjDistinctV4ip"
             resultType="com.metoo.nrsm.entity.Arp">
-      /*  select * from metoo_arp where
+        /* select * from metoo_arp where
         id not in(select id from metoo_arp where v4ip like '192.168%')
         group by mac having count(*) &lt;=1 order by v4ip asc*/
 
@@ -42,13 +42,13 @@
             </if>
             <if test="notInIpv4s != null">
                 AND v4ip not in
-                <foreach collection="notInIpv4s" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="notInIpv4s" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="notInIpv6s != null">
                 AND v6ip not in
-                <foreach collection="notInIpv6s" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="notInIpv6s" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -70,20 +70,19 @@
     </resultMap>
 
 
-
     <select id="joinSelectObjAndIpv6" resultMap="joinSelectObjAndIpv6_Result">
-          SELECT
-            metoo_ipv4_duplicates.id v4id,
-            metoo_ipv4_duplicates.ip v4ip,
-            metoo_ipv4_duplicates.mac,
-            metoo_ipv4_duplicates.port,
-            metoo_ipv4_duplicates.deviceIp,
-            metoo_ipv4_duplicates.deviceName,
-            metoo_ipv6_duplicates.id v6id,
-            metoo_ipv6_duplicates.ip v6ip,
-            metoo_mac_vendor.vendor macVendor
+        SELECT
+        metoo_ipv4_duplicates.id v4id,
+        metoo_ipv4_duplicates.ip v4ip,
+        metoo_ipv4_duplicates.mac,
+        metoo_ipv4_duplicates.port,
+        metoo_ipv4_duplicates.deviceIp,
+        metoo_ipv4_duplicates.deviceName,
+        metoo_ipv6_duplicates.id v6id,
+        metoo_ipv6_duplicates.ip v6ip,
+        metoo_mac_vendor.vendor macVendor
         FROM
-            metoo_ipv4_duplicates
+        metoo_ipv4_duplicates
         JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
         AND metoo_ipv4_duplicates.port = metoo_ipv6_duplicates.port
         LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(metoo_ipv4_duplicates.mac, 1, 8);
@@ -92,85 +91,85 @@
 
     <select id="mergeIpv4AndIpv6" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Arp">
         SELECT
-            #{addTime} as addTime,
-            mac,
-            port,
-            v4ip,
-            deviceIp,
-            deviceName,
-            macVendor,
+        #{addTime} as addTime,
+        mac,
+        port,
+        v4ip,
+        deviceIp,
+        deviceName,
+        macVendor,
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
-            SUBSTRING_INDEX(v6ip, ',', 1),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
+        SUBSTRING_INDEX(v6ip, ',', 1),
+        NULL
         ) v6ip,
 
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v6ip, ',', 2),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 2),
+        ',',
+        - 1
+        ),
+        NULL
         ) v6ip1,
 
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v6ip, ',', 3),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 3),
+        ',',
+        - 1
+        ),
+        NULL
         ) v6ip2,
 
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v6ip, ',', 4),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 4),
+        ',',
+        - 1
+        ),
+        NULL
         ) v6ip3
         FROM
-            (
-                SELECT
-                    v4id,
-                    mac,
-                    port,
-                    deviceIp,
-                    deviceName,
-                    v6id,
-                    macVendor,
-                    GROUP_CONCAT(v4ip) v4ip,
-                    GROUP_CONCAT(v6ip) v6ip
-                FROM
-                    (
-                        SELECT
-                            metoo_ipv4_duplicates.id v4id,
-                            metoo_ipv4_duplicates.ip v4ip,
-                            metoo_ipv4_duplicates.mac,
-                            metoo_ipv4_duplicates.port,
-                            metoo_ipv4_duplicates.deviceIp,
-                            metoo_ipv4_duplicates.deviceName,
-                            metoo_ipv6_duplicates.id v6id,
-                            metoo_ipv6_duplicates.ip v6ip,
-                            metoo_mac_vendor.vendor macVendor
-                        FROM
-                            metoo_ipv4_duplicates
-                        JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
-                        AND metoo_ipv4_duplicates.port = metoo_ipv6_duplicates.port
-                        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
-                            metoo_ipv4_duplicates.mac,
-                            1,
-                            8
-                        )
-                    ) arp
-                GROUP BY
-                    v4id
-            ) arp1
+        (
+        SELECT
+        v4id,
+        mac,
+        port,
+        deviceIp,
+        deviceName,
+        v6id,
+        macVendor,
+        GROUP_CONCAT(v4ip) v4ip,
+        GROUP_CONCAT(v6ip) v6ip
+        FROM
+        (
+        SELECT
+        metoo_ipv4_duplicates.id v4id,
+        metoo_ipv4_duplicates.ip v4ip,
+        metoo_ipv4_duplicates.mac,
+        metoo_ipv4_duplicates.port,
+        metoo_ipv4_duplicates.deviceIp,
+        metoo_ipv4_duplicates.deviceName,
+        metoo_ipv6_duplicates.id v6id,
+        metoo_ipv6_duplicates.ip v6ip,
+        metoo_mac_vendor.vendor macVendor
+        FROM
+        metoo_ipv4_duplicates
+        JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
+        AND metoo_ipv4_duplicates.port = metoo_ipv6_duplicates.port
+        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
+        metoo_ipv4_duplicates.mac,
+        1,
+        8
+        )
+        ) arp
+        GROUP BY
+        v4id
+        ) arp1
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Arp">
@@ -383,24 +382,24 @@
 
     <insert id="batchSaveGather" parameterType="java.util.List">
         INSERT INTO `metoo_arp_gather` (
-            addTime,
-            v4ip,
-            v6ip,
-            mac,
-            port,
-            v4ip1,
-            v4ip2,
-            v4ip3,
-            v6ip1,
-            v6ip2,
-            v6ip3,
-            deviceIp,
-            deviceName,
-            tag,
-            macVendor
+        addTime,
+        v4ip,
+        v6ip,
+        mac,
+        port,
+        v4ip1,
+        v4ip2,
+        v4ip3,
+        v6ip1,
+        v6ip2,
+        v6ip3,
+        deviceIp,
+        deviceName,
+        tag,
+        macVendor
         )
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
             #{item.addTime},
             #{item.v4ip},
@@ -422,274 +421,272 @@
     </insert>
 
 
-
     <insert id="batchSaveGatherBySelect" parameterType="java.util.Map">
         insert into metoo_arp_gather(
-                                addTime,
-                    mac,
-                    port,
-                    v4ip,
-                    deviceIp,
-                    deviceName,
-                    macVendor,
-                                v6ip,
-                                v6ip1,
-                                v6ip2,
-                                v6ip3
-            )
+        addTime,
+        mac,
+        port,
+        v4ip,
+        deviceIp,
+        deviceName,
+        macVendor,
+        v6ip,
+        v6ip1,
+        v6ip2,
+        v6ip3
+        )
         SELECT
-                                '2024-02-26 23:02:00' as addTime,
-                    mac,
-                    port,
-                    v4ip,
-                    deviceIp,
-                    deviceName,
-                    macVendor,
-                IF (
-                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
-                    SUBSTRING_INDEX(v6ip, ',', 1),
-                    NULL
-                ) v6ip,
+        '2024-02-26 23:02:00' as addTime,
+        mac,
+        port,
+        v4ip,
+        deviceIp,
+        deviceName,
+        macVendor,
+        IF (
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
+        SUBSTRING_INDEX(v6ip, ',', 1),
+        NULL
+        ) v6ip,
 
-                IF (
-                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
-                    SUBSTRING_INDEX(
-                        SUBSTRING_INDEX(v6ip, ',', 2),
-                        ',',
-                        - 1
-                    ),
-                    NULL
-                ) v6ip1,
+        IF (
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 2),
+        ',',
+        - 1
+        ),
+        NULL
+        ) v6ip1,
 
-                IF (
-                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
-                    SUBSTRING_INDEX(
-                        SUBSTRING_INDEX(v6ip, ',', 3),
-                        ',',
-                        - 1
-                    ),
-                    NULL
-                ) v6ip2,
+        IF (
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 3),
+        ',',
+        - 1
+        ),
+        NULL
+        ) v6ip2,
 
-                IF (
-                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
-                    SUBSTRING_INDEX(
-                        SUBSTRING_INDEX(v6ip, ',', 4),
-                        ',',
-                        - 1
-                    ),
-                    NULL
-                ) v6ip3
-                FROM
-                    (
-                        SELECT
-                            v4id,
-                            mac,
-                            port,
-                            deviceIp,
-                            deviceName,
-                            v6id,
-                            macVendor,
-                            GROUP_CONCAT(v4ip) v4ip,
-                            GROUP_CONCAT(v6ip) v6ip
-                        FROM
-                            (
-                                SELECT
-                                    metoo_ipv4_duplicates.id v4id,
-                                    metoo_ipv4_duplicates.ip v4ip,
-                                    metoo_ipv4_duplicates.mac,
-                                    metoo_ipv4_duplicates.port,
-                                    metoo_ipv4_duplicates.deviceIp,
-                                    metoo_ipv4_duplicates.deviceName,
-                                    metoo_ipv6_duplicates.id v6id,
-                                    metoo_ipv6_duplicates.ip v6ip,
-                                    metoo_mac_vendor.vendor macVendor
-                                FROM
-                                    metoo_ipv4_duplicates
-                                JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
-                                AND metoo_ipv4_duplicates.port = metoo_ipv6_duplicates.port
-                                LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
-                                    metoo_ipv4_duplicates.mac,
-                                    1,
-                                    8
-                                )
-                            ) arp
-                        GROUP BY
-                            v4id
-                    ) arp1
+        IF (
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 4),
+        ',',
+        - 1
+        ),
+        NULL
+        ) v6ip3
+        FROM
+        (
+        SELECT
+        v4id,
+        mac,
+        port,
+        deviceIp,
+        deviceName,
+        v6id,
+        macVendor,
+        GROUP_CONCAT(v4ip) v4ip,
+        GROUP_CONCAT(v6ip) v6ip
+        FROM
+        (
+        SELECT
+        metoo_ipv4_duplicates.id v4id,
+        metoo_ipv4_duplicates.ip v4ip,
+        metoo_ipv4_duplicates.mac,
+        metoo_ipv4_duplicates.port,
+        metoo_ipv4_duplicates.deviceIp,
+        metoo_ipv4_duplicates.deviceName,
+        metoo_ipv6_duplicates.id v6id,
+        metoo_ipv6_duplicates.ip v6ip,
+        metoo_mac_vendor.vendor macVendor
+        FROM
+        metoo_ipv4_duplicates
+        JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
+        AND metoo_ipv4_duplicates.port = metoo_ipv6_duplicates.port
+        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
+        metoo_ipv4_duplicates.mac,
+        1,
+        8
+        )
+        ) arp
+        GROUP BY
+        v4id
+        ) arp1
     </insert>
 
 
     <insert id="batchSaveIpV4AndIpv6ToArpGather" parameterType="java.util.Map">
         INSERT INTO metoo_arp_gather (
-            addTime,
-            mac,
-            PORT,
-            v4ip,
-            deviceIp,
-            deviceName,
-            macVendor,
-            v6ip,
-            v6ip1,
-            v6ip2,
-            v6ip3
+        addTime,
+        mac,
+        PORT,
+        v4ip,
+        deviceIp,
+        deviceName,
+        macVendor,
+        v6ip,
+        v6ip1,
+        v6ip2,
+        v6ip3
         ) SELECT
-            *
+        *
         FROM
-            (
-                SELECT
-                    #{addTime} AS addTime,
-                    arp.mac,
-                    arp. PORT,
-                    arp.v4ip,
-                    arp.deviceIp,
-                    arp.deviceName,
-                    metoo_mac_vendor.vendor macVendor,
-                    arp.v6ip,
-                    NULL AS v6ip1,
-                    NULL AS v6ip2,
-                    NULL AS v6ip3
-                FROM
-                    (
-                        SELECT
-                            *
-                        FROM
-                            (
-                                SELECT
-                                    metoo_ipv4.mac,
-                                    metoo_ipv4. PORT,
-                                    metoo_ipv4.ip v4ip,
-                                    metoo_ipv4.deviceIp,
-                                    metoo_ipv4.deviceName,
-                                    NULL AS v6ip
-                                FROM
-                                    metoo_ipv4
-                                WHERE
-                                    metoo_ipv4.id NOT IN (
-                                        SELECT DISTINCT
-                                            metoo_ipv4.id
-                                        FROM
-                                            metoo_ipv4
-                                        JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
-                                        AND metoo_ipv4. PORT = metoo_ipv6. PORT
-                                    )
-                            ) arp2
-                        UNION
-                            SELECT
-                                mac,
-                                PORT,
-                                NULL AS v4ip,
-                                deviceIp,
-                                deviceName,
-                                ip ipv6
-                            FROM
-                                (
-                                    SELECT
-                                        *
-                                    FROM
-                                        metoo_ipv6
-                                    WHERE
-                                        metoo_ipv6.id NOT IN (
-                                            SELECT DISTINCT
-                                                metoo_ipv6.id
-                                            FROM
-                                                metoo_ipv4
-                                            JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
-                                            AND metoo_ipv4. PORT = metoo_ipv6. PORT
-                                        )
-                                ) arp1
-                    ) arp
-                LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(arp.mac, 1, 8)
-            ) ip1
+        (
+        SELECT
+        #{addTime} AS addTime,
+        arp.mac,
+        arp. PORT,
+        arp.v4ip,
+        arp.deviceIp,
+        arp.deviceName,
+        metoo_mac_vendor.vendor macVendor,
+        arp.v6ip,
+        NULL AS v6ip1,
+        NULL AS v6ip2,
+        NULL AS v6ip3
+        FROM
+        (
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+        metoo_ipv4.mac,
+        metoo_ipv4. PORT,
+        metoo_ipv4.ip v4ip,
+        metoo_ipv4.deviceIp,
+        metoo_ipv4.deviceName,
+        NULL AS v6ip
+        FROM
+        metoo_ipv4
+        WHERE
+        metoo_ipv4.id NOT IN (
+        SELECT DISTINCT
+        metoo_ipv4.id
+        FROM
+        metoo_ipv4
+        JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
+        AND metoo_ipv4. PORT = metoo_ipv6. PORT
+        )
+        ) arp2
         UNION
-            SELECT
-                *
-            FROM
-                (
-                    SELECT
-                        #{addTime} AS addTime,
-                        mac,
-                        PORT,
-                        v4ip,
-                        deviceIp,
-                        deviceName,
-                        macVendor,
-
-                    IF (
-                        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
-                        SUBSTRING_INDEX(v6ip, ',', 1),
-                        NULL
-                    ) v6ip,
-
-                IF (
-                    LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
-                    SUBSTRING_INDEX(
-                        SUBSTRING_INDEX(v6ip, ',', 2),
-                        ',',
-                        - 1
-                    ),
-                    NULL
-                ) v6ip1,
-
-            IF (
-                LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
-                SUBSTRING_INDEX(
-                    SUBSTRING_INDEX(v6ip, ',', 3),
-                    ',',
-                    - 1
-                ),
-                NULL
-            ) v6ip2,
+        SELECT
+        mac,
+        PORT,
+        NULL AS v4ip,
+        deviceIp,
+        deviceName,
+        ip ipv6
+        FROM
+        (
+        SELECT
+        *
+        FROM
+        metoo_ipv6
+        WHERE
+        metoo_ipv6.id NOT IN (
+        SELECT DISTINCT
+        metoo_ipv6.id
+        FROM
+        metoo_ipv4
+        JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
+        AND metoo_ipv4. PORT = metoo_ipv6. PORT
+        )
+        ) arp1
+        ) arp
+        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(arp.mac, 1, 8)
+        ) ip1
+        UNION
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+        #{addTime} AS addTime,
+        mac,
+        PORT,
+        v4ip,
+        deviceIp,
+        deviceName,
+        macVendor,
 
         IF (
-            LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
-            SUBSTRING_INDEX(
-                SUBSTRING_INDEX(v6ip, ',', 4),
-                ',',
-                - 1
-            ),
-            NULL
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) >= 0,
+        SUBSTRING_INDEX(v6ip, ',', 1),
+        NULL
+        ) v6ip,
+
+        IF (
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 0 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 2),
+        ',',
+        - 1
+        ),
+        NULL
+        ) v6ip1,
+
+        IF (
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 1 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 3),
+        ',',
+        - 1
+        ),
+        NULL
+        ) v6ip2,
+
+        IF (
+        LENGTH(v6ip) - LENGTH(REPLACE(v6ip, ',', '')) - 2 > 0,
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(v6ip, ',', 4),
+        ',',
+        - 1
+        ),
+        NULL
         ) v6ip3
         FROM
-            (
-                SELECT
-                    v4id,
-                    mac,
-                    PORT,
-                    deviceIp,
-                    deviceName,
-                    v6id,
-                    macVendor,
-                    GROUP_CONCAT(v4ip) v4ip,
-                    GROUP_CONCAT(v6ip) v6ip
-                FROM
-                    (
-                        SELECT
-                            metoo_ipv4_duplicates.id v4id,
-                            metoo_ipv4_duplicates.ip v4ip,
-                            metoo_ipv4_duplicates.mac,
-                            metoo_ipv4_duplicates. PORT,
-                            metoo_ipv4_duplicates.deviceIp,
-                            metoo_ipv4_duplicates.deviceName,
-                            metoo_ipv6_duplicates.id v6id,
-                            metoo_ipv6_duplicates.ip v6ip,
-                            metoo_mac_vendor.vendor macVendor
-                        FROM
-                            metoo_ipv4_duplicates
-                        JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
-                        AND metoo_ipv4_duplicates. PORT = metoo_ipv6_duplicates. PORT
-                        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
-                            metoo_ipv4_duplicates.mac,
-                            1,
-                            8
-                        )
-                    ) arp
-                GROUP BY
-                    v4id
-            ) arp1
-                ) ip2
+        (
+        SELECT
+        v4id,
+        mac,
+        PORT,
+        deviceIp,
+        deviceName,
+        v6id,
+        macVendor,
+        GROUP_CONCAT(v4ip) v4ip,
+        GROUP_CONCAT(v6ip) v6ip
+        FROM
+        (
+        SELECT
+        metoo_ipv4_duplicates.id v4id,
+        metoo_ipv4_duplicates.ip v4ip,
+        metoo_ipv4_duplicates.mac,
+        metoo_ipv4_duplicates. PORT,
+        metoo_ipv4_duplicates.deviceIp,
+        metoo_ipv4_duplicates.deviceName,
+        metoo_ipv6_duplicates.id v6id,
+        metoo_ipv6_duplicates.ip v6ip,
+        metoo_mac_vendor.vendor macVendor
+        FROM
+        metoo_ipv4_duplicates
+        JOIN metoo_ipv6_duplicates ON metoo_ipv4_duplicates.mac = metoo_ipv6_duplicates.mac
+        AND metoo_ipv4_duplicates. PORT = metoo_ipv6_duplicates. PORT
+        LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(
+        metoo_ipv4_duplicates.mac,
+        1,
+        8
+        )
+        ) arp
+        GROUP BY
+        v4id
+        ) arp1
+        ) ip2
     </insert>
-
 
 
     <update id="update" parameterType="com.metoo.nrsm.entity.Arp">
@@ -749,68 +746,68 @@
 
     <update id="writeArp">
         INSERT INTO metoo_arp_gather (
-            addTime,
-            v4ip,
-            mac,
-            PORT,
-            v6ip,
-            deviceIp,
-            deviceName,
-            macVendor
+        addTime,
+        v4ip,
+        mac,
+        PORT,
+        v6ip,
+        deviceIp,
+        deviceName,
+        macVendor
         ) SELECT
-            arp.*, metoo_mac_vendor.vendor macVendor
+        arp.*, metoo_mac_vendor.vendor macVendor
         FROM
-            (
-                SELECT
-                    *
-                FROM
-                    (
-                        SELECT
-                            metoo_ipv4.addTime,
-                            metoo_ipv4.ip v4ip,
-                            metoo_ipv4.mac,
-                            metoo_ipv4. PORT,
-                            NULL AS v6ip,
-                            metoo_ipv4.deviceIp,
-                            metoo_ipv4.deviceName
-                        FROM
-                            metoo_ipv4
-                        WHERE
-                            metoo_ipv4.id NOT IN (
-                                SELECT DISTINCT
-                                    metoo_ipv4.id
-                                FROM
-                                    metoo_ipv4
-                                JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
-                                AND metoo_ipv4. PORT = metoo_ipv6. PORT
-                            )
-                    ) arp2
-                UNION
-                    SELECT
-                        addTime,
-                        NULL AS ip,
-                        mac,
-                        PORT,
-                        ip ipv6,
-                        deviceIp,
-                        deviceName
-                    FROM
-                        (
-                            SELECT
-                                *
-                            FROM
-                                metoo_ipv6
-                            WHERE
-                                metoo_ipv6.id NOT IN (
-                                    SELECT DISTINCT
-                                        metoo_ipv6.id
-                                    FROM
-                                        metoo_ipv4
-                                    JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
-                                    AND metoo_ipv4. PORT = metoo_ipv6. PORT
-                                )
-                        ) arp1
-            ) arp
+        (
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+        metoo_ipv4.addTime,
+        metoo_ipv4.ip v4ip,
+        metoo_ipv4.mac,
+        metoo_ipv4. PORT,
+        NULL AS v6ip,
+        metoo_ipv4.deviceIp,
+        metoo_ipv4.deviceName
+        FROM
+        metoo_ipv4
+        WHERE
+        metoo_ipv4.id NOT IN (
+        SELECT DISTINCT
+        metoo_ipv4.id
+        FROM
+        metoo_ipv4
+        JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
+        AND metoo_ipv4. PORT = metoo_ipv6. PORT
+        )
+        ) arp2
+        UNION
+        SELECT
+        addTime,
+        NULL AS ip,
+        mac,
+        PORT,
+        ip ipv6,
+        deviceIp,
+        deviceName
+        FROM
+        (
+        SELECT
+        *
+        FROM
+        metoo_ipv6
+        WHERE
+        metoo_ipv6.id NOT IN (
+        SELECT DISTINCT
+        metoo_ipv6.id
+        FROM
+        metoo_ipv4
+        JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
+        AND metoo_ipv4. PORT = metoo_ipv6. PORT
+        )
+        ) arp1
+        ) arp
         LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(arp.mac, 1, 8);
     </update>
 
@@ -833,6 +830,11 @@
     <!-- 在mapper.xml文件中 -->
     <insert id="gathreArp" parameterType="java.util.Date" statementType="CALLABLE">
         {call gather_arp(#{addTime,mode=IN})}
+    </insert>
+
+    <insert id="copyDataToArpHistory">
+        INSERT INTO metoo_arp_history
+        SELECT * FROM metoo_arp
     </insert>
 
 </mapper>

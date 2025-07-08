@@ -36,8 +36,9 @@ public class AddressPoolV6FixedVO implements Serializable {
 //        }else{
 //            this.host =  host;
 //        }
-        this.host =  host;
-        this.annotation =  "# " + host + "\n";;
+        this.host = host;
+        this.annotation = "# " + host + "\n";
+        ;
     }
 
     public String getHost_identifier_option_dhcp6_client_id() {
@@ -45,11 +46,11 @@ public class AddressPoolV6FixedVO implements Serializable {
     }
 
     public void setHost_identifier_option_dhcp6_client_id(String host_identifier_option_dhcp6_client_id) {
-        if(StringUtils.isNotEmpty(host_identifier_option_dhcp6_client_id)){
-            host_identifier_option_dhcp6_client_id = host_identifier_option_dhcp6_client_id.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(host_identifier_option_dhcp6_client_id)) {
+            host_identifier_option_dhcp6_client_id = host_identifier_option_dhcp6_client_id.replaceAll("\\s*|\r|\n|\t", "");
             this.host_identifier_option_dhcp6_client_id = "        host-identifier option dhcp6.client-id " + host_identifier_option_dhcp6_client_id + ";\n";
-        }else{
-            this.host_identifier_option_dhcp6_client_id =  host_identifier_option_dhcp6_client_id;
+        } else {
+            this.host_identifier_option_dhcp6_client_id = host_identifier_option_dhcp6_client_id;
         }
     }
 
@@ -58,15 +59,15 @@ public class AddressPoolV6FixedVO implements Serializable {
     }
 
     public void setFixed_address6(String fixed_address6) {
-        if(StringUtils.isNotEmpty(fixed_address6)){
-            fixed_address6 = fixed_address6.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(fixed_address6)) {
+            fixed_address6 = fixed_address6.replaceAll("\\s*|\r|\n|\t", "");
             this.fixed_address6 = "        fixed-address6 " + fixed_address6 + ";\n";
 //            if(MyStringUtils.isNotEmpty(host)){
 //                host = host.replaceAll("\\s*|\r|\n|\t","");
 //                this.host = "host " + fixed_address6 + "{\n";
 //            }
-        }else{
-            this.fixed_address6 =  fixed_address6;
+        } else {
+            this.fixed_address6 = fixed_address6;
         }
     }
 
@@ -78,24 +79,24 @@ public class AddressPoolV6FixedVO implements Serializable {
 
         this.host = "host " + host_index + " {\n";
 
-        this.annotation =  "# " + host + "\n";
+        this.annotation = "# " + host + "\n";
 
-        if(StringUtils.isNotEmpty(host_identifier_option_dhcp6_client_id)){
-            host_identifier_option_dhcp6_client_id = host_identifier_option_dhcp6_client_id.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(host_identifier_option_dhcp6_client_id)) {
+            host_identifier_option_dhcp6_client_id = host_identifier_option_dhcp6_client_id.replaceAll("\\s*|\r|\n|\t", "");
             this.host_identifier_option_dhcp6_client_id = "        host-identifier option dhcp6.client-id " + host_identifier_option_dhcp6_client_id + ";\n";
-        }else{
-            this.host_identifier_option_dhcp6_client_id =  host_identifier_option_dhcp6_client_id;
+        } else {
+            this.host_identifier_option_dhcp6_client_id = host_identifier_option_dhcp6_client_id;
         }
 
-        if(StringUtils.isNotEmpty(fixed_address6)){
-            fixed_address6 = fixed_address6.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(fixed_address6)) {
+            fixed_address6 = fixed_address6.replaceAll("\\s*|\r|\n|\t", "");
             this.fixed_address6 = "        fixed-address6 " + fixed_address6 + ";\n";
 //            if(MyStringUtils.isNotEmpty(host)){
 //                host = host.replaceAll("\\s*|\r|\n|\t","");
 //                this.host = "host " + fixed_address6 + "{\n";
 //            }
-        }else{
-            this.fixed_address6 =  fixed_address6;
+        } else {
+            this.fixed_address6 = fixed_address6;
         }
     }
 }

@@ -3,26 +3,28 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.PlantRoomMapper">
 
     <resultMap id="Base_Result_Map" type="com.metoo.nrsm.entity.PlantRoom">
-        <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long" ></id>
-        <result column="addTime" property="addTime" jdbcType="TIMESTAMP" javaType="java.util.Date" ></result>
+        <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long"></id>
+        <result column="addTime" property="addTime" jdbcType="TIMESTAMP" javaType="java.util.Date"></result>
         <result column="name" property="name" jdbcType="VARCHAR" javaType="java.lang.String"></result>
         <result column="description" property="description" jdbcType="VARCHAR" javaType="java.lang.String"></result>
-        <result column="change_reasons" property="change_reasons" jdbcType="VARCHAR" javaType="java.lang.String"></result>
+        <result column="change_reasons" property="change_reasons" jdbcType="VARCHAR"
+                javaType="java.lang.String"></result>
         <result column="is_default" property="isDefault"></result>
     </resultMap>
 
     <resultMap id="Plant_Result_Map" type="com.metoo.nrsm.core.vo.PlantRoomVO">
-        <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long" ></id>
+        <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long"></id>
         <result column="name" property="name" jdbcType="VARCHAR" javaType="java.lang.String"></result>
         <result column="is_default" property="isDefault"></result>
     </resultMap>
 
     <resultMap id="PlantRoom_Rack_Map" type="com.metoo.nrsm.entity.PlantRoom">
-        <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long" ></id>
-        <result column="addTime" property="addTime" jdbcType="TIMESTAMP" javaType="java.util.Date" ></result>
+        <id column="id" property="id" jdbcType="BIGINT" javaType="java.lang.Long"></id>
+        <result column="addTime" property="addTime" jdbcType="TIMESTAMP" javaType="java.util.Date"></result>
         <result column="name" property="name" jdbcType="VARCHAR" javaType="java.lang.String"></result>
         <result column="description" property="description" jdbcType="VARCHAR" javaType="java.lang.String"></result>
-        <result column="change_reasons" property="change_reasons" jdbcType="VARCHAR" javaType="java.lang.String"></result>
+        <result column="change_reasons" property="change_reasons" jdbcType="VARCHAR"
+                javaType="java.lang.String"></result>
         <result column="is_default" property="isDefault"></result>
         <collection property="rackList" ofType="com.metoo.nrsm.entity.Rack">
             <id column="rack_id" property="id"></id>
@@ -33,15 +35,18 @@
             <result column="device_number" property="number"></result>
             <result column="surplusSize" property="surplusSize"></result>
             <result column="rack_deleteStatus" property="deleteStatus"></result>
-            <result column="rack_asset_number" property="asset_number" jdbcType="VARCHAR" javaType="java.lang.String"></result>
-            <result column="rack_change_reasons" property="change_reasons" jdbcType="VARCHAR" javaType="java.lang.String"></result>
+            <result column="rack_asset_number" property="asset_number" jdbcType="VARCHAR"
+                    javaType="java.lang.String"></result>
+            <result column="rack_change_reasons" property="change_reasons" jdbcType="VARCHAR"
+                    javaType="java.lang.String"></result>
         </collection>
     </resultMap>
 
     <sql id="Base_Result_Column_List">
-       plant_room.id, plant_room.addTime, plant_room.`name`, plant_room.description, plant_room.change_reasons,
-       rack.id rack_id, rack.name rack_name, rack.size rack_size, rack.rear rack_rear, rack.description rack_description,
-       rack.number rack_number
+        plant_room.id, plant_room.addTime, plant_room.`name`, plant_room.description, plant_room.change_reasons,
+        rack.id rack_id, rack.name rack_name, rack.size rack_size, rack.rear rack_rear, rack.description
+        rack_description,
+        rack.number rack_number
     </sql>
 
     <sql id="Base_Column_List">
@@ -49,13 +54,15 @@
     </sql>
 
     <select id="getObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM rsms_plant_room
         WHERE id = #{id}
     </select>
 
     <select id="selectObjByName" parameterType="java.lang.String" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM rsms_plant_room
         WHERE name = #{name}
     </select>
@@ -76,63 +83,66 @@
 
 
     <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.PlantRoomDTO" resultMap="Base_Result_Map">
-        SELECT id, addTime, `name`, description, deleteStatus, `change_reasons`, (select count(*)  from rsms_rack where plant_room_id = plant_room.id) as rack_number
+        SELECT id, addTime, `name`, description, deleteStatus, `change_reasons`, (select count(*) from rsms_rack where
+        plant_room_id = plant_room.id) as rack_number
         FROM rsms_plant_room plant_room
         <where>
             <if test="userId != null and userId != ''">
                 AND user_id = #{userId}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY is_default desc, ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
 
-    <select id="findBySelectAndRack" parameterType="com.metoo.nrsm.core.dto.PlantRoomDTO" resultMap="PlantRoom_Rack_Map">
+    <select id="findBySelectAndRack" parameterType="com.metoo.nrsm.core.dto.PlantRoomDTO"
+            resultMap="PlantRoom_Rack_Map">
         SELECT
-            plant_room.id, plant_room.addTime, plant_room.`name`, plant_room.description,
-            plant_room.deleteStatus deleteStatus, plant_room.change_reasons change_reasons,
-            rack.id rack_id, rack.addTime rack_addTime, rack.name rack_name, rack.size rack_size,
-            rack.rear rack_rear, rack.description rack_description,
-            rack.number rack_number, rack.asset_number
-            rack_asset_number, rack.change_reasons rack_change_reasons,
-            if(rack.id IS NOT null, (
-                SELECT
-                  IF(rack_id IS NULL,0, COUNT(*)) AS count
-                FROM
-                  rsms_device
-                WHERE
-                 rack_id = rack.id
-                AND
-                  start > 0
-                AND
-                 `size` > 0
-            ), 0) AS device_number
+        plant_room.id, plant_room.addTime, plant_room.`name`, plant_room.description,
+        plant_room.deleteStatus deleteStatus, plant_room.change_reasons change_reasons,
+        rack.id rack_id, rack.addTime rack_addTime, rack.name rack_name, rack.size rack_size,
+        rack.rear rack_rear, rack.description rack_description,
+        rack.number rack_number, rack.asset_number
+        rack_asset_number, rack.change_reasons rack_change_reasons,
+        if(rack.id IS NOT null, (
+        SELECT
+        IF(rack_id IS NULL,0, COUNT(*)) AS count
         FROM
-          rsms_rack rack
+        rsms_device
+        WHERE
+        rack_id = rack.id
+        AND
+        start > 0
+        AND
+        `size` > 0
+        ), 0) AS device_number
+        FROM
+        rsms_rack rack
         RIGHT JOIN
-          rsms_plant_room plant_room
+        rsms_plant_room plant_room
         ON
-          plant_room.id=rack.plant_room_id
+        plant_room.id=rack.plant_room_id
         <where>
             <if test="userId != null and userId != ''">
                 plant_room.user_id = #{userId}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY plant_room.is_default DESC, rack.addTime
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
 
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM rsms_plant_room
         <where>
             <if test="deleteStatus != null and deleteStatus != ''">
@@ -213,31 +223,32 @@
         </where>
     </select>
 
-    <insert id="save" parameterType="com.metoo.nrsm.entity.PlantRoom" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
-      INSERT INTO rsms_plant_room
-      <trim prefix="(" suffixOverrides="," suffix=")">
-        <if test="addTime != null">
-            addTime,
-        </if>
-        <if test="deleteStatus != null">
-            deleteStatus,
-        </if>
-        <if test="name != null">
-            `name`,
-        </if>
-        <if test="description != null">
-            description,
-        </if>
-          <if test="userId != null">
-              user_id,
-          </if>
-          <if test="change_reasons != null">
-              change_reasons,
-          </if>
-          <if test="isDefault != null">
-              is_default,
-          </if>
-    </trim>
+    <insert id="save" parameterType="com.metoo.nrsm.entity.PlantRoom" keyProperty="id" useGeneratedKeys="true"
+            keyColumn="id">
+        INSERT INTO rsms_plant_room
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="deleteStatus != null">
+                deleteStatus,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="change_reasons != null">
+                change_reasons,
+            </if>
+            <if test="isDefault != null">
+                is_default,
+            </if>
+        </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
                 #{addTime},

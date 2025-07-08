@@ -66,13 +66,13 @@ public class NetworkElementManagerController {
 
     @ApiOperation("网元列表")
     @RequestMapping("/list")
-    public Object list(@RequestBody(required=false) NetworkElementDto dto){
-        if(dto == null){
+    public Object list(@RequestBody(required = false) NetworkElementDto dto) {
+        if (dto == null) {
             dto = new NetworkElementDto();
         }
         Page<NetworkElement> page = this.networkElementService.selectConditionQuery(dto);
-        if(page.getResult().size() > 0){
-            for(NetworkElement ne : page.getResult()) {
+        if (page.getResult().size() > 0) {
+            for (NetworkElement ne : page.getResult()) {
                 if (ne.getDeviceTypeId() != null) {
                     DeviceType deviceType = deviceTypeService.selectObjById(ne.getDeviceTypeId());
                     ne.setDeviceTypeName(deviceType.getName());
@@ -102,28 +102,28 @@ public class NetworkElementManagerController {
 
             return ResponseUtil.ok(new PageInfo<NetworkElement>(page, map));
         }
-        return  ResponseUtil.ok();
+        return ResponseUtil.ok();
     }
 
     @GetMapping("/all")
-    public Object all(){
+    public Object all() {
         List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
         return ResponseUtil.ok(networkElements);
     }
 
     @Test
-    public void condition2(){
+    public void condition2() {
         Map params = new HashMap();
         Optional<Map> optional = Optional.ofNullable(params);
-        if(optional.isPresent() && !params.isEmpty()) {
+        if (optional.isPresent() && !params.isEmpty()) {
             System.out.println(0);
-        }else{
+        } else {
             System.out.println(1);
         }
     }
 
     @GetMapping("/add")
-    public Object add(){
+    public Object add() {
         Map map = new HashMap();
         // 厂商
         List<Vendor> vendors = this.vendorService.selectConditionQuery(null);
@@ -143,9 +143,9 @@ public class NetworkElementManagerController {
     }
 
     @GetMapping("/update")
-    public Object update(Long id){
-        if(id == null){
-            return  ResponseUtil.badArgument();
+    public Object update(Long id) {
+        if (id == null) {
+            return ResponseUtil.badArgument();
         }
         Map map = new HashMap();
         List<DeviceType> deviceTypeWithVendors = deviceTypeService.getDeviceTypeWithVendors();
@@ -170,18 +170,19 @@ public class NetworkElementManagerController {
     @ApiOperation("校验Ip格式")
     @GetMapping("/verify")
     public Object verify(@RequestParam(value = "ip") String ip,
-                         @RequestParam(value = "id") String id){
+                         @RequestParam(value = "id") String id) {
         if (!StringUtils.isEmpty(ip)) {
             // 验证ip合法性
-            boolean flag =  Ipv4Util.verifyIp(ip);
-            if(!flag){
+            boolean flag = Ipv4Util.verifyIp(ip);
+            if (!flag) {
                 return ResponseUtil.badArgument("ip不合法");
             }
             Map params = new HashMap();
             params.put("neId", id);
             params.put("ip", ip);
+            params.put("deleteStatus", 0);
             List<NetworkElement> nes = this.networkElementService.selectObjByMap(params);
-            if(nes.size() > 0){
+            if (nes.size() > 0) {
                 return ResponseUtil.badArgument("IP重复");
             }
             return ResponseUtil.ok();
@@ -190,10 +191,10 @@ public class NetworkElementManagerController {
     }
 
     @GetMapping("/detail")
-    public Object detail(@RequestParam(value = "uuid") String uuid){
+    public Object detail(@RequestParam(value = "uuid") String uuid) {
         if (!StringUtils.isEmpty(uuid)) {
             NetworkElement networkElement = this.networkElementService.selectObjByUuid(uuid);
-            if(networkElement != null){
+            if (networkElement != null) {
                 String result = null;
 //                try {
 //                    String path = Global.PYPATH + "getuptime.py";
@@ -203,7 +204,7 @@ public class NetworkElementManagerController {
 //                } catch (Exception e) {
 //                    e.printStackTrace();
 //                }
-                if(StringUtil.isNotEmpty(result)){
+                if (StringUtil.isNotEmpty(result)) {
                     String timeticks = uptime(Long.parseLong(result));
                     networkElement.setTimeticks(timeticks);
                 }
@@ -227,7 +228,7 @@ public class NetworkElementManagerController {
     }
 
 
-    public static String uptime(Long time){
+    public static String uptime(Long time) {
         //获取结束时间
         Date finishTime = new Date();
         //结束时间 转为 Long 类型
@@ -235,44 +236,44 @@ public class NetworkElementManagerController {
         // 时间差 = 结束时间 - 开始时间，这样得到的差值是毫秒级别
         long timeLag = time;
         //天
-        long day=timeLag/(24*60*60*1000);
+        long day = timeLag / (24 * 60 * 60 * 1000);
         //小时
-        long hour=(timeLag/(60*60*1000) - day * 24);
+        long hour = (timeLag / (60 * 60 * 1000) - day * 24);
         //分钟
-        long minute=((timeLag/(60*1000))-day*24*60-hour*60);
+        long minute = ((timeLag / (60 * 1000)) - day * 24 * 60 - hour * 60);
         //秒，顺便说一下，1秒 = 1000毫秒
-        long s=(timeLag/1000-day*24*60*60-hour*60*60-minute*60);
-        System.out.println("用了 "+day+"天 "+hour+"时 "+minute+"分 "+s+"秒");
+        long s = (timeLag / 1000 - day * 24 * 60 * 60 - hour * 60 * 60 - minute * 60);
+        System.out.println("用了 " + day + "天 " + hour + "时 " + minute + "分 " + s + "秒");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println("任务结束，结束时间为："+ df.format(finishTime));
-        return day+"天 "+hour+"时 "+minute+"分";
+        System.out.println("任务结束，结束时间为：" + df.format(finishTime));
+        return day + "天 " + hour + "时 " + minute + "分";
     }
 
     public static void main(String[] args) {
         DateUtils.formatDateTime(33815647);
 
-            //获取结束时间
-            Date finishTime = new Date();
-            //结束时间 转为 Long 类型
-            Long end = finishTime.getTime();
-            // 时间差 = 结束时间 - 开始时间，这样得到的差值是毫秒级别
-            long timeLag = 33815647;
-            //天
-            long day=timeLag/(24*60*60*1000);
-            //小时
-            long hour=(timeLag/(60*60*1000) - day * 24);
-            //分钟
-            long minute=((timeLag/(60*1000))-day*24*60-hour*60);
-            //秒，顺便说一下，1秒 = 1000毫秒
-            long s=(timeLag/1000-day*24*60*60-hour*60*60-minute*60);
-            System.out.println("用了 "+day+"天 "+hour+"时 "+minute+"分 "+s+"秒");
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            System.out.println("任务结束，结束时间为："+ df.format(finishTime));
-        System.out.println( day+"天 "+hour+"时 "+minute+"分");
+        //获取结束时间
+        Date finishTime = new Date();
+        //结束时间 转为 Long 类型
+        Long end = finishTime.getTime();
+        // 时间差 = 结束时间 - 开始时间，这样得到的差值是毫秒级别
+        long timeLag = 33815647;
+        //天
+        long day = timeLag / (24 * 60 * 60 * 1000);
+        //小时
+        long hour = (timeLag / (60 * 60 * 1000) - day * 24);
+        //分钟
+        long minute = ((timeLag / (60 * 1000)) - day * 24 * 60 - hour * 60);
+        //秒，顺便说一下，1秒 = 1000毫秒
+        long s = (timeLag / 1000 - day * 24 * 60 * 60 - hour * 60 * 60 - minute * 60);
+        System.out.println("用了 " + day + "天 " + hour + "时 " + minute + "分 " + s + "秒");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("任务结束，结束时间为：" + df.format(finishTime));
+        System.out.println(day + "天 " + hour + "时 " + minute + "分");
     }
 
     @PostMapping("/save")
-    public Object save(@RequestBody(required=false) NetworkElement instance){
+    public Object save(@RequestBody(required = false) NetworkElement instance) {
         String name = "";
         String newName = "";
         String ip = "";
@@ -282,14 +283,14 @@ public class NetworkElementManagerController {
         handleSnmpVersion(instance);
 
 
-        if(instance.getId() != null){
+        if (instance.getId() != null) {
             ne = this.networkElementService.selectObjById(instance.getId());
             handleSnmpVersion(ne);
-            if(ne.getDeviceName() != instance.getDeviceName()){
+            if (ne.getDeviceName() != instance.getDeviceName()) {
                 name = ne.getDeviceName();
                 newName = instance.getDeviceName();
             }
-            if(ne.getIp() != instance.getIp()){
+            if (ne.getIp() != instance.getIp()) {
                 ip = ne.getIp();
                 newIp = instance.getIp();
             }
@@ -297,9 +298,9 @@ public class NetworkElementManagerController {
 
         // 验证设备名唯一性
         Map params = new HashMap();
-        if(instance.getDeviceName() == null || instance.getDeviceName().equals("")){
+        if (instance.getDeviceName() == null || instance.getDeviceName().equals("")) {
             return ResponseUtil.badArgument("设备名不能为空");
-        }else {
+        } else {
             params.clear();
             params.put("neId", instance.getId());
             params.put("deviceName", instance.getDeviceName());
@@ -311,7 +312,7 @@ public class NetworkElementManagerController {
 
         // 验证厂商
         Vendor vendor = this.vendorService.selectObjById(instance.getVendorId());
-        if(vendor != null){
+        if (vendor != null) {
             instance.setVendorName(vendor.getName());
         }
 
@@ -338,10 +339,10 @@ public class NetworkElementManagerController {
             }
         }
 
-        if(this.networkElementService.save(instance) >= 1 ? true : false){
+        if (this.networkElementService.save(instance) >= 1 ? true : false) {
 
             // 验证名称是否唯一
-            if(instance.isSync_device() && instance.getDeviceName() != null
+            if (instance.isSync_device() && instance.getDeviceName() != null
                     && !instance.getDeviceName().isEmpty()) {
                 params.clear();
                 params.put("id", instance.getId());
@@ -363,7 +364,7 @@ public class NetworkElementManagerController {
                         params.clear();
                         params.put("ip", instance.getIp());
                         List<RsmsDevice> rsmsDevices = this.rsmsDeviceService.selectObjByMap(params);
-                        if(rsmsDevices.size() > 0){
+                        if (rsmsDevices.size() > 0) {
                             RsmsDevice obj = rsmsDevices.get(0);
                             rsmsDevice.setId(obj.getId());
                         }
@@ -377,7 +378,7 @@ public class NetworkElementManagerController {
             }
 
             return ResponseUtil.ok();
-        }else{
+        } else {
             return ResponseUtil.badArgument();
         }
     }
@@ -402,15 +403,15 @@ public class NetworkElementManagerController {
 
 
     @DeleteMapping("/delete")
-    public Object delete(String ids){
-        if(ids != null && !ids.equals("")){
+    public Object delete(String ids) {
+        if (ids != null && !ids.equals("")) {
             User user = ShiroUserHolder.currentUser();
-            for (String id : ids.split(",")){
+            for (String id : ids.split(",")) {
                 Map params = new HashMap();
 //                params.put("userId", user.getId());
                 params.put("id", Long.parseLong(id));
                 List<NetworkElement> nes = this.networkElementService.selectObjByMap(params);
-                if(nes.size() > 0){
+                if (nes.size() > 0) {
                     NetworkElement ne = nes.get(0);
                     try {
                         int i = this.networkElementService.delete(Long.parseLong(id));
@@ -418,7 +419,7 @@ public class NetworkElementManagerController {
                         e.printStackTrace();
                         return ResponseUtil.badArgument(ne.getDeviceName() + "删除失败");
                     }
-                }else{
+                } else {
                     return ResponseUtil.badArgument();
                 }
             }
@@ -430,9 +431,9 @@ public class NetworkElementManagerController {
 
     @ApiOperation("是否开启凭证")
     @GetMapping("/isCredential")
-    public Object isCredential(@RequestParam(value = "uuid") String uuid){
+    public Object isCredential(@RequestParam(value = "uuid") String uuid) {
         NetworkElement networkElement = this.networkElementService.selectObjByUuid(uuid);
-        if(networkElement != null){
+        if (networkElement != null) {
 //            // 验证凭据是否存在
 //            Credential credential = this.credentialService.getObjById(networkElement.getCredentialId());
 //            if(credential != null){
@@ -449,37 +450,37 @@ public class NetworkElementManagerController {
     }
 
     @PostMapping("/import")
-    public Object importExcel(@RequestPart("file")MultipartFile file) throws Exception {
-        if(!file.isEmpty()){
+    public Object importExcel(@RequestPart("file") MultipartFile file) throws Exception {
+        if (!file.isEmpty()) {
             String fileName = file.getOriginalFilename().toLowerCase();
-            String suffix = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
+            String suffix = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
             if (suffix.equals("xlsx") || suffix.equals("xls")) {
                 List<NetworkElement> nes = ExcelUtils.readMultipartFile(file, NetworkElement.class);
                 // 校验表格数据是否符号要求
                 String tips = "";
                 for (NetworkElement ne : nes) {
-                    if(!ne.getRowTips().isEmpty()){
+                    if (!ne.getRowTips().isEmpty()) {
                         tips = ne.getRowTips();
                         break;
                     }
                 }
-                if(!tips.isEmpty()){
+                if (!tips.isEmpty()) {
                     return ResponseUtil.badArgument(tips);
                 }
-                if(nes.size() > 0){
+                if (nes.size() > 0) {
                     String msg = "";
                     Map params = new HashMap();
                     List<NetworkElement> neList = new ArrayList<>();
                     for (int i = 0; i < nes.size(); i++) {
                         NetworkElement ne = nes.get(i);
-                        if(ne.getDeviceName()  == null || ne.getDeviceName().equals("")){
+                        if (ne.getDeviceName() == null || ne.getDeviceName().equals("")) {
                             msg = "第" + (i + 2) + "行,设备名不能为空";
                             break;
-                        }else{
+                        } else {
                             params.clear();
                             params.put("deviceName", ne.getDeviceName());
                             List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-                            if(networkElements.size() > 0){
+                            if (networkElements.size() > 0) {
                                 msg = "第" + (i + 2) + "行, 设备已存在";
                                 break;
                             }
@@ -490,68 +491,68 @@ public class NetworkElementManagerController {
 //                            msg = "第" + (i + 2) + "行,IP不能为空";
 //                            break;
 //                        }
-                        if(ne.getIp() != null && !ne.getIp().equals("")){
+                        if (ne.getIp() != null && !ne.getIp().equals("")) {
                             boolean flag = Ipv4Util.verifyIp(ne.getIp());
-                            if(flag){
+                            if (flag) {
                                 params.clear();
                                 params.put("ip", ne.getIp());
                                 List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-                                if(networkElements.size() > 0){
+                                if (networkElements.size() > 0) {
                                     msg = "第" + (i + 2) + "行, IP已存在";
                                     break;
                                 }
-                            }else{
+                            } else {
                                 msg = "第" + (i + 2) + "行, IP格式错误";
                                 break;
                             }
                         }
-                        if(ne.getVendorName() != null && !ne.getVendorName().equals("")){
+                        if (ne.getVendorName() != null && !ne.getVendorName().equals("")) {
                             params.clear();
                             params.put("name", ne.getVendorName());
                             Vendor vendor = this.vendorService.selectObjByName(ne.getVendorName());
-                            if(vendor == null){
+                            if (vendor == null) {
                                 msg = "第" + (i + 2) + "行,品牌不存在";
                                 break;
-                            }else{
+                            } else {
                                 ne.setVendorId(vendor.getId());
                             }
-                        }else{
+                        } else {
                             ne.setVendorName(null);
                         }
-                        if(ne.getDeviceTypeName() != null && !ne.getDeviceTypeName().equals("")){
+                        if (ne.getDeviceTypeName() != null && !ne.getDeviceTypeName().equals("")) {
                             params.clear();
                             params.put("name", ne.getDeviceTypeName());
                             DeviceType deviceType = this.deviceTypeService.selectObjByName(ne.getDeviceTypeName());
-                            if(deviceType == null){
+                            if (deviceType == null) {
                                 msg = "第" + (i + 2) + "行,设备类型不存在";
                                 break;
-                            }else{
+                            } else {
                                 ne.setDeviceTypeId(deviceType.getId());
-                                if(deviceType.getType() == 10){
+                                if (deviceType.getType() == 10) {
                                     ne.setInterfaceName("Port0");
                                 }
                             }
-                        }else{
+                        } else {
                             ne.setDeviceTypeName(null);
                         }
                         ne.setType(2);
                         neList.add(ne);
                     }
-                    if(msg.isEmpty()){
+                    if (msg.isEmpty()) {
                         // 批量插入NE
                         int i = this.networkElementService.batchInsert(neList);
-                        if(i > 0){
+                        if (i > 0) {
                             return ResponseUtil.ok();
-                        }else{
+                        } else {
                             return ResponseUtil.error();
                         }
-                    }else{
+                    } else {
                         return ResponseUtil.badArgument(msg);
                     }
-                }else{
+                } else {
                     return ResponseUtil.badArgument("文件无数据");
                 }
-            }else{
+            } else {
                 return ResponseUtil.badArgument("文件格式错误，请使用标准模板上传");
             }
         }
@@ -568,9 +569,9 @@ public class NetworkElementManagerController {
     @GetMapping("/downTemp")
     public Object downTemplate(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         boolean flag = DownLoadFileUtil.downloadTemplate(this.batchImportFilePath, this.batchImportNeFileName, response);
-        if(flag){
+        if (flag) {
             return ResponseUtil.ok();
-        }else{
+        } else {
             return ResponseUtil.error();
         }
     }
@@ -581,8 +582,8 @@ public class NetworkElementManagerController {
 
     @ApiOperation("网元|终端列表")
     @PostMapping("/terminal")
-    public Object terminal(@RequestBody String[] uuids){
-        if(uuids != null && uuids.length > 0){
+    public Object terminal(@RequestBody String[] uuids) {
+        if (uuids != null && uuids.length > 0) {
             Map params = new HashMap();
             Map map = new HashMap();
             for (String uuid : uuids) {
@@ -591,8 +592,8 @@ public class NetworkElementManagerController {
                 params.put("deviceUuidAndDeviceTypeId", uuid);
                 List<Terminal> terminals = this.terminalService.selectObjByMap(params);
                 terminals.stream().forEach(e -> {
-                    if(e.getDeviceTypeId() != null
-                            && !e.getDeviceTypeId().equals("")){
+                    if (e.getDeviceTypeId() != null
+                            && !e.getDeviceTypeId().equals("")) {
                         DeviceType deviceType = this.deviceTypeService.selectObjById(e.getDeviceTypeId());
                         e.setDeviceTypeName(deviceType.getName());
                         e.setDeviceTypeUuid(deviceType.getUuid());
@@ -606,17 +607,16 @@ public class NetworkElementManagerController {
     }
 
 
-
     @SneakyThrows
     @ApiOperation("/允许连接设备")
     @PostMapping("/permit/connect")
     public Object condition(@RequestBody Map params) {
         Optional<Map> optional = Optional.ofNullable(params);
-        if(optional.isPresent() && !params.isEmpty()){
+        if (optional.isPresent() && !params.isEmpty()) {
             List list = this.networkElementService.selectObjByMap(params);
             return ResponseUtil.ok(list);
         }
-        throw new MissingServletRequestParameterException("","");
+        throw new MissingServletRequestParameterException("", "");
     }
 
 }

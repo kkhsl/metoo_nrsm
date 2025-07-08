@@ -9,6 +9,7 @@ import java.util.List;
 public interface DnsTempLogMapper {
     /**
      * 保存临时数据
+     *
      * @param log
      */
     void saveInfo(DnsTempLog log);
@@ -20,6 +21,7 @@ public interface DnsTempLogMapper {
 
     /**
      * 获取解析日志汇总数据（只有ipv4记录）
+     *
      * @return
      */
     List<DnsTempLog> queryRecordInfo();

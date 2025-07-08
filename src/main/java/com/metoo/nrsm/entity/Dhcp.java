@@ -29,7 +29,7 @@ public class Dhcp extends IdEntity {
     private String rewind_binding_state;
     private String hardware_ethernet;
     private String uid;
-//    private String client_host_name;
+    //    private String client_host_name;
     private String client_hostname;
 
     private String set_vendor_class_identifier;

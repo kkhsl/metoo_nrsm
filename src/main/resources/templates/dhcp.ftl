@@ -8,19 +8,19 @@
     <style>
 
 
-
-        table
-        {
-            border-collapse:collapse;
+        table {
+            border-collapse: collapse;
         }
+
         table,
         th,
         td {
             border: 1px solid black;
-            align:"center";
+            align: "center";
         }
+
         p {
-            text-align:center
+            text-align: center
         }
     </style>
 </head>
@@ -32,7 +32,7 @@
 
 <br>
 <br>
-<table  border="1" align="center" cellpadding="10" cellspacing="0">
+<table border="1" align="center" cellpadding="10" cellspacing="0">
     <tr>
         <th>lease</th>
         <th>starts</th>

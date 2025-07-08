@@ -48,7 +48,7 @@ public class PortIpv6ServiceImpl implements IPortIpv6Service {
                 return false;
 
             }
-        }else{
+        } else {
             try {
                 this.portIpv6Mapper.update(instance);
                 return true;

@@ -83,7 +83,7 @@ public class Encodes {
     public static String encodeBase62(byte[] input) {
         char[] chars = new char[input.length];
 
-        for(int i = 0; i < input.length; ++i) {
+        for (int i = 0; i < input.length; ++i) {
             chars[i] = BASE62[(input[i] & 255) % BASE62.length];
         }
 

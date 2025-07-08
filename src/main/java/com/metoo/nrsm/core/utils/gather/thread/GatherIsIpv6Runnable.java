@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherIsIpv6Runnable implements Runnable{
+public class GatherIsIpv6Runnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -45,11 +45,11 @@ public class GatherIsIpv6Runnable implements Runnable{
     @Override
     public void run() {
         PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
-        String path = Global.PYPATH +  "isipv6.py";
+        String path = Global.PYPATH + "isipv6.py";
         String[] params = {networkElement.getIp(), networkElement.getVersion(),
                 networkElement.getCommunity()};
         String result = pythonExecUtils.exec(path, params);
-        if(StringUtil.isNotEmpty(result)){
+        if (StringUtil.isNotEmpty(result)) {
             INetworkElementService networkElementServiceImpl = (INetworkElementService) ApplicationContextUtils.getBean("networkElementServiceImpl");
             try {
                 networkElement.setIsipv6(Boolean.valueOf(result));
@@ -58,7 +58,7 @@ public class GatherIsIpv6Runnable implements Runnable{
                 e.printStackTrace();
                 log.info(networkElement.getIp() + " : " + result);
             } finally {
-                if(latch != null){
+                if (latch != null) {
                     latch.countDown();
                 }
             }

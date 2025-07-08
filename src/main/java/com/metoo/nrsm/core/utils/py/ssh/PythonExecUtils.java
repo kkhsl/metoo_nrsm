@@ -61,7 +61,7 @@ public class PythonExecUtils implements InitializingBean {
 
     public String exec(String path) {
         String py_version = Global.py_name;
-        if("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             return sshExecutor.exec(path);
         }
         StringBuffer sb = new StringBuffer();
@@ -101,7 +101,7 @@ public class PythonExecUtils implements InitializingBean {
 
     public String exec(String path, String[] params) {
         String py_version = Global.py_name;
-        if("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             return sshExecutor.exec(path, params);
         }
         StringBuffer sb = new StringBuffer();
@@ -116,7 +116,7 @@ public class PythonExecUtils implements InitializingBean {
                         .toArray(String[]::new);
             }
 
-            if(filteredArray != null && filteredArray.length > 0){
+            if (filteredArray != null && filteredArray.length > 0) {
 
                 String[] mergedArray = new String[args.length + filteredArray.length];
 
@@ -142,7 +142,7 @@ public class PythonExecUtils implements InitializingBean {
                     e.printStackTrace();
                 }
             }
-            if(proc != null){
+            if (proc != null) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));
                 String line = null;
                 while ((line = in.readLine()) != null) {
@@ -160,7 +160,7 @@ public class PythonExecUtils implements InitializingBean {
 
     public String execPy(String path, String[] params) {
         String py_version = Global.py_name;
-        if("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             return sshExecutor.exec(path, params);
         }
 
@@ -214,16 +214,16 @@ public class PythonExecUtils implements InitializingBean {
 
     public String exec(String path, String[] params, String prefix) {
         String py_version = Global.py_name;
-        if("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             return sshExecutor.exec(path, params, prefix);
         }
         StringBuffer sb = new StringBuffer();
         try {
             String[] args = null;
-            if(StringUtil.isNotEmpty(prefix)){
+            if (StringUtil.isNotEmpty(prefix)) {
                 args = new String[]{
                         prefix, py_version, "-W", "ignor", path};
-            }else{
+            } else {
                 args = new String[]{
                         py_version, "-W", "ignor", path};
             }
@@ -236,7 +236,7 @@ public class PythonExecUtils implements InitializingBean {
                         .toArray(String[]::new);
             }
 
-            if(filteredArray != null && filteredArray.length > 0){
+            if (filteredArray != null && filteredArray.length > 0) {
 
                 String[] mergedArray = new String[args.length + filteredArray.length];
 
@@ -262,7 +262,7 @@ public class PythonExecUtils implements InitializingBean {
                     e.printStackTrace();
                 }
             }
-            if(proc != null){
+            if (proc != null) {
                 // 检查子进程是否正常启动
 //                InputStream inputStream = proc.getInputStream();
 //                InputStream errorStream = proc.getErrorStream();
@@ -284,16 +284,16 @@ public class PythonExecUtils implements InitializingBean {
 
     public String execNohup(String path, String[] params, String prefix) {
         String py_version = Global.py_name;
-        if("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             return sshExecutor.exec(path, params, prefix);
         }
         StringBuffer sb = new StringBuffer();
         try {
             String[] args = null;
-            if(StringUtil.isNotEmpty(prefix)){
+            if (StringUtil.isNotEmpty(prefix)) {
                 args = new String[]{
                         prefix, py_version, "-W", "ignor", path};
-            }else{
+            } else {
                 args = new String[]{
                         py_version, "-W", "ignor", path};
             }
@@ -307,7 +307,7 @@ public class PythonExecUtils implements InitializingBean {
                         .toArray(String[]::new);
             }
 
-            if(filteredArray != null && filteredArray.length > 0){
+            if (filteredArray != null && filteredArray.length > 0) {
 
                 String[] mergedArray = new String[args.length + filteredArray.length];
 
@@ -334,7 +334,7 @@ public class PythonExecUtils implements InitializingBean {
                     e.printStackTrace();
                 }
             }
-            if(processBuilder != null){
+            if (processBuilder != null) {
                 Process proc = processBuilder.start();
                 proc.waitFor();
             }
@@ -360,7 +360,7 @@ public class PythonExecUtils implements InitializingBean {
 
     public String exec2(String path, String[] params) {
         String py_version = Global.py_name;
-        if("dev".equals(Global.env)){
+        if ("dev".equals(Global.env)) {
             return sshExecutor.exec(path, params);
         }
         StringBuffer sb = new StringBuffer();
@@ -375,7 +375,7 @@ public class PythonExecUtils implements InitializingBean {
                         .toArray(String[]::new);
             }
 
-            if(filteredArray != null && filteredArray.length > 0){
+            if (filteredArray != null && filteredArray.length > 0) {
 
                 String[] mergedArray = new String[args.length + filteredArray.length];
 
@@ -401,7 +401,7 @@ public class PythonExecUtils implements InitializingBean {
                     e.printStackTrace();
                 }
             }
-            if(proc != null){
+            if (proc != null) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
                 String line = null;
                 while ((line = in.readLine()) != null) {

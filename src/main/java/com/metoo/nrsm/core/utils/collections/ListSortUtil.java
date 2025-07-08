@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 @Component
 public class ListSortUtil {
 
-    public static void compareTo(List<Map<Object, Object>> list){
+    public static void compareTo(List<Map<Object, Object>> list) {
         Collections.sort(list, new Comparator<Map<Object, Object>>() {
             @Override
             public int compare(Map<Object, Object> o1, Map<Object, Object> o2) {
@@ -21,7 +21,7 @@ public class ListSortUtil {
         });
     }
 
-    public static void sort(List<Map<String, Double>> list){
+    public static void sort(List<Map<String, Double>> list) {
         Collections.sort(list, new Comparator<Map<String, Double>>() {
             @Override
             public int compare(Map<String, Double> o1, Map<String, Double> o2) {
@@ -34,9 +34,10 @@ public class ListSortUtil {
 
     /**
      * 属性：（英文+数字） 组合排序
+     *
      * @param list
      */
-    public static void sortStr(List<Map<String, Object>> list){
+    public static void sortStr(List<Map<String, Object>> list) {
         Collections.sort(list, new Comparator<Map<String, Object>>() {
             @Override
             public int compare(Map<String, Object> o1, Map<String, Object> o2) {
@@ -62,18 +63,18 @@ public class ListSortUtil {
                 String o2_str = key2.replaceAll("[0-9]", "");
 
                 int n = 0;
-                if(!o1_str.equals(o2_str)){
+                if (!o1_str.equals(o2_str)) {
                     n = o1_str.compareTo(o2_str);
                 }
-                if(o1_num.equals("") || o2_num.equals("")){
+                if (o1_num.equals("") || o2_num.equals("")) {
                     return n;
                 }
                 double i = Double.parseDouble(o1_num);
                 double j = Double.parseDouble(o2_num);
-                if(n == 0){
-                    int m = i > j ? 1:-1;
+                if (n == 0) {
+                    int m = i > j ? 1 : -1;
                     return m;
-                }else{
+                } else {
                     return n;
                 }
             }
@@ -82,9 +83,10 @@ public class ListSortUtil {
 
     /**
      * 属性：（英文+数字） 组合排序
+     *
      * @param list
      */
-    public static void sortStr2(List<Port> list){
+    public static void sortStr2(List<Port> list) {
         Collections.sort(list, new Comparator<Port>() {
             @Override
             public int compare(Port o1, Port o2) {
@@ -110,25 +112,25 @@ public class ListSortUtil {
                 String o2_str = key2.replaceAll("[0-9]", "");
 
                 int n = 0;
-                if(!o1_str.equals(o2_str)){
+                if (!o1_str.equals(o2_str)) {
                     n = o1_str.compareTo(o2_str);
                 }
-                if(o1_num.equals("") || o2_num.equals("")){
+                if (o1_num.equals("") || o2_num.equals("")) {
                     return n;
                 }
                 double i = Double.parseDouble(o1_num);
                 double j = Double.parseDouble(o2_num);
-                if(n == 0){
-                    int m = i > j ? 1:-1;
+                if (n == 0) {
+                    int m = i > j ? 1 : -1;
                     return m;
-                }else{
+                } else {
                     return n;
                 }
             }
         });
     }
 
-    public static void intSort(List<Map<String, Object>> list){
+    public static void intSort(List<Map<String, Object>> list) {
         Collections.sort(list, new Comparator<Map<String, Object>>() {
             @Override
             public int compare(Map<String, Object> o1, Map<String, Object> o2) {
@@ -138,7 +140,6 @@ public class ListSortUtil {
             }
         });
     }
-
 
 
     public static void main(String[] args) {
@@ -160,10 +161,10 @@ public class ListSortUtil {
         System.out.println(list);
     }
 
-    public static void sortStr1(List<String> list){
+    public static void sortStr1(List<String> list) {
         Collections.sort(list, new Comparator<String>() {
             @Override
-            public int compare(String o1,String o2) {
+            public int compare(String o1, String o2) {
 
                 o1 = o1.replaceAll("/", "");
 
@@ -178,23 +179,23 @@ public class ListSortUtil {
                 String o2_str = o2.replaceAll("[0-9]", "");
 
                 int n = 0;
-                if(!o1_str.equals(o2_str)){
+                if (!o1_str.equals(o2_str)) {
                     n = o2_str.length() - o1_str.length();
                 }
-                if(o1_num.equals("")){
+                if (o1_num.equals("")) {
 
                 }
-                if(o2_num.equals("")){
+                if (o2_num.equals("")) {
 
                 }
                 int i = Integer.parseInt(o1_num);
 
                 int j = Integer.parseInt(o2_num);
                 int m = 0;
-                if(n == 0){
-                    m = i > j ? 1:-1;
+                if (n == 0) {
+                    m = i > j ? 1 : -1;
                     return m;
-                }else{
+                } else {
                     return n;
                 }
 
@@ -219,10 +220,9 @@ public class ListSortUtil {
 //        });
 //    }
 
-    public static void lambdaSort(List<Map<String, Double>> list){
+    public static void lambdaSort(List<Map<String, Double>> list) {
         Collections.sort(list, (s1, s2) -> s1.get("grade").compareTo(s2.get("grade")));
     }
-
 
 
     public static Integer compareString(String string1, String string2) {
@@ -237,16 +237,16 @@ public class ListSortUtil {
                 return 0;
             }
             String str1 = null;
-            if (index < list1.size()){
+            if (index < list1.size()) {
                 str1 = list1.get(index);
-            }else{
-                str1 =  "";
+            } else {
+                str1 = "";
             }
             String str2 = null;
-            if (index < list2.size()){
+            if (index < list2.size()) {
                 str2 = list2.get(index);
-            }else{
-                str2 =  "";
+            } else {
+                str2 = "";
             }
             //字符串相等则继续判断下一组数据
             if (str1.equals(str2)) {
@@ -255,16 +255,16 @@ public class ListSortUtil {
             }
             //是纯数字，比较数字大小
             if (isNum(str1) && isNum(str2)) {
-                if(Integer.parseInt(str1) < Integer.parseInt(str2)){
+                if (Integer.parseInt(str1) < Integer.parseInt(str2)) {
                     return -1;
-                }else{
+                } else {
                     return 1;
                 }
             }
             // 字符串比较大小
-            if(str1.compareTo(str2)>0){
+            if (str1.compareTo(str2) > 0) {
                 return -1;
-            }else{
+            } else {
                 return 1;
             }
         }
@@ -275,7 +275,7 @@ public class ListSortUtil {
      * 输入：第5章第100节课
      * 返回：[第,5,章第,100,节课]
      */
-    private static List<String> splitString(String str){
+    private static List<String> splitString(String str) {
 
         String pattern = "([^0-9]+)|(\\d+)";
         Matcher matcher = Pattern.compile(pattern).matcher(str);
@@ -285,10 +285,11 @@ public class ListSortUtil {
         }
         return list;
     }
+
     /**
      * 是否是纯数字
      */
-    private static Boolean isNum(String str){
+    private static Boolean isNum(String str) {
         String pattern = "\\d+";
         return Pattern.compile(pattern).matcher(str).matches();
     }

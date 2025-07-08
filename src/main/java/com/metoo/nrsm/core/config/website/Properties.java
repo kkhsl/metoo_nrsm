@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Configuration
-@PropertySource(value= "classpath:application-properties.yml",encoding = "UTF-8") //加载配置文件信息
+@PropertySource(value = "classpath:application-properties.yml", encoding = "UTF-8") //加载配置文件信息
 @Data
 public class Properties {
 
@@ -16,7 +16,6 @@ public class Properties {
     private String batchImportNeFileName;
     @Value("${batchImportDeviceFileName}")
     private String batchImportDeviceFileName;
-
 
 
 }

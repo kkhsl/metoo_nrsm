@@ -17,36 +17,37 @@
         <result column="parentName" property="parentName"></result>
         <result column="icon" property="icon"></result>
         <result column="hidden" property="hidden"></result>
-        <association property="role" column="role_id" javaType="com.metoo.nrsm.entity.Role" >
-            <id property="id" column="mr_id" />
+        <association property="role" column="role_id" javaType="com.metoo.nrsm.entity.Role">
+            <id property="id" column="mr_id"/>
             <result property="name" column="mr_name"></result>
         </association>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, addTime, deleteStatus, name, value, type, url, component, componentName,
-         sequence, level, parentId, parentName, icon, hidden
+        sequence, level, parentId, parentName, icon, hidden
     </sql>
 
     <select id="findResByRoleId" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Res">
         SELECT role.id role_id,role.name,role.roleCode,role.type,
-          res.id,res.value, res.component, res.componentName, res.level, res.parentId, res.parentName,
-           res.icon, res.sequence
+        res.id,res.value, res.component, res.componentName, res.level, res.parentId, res.parentName,
+        res.icon, res.sequence
         FROM metoo_res res
-        LEFT JOIN metoo_role_res rr  ON rr.res_id=res.id
+        LEFT JOIN metoo_role_res rr ON rr.res_id=res.id
         LEFT JOIN metoo_role role ON role.id=rr.role_id
         WHERE role.id=#{id}
         AND res.level = 1
     </select>
 
     <select id="query" parameterType="com.metoo.nrsm.core.dto.ResDto" resultType="com.metoo.nrsm.entity.Res">
-        SELECT <include refid="Base_Column_List" />
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_res mp
         <where>
-            <if test = "parentId != null">
+            <if test="parentId != null">
                 mp.parentId = #{parentId, jdbcType=BIGINT}
             </if>
-            <if test = "level != null">
+            <if test="level != null">
                 mp.level = #{level}
             </if>
         </where>
@@ -55,13 +56,14 @@
     </select>
 
     <select id="findPermissionByMap" parameterType="map" resultType="com.metoo.nrsm.entity.Res">
-        SELECT <include refid="Base_Column_List" />
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_res mp
         <where>
-            <if test = "parentId != null">
+            <if test="parentId != null">
                 mp.parentId = #{parentId, jdbcType=BIGINT}
             </if>
-            <if test = "level != null">
+            <if test="level != null">
                 mp.level = #{level}
             </if>
         </where>
@@ -105,41 +107,44 @@
     </resultMap>
 
     <sql id="Level_Linkage_Column">
-      mp1.id, mp1.name, mp1.value, mp1.url, mp1.component, mp1.sequence, mp1.level, mp1.componentName,mp1.icon,
-      mp1.hidden, mp2.id mp2_id, mp2.name mp2_name, mp2.`value` mp2_value, mp2.url mpl_url, mp2.component mp2_component,
-      mp2.sequence mp2_sequence, mp2.level mp2_level,mp2.componentName mp2_componentName, mp2.icon mp2_cion,
-      mp2.hidden mp2_hidden,
-      mp3.id mp3_id, mp3.name mp3_name, mp3.`value` mp3_value, mp3.url mpl_url, mp3.component mp3_component,
-      mp3.sequence mp3_sequence, mp3.level mp3_level, mp3.componentName mp3_componentName, mp3.icon mp3_cion
+        mp1.id, mp1.name, mp1.value, mp1.url, mp1.component, mp1.sequence, mp1.level, mp1.componentName,mp1.icon,
+        mp1.hidden, mp2.id mp2_id, mp2.name mp2_name, mp2.`value` mp2_value, mp2.url mpl_url, mp2.component
+        mp2_component,
+        mp2.sequence mp2_sequence, mp2.level mp2_level,mp2.componentName mp2_componentName, mp2.icon mp2_cion,
+        mp2.hidden mp2_hidden,
+        mp3.id mp3_id, mp3.name mp3_name, mp3.`value` mp3_value, mp3.url mpl_url, mp3.component mp3_component,
+        mp3.sequence mp3_sequence, mp3.level mp3_level, mp3.componentName mp3_componentName, mp3.icon mp3_cion
     </sql>
 
     <select id="findPermissionByJoin" parameterType="map" resultMap="Level_Linkage_Result">
-        SELECT <include refid="Level_Linkage_Column" />
+        SELECT
+        <include refid="Level_Linkage_Column"/>
         FROM (
-            SELECT *
-            FROM metoo_res mp
-            WHERE mp.level = 0
-            LIMIT #{currentPage}, #{pageSize}
+        SELECT *
+        FROM metoo_res mp
+        WHERE mp.level = 0
+        LIMIT #{currentPage}, #{pageSize}
         ) mp1
-            LEFT JOIN (
-                  SELECT <include refid="Base_Column_List"/>
-                  FROM metoo_res mp
-                  WHERE mp.level = 1
+        LEFT JOIN (
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM metoo_res mp
+        WHERE mp.level = 1
         ) mp2
         ON mp2.parentId = mp1.id
-           LEFT JOIN
+        LEFT JOIN
         (
-              SELECT id, name, value, url, component,
-                sequence, parentId, level, componentName, icon
-              FROM metoo_res mp
-              WHERE mp.level = 2
+        SELECT id, name, value, url, component,
+        sequence, parentId, level, componentName, icon
+        FROM metoo_res mp
+        WHERE mp.level = 2
         ) mp3
         ON mp3.parentId = mp2.id
         <where>
-            <if test = "parentId != null">
+            <if test="parentId != null">
                 AND mp1.parentId = #{parentId, jdbcType=BIGINT}
             </if>
-            <if test = "level != null">
+            <if test="level != null">
                 AND mp1.level = #{level}
             </if>
             AND mp1.deleteStatus = 0
@@ -149,19 +154,22 @@
     </select>
 
     <select id="selectPrimaryById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Res">
-        SELECT <include refid="Base_Column_List" />
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_res mr
         WHERE mr.id=#{id, jdbcType=BIGINT}
     </select>
 
     <select id="findObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Res">
-        SELECT <include refid="Base_Column_List" />
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_res
         WHERE name=#{name}
     </select>
 
     <select id="findObjByNameAndLevel" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Res">
-        SELECT <include refid="Base_Column_List" />
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_res
         <where>
             <if test="name != null">
@@ -173,15 +181,15 @@
         </where>
     </select>
 
-     <select id="findResUnitRoleByResId" parameterType="java.lang.Long" resultMap="ResRole_Unit_Map">
-         SELECT mp.id mp_id, mp.addTime mp_addTime, mp.name mp_name, mp.value mp_value, mp.type mp_type,
-                 mp.url, mp.component, mp.componentName, mp.sequence, mp.level, mp.parentId, mp.parentName,
-                 mp.icon, mp.hidden, mr.id mr_id, mr.name mr_name
-         FROM metoo_res mp
-           LEFT JOIN metoo_role mr ON mp.role_id=mr.id
-         WHERE mp.id=#{id, jdbcType=BIGINT}
-         order by mp.sequence ASC
-     </select>
+    <select id="findResUnitRoleByResId" parameterType="java.lang.Long" resultMap="ResRole_Unit_Map">
+        SELECT mp.id mp_id, mp.addTime mp_addTime, mp.name mp_name, mp.value mp_value, mp.type mp_type,
+        mp.url, mp.component, mp.componentName, mp.sequence, mp.level, mp.parentId, mp.parentName,
+        mp.icon, mp.hidden, mr.id mr_id, mr.name mr_name
+        FROM metoo_res mp
+        LEFT JOIN metoo_role mr ON mp.role_id=mr.id
+        WHERE mp.id=#{id, jdbcType=BIGINT}
+        order by mp.sequence ASC
+    </select>
 
     <select id="findResByResIds" parameterType="list" resultType="com.metoo.nrsm.entity.Res">
         SELECT *
@@ -193,15 +201,15 @@
         </foreach>
     </select>
 
-    <select id = "findPermissionByUserId" parameterType="java.lang.Long" resultType="java.lang.String">
-      SELECT res.value
-      FROM metoo_res res
+    <select id="findPermissionByUserId" parameterType="java.lang.Long" resultType="java.lang.String">
+        SELECT res.value
+        FROM metoo_res res
         LEFT JOIN metoo_role_res role_res ON role_res.res_id = res.id
         LEFT JOIN metoo_role role ON role.id = role_res.role_id
         LEFT JOIN metoo_user_role user_role ON user_role.role_id = role.id
         LEFT JOIN metoo_user user ON user.id = user_role.user_id
-	  WHERE
-    	user.id = #{id}
+        WHERE
+        user.id = #{id}
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Res" keyProperty="id" useGeneratedKeys="true">
@@ -324,7 +332,7 @@
                 parentName = #{parentName},
             </if>
             <if test="icon != null">
-                icon =  #{icon},
+                icon = #{icon},
             </if>
             <if test="url != null">
                 url = #{url},

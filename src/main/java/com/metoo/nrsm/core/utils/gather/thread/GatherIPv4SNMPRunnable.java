@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
  */
 //@Data
 //@Component
-public class GatherIPv4SNMPRunnable implements Runnable{
+public class GatherIPv4SNMPRunnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -47,10 +47,11 @@ public class GatherIPv4SNMPRunnable implements Runnable{
 //            JSONArray result = SNMPv2Request.getArp(snmpParams);
             JSONArray result = SNMPv3Request.getArp(SNMPParamFactory.createSNMPParam(networkElement));
 
-            if(!result.isEmpty()) {
+            if (!result.isEmpty()) {
                 // 使用 Jackson 将 JSON 字符串转换为 List<Ipv4>
                 ObjectMapper objectMapper = new ObjectMapper();
-                List<Ipv4> ipv4s = objectMapper.readValue(result.toString(), new TypeReference<List<Ipv4>>(){});
+                List<Ipv4> ipv4s = objectMapper.readValue(result.toString(), new TypeReference<List<Ipv4>>() {
+                });
                 if (ipv4s != null && ipv4s.size() > 0) {
                     ipv4s.forEach(e -> {
                         e.setDeviceIp(networkElement.getIp());
@@ -64,7 +65,7 @@ public class GatherIPv4SNMPRunnable implements Runnable{
             System.out.println(e.getMessage());
             e.printStackTrace();
         } finally {
-            if(latch != null){
+            if (latch != null) {
                 latch.countDown();
             }
         }

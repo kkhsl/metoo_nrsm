@@ -230,19 +230,20 @@ public class ExcelUtils {
             if ("String".equalsIgnoreCase(fieldClassName)) {
                 field.set(t, val);
             } else if ("boolean".equalsIgnoreCase(fieldClassName)) {
-                if(cname.equals("状态")){
-                    if(val.equals("在线")){
+                if (cname.equals("状态")) {
+                    if (val.equals("在线")) {
                         field.set(t, Boolean.TRUE);
-                    }else if(val.equals("离线")){
+                    } else if (val.equals("离线")) {
                         field.set(t, Boolean.FALSE);
                     }
-                } if(cname.equals("背面")){
-                    if(val.equals("开启")){
+                }
+                if (cname.equals("背面")) {
+                    if (val.equals("开启")) {
                         field.set(t, Boolean.TRUE);
-                    }else if(val.equals("关闭")){
+                    } else if (val.equals("关闭")) {
                         field.set(t, Boolean.FALSE);
                     }
-                }else{
+                } else {
                     field.set(t, Boolean.valueOf(val));
                 }
             } else if ("int".equalsIgnoreCase(fieldClassName) || "Integer".equals(fieldClassName)) {

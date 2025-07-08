@@ -71,7 +71,7 @@ public class RsmsDevice extends IdEntity {
     @ApiModelProperty("机柜")
     private Long rackId;
 
-    @ExcelExport(value= "机柜", sort = 11)
+    @ExcelExport(value = "机柜", sort = 11)
     @ExcelImport("机柜")
     @ApiModelProperty("机柜名称")
     private String rackName;
@@ -116,19 +116,19 @@ public class RsmsDevice extends IdEntity {
     @ExcelExport(value = "采购时间", sort = 14)
     @ExcelImport("采购时间")
     @ApiModelProperty("采购时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchase_time;
 
     @ExcelExport(value = "过保时间", sort = 15)
     @ExcelImport("过保时间")
     @ApiModelProperty("过保时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date warranty_time;
 
     @ExcelExport(value = "价格", sort = 16)
-    @JSONField(name="price",serializeUsing = DoubleSerializer.class)
+    @JSONField(name = "price", serializeUsing = DoubleSerializer.class)
     @ApiModelProperty("价格")
     private Double price;
 
@@ -149,7 +149,7 @@ public class RsmsDevice extends IdEntity {
     @ApiModelProperty("项目Id")
     private Long projectId;
 
-    @ExcelExport(value= "项目", sort = 7)
+    @ExcelExport(value = "项目", sort = 7)
     @ExcelImport("项目")
     @ApiModelProperty("项目名")
     private String projectName;

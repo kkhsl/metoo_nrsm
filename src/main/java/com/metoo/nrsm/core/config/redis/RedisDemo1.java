@@ -17,7 +17,7 @@ public class RedisDemo1 {
         // 创建Jedis对象
         try (Jedis jedis = new Jedis(redisHost, redisPort)) {
             // 如果Redis服务器需要密码，请设置密码
-             jedis.auth("123456");
+            jedis.auth("123456");
 
             // 检查连接是否成功
             String pingResponse = jedis.ping();

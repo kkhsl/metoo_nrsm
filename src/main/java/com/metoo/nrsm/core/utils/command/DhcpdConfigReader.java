@@ -14,8 +14,9 @@ public class DhcpdConfigReader {
 
     /**
      * 读取 dhcpd.conf 文件
-     * @param mode 模式 ("dev" 或 "prob")
-     * @param host 远程主机地址 (仅 dev 模式需要)
+     *
+     * @param mode     模式 ("dev" 或 "prob")
+     * @param host     远程主机地址 (仅 dev 模式需要)
      * @param username 远程主机用户名 (仅 dev 模式需要)
      * @param password 远程主机密码 (仅 dev 模式需要)
      * @throws Exception 读取或文件传输失败时抛出
@@ -33,7 +34,7 @@ public class DhcpdConfigReader {
     /**
      * 从远程服务器读取 dhcpd.conf 文件
      */
-    private List<String>  readFromRemote(String host, Integer port, String username, String password, String path) throws Exception {
+    private List<String> readFromRemote(String host, Integer port, String username, String password, String path) throws Exception {
         JSch jsch = new JSch();
         Session session = null;
         ChannelSftp channelSftp = null;

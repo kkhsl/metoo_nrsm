@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
  * @author HKK
  * @version 1.0
  * @date 2024-02-23 10:46
- *
+ * <p>
  * Java事务注解失效的场景有以下几种：
- *
+ * <p>
  * 注解被错误使用：事务注解被错误地应用到非public方法上，或者被应用到一个没有被Spring容器管理的类上，这样会导致注解失效。
  * 异常被处理了：事务注解只在抛出未捕获的异常时才起作用，如果异常被捕获并处理了，事务注解可能会失效。
  * 异常被忽略了：在使用事务注解时，如果在方法中发生了异常但没有被捕获并抛出，或者异常被捕获后没有重新抛出，事务注解可能会失效。
@@ -56,14 +56,15 @@ public class GatherMacUtils {
     @Autowired
     private MacTestServiceImpl macTestService;
 
-//    @Transactional
-    public void copyGatherData(Date date){
+    @Transactional
+    public void copyGatherData(Date date) {
         try {
             copyData(date);
             List<Mac> macs = this.macService.selectObjByMap(Collections.emptyMap());
-            if(!macs.isEmpty()){// 给mac条目打tag
-//                updateMacTag(date);
+            if (!macs.isEmpty()) {// 给mac条目打tag
+                updateMacTag(date);
             }
+            this.macService.copyDataToMacHistory();
         } catch (Exception e) {
             log.error("Error method copyGatherData: {}", date, e);
         }
@@ -98,7 +99,7 @@ public class GatherMacUtils {
 //    }
 
 
-    private void updateMacTag(Date date){
+    private void updateMacTag(Date date) {
         setTagToX(); // 读取mac表，与up接口的mac不重复标记为X，0:0:5e:0标记为V
         setTagToU();// 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
         setTagToS();
@@ -129,12 +130,13 @@ public class GatherMacUtils {
 
     /**
      * 在同一网段
-     *
+     * <p>
      * 网段内仅有两条记录
-     *
+     * <p>
      * 两个 port 不同时以 vlan 开头
-     *
+     * <p>
      * 并且：A 的 remoteUuid = B.deviceUuid B 的 remoteUuid = A.deviceUuid
+     *
      * @param date
      */
 //    public void selectSameSubnetWithTwoPortsNotBothVlan(Date date) {
@@ -187,20 +189,28 @@ public class GatherMacUtils {
             Port a = pair.get(0);
             Port b = pair.get(1);
 
+            NetworkElement a_Network = this.networkElementService.selectObjByUuid(a.getDeviceUuid());
+            NetworkElement b_Network = this.networkElementService.selectObjByUuid(b.getDeviceUuid());
+
+            String a_deviceIp = a_Network.getIp();
+            String b_deviceIp = b_Network.getIp();
+
             // 设置 remoteUuid
+            a.setIp(a_deviceIp);
             a.setRemoteUuid(b.getDeviceUuid());
             a.setRemotePort(b.getPort());
-            a.setRemoteIp(b.getIp());
+            a.setRemoteIp(b_deviceIp);
+            b.setIp(b_deviceIp);
             b.setRemoteUuid(a.getDeviceUuid());
             b.setRemotePort(a.getPort());
-            b.setRemoteIp(a.getIp());
+            b.setRemoteIp(a_deviceIp);
 
             insertMac(a, params, date);
             insertMac(b, params, date);
         }
     }
 
-    public void insertMac(Port port, Map params, Date date){
+    public void insertMac(Port port, Map params, Date date) {
         params.clear();
         String deviceIp = port.getIp();
         String portName = port.getPort();
@@ -209,7 +219,7 @@ public class GatherMacUtils {
         params.put("portName", portName);
         params.put("tag", "DE");
         List<Mac> macs = this.macService.selectObjByMap(params);
-        if(macs.size() <= 0){
+        if (macs.size() <= 0) {
             try {
                 Mac mac = new Mac();
                 mac.setAddTime(date);
@@ -220,11 +230,11 @@ public class GatherMacUtils {
                 mac.setRemotePort(port.getRemotePort());
                 mac.setTag("DE");
                 NetworkElement networkElement = this.networkElementService.selectObjByUuid(port.getDeviceUuid());
-                if(networkElement != null){
+                if (networkElement != null) {
                     mac.setDeviceName(networkElement.getDeviceName());
                 }
                 NetworkElement remoteDevice = this.networkElementService.selectObjByUuid(port.getRemoteUuid());
-                if(remoteDevice != null){
+                if (remoteDevice != null) {
                     mac.setRemoteDevice(remoteDevice.getDeviceName());
                     mac.setRemoteDeviceName(remoteDevice.getDeviceName());
                     mac.setRemoteDeviceUuid(remoteDevice.getUuid());
@@ -236,6 +246,7 @@ public class GatherMacUtils {
             }
         }
     }
+
     // DE条目remotePort修改为remoteIp对应的deviceIp的port
     public void normalizePortForDE() {
 
@@ -250,18 +261,17 @@ public class GatherMacUtils {
     }
 
 
-
     // 标记为X
-    public void setTagToX(){// 单台设备
+    public void setTagToX() {// 单台设备
         List<Mac> unequalToUpMac = macService.selectTagToX(null);
-        if(unequalToUpMac.size() > 0){
+        if (unequalToUpMac.size() > 0) {
             unequalToUpMac.stream().forEach(e -> e.setTag(setTag("X", e.getMac())));
             macService.batchUpdate(unequalToUpMac);
         }
     }
 
     // 根据mac地址，标记V
-    private String setTag(String tag, String mac){
+    private String setTag(String tag, String mac) {
         String patten = "^" + "00:00:5e";
         boolean flag = this.parseLineBeginWith(mac, patten);
         if (flag) {
@@ -272,20 +282,21 @@ public class GatherMacUtils {
 
     /**
      * 判断Mac是否以某个规则开始
+     *
      * @param lineText
      * @param head
      * @return
      */
-    private boolean parseLineBeginWith(String lineText, String head){
+    private boolean parseLineBeginWith(String lineText, String head) {
 
-        if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
+        if (StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)) {
             String patten = "^" + head;
 
             Pattern compiledPattern = Pattern.compile(patten);
 
             Matcher matcher = compiledPattern.matcher(lineText);
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 return true;
             }
         }
@@ -293,43 +304,43 @@ public class GatherMacUtils {
     }
 
     // 标记U(1个mac对应1个port(除去L之外)，此条目标记为U)
-    public void setTagToU(){// 单台设备
+    public void setTagToU() {// 单台设备
         List<Mac> macs = this.macService.selectTagToU(null);
-        if(macs.size() > 0){
+        if (macs.size() > 0) {
             macs.stream().forEach(e -> e.setTag("U"));
             this.macService.batchUpdate(macs);
         }
     }
 
-    public void setTagToS(){
+    public void setTagToS() {
         List<Mac> macs = this.macService.selectTagToS(null);
-        if(macs.size() > 0){
+        if (macs.size() > 0) {
             macs.stream().forEach(e -> e.setTag("S"));
             this.macService.batchUpdate(macs);
         }
     }
 
-    public void setTagSToE(){// 单台设备
+    public void setTagSToE() {// 单台设备
         List<Mac> macs = this.macService.selectTagSToE(null);
-        if(macs.size() > 0){
+        if (macs.size() > 0) {
             macs.stream().forEach(e -> e.setTag("E"));
             this.macService.batchUpdate(macs);
         }
     }
 
-    public void setTagSToRT(){// 单台设备
+    public void setTagSToRT() {// 单台设备
         List<Mac> macs = this.macService.selectTagSToRT(null);
-        if(macs.size() > 0){
+        if (macs.size() > 0) {
             macs.stream().forEach(e -> e.setTag("RT"));
             this.macService.batchUpdate(macs);
         }
     }
 
     // 将arp表中mac对应的ip地址、mac厂商写入mac表(不包含DE)
-    public void copyArpMacAndIpToMac(){
+    public void copyArpMacAndIpToMac() {
         try {
             List<Mac> macs = this.macService.copyArpMacAndIpToMac(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 this.macService.batchUpdate(macs);
             }
         } catch (Exception e) {
@@ -338,10 +349,10 @@ public class GatherMacUtils {
     }
 
     // 为x的条目如果在全网(除本机)匹配到任何1条为L的标记，则此条目标记为E(Equipment)
-    public void setTagXToE(){
+    public void setTagXToE() {
         try {
             List<Mac> macs = this.macService.selectXToEByMap(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 macs.stream().forEach(e -> e.setTag("E"));
                 this.macService.batchUpdate(macs);
             }
@@ -350,10 +361,10 @@ public class GatherMacUtils {
         }
     }
 
-    public void setTagUToE(){
+    public void setTagUToE() {
         try {
             List<Mac> macs = this.macService.selectUToEByMap(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 macs.stream().forEach(e -> e.setTag("E"));
                 this.macService.batchUpdate(macs);
             }
@@ -362,10 +373,10 @@ public class GatherMacUtils {
         }
     }
 
-    public void setTagUToRT(){
+    public void setTagUToRT() {
         try {
             List<Mac> macs = this.macService.selectUToRTByMap(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 Set set1 = macs.stream().map(e -> e.getId()).collect(Collectors.toSet());
                 Set set2 = macs.stream().flatMap(e -> e.getMacList().stream()).map(e -> e).collect(Collectors.toSet());
                 set1.addAll(set2);
@@ -377,10 +388,10 @@ public class GatherMacUtils {
     }
 
     // 标记为UT且有ip地址的，标记为DT
-    public void RTToDT(){
+    public void RTToDT() {
         try {
             List<Mac> macs = this.macService.selectRTToDTByMap(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 Set set1 = macs.stream().map(e -> e.getId()).collect(Collectors.toSet());
                 this.macService.updateMacTagToDTByIds(set1);
             }
@@ -389,10 +400,10 @@ public class GatherMacUtils {
         }
     }
 
-    public void setTagRTToDT(){
+    public void setTagRTToDT() {
         try {
             List<Mac> macs = this.macService.selectRTToDT2ByMap(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 Set set1 = macs.stream().map(e -> e.getId()).collect(Collectors.toSet());
                 this.macService.updateMacTagToDTByIds(set1);
             }
@@ -401,10 +412,10 @@ public class GatherMacUtils {
         }
     }
 
-    public void copyArpIpToMacByDT(){
+    public void copyArpIpToMacByDT() {
         try {
             List<Mac> macs = this.macService.copyArpIpToMacByDT(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 this.macService.batchUpdate(macs);
             }
         } catch (Exception e) {
@@ -412,10 +423,10 @@ public class GatherMacUtils {
         }
     }
 
-    public void setTagDTToVDE(){
+    public void setTagDTToVDE() {
         try {
             List<Mac> macs = this.macService.selectDTToDEByMap(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 this.macService.batchUpdate(macs);
             }
         } catch (Exception e) {
@@ -423,10 +434,10 @@ public class GatherMacUtils {
         }
     }
 
-    public void setTagRTToVDE(){
+    public void setTagRTToVDE() {
         try {
             List<Mac> macs = this.macService.selectRTToDEByMap(null);
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 this.macService.batchUpdate(macs);
             }
         } catch (Exception e) {
@@ -434,10 +445,10 @@ public class GatherMacUtils {
         }
     }
 
-    public void setTagRTToDTByDE(){
+    public void setTagRTToDTByDE() {
         try {
             List<Mac> macs = this.macService.selectRTToDTByDE();
-            if(macs != null && macs.size() > 0){
+            if (macs != null && macs.size() > 0) {
                 this.macService.batchUpdate(macs);
             }
         } catch (Exception e) {
@@ -445,26 +456,26 @@ public class GatherMacUtils {
         }
     }
 
-    public void setTagRTToVDT(Date date){
+    public void setTagRTToVDT(Date date) {
         try {
             List<Mac> macs = this.macService.selectRTToVDT();
             int i = 0;
-            if(macs != null && !macs.isEmpty()){
+            if (macs != null && !macs.isEmpty()) {
                 Set ports = new HashSet();
                 for (Mac mac : macs) {
                     String nswitchName = "";
                     String name = mac.getDeviceIp() + mac.getPort();
                     Nswitch nswitch = this.nswitchService.selectObjByName(name);
-                    if(nswitch != null){
+                    if (nswitch != null) {
                         nswitchName = "NSwitch" + nswitch.getIndex();
-                    }else{
+                    } else {
                         List<Nswitch> nswitchs = this.nswitchService.selectObjAll();
                         Integer index = 1;
-                        if(nswitchs.size() > 0){
+                        if (nswitchs.size() > 0) {
                             Nswitch nswitch1 = nswitchs.get(0);
                             index = nswitch1.getIndex() + index;
                             nswitchName = "NSwitch" + index;
-                        }else{
+                        } else {
                             nswitchName = "NSwitch" + index;
                         }
                         Nswitch nswitch2 = new Nswitch();
@@ -472,7 +483,7 @@ public class GatherMacUtils {
                         nswitch2.setIndex(index);
                         this.nswitchService.save(nswitch2);
                     }
-                    if(!ports.contains(mac.getPort())){
+                    if (!ports.contains(mac.getPort())) {
                         i++;
                         ports.add(mac.getPort());
                         Mac obj = new Mac();
@@ -494,10 +505,11 @@ public class GatherMacUtils {
                         params.put("deviceName", nswitchName);
                         params.put("display", 1);
                         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-                        if(networkElements.size() <= 0){
+                        if (networkElements.size() <= 0) {
                             NetworkElement ne = new NetworkElement();
                             ne.setAddTime(new Date());
                             ne.setDisplay(true);
+                            ne.setNswitch(true);
                             ne.setDeviceName(nswitchName);
                             DeviceType deviceType = this.deviceTypeService.selectObjByType(29);
                             ne.setDeviceTypeId(deviceType.getId());
@@ -537,7 +549,7 @@ public class GatherMacUtils {
     }
 
     // 设置ac用户列表信息到终端设备
-    public boolean setDevice(Mac mac){
+    public boolean setDevice(Mac mac) {
         AcUser instance = new AcUser();
         instance.setPagenum(1);
         instance.setNumperpage(10000000);
@@ -547,47 +559,48 @@ public class GatherMacUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(result.size() <= 0){
+        if (result.size() <= 0) {
             return false;
         }
         JSONObject jsonObject = result;
         boolean flag = false;
-        if(StringUtils.isNotBlank(String.valueOf(jsonObject.get("stalist")))/*jsonObject.get("stalist") != null && Strings.isNotBlank(String.valueOf(jsonObject.get("stalist")))*/){
+        if (StringUtils.isNotBlank(String.valueOf(jsonObject.get("stalist")))/*jsonObject.get("stalist") != null && Strings.isNotBlank(String.valueOf(jsonObject.get("stalist")))*/) {
             JSONArray jsonArray = jsonObject.getJSONArray("stalist");
-            if(jsonArray != null){
+            if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject obj = jsonArray.getJSONObject(i);
-                    if(StringUtils.isNotBlank(obj.getString("mac"))){
-                        if(mac.getMac().equalsIgnoreCase(obj.getString("mac"))){
+                    if (StringUtils.isNotBlank(obj.getString("mac"))) {
+                        if (mac.getMac().equalsIgnoreCase(obj.getString("mac"))) {
 //                            mac.setDeviceIp(obj.getString("ip"));
                             mac.setDeviceName(obj.getString("name"));
                             mac.setHostname(obj.getString("name"));
                             mac.setDeviceIp(null);
-                            flag = true;break;
+                            flag = true;
+                            break;
                         }
                     }
                 }
             }
         }
-        if(!flag){
+        if (!flag) {
             mac.setDeviceIp(null);
         }
         return flag;
     }
 
 
-
     /**
      * mac对端设备
+     *
      * @param e
      * @param lldps
      * @param hostname
      * @param date
      */
-    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date){
+    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date) {
         // 写入对端信息
-        if(lldps != null && lldps.size() > 0){
-            for(Map<String, String> obj : lldps){
+        if (lldps != null && lldps.size() > 0) {
+            for (Map<String, String> obj : lldps) {
                 Mac mac = new Mac();
                 mac.setAddTime(date);
                 mac.setDeviceIp(e.getIp());
@@ -604,7 +617,8 @@ public class GatherMacUtils {
         }
     }
 
-    public void removeApTerminal(){}/*{
+    public void removeApTerminal() {
+    }/*{
         Map params = new HashMap();
         params.put("type", 3);
         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);

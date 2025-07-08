@@ -7,9 +7,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
-* 
-* @TableName metoo_dns_filter
-*/
+ * @TableName metoo_dns_filter
+ */
 @Data
 public class DnsFilter implements Serializable {
 

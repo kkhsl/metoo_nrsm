@@ -151,7 +151,6 @@ public class UnboundConfLocalZone {
     }
 
 
-
     // 根据 validZoneNames 配置删除不必要的 local-zone 和 local-data 行，并新增缺失的行
     public static List<String> updateConfig(List<String> lines, Set<String> validZoneNames, JSONArray localZoneConfig) throws IOException {
         List<String> updatedLines = new ArrayList<>();
@@ -182,7 +181,7 @@ public class UnboundConfLocalZone {
             }
         }
 
-        if(existingZones.size() <= 0){
+        if (existingZones.size() <= 0) {
             updatedLines.add(""); // 其他行不变
         }
 
@@ -191,7 +190,7 @@ public class UnboundConfLocalZone {
             JSONObject zoneConfig = localZoneConfig.getJSONObject(i);
             String zoneName = zoneConfig.getString("zoneName");
 
-            if(existingZones.size() <= 0 && i == 0){
+            if (existingZones.size() <= 0 && i == 0) {
 
             }
             if (!existingZones.contains(zoneName)) {
@@ -271,7 +270,7 @@ public class UnboundConfLocalZone {
             }
         }
 
-        if(existingZones.isEmpty()){
+        if (existingZones.isEmpty()) {
             updatedLines.add(""); // 其他行不变
         }
 
@@ -280,7 +279,7 @@ public class UnboundConfLocalZone {
             LocalZoneDTO zoneConfig = localZoneConfig.get(i);
             String zoneName = zoneConfig.getZoneName();
 
-            if(existingZones.size() <= 0 && i == 0){
+            if (existingZones.size() <= 0 && i == 0) {
 
             }
             if (!existingZones.contains(zoneName)) {

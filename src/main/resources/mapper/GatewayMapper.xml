@@ -29,7 +29,8 @@
         ORDER BY addTime desc
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.GatewayDTO" resultType="com.metoo.nrsm.entity.Gateway">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.GatewayDTO"
+            resultType="com.metoo.nrsm.entity.Gateway">
         SELECT *
         FROM metoo_gateway
         <where>
@@ -135,11 +136,12 @@
             <if test="vendorId != null and vendorId != ''">
                 vendorId = #{vendorId},
             </if>
-        </set> WHERE id = #{id}
+        </set>
+        WHERE id = #{id}
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM metoo_gateway WHERE id = #{id}
     </delete>
-    
+
 </mapper>

@@ -18,6 +18,7 @@ public interface TerminalMacIpv6Mapper {
 
     /**
      * 批量通过MAC地址查询记录
+     *
      * @param macs MAC地址列表
      * @return 匹配的记录列表
      */

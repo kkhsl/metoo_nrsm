@@ -50,16 +50,16 @@ public class EnhancementInterfaceManagerController {
     public Object save(@RequestBody Interface instance) {
         Map params = new HashMap();
         // 1.如果更新的是主接口, 检查主接口下是否存在子接口，如果存在则不允许,报错
-        if(instance.getParentId() == null){
+        if (instance.getParentId() == null) {
             List<Interface> interfaces = this.interfaceService.selectObjByParentId(instance.getId());
-            if(interfaces.size() > 0){
+            if (interfaces.size() > 0) {
                 return ResponseUtil.badArgument("当前接口存在子接口，请先删除子接口在进行主接口配置");
             }
         }
 
         if (StringUtil.isEmpty(instance.getName())) {
             return ResponseUtil.badArgument("名称不能为空");
-        }else{
+        } else {
             params.clear();
             params.put("name", instance.getName());
             params.put("vlanNum", instance.getVlanNum());
@@ -68,15 +68,15 @@ public class EnhancementInterfaceManagerController {
                 return ResponseUtil.badArgument("当前接口已经存在");
             }
         }
-        if(instance.getVlanNum() != null && (instance.getName() == null || "".equals(instance.getName()))){
+        if (instance.getVlanNum() != null && (instance.getName() == null || "".equals(instance.getName()))) {
             return ResponseUtil.badArgument("主接口不能为空");
         }
         // 校验Ipv4地址
 //        if(instance.getIpv4Address() == null || StringUtil.isEmpty(instance.getIpv4Address())){
 //            return ResponseUtil.badArgument("IPv4地址不能为空");
 //        }
-        if((instance.getIpv4Address() != null && StringUtil.isNotEmpty(instance.getIpv4Address()))){
-            if(!Ipv4Util.verifyCidr(instance.getIpv4Address())){
+        if ((instance.getIpv4Address() != null && StringUtil.isNotEmpty(instance.getIpv4Address()))) {
+            if (!Ipv4Util.verifyCidr(instance.getIpv4Address())) {
                 return ResponseUtil.badArgument("IPv4格式错误，不符合CIDR格式");
             }
             // 计算网段，验证网段是否已经存在
@@ -87,8 +87,8 @@ public class EnhancementInterfaceManagerController {
                 params.put("ipv4NetworkSegment", ipv4NetworkSegment);
                 params.put("excludeId", instance.getId());
                 if (interfaceService.selectObjByMap(params).size() >= 1) {
-                    return ResponseUtil.badArgument("其他接口已配置同网段IP地址，"+instance.getIpv4Address()+"请更换IP地址");
-                }else{
+                    return ResponseUtil.badArgument("其他接口已配置同网段IP地址，" + instance.getIpv4Address() + "请更换IP地址");
+                } else {
                     instance.setIpv4NetworkSegment(ipv4NetworkSegment);
                 }
             } catch (UnknownHostException e) {
@@ -98,22 +98,22 @@ public class EnhancementInterfaceManagerController {
             params.clear();
             params.put("ipv4AddressNOTNULL", true);
             List<Interface> interfaceList = this.interfaceService.selectObjByMap(params);
-            if(interfaceList.size() >= 1){
+            if (interfaceList.size() >= 1) {
                 for (Interface anInterface : interfaceList) {
                     boolean flag = CIDRContainsCheck.checkCIDRInclusion(anInterface.getIpv4Address(), instance.getIpv4Address());
-                    if(flag){
-                        return ResponseUtil.badArgument("其他接口已配置包含当前IP地址，" + instance.getIpv4Address()+"请更换IP地址");
+                    if (flag) {
+                        return ResponseUtil.badArgument("其他接口已配置包含当前IP地址，" + instance.getIpv4Address() + "请更换IP地址");
                     }
                 }
             }
-        }else{
+        } else {
             instance.setIpv4NetworkSegment(null);
         }
 //        if(instance.getGateway4() == null || StringUtil.isEmpty(instance.getGateway4())){
 //            return ResponseUtil.badArgument("IPv4网关不能为空");
 //        }
-        if((instance.getGateway4() != null && StringUtil.isNotEmpty(instance.getGateway4()))){
-            if(!Ipv4Util.verifyIp(instance.getGateway4())){
+        if ((instance.getGateway4() != null && StringUtil.isNotEmpty(instance.getGateway4()))) {
+            if (!Ipv4Util.verifyIp(instance.getGateway4())) {
                 return ResponseUtil.badArgument("IPv4网关格式错误");
             }
             // 检查设备是否存在v4网关,一个设备只允许配置一个v4网关
@@ -127,8 +127,8 @@ public class EnhancementInterfaceManagerController {
 //        if(instance.getIpv6Address() == null || StringUtil.isEmpty(instance.getIpv6Address())){
 //            return ResponseUtil.badArgument("IPv6地址不能为空");
 //        }
-        if((instance.getIpv6Address() != null && StringUtil.isNotEmpty(instance.getIpv6Address()))){
-            if(!Ipv6Util.verifyCidr(instance.getIpv6Address())){
+        if ((instance.getIpv6Address() != null && StringUtil.isNotEmpty(instance.getIpv6Address()))) {
+            if (!Ipv6Util.verifyCidr(instance.getIpv6Address())) {
                 return ResponseUtil.badArgument("IPv6格式错误，不符合CIDR格式");
             }
             try {
@@ -138,8 +138,8 @@ public class EnhancementInterfaceManagerController {
                 params.put("ipv6NetworkSegment", ipv6NetworkSegment);
                 params.put("excludeId", instance.getId());
                 if (interfaceService.selectObjByMap(params).size() >= 1) {
-                    return ResponseUtil.badArgument("其他接口已配置同网段IP地址，"+instance.getIpv6Address()+" 请更换IP地址");
-                }else{
+                    return ResponseUtil.badArgument("其他接口已配置同网段IP地址，" + instance.getIpv6Address() + " 请更换IP地址");
+                } else {
                     instance.setIpv6NetworkSegment(ipv6NetworkSegment);
                 }
             } catch (UnknownHostException e) {
@@ -150,44 +150,44 @@ public class EnhancementInterfaceManagerController {
             params.clear();
             params.put("ipv6AddressNOTNULL", true);
             List<Interface> interfaceList = this.interfaceService.selectObjByMap(params);
-            if(interfaceList.size() >= 1){
+            if (interfaceList.size() >= 1) {
                 for (Interface anInterface : interfaceList) {
                     boolean flag = CIDRContainsCheck.checkCIDRInclusion(anInterface.getIpv6Address(), instance.getIpv6Address());
-                    if(flag){
-                        return ResponseUtil.badArgument("其他接口已配置包含当前IP地址，" + instance.getIpv4Address()+"请更换IP地址");
+                    if (flag) {
+                        return ResponseUtil.badArgument("其他接口已配置包含当前IP地址，" + instance.getIpv4Address() + "请更换IP地址");
                     }
                 }
             }
-        }else{
+        } else {
             instance.setIpv6NetworkSegment(null);
         }
 //        if(instance.getGateway6() == null || StringUtil.isEmpty(instance.getGateway6())){
 //            return ResponseUtil.badArgument("IPv6网关不能为空");
 //        }
-        if((instance.getGateway6() != null && StringUtil.isNotEmpty(instance.getGateway6()))){
-            if(!Ipv6Util.verifyIpv6(instance.getGateway6())){
+        if ((instance.getGateway6() != null && StringUtil.isNotEmpty(instance.getGateway6()))) {
+            if (!Ipv6Util.verifyIpv6(instance.getGateway6())) {
                 return ResponseUtil.badArgument("IPv6网关格式错误");
             }
             params.clear();
             params.put("gateway6NotNull", instance.getGateway6());
             params.put("excludeId", instance.getId());
-            if(interfaceService.selectObjByMap(params).size() >= 1){
+            if (interfaceService.selectObjByMap(params).size() >= 1) {
                 return ResponseUtil.badArgument("本设备已存在一个IPv6网关");
             }
         }
 
-        if((instance.getGateway4() != null && StringUtil.isNotEmpty(instance.getGateway4())) && !Ipv4Util.verifyIp(instance.getGateway4()) && (instance.getIpv4Address() != null
-                && StringUtil.isNotEmpty(instance.getIpv4Address())) && !Ipv4Util.verifyCidr(instance.getIpv4Address())){
+        if ((instance.getGateway4() != null && StringUtil.isNotEmpty(instance.getGateway4())) && !Ipv4Util.verifyIp(instance.getGateway4()) && (instance.getIpv4Address() != null
+                && StringUtil.isNotEmpty(instance.getIpv4Address())) && !Ipv4Util.verifyCidr(instance.getIpv4Address())) {
             boolean ipv4 = this.isIPAddressMatchingGateway(instance.getIpv4Address(), instance.getGateway4());
-            if(!ipv4){
+            if (!ipv4) {
                 return ResponseUtil.badArgument("IPv4地址和网关不一致");
             }
         }
 
-        if((instance.getIpv6Address() != null && StringUtil.isNotEmpty(instance.getIpv6Address())) && !Ipv6Util.verifyCidr(instance.getIpv6Address()) &&
-            (instance.getGateway6() != null && StringUtil.isNotEmpty(instance.getGateway6())) && !Ipv6Util.verifyIpv6(instance.getGateway6())){
+        if ((instance.getIpv6Address() != null && StringUtil.isNotEmpty(instance.getIpv6Address())) && !Ipv6Util.verifyCidr(instance.getIpv6Address()) &&
+                (instance.getGateway6() != null && StringUtil.isNotEmpty(instance.getGateway6())) && !Ipv6Util.verifyIpv6(instance.getGateway6())) {
             boolean ipv6 = this.isIPAddressv6MatchingGateway(instance.getIpv6Address(), instance.getGateway6());
-            if(!ipv6){
+            if (!ipv6) {
                 return ResponseUtil.badArgument("IPv6地址和网关不一致");
             }
         }
@@ -205,7 +205,7 @@ public class EnhancementInterfaceManagerController {
             String[] var2 = ids.split(",");
             int var3 = var2.length;
 
-            for(int var4 = 0; var4 < var3; ++var4) {
+            for (int var4 = 0; var4 < var3; ++var4) {
                 String id = var2[var4];
                 Map params = new HashMap();
                 params.put("id", Long.parseLong(id));
@@ -215,7 +215,7 @@ public class EnhancementInterfaceManagerController {
                 }
 
                 Interface addressPool = instance.get(0);
-                if(addressPool.getParentId() == null){
+                if (addressPool.getParentId() == null) {
                     return ResponseUtil.badArgument("'" + addressPool.getName() + "'" + "删除失败, 主接口不允许删除");
                 }
                 try {
@@ -231,7 +231,7 @@ public class EnhancementInterfaceManagerController {
         }
     }
 
-    public boolean isIPAddressMatchingGateway(String ip, String gateway){
+    public boolean isIPAddressMatchingGateway(String ip, String gateway) {
         try {
             CIDRUtils cidrUtils = new CIDRUtils(ip);
             return cidrUtils.isInRange(gateway);
@@ -240,7 +240,8 @@ public class EnhancementInterfaceManagerController {
         }
         return false;
     }
-    public boolean isIPAddressv6MatchingGateway(String ip, String gateway){
+
+    public boolean isIPAddressv6MatchingGateway(String ip, String gateway) {
         try {
             Ipv6CIDRUtils ipv6CIDRUtils = new Ipv6CIDRUtils(ip);
             return ipv6CIDRUtils.isInRange(gateway);
@@ -249,8 +250,6 @@ public class EnhancementInterfaceManagerController {
         }
         return false;
     }
-
-
 
 
 }

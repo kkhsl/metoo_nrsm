@@ -37,7 +37,7 @@ public class NtpServiceImpl implements INtpService {
 
     @Override
     public boolean open(Boolean instance) {
-        if (instance){
+        if (instance) {
             try {
                 if ("test".equals(Global.env)) {
                     try {
@@ -45,7 +45,7 @@ public class NtpServiceImpl implements INtpService {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                }else{
+                } else {
                     try {
                         return start();
                     } catch (Exception e) {
@@ -55,7 +55,7 @@ public class NtpServiceImpl implements INtpService {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }else {
+        } else {
             try {
                 if ("test".equals(Global.env)) {
                     try {
@@ -63,7 +63,7 @@ public class NtpServiceImpl implements INtpService {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                }else{
+                } else {
                     try {
                         return stop();
                     } catch (Exception e) {
@@ -80,7 +80,7 @@ public class NtpServiceImpl implements INtpService {
     public boolean openNtp(Boolean instance) {
         try {
             boolean flag = writeNtp(instance);
-            if(flag){
+            if (flag) {
                 return true;
             }
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -98,7 +98,7 @@ public class NtpServiceImpl implements INtpService {
     public boolean saveTime(String instance) {
         try {
             boolean flag = writeTime(instance);
-            if(flag){
+            if (flag) {
                 return true;
             }
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -111,13 +111,12 @@ public class NtpServiceImpl implements INtpService {
     }
 
 
-
     @Override
     @Transactional(rollbackFor = Exception.class)  // 强制回滚所有异常
     public boolean saveNtp(List<String> instance) {
         try {
             boolean flag = writeNtpAdress(instance);
-            if(flag){
+            if (flag) {
                 return true;
             }
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -130,14 +129,15 @@ public class NtpServiceImpl implements INtpService {
     }
 
     public boolean writeTime(String instance) throws Exception {
-        boolean flag = UnboundConfUtil.saveChronyConfigFile(Global.chronyPath,instance);
+        boolean flag = UnboundConfUtil.saveChronyConfigFile(Global.chronyPath, instance);
         if (!flag) {
             throw new IOException("Failed to save Pool address config file");
         }
         return flag;
     }
+
     public boolean writeNtp(Boolean instance) throws Exception {
-        boolean flag = UnboundConfUtil.openNtpConfigFile(Global.chronyPath,instance);
+        boolean flag = UnboundConfUtil.openNtpConfigFile(Global.chronyPath, instance);
         if (!flag) {
             throw new IOException("Failed to open Ntp config file");
         }
@@ -145,13 +145,12 @@ public class NtpServiceImpl implements INtpService {
     }
 
     public boolean writeNtpAdress(List<String> instance) throws Exception {
-        boolean flag = UnboundConfUtil.saveNtpConfigFile(Global.chronyPath,instance);
+        boolean flag = UnboundConfUtil.saveNtpConfigFile(Global.chronyPath, instance);
         if (!flag) {
             throw new IOException("Failed to save Ntp config file");
         }
         return flag;
     }
-
 
 
     @Override
@@ -171,7 +170,7 @@ public class NtpServiceImpl implements INtpService {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }else{
+        } else {
             try {
                 return restart();
             } catch (Exception e) {
@@ -251,6 +250,7 @@ public class NtpServiceImpl implements INtpService {
 
         return isRunning;
     }
+
     public boolean start1() throws Exception {
         // 创建连接
         Connection conn = new Connection(host, port);
@@ -333,14 +333,14 @@ public class NtpServiceImpl implements INtpService {
         }
     }
 
-    public boolean status(){
+    public boolean status() {
         if ("test".equals(Global.env)) {
             try {
                 return status2();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }else{
+        } else {
             try {
                 return status1();
             } catch (Exception e) {
@@ -432,7 +432,6 @@ public class NtpServiceImpl implements INtpService {
         }
         return output.toString();
     }
-
 
 
 }

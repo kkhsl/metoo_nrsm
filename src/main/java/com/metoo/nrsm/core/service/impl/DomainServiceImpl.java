@@ -51,18 +51,18 @@ public class DomainServiceImpl implements IDomainService {
 
     @Override
     public int save(Domain instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             instance.setEditDate(new Date());
         }
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 return this.domainMapper.save(instance);
             } catch (Exception e) {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 instance.setEditDate(new Date());
                 return this.domainMapper.update(instance);

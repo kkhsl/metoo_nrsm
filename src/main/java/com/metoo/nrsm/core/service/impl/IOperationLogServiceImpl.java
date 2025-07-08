@@ -40,7 +40,7 @@ public class IOperationLogServiceImpl implements IOperationLogService {
 
     @Override
     public Page<OperationLog> selectObjConditionQuery(OperationLogDTO instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new OperationLogDTO();
         }
         Page<OperationLog> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
@@ -55,12 +55,12 @@ public class IOperationLogServiceImpl implements IOperationLogService {
 
     @Override
     public boolean save(OperationLog instance) {
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             User user = ShiroUserHolder.currentUser();
             instance.setAccount(user.getUsername());
         }
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             try {
                 this.operationLogMapper.save(instance);
                 return true;
@@ -68,7 +68,7 @@ public class IOperationLogServiceImpl implements IOperationLogService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.operationLogMapper.update(instance);
                 return true;
@@ -80,9 +80,9 @@ public class IOperationLogServiceImpl implements IOperationLogService {
     }
 
     @Override
-    public boolean saveLoginLog(OperationLog instance){
+    public boolean saveLoginLog(OperationLog instance) {
         try {
-            if(instance.getAccount() != null && !instance.getAccount().equals("")){
+            if (instance.getAccount() != null && !instance.getAccount().equals("")) {
                 User user = this.userService.findByUserName(instance.getAccount());
                 instance.setAddTime(new Date());
 //                InetAddress inetAddress = InetAddress.getLocalHost();

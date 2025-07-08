@@ -19,6 +19,7 @@ import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.AddressPool;
 import com.metoo.nrsm.entity.SysConfig;
 import io.swagger.annotations.ApiOperation;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -59,13 +60,14 @@ public class AddressPoolManagerController {
 
     /**
      * 幂等：避免多次提交，导致多次生成配置文件，以及重启
+     *
      * @return
      */
     @NotRepeat
     @GetMapping({"/write"})
     public Result writeDhcpd() {
         SysConfig sysconfig = this.sysConfigService.select();
-        if(sysconfig.isV4_status()){
+        if (sysconfig.isV4_status()) {
             this.addressPoolService.write();
         }
         return ResponseUtil.ok();
@@ -79,92 +81,92 @@ public class AddressPoolManagerController {
 //        return page.getResult().size() > 0 ? ResponseUtil.ok(new PageInfo(page)) : ResponseUtil.ok();
     }
 
-    @OperationLogAnno(operationType= OperationType.CREATE, name = "地址池")
+    @OperationLogAnno(operationType = OperationType.CREATE, name = "地址池")
     @ApiOperation("创建/更新")
     @PostMapping({"/save"})
     public Object save(@RequestBody AddressPool instance) {
         Map params = new HashMap();
         if (StringUtil.isEmpty(instance.getName())) {
             return ResponseUtil.badArgument("名称不能为空");
-        }else{
+        } else {
             params.clear();
             params.put("addressPoolId", instance.getId());
             params.put("name", instance.getName());
             List<AddressPool> addressPools = this.addressPoolService.selectObjByMap(params);
-            if(addressPools.size() > 0){
+            if (addressPools.size() > 0) {
                 return ResponseUtil.badArgument("名称不能重复");
             }
         }
-        if(StringUtil.isEmpty(instance.getSubnetAddresses())){
+        if (StringUtil.isEmpty(instance.getSubnetAddresses())) {
             return ResponseUtil.badArgument("子网地址不能为空");
-        }else{
+        } else {
             String subnet = instance.getSubnetAddresses().split("/")[0];
-            if(!Ipv4Util.verifyIp(subnet)){
+            if (!Ipv4Util.verifyIp(subnet)) {
                 return ResponseUtil.badArgument("子网地址格式错误");
             }
-            if(!Ipv4Util.verifyCidr(instance.getSubnetAddresses())){
+            if (!Ipv4Util.verifyCidr(instance.getSubnetAddresses())) {
                 return ResponseUtil.badArgument("错误的CIDR格式");
             }
             params.clear();
             params.put("addressPoolId", instance.getId());
             params.put("subnetAddresses", instance.getSubnetAddresses());
             List<AddressPool> addressPools = this.addressPoolService.selectObjByMap(params);
-            if(addressPools.size() > 0){
+            if (addressPools.size() > 0) {
                 return ResponseUtil.badArgument("子网地址不能重复");
             }
         }
         String subnetAddress = instance.getSubnetAddresses();
         String networkAddress = Ipv4Util.getNetwork(subnetAddress.substring(0, subnetAddress.indexOf("/")),
                 Ipv4Util.getMaskByMaskBit(Integer.parseInt(subnetAddress.substring(subnetAddress.indexOf("/") + 1))));
-        if(!subnetAddress.substring(0, subnetAddress.indexOf("/")).equals(networkAddress)){
+        if (!subnetAddress.substring(0, subnetAddress.indexOf("/")).equals(networkAddress)) {
             return ResponseUtil.badArgument("子网地址错误");
         }
-        if(StringUtil.isNotEmpty(instance.getDefaultGateway())){
+        if (StringUtil.isNotEmpty(instance.getDefaultGateway())) {
             boolean flag = Ipv4Util.ipIsInNet(instance.getDefaultGateway(), instance.getSubnetAddresses());
-            if(!flag){
+            if (!flag) {
                 return ResponseUtil.badArgument("默认网关与子网地址不在同一网段中");
             }
         }
         // 验证地址池范围格式是否正确
-        if(StringUtil.isNotEmpty(instance.getAddressPoolRange())){
-            if(instance.getAddressPoolRange().contains("-")){
+        if (StringUtil.isNotEmpty(instance.getAddressPoolRange())) {
+            if (instance.getAddressPoolRange().contains("-")) {
                 String addressPoolRange = instance.getAddressPoolRange();
-                addressPoolRange = addressPoolRange.replaceAll("\\s*|\r|\n|\t","");
+                addressPoolRange = addressPoolRange.replaceAll("\\s*|\r|\n|\t", "");
                 String start = addressPoolRange.substring(0, addressPoolRange.indexOf("-"));
                 String end = addressPoolRange.substring(addressPoolRange.indexOf("-") + 1);
-                boolean startBN =  Ipv4Util.verifyIp(start);
-                boolean endBN =  Ipv4Util.verifyIp(end);
-                if(!startBN){
+                boolean startBN = Ipv4Util.verifyIp(start);
+                boolean endBN = Ipv4Util.verifyIp(end);
+                if (!startBN) {
                     return ResponseUtil.badArgument(start + "格式错误");
                 }
-                if(!endBN){
+                if (!endBN) {
                     return ResponseUtil.badArgument(end + "格式错误");
                 }
                 int rangeBN = Ipv4Util.compareIP(end, start);
-                if(rangeBN < 0){
+                if (rangeBN < 0) {
                     return ResponseUtil.badArgument("范围格式错误");
                 }
 
                 boolean startIsNet = Ipv4Util.ipIsInNet(start, instance.getSubnetAddresses());
                 boolean endIsNet = Ipv4Util.ipIsInNet(end, instance.getSubnetAddresses());
-                if(!startIsNet){
+                if (!startIsNet) {
                     return ResponseUtil.badArgument(start + "不属于子网地址");
                 }
-                if(!endIsNet){
+                if (!endIsNet) {
                     return ResponseUtil.badArgument(end + "不属于子网地址");
                 }
             }
         }
-        if(StringUtil.isNotEmpty(instance.getDNS())){
+        if (StringUtil.isNotEmpty(instance.getDNS())) {
             List<String> dns = null;
             try {
                 dns = MyStringUtils.str2list(instance.getDNS());
-                if(dns.size() >= 0){
+                if (dns.size() >= 0) {
                     int i = 0;
                     for (String str : dns) {
                         i++;
                         boolean flag = Ipv4Util.verifyIp(str);
-                        if (!flag){
+                        if (!flag) {
                             return ResponseUtil.badArgument("第" + i + "行，dns格式错误");
                         }
                     }
@@ -183,7 +185,7 @@ public class AddressPoolManagerController {
             String[] var2 = ids.split(",");
             int var3 = var2.length;
 
-            for(int var4 = 0; var4 < var3; ++var4) {
+            for (int var4 = 0; var4 < var3; ++var4) {
                 String id = var2[var4];
                 Map params = new HashMap();
                 params.put("id", Long.parseLong(id));
@@ -192,7 +194,7 @@ public class AddressPoolManagerController {
                     return ResponseUtil.badArgument();
                 }
 
-                AddressPool addressPool = (AddressPool)addressPools.get(0);
+                AddressPool addressPool = (AddressPool) addressPools.get(0);
 
                 try {
                     int var9 = this.addressPoolService.delete(Long.parseLong(id));
@@ -224,7 +226,7 @@ public class AddressPoolManagerController {
         List<AddressPoolVO> list = new ArrayList();
         list.add(addressPool1);
         list.add(addressPool2);
-        List filteredEntities = (List)list.stream().filter((e) -> {
+        List filteredEntities = (List) list.stream().filter((e) -> {
             return e != null && !e.getName().isEmpty();
         }).collect(Collectors.toList());
 
@@ -232,14 +234,14 @@ public class AddressPoolManagerController {
             FileOutputStream fos = new FileOutputStream("C:\\Users\\Administrator\\Desktop\\metoo\\dhcp.txt");
             Iterator var6 = filteredEntities.iterator();
 
-            while(var6.hasNext()) {
-                AddressPoolVO entity = (AddressPoolVO)var6.next();
+            while (var6.hasNext()) {
+                AddressPoolVO entity = (AddressPoolVO) var6.next();
                 LinkedHashMap<String, Object> map = new LinkedHashMap();
                 Class<?> clazz = addressPool1.getClass();
                 Field[] var10 = clazz.getDeclaredFields();
                 int var11 = var10.length;
 
-                for(int var12 = 0; var12 < var11; ++var12) {
+                for (int var12 = 0; var12 < var11; ++var12) {
                     Field field = var10[var12];
                     field.setAccessible(true);
                     String fieldName = field.getName();
@@ -252,7 +254,7 @@ public class AddressPoolManagerController {
                 Collection<Object> values = map.values();
                 Iterator var19 = values.iterator();
 
-                while(var19.hasNext()) {
+                while (var19.hasNext()) {
                     Object value = var19.next();
                     if (value != null) {
                         System.out.println(value);
@@ -313,8 +315,8 @@ public class AddressPoolManagerController {
             FileOutputStream fos = new FileOutputStream("C:\\Users\\Administrator\\Desktop\\metoo\\dhcp6.txt", true);
             Iterator var6 = filteredEntities.iterator();
 
-            while(var6.hasNext()) {
-                AddressPoolIpv6VO entity = (AddressPoolIpv6VO)var6.next();
+            while (var6.hasNext()) {
+                AddressPoolIpv6VO entity = (AddressPoolIpv6VO) var6.next();
                 LinkedHashMap<String, Object> map = new LinkedHashMap();
 //                    Class<?> clazz = AddressPoolIpv6.class;
 //                Class<?> clazz = addressPoolIpv6_1.getClass();
@@ -322,7 +324,7 @@ public class AddressPoolManagerController {
                 Field[] var10 = clazz.getDeclaredFields();
                 int var11 = var10.length;
 
-                for(int var12 = 0; var12 < var11; ++var12) {
+                for (int var12 = 0; var12 < var11; ++var12) {
                     Field field = var10[var12];
                     field.setAccessible(true);
                     String fieldName = field.getName();
@@ -335,7 +337,7 @@ public class AddressPoolManagerController {
                 Collection<Object> values = map.values();
                 Iterator var19 = values.iterator();
 
-                while(var19.hasNext()) {
+                while (var19.hasNext()) {
                     Object value = var19.next();
                     if (value != null) {
                         System.out.println(value);
@@ -343,9 +345,9 @@ public class AddressPoolManagerController {
                         fos.write(bytes);
                     }
                 }
-                if(StringUtils.isNotEmpty(entity.getName())){
+                if (StringUtils.isNotEmpty(entity.getName())) {
                     fos.write("}\n\n".getBytes());
-                }else{
+                } else {
                     fos.write("\n".getBytes());
                 }
             }

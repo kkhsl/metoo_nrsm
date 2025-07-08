@@ -6,15 +6,13 @@ import org.slf4j.Logger;
  * @author HKK
  * @version 1.0
  * @date 2024-03-29 16:28
- *
  * @title 装饰器模式（结构型模式）
- *
+ * <p>
  * 抽象装饰器
- *
+ * <p>
  * 使用场景：
- *
  */
-public abstract class DecoratorLogger implements Logger{
+public abstract class DecoratorLogger implements Logger {
 
     protected Logger logger;
 
@@ -23,8 +21,10 @@ public abstract class DecoratorLogger implements Logger{
     }
 
     @Override
-    public void info(String s) { }
+    public void info(String s) {
+    }
 
     @Override
-    public void error(String s) { }
+    public void error(String s) {
+    }
 }

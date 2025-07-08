@@ -32,25 +32,26 @@ public class AcManagerControllerApi {
 
     /**
      * {"noticeType":"401", "params":["一楼AP",  "三楼AP"],"userId":47}
+     *
      * @param requestParams
      * @return
      */
     @RequestMapping("/online")
-    public NoticeWebsocketResp testApi(@RequestParam(value = "requestParams") String requestParams){
+    public NoticeWebsocketResp testApi(@RequestParam(value = "requestParams") String requestParams) {
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
         Map result = new HashMap();
-        if(!String.valueOf(requestParams).equals("")){
+        if (!String.valueOf(requestParams).equals("")) {
             Map map = JSONObject.parseObject(String.valueOf(requestParams), Map.class);
-            String sessionId = (String)  map.get("sessionId");
+            String sessionId = (String) map.get("sessionId");
             List<String> names = JSONObject.parseObject(String.valueOf(map.get("params")), List.class);
-            if(names != null && names.size() > 0){
+            if (names != null && names.size() > 0) {
                 List<JSONObject> jsonObjects = this.apService.getOnlineAp();
-                if(jsonObjects.size() > 0){
+                if (jsonObjects.size() > 0) {
                     for (String name : names) {
                         result.put(name, false);
                         for (JSONObject jsonObject : jsonObjects) {
-                            if(jsonObject.getString("name") != null
-                                    && name.equalsIgnoreCase(jsonObject.getString("name"))){
+                            if (jsonObject.getString("name") != null
+                                    && name.equalsIgnoreCase(jsonObject.getString("name"))) {
                                 result.put(name, true);
                                 break;
                             }

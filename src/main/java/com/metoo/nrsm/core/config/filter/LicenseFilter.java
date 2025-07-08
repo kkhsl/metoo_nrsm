@@ -14,24 +14,24 @@ public class LicenseFilter extends PathMatchingFilter {
 
     private ILicenseService licenseService;
 
-    public LicenseFilter(ILicenseService licenseService){
+    public LicenseFilter(ILicenseService licenseService) {
         this.licenseService = licenseService;
     }
 
     @Override
     protected boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
-        if(true){
+        if (true) {
             return true;
         }
         License license = licenseService.detection();
-        if(license != null && license.getStatus() == 0 && license.getFrom() == 0){
+        if (license != null && license.getStatus() == 0 && license.getFrom() == 0) {
             return true;
-        }else{
+        } else {
             // 如果不在排除列表中，则执行过滤器的逻辑
             // 此处可以编写你的过滤器逻辑
             String message = "未授权";
-            if(license != null){
-                switch (license.getStatus()){
+            if (license != null) {
+                switch (license.getStatus()) {
                     case 1:
                         message = "未授权";
                         break;

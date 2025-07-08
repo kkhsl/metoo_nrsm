@@ -17,7 +17,7 @@ public class getAllNetIntf {
 
     public static String getNetworkInterfaces() throws Exception {
 
-                Map<String, Object> yamlData = new Yaml().load(
+        Map<String, Object> yamlData = new Yaml().load(
                 new FileInputStream("/etc/netplan/00-installer-config.yaml")
         );
 
@@ -110,6 +110,7 @@ public class getAllNetIntf {
 
         return vlanInfo;
     }
+
     private static void processNameservers(Map<String, Object> config, Map<String, Object> info) {
         if (config.containsKey("nameservers")) {
             Map<String, Object> nameservers = safeCast(config.get("nameservers"), Map.class);

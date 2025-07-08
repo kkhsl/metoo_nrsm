@@ -21,9 +21,9 @@
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
         SELECT
-          <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List"/>
         FROM
-          metoo_project
+        metoo_project
         WHERE id=#{id}
     </select>
 
@@ -37,7 +37,7 @@
 
     <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.ProjectDTO" resultMap="Base_Result_Map">
         SELECT
-          <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         FROM metoo_project
         <where>
             <if test="id != null and id != ''">
@@ -53,19 +53,19 @@
                 AND user_id = #{userId}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
-          <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         FROM
-          metoo_project
+        metoo_project
         <where>
             <if test="id != null and id != ''">
                 AND id = #{id}
@@ -83,10 +83,10 @@
                 AND id != #{projectId}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>

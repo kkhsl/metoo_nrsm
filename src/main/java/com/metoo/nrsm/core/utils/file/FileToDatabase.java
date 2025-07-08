@@ -18,7 +18,7 @@ import java.util.*;
 @Component
 public class FileToDatabase {
 
-//    private static String filePath = "C:\\Users\\hkk\\Desktop\\metoo\\192.168.5.101\\docker\\result_overlap.txt";
+    //    private static String filePath = "C:\\Users\\hkk\\Desktop\\metoo\\192.168.5.101\\docker\\result_overlap.txt";
 //    private static String filePath = "C:\\Users\\hkk\\Desktop\\metoo\\192.168.5.101\\result.txt";
 //    private static String filePath = "/opt/netmap/result.txt";
     private static String filePath = "C:\\netmap\\os-scanner\\os-scanner5\\result_append.txt";
@@ -27,7 +27,7 @@ public class FileToDatabase {
     public static void main(String[] args) {
         StringBuilder contentBuilder = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(
-             filePath))) {
+                filePath))) {
             String currentLine;
             while ((currentLine = br.readLine()) != null) {
                 contentBuilder.append(currentLine.trim());
@@ -39,7 +39,7 @@ public class FileToDatabase {
         }
         String jsonString = contentBuilder.toString();
 
-        if("".equals(jsonString)){
+        if ("".equals(jsonString)) {
             return;
         }
 
@@ -47,8 +47,8 @@ public class FileToDatabase {
 
         // 拆分字符串为单独的 JSON 对象
         String[] jsonObjects = {};
-        if(jsonString.contains("}{")){
-            jsonObjects = jsonString.replaceAll("null","").replaceAll("]","").replaceAll("\\[", "").split("\\}\\s*,?\\s*\\{");
+        if (jsonString.contains("}{")) {
+            jsonObjects = jsonString.replaceAll("null", "").replaceAll("]", "").replaceAll("\\[", "").split("\\}\\s*,?\\s*\\{");
             // 修正每个 JSON 对象的格式
             jsonObjects[0] += "}";
             for (int i = 1; i < jsonObjects.length - 1; i++) {
@@ -59,18 +59,18 @@ public class FileToDatabase {
             for (String jsonObjectStr : jsonObjects) {
                 OsScan osScan = null;
                 try {
-                    System.out.println("===============:"+jsonObjectStr);
+                    System.out.println("===============:" + jsonObjectStr);
                     osScan = JSONObject.parseObject(jsonObjectStr, OsScan.class);
-                    System.out.println("=======osScan========:"+ JSONObject.toJSONString(osScan));
+                    System.out.println("=======osScan========:" + JSONObject.toJSONString(osScan));
                     list.add(osScan);
                 } catch (Exception e) {
-                    System.out.println("=======jsonObjectStr========:"+jsonObjectStr);
+                    System.out.println("=======jsonObjectStr========:" + jsonObjectStr);
                     e.printStackTrace();
                     list.clear();
                     break;
                 }
             }
-        }else{
+        } else {
             OsScan osScan = JSONObject.parseObject(jsonString, OsScan.class);
             list.add(osScan);
         }
@@ -117,7 +117,7 @@ public class FileToDatabase {
     }
 
 
-    public void write(String path_suffix){
+    public void write(String path_suffix) {
 
         try {
             // 方法1：使用 BufferedReader 读取文件内容
@@ -134,7 +134,7 @@ public class FileToDatabase {
             }
             String jsonString = contentBuilder.toString();
 
-            if("".equals(jsonString)){
+            if ("".equals(jsonString)) {
                 return;
             }
 
@@ -142,7 +142,7 @@ public class FileToDatabase {
 
             // 拆分字符串为单独的 JSON 对象
             String[] jsonObjects = {};
-            if(jsonString.contains("}{")){
+            if (jsonString.contains("}{")) {
                 jsonObjects = jsonString.split("\\}\\{");
                 // 修正每个 JSON 对象的格式
                 jsonObjects[0] += "}";
@@ -162,13 +162,13 @@ public class FileToDatabase {
                         break;
                     }
                 }
-            }else{
+            } else {
                 OsScan osScan = JSONObject.parseObject(jsonString, OsScan.class);
                 list.add(osScan);
             }
 
             // 遍历OsScan-写入到Probe
-            if(list.size() > 0){
+            if (list.size() > 0) {
                 Map params = new HashMap();
                 for (OsScan osScan : list) {
 
@@ -177,13 +177,13 @@ public class FileToDatabase {
                     params.put("ip_addr", osScan.getIP());
                     params.put("port_num", osScan.getOpenPort());
                     List<Probe> probes = this.probeService.selectObjByMap(params);
-                    if(probes.size() > 0){
+                    if (probes.size() > 0) {
                         for (Probe probe : probes) {
                             try {
-                                if(StringUtil.isNotEmpty(osScan.getTtl())){
+                                if (StringUtil.isNotEmpty(osScan.getTtl())) {
                                     probe.setTtl(Integer.parseInt(osScan.getTtl()));
                                 }
-                                if(StringUtil.isNotEmpty(osScan.getReliability())){
+                                if (StringUtil.isNotEmpty(osScan.getReliability())) {
                                     probe.setReliability(Float.parseFloat(osScan.getReliability()));
                                 }
                                 probe.setFingerIdOsScan(osScan.getFingerID());
@@ -195,17 +195,17 @@ public class FileToDatabase {
                                 e.printStackTrace();
                             }
                         }
-                    }else{
+                    } else {
                         // arp表中有的，在probe表中没有的记录，写入probe表取消，新建一个表，metoo_unsure,
                         // arp表中有的，在probe表中没有的记录写入这个表
                         Probe probe = new Probe();
 
                         probe.setIp_addr(osScan.getIP());
 
-                        if(StringUtil.isNotEmpty(osScan.getTtl())){
+                        if (StringUtil.isNotEmpty(osScan.getTtl())) {
                             probe.setTtl(Integer.parseInt(osScan.getTtl()));
                         }
-                        if(StringUtil.isNotEmpty(osScan.getReliability())){
+                        if (StringUtil.isNotEmpty(osScan.getReliability())) {
                             probe.setReliability(Float.parseFloat(osScan.getReliability()));
                         }
                         probe.setFingerIdOsScan(osScan.getFingerID());
@@ -341,14 +341,14 @@ public class FileToDatabase {
 //    }
 
 
-    public void write(){
+    public void write() {
 
         try {
             // 方法1：使用 BufferedReader 读取文件内容
             StringBuilder contentBuilder = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new FileReader(
                     Global.os_scanner_result_path
-                                + File.separator
+                            + File.separator
                             + Global.os_scanner_result_name))) {
                 String currentLine;
                 while ((currentLine = br.readLine()) != null) {
@@ -357,7 +357,7 @@ public class FileToDatabase {
             }
             String jsonString = contentBuilder.toString();
 
-            if("".equals(jsonString)){
+            if ("".equals(jsonString)) {
                 return;
             }
 
@@ -365,7 +365,7 @@ public class FileToDatabase {
 
             // 拆分字符串为单独的 JSON 对象
             String[] jsonObjects = {};
-            if(jsonString.contains("}{")){
+            if (jsonString.contains("}{")) {
                 jsonObjects = jsonString.split("\\}\\{");
                 // 修正每个 JSON 对象的格式
                 jsonObjects[0] += "}";
@@ -385,13 +385,13 @@ public class FileToDatabase {
                         break;
                     }
                 }
-            }else{
+            } else {
                 OsScan osScan = JSONObject.parseObject(jsonString, OsScan.class);
                 list.add(osScan);
             }
 
             // 遍历OsScan-写入到Probe
-            if(list.size() > 0){
+            if (list.size() > 0) {
                 Map params = new HashMap();
                 for (OsScan osScan : list) {
 
@@ -403,13 +403,13 @@ public class FileToDatabase {
                     params.put("ip_addr", osScan.getIP());
                     params.put("port_num", osScan.getOpenPort());
                     List<Probe> probes = this.probeService.selectObjByMap(params);
-                    if(probes.size() > 0){
+                    if (probes.size() > 0) {
                         for (Probe probe : probes) {
                             try {
-                                if(StringUtil.isNotEmpty(osScan.getTtl())){
+                                if (StringUtil.isNotEmpty(osScan.getTtl())) {
                                     probe.setTtl(Integer.parseInt(osScan.getTtl()));
                                 }
-                                if(StringUtil.isNotEmpty(osScan.getReliability())){
+                                if (StringUtil.isNotEmpty(osScan.getReliability())) {
                                     probe.setReliability(Float.parseFloat(osScan.getReliability()));
                                 }
                                 probe.setFingerIdOsScan(osScan.getFingerID());
@@ -421,17 +421,17 @@ public class FileToDatabase {
                                 e.printStackTrace();
                             }
                         }
-                    }else{
+                    } else {
                         // arp表中有的，在probe表中没有的记录，写入probe表取消，新建一个表，metoo_unsure,
                         // arp表中有的，在probe表中没有的记录写入这个表
                         Probe probe = new Probe();
 
                         probe.setIp_addr(osScan.getIP());
 
-                        if(StringUtil.isNotEmpty(osScan.getTtl())){
+                        if (StringUtil.isNotEmpty(osScan.getTtl())) {
                             probe.setTtl(Integer.parseInt(osScan.getTtl()));
                         }
-                        if(StringUtil.isNotEmpty(osScan.getReliability())){
+                        if (StringUtil.isNotEmpty(osScan.getReliability())) {
                             probe.setReliability(Float.parseFloat(osScan.getReliability()));
                         }
                         probe.setFingerIdOsScan(osScan.getFingerID());
@@ -452,6 +452,7 @@ public class FileToDatabase {
 
     /**
      * 读取每个目录的文件入库
+     *
      * @param path_suffix
      */
     public void readFileToProbe(String path_suffix) {
@@ -470,7 +471,7 @@ public class FileToDatabase {
             }
             String jsonString = contentBuilder.toString();
 
-            if("".equals(jsonString)){
+            if ("".equals(jsonString)) {
                 return;
             }
 
@@ -478,8 +479,8 @@ public class FileToDatabase {
 
             // 拆分字符串为单独的 JSON 对象
             String[] jsonObjects = {};
-            if(jsonString.contains("}{")){
-                jsonObjects = jsonString.replaceAll("null","").replaceAll("]","").replaceAll("\\[", "").split("\\}\\s*,?\\s*\\{");
+            if (jsonString.contains("}{")) {
+                jsonObjects = jsonString.replaceAll("null", "").replaceAll("]", "").replaceAll("\\[", "").split("\\}\\s*,?\\s*\\{");
                 // 修正每个 JSON 对象的格式
                 jsonObjects[0] += "}";
                 for (int i = 1; i < jsonObjects.length - 1; i++) {
@@ -498,12 +499,12 @@ public class FileToDatabase {
                         break;
                     }
                 }
-            }else{
+            } else {
                 OsScan osScan = JSONObject.parseObject(jsonString, OsScan.class);
                 list.add(osScan);
             }
             // 遍历OsScan-写入到Probe
-            if(list.size() > 0){
+            if (list.size() > 0) {
                 Map params = new HashMap();
                 for (OsScan osScan : list) {
 //                    if(device != null && !device.isState()){
@@ -514,13 +515,13 @@ public class FileToDatabase {
                     params.put("ip_addr", osScan.getIP());
                     params.put("port_num", osScan.getOpenPort());
                     List<Probe> probes = this.probeService.selectObjByMap(params);
-                    if(probes.size() > 0){
+                    if (probes.size() > 0) {
                         for (Probe probe : probes) {
                             try {
-                                if(StringUtil.isNotEmpty(osScan.getTtl())){
+                                if (StringUtil.isNotEmpty(osScan.getTtl())) {
                                     probe.setTtl(Integer.parseInt(osScan.getTtl()));
                                 }
-                                if(StringUtil.isNotEmpty(osScan.getReliability())){
+                                if (StringUtil.isNotEmpty(osScan.getReliability())) {
                                     probe.setReliability(Float.parseFloat(osScan.getReliability()));
                                 }
                                 probe.setFingerIdOsScan(osScan.getFingerID());
@@ -532,17 +533,17 @@ public class FileToDatabase {
                                 e.printStackTrace();
                             }
                         }
-                    }else{
+                    } else {
                         // arp表中有的，在probe表中没有的记录，写入probe表取消，新建一个表，metoo_unsure,
                         // arp表中有的，在probe表中没有的记录写入这个表
                         Probe probe = new Probe();
 
                         probe.setIp_addr(osScan.getIP());
 
-                        if(StringUtil.isNotEmpty(osScan.getTtl())){
+                        if (StringUtil.isNotEmpty(osScan.getTtl())) {
                             probe.setTtl(Integer.parseInt(osScan.getTtl()));
                         }
-                        if(StringUtil.isNotEmpty(osScan.getReliability())){
+                        if (StringUtil.isNotEmpty(osScan.getReliability())) {
                             probe.setReliability(Float.parseFloat(osScan.getReliability()));
                         }
                         probe.setFingerIdOsScan(osScan.getFingerID());
@@ -553,7 +554,7 @@ public class FileToDatabase {
                         this.probeService.insert(probe);
                     }
                 }
-        }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
  * 定义并发执行cf-scanner
  */
 @Slf4j
-public class CFScanner implements Runnable{
+public class CFScanner implements Runnable {
 
     private String cidr;
 

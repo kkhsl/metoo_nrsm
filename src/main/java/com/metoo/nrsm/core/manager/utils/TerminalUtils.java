@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class TerminalUtils {
 
-    public static List<Terminal> different(List<Terminal> list1, List<Terminal> list2){
+    public static List<Terminal> different(List<Terminal> list1, List<Terminal> list2) {
         List<Terminal> differentTerminals1 = list1.stream()
                 .filter(t1 -> list2.stream().noneMatch(t2 -> t2.getMac().equals(t1.getMac())))
                 .collect(Collectors.toList());
@@ -16,7 +16,7 @@ public class TerminalUtils {
         return differentTerminals1;
     }
 
-    public static List<Terminal> common(List<Terminal> list1, List<Terminal> list2){
+    public static List<Terminal> common(List<Terminal> list1, List<Terminal> list2) {
         List<Terminal> commonTerminals = list1.stream()
                 .filter(t1 -> list2.stream().anyMatch(t2 -> t1.getMac().equals(t2.getMac())))
                 .collect(Collectors.toList());
@@ -40,11 +40,10 @@ public class TerminalUtils {
 
 
         List<TerminalTest> differentTerminals = list1.stream()
-                    .filter(t1 -> list2.stream().noneMatch(t2 -> t2.getMac().equals(t1.getMac())))
-                    .collect(Collectors.toList());
+                .filter(t1 -> list2.stream().noneMatch(t2 -> t2.getMac().equals(t1.getMac())))
+                .collect(Collectors.toList());
         System.out.println("不同的 Terminal:");
         differentTerminals.forEach(System.out::println);
-
 
 
         List<TerminalTest> differentTerminals1 = list1.stream()

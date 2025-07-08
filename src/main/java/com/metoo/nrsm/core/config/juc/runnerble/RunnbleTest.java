@@ -11,7 +11,7 @@ public class RunnbleTest {
         // 开启线程
         thread.start();
 
-        for (int i= 0; i <= 10000000; i++){
+        for (int i = 0; i <= 10000000; i++) {
             System.out.println("=============" + i);
         }
 
@@ -19,7 +19,7 @@ public class RunnbleTest {
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i<=100; i++){
+                for (int i = 0; i <= 100; i++) {
                     System.out.println("===========anonymous" + i);
                 }
             }

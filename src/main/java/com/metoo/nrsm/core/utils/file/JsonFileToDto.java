@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  * json文件读取
+ *
  * @author zhaozhiyuan
  * @version 1.0
  * @date 2024/10/5 21:10
@@ -19,6 +20,7 @@ import java.util.List;
 public class JsonFileToDto {
     /**
      * 读取json文件
+     *
      * @param filePath
      * @return
      * @throws IOException
@@ -28,6 +30,7 @@ public class JsonFileToDto {
         File file = new File(filePath);
         return objectMapper.readValue(file, GatherJsonDto.class);
     }
+
     /**
      * 将一个列表分成指定数量的子列表
      *

@@ -84,6 +84,7 @@ public class Ipv6CIDRUtils {
 
     /**
      * 计算 IPv6 的网段（网络地址）
+     *
      * @param cidr 如 "fc00:1000:0:1::3/64"
      * @return 网段，如 "fc00:1000:0:1::/64"
      */
@@ -110,10 +111,10 @@ public class Ipv6CIDRUtils {
         return networkAddress + "/" + prefixLength;
     }
 
-    public static boolean verifyCIDR(String cidr){
+    public static boolean verifyCIDR(String cidr) {
         String error = IPv6Validator.validateIPv6Format(cidr);
         log.info("错误信息：{}", error);
-        if(error == null){
+        if (error == null) {
             return true;
         }
         return false;

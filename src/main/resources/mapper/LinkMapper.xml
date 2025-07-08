@@ -29,25 +29,28 @@
 
     <sql id="Join_Column_List">
         metoo_link.id id, metoo_link.addTime addTime, metoo_link.deleteStatus deleteStatus, metoo_link.name name,
-        metoo_link.transmitter transmitter, metoo_link.type type, metoo_link.bandwidth bandwidth, metoo_link.status status,
+        metoo_link.transmitter transmitter, metoo_link.type type, metoo_link.bandwidth bandwidth, metoo_link.status
+        status,
         metoo_link.start_device start_device, metoo_link.start_interface start_interface,
         metoo_link.start_ip start_ip, metoo_link.end_device end_device, metoo_link.end_interface end_interface,
         metoo_link.end_ip end_ip, metoo_link.description description
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List" />
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_link
         WHERE id = #{id}
     </select>
 
     <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.entity.Link" resultMap="Base_Result_Map">
-        SELECT <include refid="Join_Column_List" />
+        SELECT
+        <include refid="Join_Column_List"/>
         FROM metoo_link
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
@@ -63,10 +66,10 @@
                 AND end_ip = #{endIp}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
@@ -239,7 +242,7 @@
     <delete id="batchesDel" parameterType="java.lang.Long">
         DELETE FROM metoo_link
         WHERE id in
-        <foreach collection="array" item="item"  separator="," open="(" close=")">
+        <foreach collection="array" item="item" separator="," open="(" close=")">
             #{item}
         </foreach>
     </delete>
@@ -249,13 +252,13 @@
         VALUES
         <foreach collection="list" item="item" separator=",">
             (
-              #{item.addTime},
-              #{item.startDevice},
-              #{item.startInterface},
-              #{item.startIp},
-              #{item.endDevice},
-              #{item.endInterface},
-              #{item.endIp}
+            #{item.addTime},
+            #{item.startDevice},
+            #{item.startInterface},
+            #{item.startIp},
+            #{item.endDevice},
+            #{item.endInterface},
+            #{item.endIp}
             )
         </foreach>
     </insert>

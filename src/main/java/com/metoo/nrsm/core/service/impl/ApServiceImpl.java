@@ -32,12 +32,12 @@ public class ApServiceImpl implements IApService {
         instance.setNumperpage(1000000);
         instance.setPagenum(1);
         JSONObject jsonObject = GecossApiUtil.getCall(GecossApiUtil.parseParam(instance, "apsearch"));
-        if(Strings.isNotBlank(String.valueOf(jsonObject.get("aplist")))) {
+        if (Strings.isNotBlank(String.valueOf(jsonObject.get("aplist")))) {
             JSONArray jsonArray = JSONObject.parseArray(String.valueOf(jsonObject.get("aplist")));
             if (jsonArray != null) {
                 for (Object ele : jsonArray) {
                     JSONObject obj = JSONObject.parseObject(String.valueOf(ele));
-                    if("yes".equalsIgnoreCase(obj.getString("online"))){
+                    if ("yes".equalsIgnoreCase(obj.getString("online"))) {
                         list.add(obj);
                     }
                 }

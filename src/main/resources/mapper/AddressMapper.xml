@@ -20,25 +20,29 @@
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_ip_address
         where id = #{id}
     </select>
 
     <select id="selectObjByIp" parameterType="java.lang.String" resultMap="Base_Result_Map">
-        SELECT <include refid="INET_NTOA_Column_List"/>
+        SELECT
+        <include refid="INET_NTOA_Column_List"/>
         FROM metoo_ip_address
         where ip = #{ip}
     </select>
 
     <select id="selectObjByMac" parameterType="java.lang.String" resultMap="Base_Result_Map">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM metoo_ip_address
         where mac = #{mac}
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
-        SELECT <include refid="INET_NTOA_Column_List"/>
+        SELECT
+        <include refid="INET_NTOA_Column_List"/>
         FROM metoo_ip_address
         <where>
             <if test="ipSelf != null">
@@ -58,7 +62,7 @@
             </if>
             <if test="subnetIds != null and subnetIds.size() > 0">
                 AND subnet_id in
-                <foreach collection="subnetIds" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="subnetIds" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -69,7 +73,7 @@
         INSERT INTO metoo_ip_address
         <trim prefix="(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
-                 addTime,
+                addTime,
             </if>
             <if test="ip != null">
                 ip,
@@ -122,7 +126,7 @@
                 mac = #{mac},
             </if>
             <if test="hostName != null and hostName != ''">
-               host_name = #{hostName},
+                host_name = #{hostName},
             </if>
             <if test="description != null">
                 description = #{description},

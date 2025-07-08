@@ -12,7 +12,7 @@ import java.io.UnsupportedEncodingException;
 @Component
 public class UploadFileUtil {
 
-    public boolean uploadFile(@RequestParam(required = false) MultipartFile file, String fileName, String path){
+    public boolean uploadFile(@RequestParam(required = false) MultipartFile file, String fileName, String path) {
         try {
             File fil = new File(path + File.separator + fileName + ".png");
             if (!fil.getParentFile().exists()) {
@@ -22,15 +22,15 @@ public class UploadFileUtil {
             return true;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        }catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    public boolean deleteFile(String fileName, String path){
+    public boolean deleteFile(String fileName, String path) {
         File file = new File(path + File.separator + fileName + ".png");
 //        File[] listFiles = file.listFiles();
 //        if(listFiles != null)
@@ -47,7 +47,7 @@ public class UploadFileUtil {
 //                }
 //            }
 //        }
-        if(file != null){
+        if (file != null) {
             return file.delete();
         }
         return true;

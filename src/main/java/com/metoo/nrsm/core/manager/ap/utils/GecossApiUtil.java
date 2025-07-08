@@ -24,7 +24,7 @@ public class GecossApiUtil {
 
     @Value("${ac.api.url}")
     public void setUrl(String url) {
-        GecossApiUtil.BASE_URL= url;
+        GecossApiUtil.BASE_URL = url;
     }
 
 
@@ -41,8 +41,8 @@ public class GecossApiUtil {
         }
     }
 
-    public static void verify(){
-        if(GECOOSAPI == null){
+    public static void verify() {
+        if (GECOOSAPI == null) {
             GecoosApi gecoosApi = new DefaultGecoosApi(BASE_URL);
             gecoosApi.init();
             try {
@@ -56,8 +56,8 @@ public class GecossApiUtil {
     }
 
 
-    public static void login(){
-        if(GECOOSAPI == null){
+    public static void login() {
+        if (GECOOSAPI == null) {
             GecoosApi gecoosApi = new DefaultGecoosApi(BASE_URL);
             gecoosApi.init();
             try {
@@ -70,13 +70,13 @@ public class GecossApiUtil {
         }
     }
 
-    public static JSONObject call(RequestParams request){
+    public static JSONObject call(RequestParams request) {
         verify();
-        if(GECOOSAPI != null){
+        if (GECOOSAPI != null) {
             JSONObject resJson = null;
             try {
                 resJson = GECOOSAPI.call(request);
-                if(resJson.getInteger("ret") == -99){
+                if (resJson.getInteger("ret") == -99) {
                     GECOOSAPI = null;
                     login();
                     resJson = GECOOSAPI.call(request);
@@ -90,13 +90,13 @@ public class GecossApiUtil {
         return new JSONObject();
     }
 
-    public static JSONObject getCall(RequestParams request){
+    public static JSONObject getCall(RequestParams request) {
         verify();
-        if(GECOOSAPI != null){
+        if (GECOOSAPI != null) {
             JSONObject resJson = null;
             try {
                 resJson = GECOOSAPI.getCall(request);
-                if(resJson.getInteger("ret") == -99){
+                if (resJson.getInteger("ret") == -99) {
                     GECOOSAPI = null;
                     login();
                     resJson = GECOOSAPI.getCall(request);
@@ -110,14 +110,14 @@ public class GecossApiUtil {
         return new JSONObject();
     }
 
-    public static RequestParams parseParam(ParamsDTO dto, String url){
+    public static RequestParams parseParam(ParamsDTO dto, String url) {
         RequestBuilder requestBuilder = RequestBuilder.newBuilder().uri(BASE_URL + url);
-        if(dto != null){
+        if (dto != null) {
             JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(dto));
-            for(Map.Entry<String, Object> entry : json.entrySet()){
+            for (Map.Entry<String, Object> entry : json.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
-                if(value != null){
+                if (value != null) {
                     requestBuilder.paramEntry(key, value);
                 }
             }

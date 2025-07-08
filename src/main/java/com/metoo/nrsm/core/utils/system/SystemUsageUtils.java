@@ -18,7 +18,7 @@ public class SystemUsageUtils {
 
     // CPU使用率
     // TODO: 暂时仅限linux
-    public static double getCpuUsagePercentage(){
+    public static double getCpuUsagePercentage() {
         OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
         // 获取系统的加载信息
         double systemLoad = bean.getSystemLoadAverage();
@@ -34,7 +34,7 @@ public class SystemUsageUtils {
     }
 
     // 内存使用率
-    public static double getMemUsagePercentage(){
+    public static double getMemUsagePercentage() {
         // 创建 SystemInfo 实例来获取系统信息
         SystemInfo systemInfo = new SystemInfo();
 
@@ -55,7 +55,7 @@ public class SystemUsageUtils {
      * df -h：查看磁盘的总容量和已使用容量
      * lsblk：命令查看所有磁盘的挂载情况
      */
-    public static Disk getRootDiskSpaceInformation(){
+    public static Disk getRootDiskSpaceInformation() {
         // 获取当前 Java 项目运行的工作目录
         String currentDir = System.getProperty("user.dir");
 
@@ -94,7 +94,6 @@ public class SystemUsageUtils {
         // 内存使用率
         System.out.println("内存使用率: " + getMemUsagePercentage() + "%");
     }
-
 
 
 }

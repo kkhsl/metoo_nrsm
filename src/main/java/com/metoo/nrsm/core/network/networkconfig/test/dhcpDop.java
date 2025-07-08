@@ -10,8 +10,9 @@ import java.io.*;
 public class dhcpDop {
     /**
      * dhcpdop.py
-     * @param operation   "restart"  "stop"
-     * @param service     "dhcpd6"   "dhcpd"
+     *
+     * @param operation "restart"  "stop"
+     * @param service   "dhcpd6"   "dhcpd"
      * @return
      */
     public static String processOp(String operation, String service) {
@@ -105,7 +106,7 @@ public class dhcpDop {
                 if (channel.getExitStatus() != 0) {
                     System.out.println("False");
                     throw new IOException("Command failed: " + errorStream.toString());
-                }else {
+                } else {
                     System.out.println("True");
                 }
             }

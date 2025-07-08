@@ -16,9 +16,9 @@ import java.util.*;
 
 @Service
 public class RouteServiceImpl {
-    
+
     private static final int BATCH_SIZE = 200;
-    
+
     @Autowired
     private RouteTableMapper routeTableMapper;
 
@@ -32,22 +32,22 @@ public class RouteServiceImpl {
     @Transactional
     public void processDeviceRoutes(NetworkElement networkElement) {
         String deviceIp = networkElement.getIp();
-        
+
         // 1. 清空该设备现有路由
         routeTableMapper.deleteByDeviceIp(deviceIp);
-        
+
         // 2. 获取路由数据
         String jsonResult = SNMPv3Request.getRoute(SNMPParamFactory.createSNMPParam(networkElement));
         if (jsonResult == null || jsonResult.isEmpty()) {
             return;
         }
-        
+
         // 3. 解析JSON
         List<RouteEntry> routeEntries = parseJsonToRouteEntries(deviceIp, jsonResult);
         if (routeEntries.isEmpty()) {
             return;
         }
-        
+
         // 4. 分批插入数据
         insertInBatches(routeEntries);
     }
@@ -73,13 +73,13 @@ public class RouteServiceImpl {
      */
     private List<RouteEntry> parseJsonToRouteEntries(String deviceIp, String jsonData) {
         List<RouteEntry> entries = new ArrayList<>();
-        
+
         try {
             JSONArray jsonArray = JSON.parseArray(jsonData);
-            
+
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject obj = jsonArray.getJSONObject(i);
-                
+
                 RouteEntry entry = new RouteEntry();
                 entry.setTime(new Date());
                 entry.setDeviceIp(deviceIp);
@@ -97,7 +97,7 @@ public class RouteServiceImpl {
                 } else {
                     entry.setCost(0); // 默认值
                 }
-                
+
                 // 处理type类型
                 Object typeObj = obj.get("type");
                 if (typeObj != null) {
@@ -105,14 +105,14 @@ public class RouteServiceImpl {
                 } else {
                     entry.setType("UNKNOWN"); // 默认值
                 }
-                
+
                 entries.add(entry);
             }
         } catch (Exception e) {
             // 记录解析错误
             System.err.println("JSON解析错误: " + e.getMessage() + " 设备IP: " + deviceIp);
         }
-        
+
         return entries;
     }
 

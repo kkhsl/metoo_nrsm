@@ -35,8 +35,7 @@ public class UnboundConfPrivateAddress {
                     // 如果 privateAddress 为 false，则注释掉该行
                     updatedLines.add(trimmedLine.startsWith("#") ? indentation + trimmedLine : indentation + "# " + trimmedLine);
                 }
-            }
-            else {
+            } else {
                 // 对于其他行，直接添加
                 updatedLines.add(line);
             }
@@ -66,7 +65,7 @@ public class UnboundConfPrivateAddress {
                     && trimmedLine.contains("\"")) {
                 String zoneName = trimmedLine.split(":")[1].trim().split(" ")[0].trim().replace("\"", "");
                 // 如果该 zoneName 不在 validZoneNames 中，则跳过这行及对应的 local-data 行
-                if(!validZoneNames.isEmpty()){
+                if (!validZoneNames.isEmpty()) {
                     if (!validZoneNames.contains(zoneName)) {
                         skipLocalData = true;
                         continue; // 删除该 local-zone 行

@@ -27,7 +27,7 @@ public class SystemUsageManagerController {
     @GetMapping("/list")
     public Result list(@RequestParam(name = "startTime", required = false) String startTime,
                        @RequestParam(name = "endTime", required = false) String endTime) {
-        if(StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime)){
+        if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime)) {
             return ResponseUtil.badArgument("参数错误");
         }
 

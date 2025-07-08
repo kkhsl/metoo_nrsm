@@ -13,7 +13,8 @@ public class getDns {
 
     /**
      * getdns.py
-     * @return  ["223.5.5.5"]
+     *
+     * @return ["223.5.5.5"]
      */
     public static String getDnsSettings() {
         List<String> dnsList = new ArrayList<>();
@@ -39,7 +40,7 @@ public class getDns {
         ChannelExec channel = null;
         List<String> dnsList = new ArrayList<>();
         try {
-            session= SnmpHelper.createSession();
+            session = SnmpHelper.createSession();
             // 创建一个执行频道
             channel = (ChannelExec) session.openChannel("exec");
             channel.setCommand("cat /etc/resolv.conf"); // 获取 DNS 设置

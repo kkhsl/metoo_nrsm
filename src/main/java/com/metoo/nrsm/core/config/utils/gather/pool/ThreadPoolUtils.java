@@ -6,10 +6,9 @@ import java.util.concurrent.*;
  * @author HKK
  * @version 1.0
  * @date 2024-06-28 10:53
- *
- *
+ * <p>
+ * <p>
  * 线程池关闭。
-
  */
 public class ThreadPoolUtils {
 
@@ -29,11 +28,13 @@ public class ThreadPoolUtils {
     }
 
     private static ThreadPoolUtils pool = new ThreadPoolUtils();// 创建单例
+
     /**
      * 获取一个单例
+     *
      * @return
      */
-    public static ThreadPoolUtils getInstance(){
+    public static ThreadPoolUtils getInstance() {
         return pool;
     }
 

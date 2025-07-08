@@ -20,9 +20,11 @@ public class AesEncryptUtils {
     private static final String ALGORITHMSTR = "AES/ECB/PKCS5Padding";
 
 //    AES支持三种长度的密钥：128位、192位、256位。
+
     /**
      * 加密
-     * @param content 加密的字符串
+     *
+     * @param content    加密的字符串
      * @param encryptKey key值
      * @return
      * @throws Exception
@@ -40,6 +42,7 @@ public class AesEncryptUtils {
 
     /**
      * 解密
+     *
      * @param encryptStr 解密的字符串
      * @param decryptKey 解密的key值
      * @return
@@ -55,8 +58,7 @@ public class AesEncryptUtils {
 //        byte[] decryptBytes = cipher.doFinal(encryptBytes);
 //        return new String(decryptBytes);
 //    }
-
-    public static String decrypt(String encryptStr, String decryptKey)  {
+    public static String decrypt(String encryptStr, String decryptKey) {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
             kgen.init(128);
@@ -72,7 +74,7 @@ public class AesEncryptUtils {
 
             return new String(decryptBytes);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
-                | BadPaddingException | IllegalBlockSizeException | UnsupportedEncodingException e){
+                | BadPaddingException | IllegalBlockSizeException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return null;
@@ -82,13 +84,15 @@ public class AesEncryptUtils {
     public String encrypt(String content) throws Exception {
         return encrypt(content, Global.AES_KEY);
     }
-    public String decrypt(String encryptStr)  {
+
+    public String decrypt(String encryptStr) {
         return decrypt(encryptStr, Global.AES_KEY);
     }
 
     public static String encrypt1(String content) throws Exception {
         return encrypt(content, Global.AES_KEY);
     }
+
     public static String decrypt1(String encryptStr) throws Exception {
         return decrypt(encryptStr, Global.AES_KEY);
     }
@@ -123,9 +127,9 @@ public class AesEncryptUtils {
 //        String encrypt = encrypt(content, Global.AES_KEY);
 //        System.out.println("加密后：" + encrypt);
 
-            String decrypt = decrypt("" +
-                    "YtLMTsIwlqMy/88FyrjQsCgQjeulHg7a0XvQ64+9d1748J1Nq9jMhMabyGsS5jfdbh0w+72mCTnCn9xzDYlwIAwS3qnYUYJTgwzhPSJM96oQmY1jEZs7GgbA9W0kzWWO1fRLJvJbPiu72s/63TzJvL2/eKPZjvehJrT9fHXfe6dCqqJtFw4a9cMRxRJFmfdSKzH/Q1oexHy5BMQn9Xf1QBAppQb359fZua4cXxEADpaE2Fuv0RGdWclhBQboX9EZ/WATHuh0gBUG9hR880qCu0WLIXUt86phKkuTupxDkxxwzC8t3Qkiv7n7V6kCVh+o7hj/OIRjbTAy5+ll5KoevfPJAFoK3xKEaqD8Qjn2+wFuNQK1yvVrDa9AlfTv9oS1oaPDC+Qt5RXiKWtUw9u8Rm4+FUVj/chbk+HquNes/XR21DLlJmU3w9wQLWW1vtuTpy6PlNqqWKSnyOv30BVA0A=="
-                    , Global.AES_KEY);
+        String decrypt = decrypt("" +
+                        "YtLMTsIwlqMy/88FyrjQsCgQjeulHg7a0XvQ64+9d1748J1Nq9jMhMabyGsS5jfdbh0w+72mCTnCn9xzDYlwIAwS3qnYUYJTgwzhPSJM96oQmY1jEZs7GgbA9W0kzWWO1fRLJvJbPiu72s/63TzJvL2/eKPZjvehJrT9fHXfe6dCqqJtFw4a9cMRxRJFmfdSKzH/Q1oexHy5BMQn9Xf1QBAppQb359fZua4cXxEADpaE2Fuv0RGdWclhBQboX9EZ/WATHuh0gBUG9hR880qCu0WLIXUt86phKkuTupxDkxxwzC8t3Qkiv7n7V6kCVh+o7hj/OIRjbTAy5+ll5KoevfPJAFoK3xKEaqD8Qjn2+wFuNQK1yvVrDa9AlfTv9oS1oaPDC+Qt5RXiKWtUw9u8Rm4+FUVj/chbk+HquNes/XR21DLlJmU3w9wQLWW1vtuTpy6PlNqqWKSnyOv30BVA0A=="
+                , Global.AES_KEY);
         System.out.println("解密后：" + decrypt);
 
     }

@@ -21,7 +21,7 @@ public class IpStatisticsResultManagerController {
     private IpStatisticsResultService statisticsResultService;
 
     @GetMapping({"top", "top/{num}"})
-    public Result top(@PathVariable(name = "num", required = false) Integer num){
+    public Result top(@PathVariable(name = "num", required = false) Integer num) {
         List<IpStatisticsResult> ipStatisticsResultList = this.statisticsResultService.selectObjByTop();
         return ResponseUtil.ok(ipStatisticsResultList);
     }

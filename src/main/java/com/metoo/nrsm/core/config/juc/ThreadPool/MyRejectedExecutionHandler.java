@@ -51,11 +51,10 @@ public class MyRejectedExecutionHandler {
                         });
 
         // 向线程池提交若干任务
-        for (int i = 0; i < Integer.MAX_VALUE ; i++) {
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
             threadPoolExecutor.submit(run);
         }
     }
-
 
 
 }

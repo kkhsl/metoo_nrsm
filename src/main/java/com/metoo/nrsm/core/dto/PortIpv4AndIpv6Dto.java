@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 
 /**
  * 采集中间json对象DTO
+ *
  * @author zzy
  * @version 1.0
  * @date 2024-10-06 14:53

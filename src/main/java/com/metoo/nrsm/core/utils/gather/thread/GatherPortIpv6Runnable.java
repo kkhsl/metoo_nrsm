@@ -20,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
  * @date 2024-02-20 11:36
  */
 @Component
-public class GatherPortIpv6Runnable implements Runnable{
+public class GatherPortIpv6Runnable implements Runnable {
 
 
     private NetworkElement networkElement;
@@ -44,7 +44,6 @@ public class GatherPortIpv6Runnable implements Runnable{
     }
 
 
-
     @Override
     public void run() {
         try {
@@ -54,9 +53,9 @@ public class GatherPortIpv6Runnable implements Runnable{
             String[] params = {networkElement.getIp(), networkElement.getVersion(),
                     networkElement.getCommunity()};
             String result = pythonExecUtils.exec2(path, params);
-            if(StringUtil.isNotEmpty(result)){
+            if (StringUtil.isNotEmpty(result)) {
                 List<PortIpv6> ports = JSONObject.parseArray(result, PortIpv6.class);
-                if(ports.size()>0){
+                if (ports.size() > 0) {
                     ports.forEach(e -> {
                         e.setDeviceUuid(networkElement.getUuid());
                         e.setAddTime(date);
@@ -67,8 +66,8 @@ public class GatherPortIpv6Runnable implements Runnable{
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(latch != null){
+        } finally {
+            if (latch != null) {
                 latch.countDown();
             }
         }

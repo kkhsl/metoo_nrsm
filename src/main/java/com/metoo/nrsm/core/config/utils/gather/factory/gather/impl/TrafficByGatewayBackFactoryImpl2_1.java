@@ -126,7 +126,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
 
                     // vfourFlow 为非0
                     // vfourFlow 为0
-                    if(vfourFlow == 0){
+                    if (vfourFlow == 0) {
                         // 生成指定范围内的随机数
                         double min = 1;
                         double max = 10;
@@ -134,7 +134,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                         double randomNumber = min + (max - min) * random.nextDouble();
                         vfourFlow = randomNumber;
                         vsixFlow = GeneraFlowUtils.generateV6(randomNumber);
-                    }else{
+                    } else {
                         vsixFlow = GeneraFlowUtils.generateV6(vfourFlow);
                     }
                     vsixFlow = GeneraFlowUtils.generateV6(vfourFlow);

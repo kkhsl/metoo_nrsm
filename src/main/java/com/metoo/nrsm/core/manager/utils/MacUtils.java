@@ -29,8 +29,8 @@ public class MacUtils {
         return macAddress.matches(MAC_ADDRESS_PATTERN);
     }
 
-    public static String getMac(String mac){
-        if(isValidMacAddress(mac)){
+    public static String getMac(String mac) {
+        if (isValidMacAddress(mac)) {
             // 方法二：使用正则表达式匹配并提取前三段
             String[] sections = mac.split(":|-");
             String firstThreeSectionsRegex = sections[0] + ":" + sections[1] + ":" + sections[2];
@@ -40,13 +40,13 @@ public class MacUtils {
     }
 
 
-    public List<Mac> macJoint(List<Mac> macs){
-        if(macs != null && macs.size() > 0) {
+    public List<Mac> macJoint(List<Mac> macs) {
+        if (macs != null && macs.size() > 0) {
             for (Mac mac : macs) {
                 if (mac.getMac() != null && !mac.getMac().equals("")) {
                     String macAddr = mac.getMac();
                     int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
-                    if(index != -1){
+                    if (index != -1) {
                         macAddr = macAddr.substring(0, index);
                         Map params = new HashMap();
                         params.clear();
@@ -63,12 +63,12 @@ public class MacUtils {
         return macs;
     }
 
-    public void macVendor(Mac mac){
-        if(mac != null) {
+    public void macVendor(Mac mac) {
+        if (mac != null) {
             if (mac.getMac() != null && !mac.getMac().equals("")) {
                 String macAddr = mac.getMac();
                 int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
-                if(index != -1){
+                if (index != -1) {
                     macAddr = macAddr.substring(0, index);
                     Map params = new HashMap();
                     params.clear();
@@ -83,13 +83,13 @@ public class MacUtils {
         }
     }
 
-    public List<Terminal> terminalJoint(List<Terminal> terminals){
-        if(terminals != null && terminals.size() > 0) {
+    public List<Terminal> terminalJoint(List<Terminal> terminals) {
+        if (terminals != null && terminals.size() > 0) {
             for (Terminal terminal : terminals) {
                 if (terminal.getMac() != null && !terminal.getMac().equals("")) {
                     String macAddr = terminal.getMac();
                     int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
-                    if(index != -1){
+                    if (index != -1) {
                         macAddr = macAddr.substring(0, index);
                         Map params = new HashMap();
                         params.clear();
@@ -106,12 +106,12 @@ public class MacUtils {
         return terminals;
     }
 
-    public void terminalSetMacVendor(Terminal terminal){
-        if(terminal != null) {
+    public void terminalSetMacVendor(Terminal terminal) {
+        if (terminal != null) {
             if (terminal.getMac() != null && !terminal.getMac().equals("")) {
                 String macAddr = terminal.getMac();
                 int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
-                if(index != -1){
+                if (index != -1) {
                     macAddr = macAddr.substring(0, index);
                     Map params = new HashMap();
                     params.clear();
@@ -126,12 +126,12 @@ public class MacUtils {
         }
     }
 
-    public void terminalAssetSetMacVendor(TerminalAsset terminal){
-        if(terminal != null) {
+    public void terminalAssetSetMacVendor(TerminalAsset terminal) {
+        if (terminal != null) {
             if (terminal.getMac() != null && !terminal.getMac().equals("")) {
                 String macAddr = terminal.getMac();
                 int index = MyStringUtils.acquireCharacterPositions(macAddr, ":", 3);
-                if(index != -1){
+                if (index != -1) {
                     macAddr = macAddr.substring(0, index);
                     Map params = new HashMap();
                     params.clear();
@@ -192,23 +192,23 @@ public class MacUtils {
 //        System.out.println(stringBuffer.toString());
     }
 
-    public List<Mac> supplements(List<Mac> macs){
-        if(macs != null && macs.size() > 0) {
+    public List<Mac> supplements(List<Mac> macs) {
+        if (macs != null && macs.size() > 0) {
             for (Mac mac : macs) {
                 if (mac.getMac() != null && !mac.getMac().equals("")) {
                     String macAddr = mac.getMac();
                     int one_index = macAddr.indexOf(":");
-                    if(one_index != -1){
+                    if (one_index != -1) {
                         String[] strs = macAddr.split(":");
                         StringBuffer stringBuffer = new StringBuffer();
                         int i = 1;
-                        for(String str : strs){
-                            if(str.length() == 1){
+                        for (String str : strs) {
+                            if (str.length() == 1) {
                                 stringBuffer.append(0).append(str);
-                            }else{
+                            } else {
                                 stringBuffer.append(str);
                             }
-                            if(i < str.length()){
+                            if (i < str.length()) {
                                 stringBuffer.append(":");
                             }
                             i++;
@@ -220,19 +220,19 @@ public class MacUtils {
         return macs;
     }
 
-    public static String supplement(String macAddr){
+    public static String supplement(String macAddr) {
         int one_index = macAddr.indexOf(":");
-        if(one_index != -1){
+        if (one_index != -1) {
             String[] strs = macAddr.split(":");
             StringBuffer stringBuffer = new StringBuffer();
             int i = 1;
-            for(String str : strs){
-                if(str.length() == 1){
+            for (String str : strs) {
+                if (str.length() == 1) {
                     stringBuffer.append(0).append(str);
-                }else{
+                } else {
                     stringBuffer.append(str);
                 }
-                if(i < strs.length){
+                if (i < strs.length) {
                     stringBuffer.append(":");
                 }
                 i++;

@@ -47,7 +47,7 @@ public class TopologyServiceImpl implements ITopologyService {
 
     @Override
     public Page<Topology> selectConditionQuery(TopologyDTO instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new TopologyDTO();
         }
         Page<Topology> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
@@ -74,22 +74,22 @@ public class TopologyServiceImpl implements ITopologyService {
 
     @Override
     public int save(Topology instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
-        }else{
+        } else {
             instance.setUpdateTime(new Date());
         }
-        if(instance.getContent() != null && !instance.getContent().equals("")){
+        if (instance.getContent() != null && !instance.getContent().equals("")) {
             // 解析content 并写入uuid
             Object content = this.writerUuid(instance.getContent());
             instance.setContent(content);
         }
         User user = ShiroUserHolder.currentUser();
         instance.setUnitId(user.getUnitId());
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
-               int i = this.topologyMapper.save(instance);
-                if(i >= 1){
+                int i = this.topologyMapper.save(instance);
+                if (i >= 1) {
                     try {
                         Calendar cal = Calendar.getInstance();
                         instance.setAddTime(cal.getTime());
@@ -103,10 +103,10 @@ public class TopologyServiceImpl implements ITopologyService {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 int i = this.topologyMapper.update(instance);
-                if(i >= 1){
+                if (i >= 1) {
                     try {
                         Calendar cal = Calendar.getInstance();
                         instance.setAddTime(cal.getTime());
@@ -125,20 +125,20 @@ public class TopologyServiceImpl implements ITopologyService {
 
     @Override
     public int saveHistory(Topology instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
-        }else{
+        } else {
             instance.setUpdateTime(new Date());
         }
-        if(instance.getContent() != null && !instance.getContent().equals("")){
+        if (instance.getContent() != null && !instance.getContent().equals("")) {
             // 解析content 并写入uuid
             Object content = this.writerUuid(instance.getContent());
             instance.setContent(content);
         }
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             try {
                 int i = this.topologyMapper.saveHistory(instance);
-                if(i >= 1){
+                if (i >= 1) {
                     try {
                         Calendar cal = Calendar.getInstance();
                         instance.setAddTime(cal.getTime());
@@ -152,10 +152,10 @@ public class TopologyServiceImpl implements ITopologyService {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 int i = this.topologyMapper.update(instance);
-                if(i >= 1){
+                if (i >= 1) {
                     try {
                         Calendar cal = Calendar.getInstance();
                         instance.setAddTime(cal.getTime());
@@ -173,11 +173,11 @@ public class TopologyServiceImpl implements ITopologyService {
     }
 
     // 为拓扑图连线增加Uuid
-    public Object writerUuid(Object param){
+    public Object writerUuid(Object param) {
         if (param != null) {
             Map content = JSONObject.parseObject(param.toString(), Map.class);
             JSONArray links = this.getLinks(content);
-            if(links.size() > 0){
+            if (links.size() > 0) {
                 List list = this.setUuid(links);
                 content.put("links", list);
                 return JSON.toJSONString(content);
@@ -186,7 +186,7 @@ public class TopologyServiceImpl implements ITopologyService {
         return param;
     }
 
-    public JSONArray getLinks(Map content){
+    public JSONArray getLinks(Map content) {
         if (content != null) {
             if (content.get("links") != null) {
                 JSONArray links = JSONArray.parseArray(content.get("links").toString());
@@ -198,11 +198,11 @@ public class TopologyServiceImpl implements ITopologyService {
         return new JSONArray();
     }
 
-    public List setUuid(JSONArray links){
+    public List setUuid(JSONArray links) {
         List list = new ArrayList();
         for (Object object : links) {
             Map link = JSONObject.parseObject(object.toString(), Map.class);
-            if(link.get("uuid") == null || link.get("uuid").equals("")){
+            if (link.get("uuid") == null || link.get("uuid").equals("")) {
                 link.put("uuid", UUID.randomUUID());
             }
             list.add(link);
@@ -234,7 +234,7 @@ public class TopologyServiceImpl implements ITopologyService {
     public Long copy(Topology instance) {
         try {
             int i = this.topologyMapper.copy(instance);
-            if(i >= 1){
+            if (i >= 1) {
                 return instance.getId();
             }
             return null;
@@ -249,10 +249,10 @@ public class TopologyServiceImpl implements ITopologyService {
         Map params = new HashMap();
         params.put("uuid", uuid);
         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-        if(networkElements.size() > 0){
+        if (networkElements.size() > 0) {
             NetworkElement networkElement = networkElements.get(0);
             List<Port> ports = this.portService.selectObjByDeviceUuid(networkElement.getUuid());
-            if(ports.size() > 0){
+            if (ports.size() > 0) {
                 return ports;
             }
         }

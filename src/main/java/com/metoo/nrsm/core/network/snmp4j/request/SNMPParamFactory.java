@@ -14,20 +14,20 @@ import org.snmp4j.security.SecurityLevel;
 public class SNMPParamFactory {
 
     public static SNMPV3Params createSNMPParam(NetworkElement networkElement) {
-        if(networkElement.getVersion() == null || "".equals(networkElement.getVersion())){
+        if (networkElement.getVersion() == null || "".equals(networkElement.getVersion())) {
             log.info("version is null");
             return null;
         }
-        if(networkElement.getSnmpPort() == null || "".equals(networkElement.getSnmpPort())){
+        if (networkElement.getSnmpPort() == null || "".equals(networkElement.getSnmpPort())) {
             log.info("port is null");
             return null;
         }
-        if(networkElement.getCommunity() == null || "".equals(networkElement.getCommunity())){
+        if (networkElement.getCommunity() == null || "".equals(networkElement.getCommunity())) {
             log.info("community is null");
             return null;
         }
         try {
-            switch(networkElement.getVersion()) {
+            switch (networkElement.getVersion()) {
                 case "v1":
                     return createV1Param(networkElement.getIp(), networkElement.getSnmpPort(), networkElement.getCommunity(), 1500, 3);
                 case "v2c":
@@ -51,6 +51,7 @@ public class SNMPParamFactory {
 
     /**
      * v1
+     *
      * @param host
      * @param community
      * @param timeout
@@ -58,7 +59,7 @@ public class SNMPParamFactory {
      * @return
      */
     private static SNMPV3Params createV1Param(String host, int port, String community,
-                                           int timeout, int retries) {
+                                              int timeout, int retries) {
         if (community == null || community.isEmpty()) {
             throw new IllegalArgumentException("SNMPv1 requires community string");
         }
@@ -76,6 +77,7 @@ public class SNMPParamFactory {
 
     /**
      * v2c
+     *
      * @param host
      * @param port
      * @param community
@@ -84,7 +86,7 @@ public class SNMPParamFactory {
      * @return
      */
     private static SNMPV3Params createV2cParam(String host, int port, String community,
-                                            int timeout, int retries) {
+                                               int timeout, int retries) {
         if (community == null || community.isEmpty()) {
             throw new IllegalArgumentException("SNMPv2c requires community string");
         }
@@ -101,6 +103,7 @@ public class SNMPParamFactory {
 
     /**
      * v3
+     *
      * @param host
      * @param port
      * @param username
@@ -114,10 +117,10 @@ public class SNMPParamFactory {
      * @return
      */
     private static SNMPV3Params createV3Param(String host, int port, String username,
-                                           String authProtocol, String authPassword,
-                                           String privProtocol, String privPassword,
-                                           int timeout, int retries,
-                                           int securityLevel) {
+                                              String authProtocol, String authPassword,
+                                              String privProtocol, String privPassword,
+                                              int timeout, int retries,
+                                              int securityLevel) {
         // 验证基本参数
         if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("SNMPv3 requires username");

@@ -59,7 +59,7 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
 
     @Override
     public int save(AddressPool addressPool) {
-        if(addressPool.getId() == null || addressPool.getId().equals("")){
+        if (addressPool.getId() == null || addressPool.getId().equals("")) {
             try {
                 addressPool.setAddTime(new Date());
                 int i = this.addressPoolMapper.save(addressPool);
@@ -71,11 +71,11 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 AddressPool obj = this.addressPoolMapper.selectObjById(addressPool.getId());
                 boolean flag = Md5Crypt.getDiffrent(obj, addressPool);
-                if(!flag){
+                if (!flag) {
                     // 更新应用按钮
                     SysConfig sysconfig = this.sysConfigService.select();
                     sysconfig.setV4_status(true);
@@ -106,7 +106,7 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
             // 判断是否是否变化
             AddressPool obj = this.addressPoolMapper.selectObjById(addressPool.getId());
             boolean flag = Md5Crypt.getDiffrent(obj, addressPool);
-            if(!flag){
+            if (!flag) {
                 // 更新应用按钮
                 SysConfig sysconfig = this.sysConfigService.select();
                 sysconfig.setV4_status(true);
@@ -142,13 +142,13 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
     }
 
     @Override
-    public void write(){
+    public void write() {
         List<AddressPoolVO> addressPoolVOList = this.addressPoolMapper.selectObjToVOByMap(null);
         AddressPoolIpv4ConcurrentUtil instance = AddressPoolIpv4ConcurrentUtil.getInstance();
         try {
             // 是否可采用双重校验锁；可以不用，instance，单例线程安全，多个线程修改v4_status为false，并不影响
             boolean flag = instance.write(addressPoolVOList);
-            if(flag){
+            if (flag) {
                 try {
                     SysConfig sysconfig = this.sysConfigService.select();
                     sysconfig.setV4_status(false);
@@ -158,7 +158,7 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
                 }
 
                 String dhcpd = this.dhcpService.checkdhcpd("dhcpd");
-                if(Boolean.valueOf(dhcpd)){
+                if (Boolean.valueOf(dhcpd)) {
                     this.dhcpService.dhcpdop("restart", "dhcpd");
                 }
             }

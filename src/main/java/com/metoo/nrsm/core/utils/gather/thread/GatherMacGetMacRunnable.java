@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Component
-public class GatherMacGetMacRunnable implements Runnable{
+public class GatherMacGetMacRunnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -57,7 +57,7 @@ public class GatherMacGetMacRunnable implements Runnable{
         String[] params = {networkElement.getIp(), networkElement.getVersion(),
                 networkElement.getCommunity()};
         String result = pythonExecUtils.exec2(path, params);
-        if(StringUtil.isNotEmpty(result)){
+        if (StringUtil.isNotEmpty(result)) {
             try {
                 List<Mac> array = JSONObject.parseArray(result, Mac.class);
                 if (array.size() > 0) {
@@ -77,19 +77,19 @@ public class GatherMacGetMacRunnable implements Runnable{
                             list.add(e);
                         }
                     });
-                    if(list.size() > 0){
+                    if (list.size() > 0) {
                         macService.batchSaveGather(list);
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                if(latch != null){
+                if (latch != null) {
                     latch.countDown();
                 }
             }
-        }else{
-            if(latch != null){
+        } else {
+            if (latch != null) {
                 latch.countDown();
             }
         }
@@ -97,20 +97,21 @@ public class GatherMacGetMacRunnable implements Runnable{
 
     /**
      * 判断Mac是否以某个规则开始
+     *
      * @param lineText
      * @param head
      * @return
      */
-    public boolean parseLineBeginWith(String lineText, String head){
+    public boolean parseLineBeginWith(String lineText, String head) {
 
-        if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
+        if (StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)) {
             String patten = "^" + head;
 
             Pattern compiledPattern = Pattern.compile(patten);
 
             Matcher matcher = compiledPattern.matcher(lineText);
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 return true;
             }
         }

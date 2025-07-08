@@ -25,46 +25,46 @@ public class OperationLogManagerController {
     private IOperationLogService operationLogService;
 
     @PostMapping("/list")
-    public Object list(@RequestBody OperationLogDTO dto){
+    public Object list(@RequestBody OperationLogDTO dto) {
         Page<OperationLog> page = this.operationLogService.selectObjConditionQuery(dto);
-        if(page.getResult().size() > 0){
+        if (page.getResult().size() > 0) {
             return ResponseUtil.ok(new PageInfo<OperationLog>(page));
         }
         return ResponseUtil.ok();
     }
 
     @PostMapping("/save")
-    public Object save(HttpServletRequest request, @RequestBody OperationLog instance){
+    public Object save(HttpServletRequest request, @RequestBody OperationLog instance) {
         instance.setType(1);
 //        instance.setIp(request.getRemoteAddr());
         instance.setIp(Ipv4Util.getRealIP(request));
         boolean flag = this.operationLogService.save(instance);
-        if(flag){
-           return ResponseUtil.ok();
+        if (flag) {
+            return ResponseUtil.ok();
         }
         return ResponseUtil.error();
     }
 
     @DeleteMapping("/delete")
-    public Object delete(@RequestParam String id){
+    public Object delete(@RequestParam String id) {
         String[] dms = id.split(",");
-        if(dms.length > 1){
+        if (dms.length > 1) {
             for (String s : dms) {
                 boolean flag = this.operationLogService.delete(Long.parseLong(s));
-                if(flag){
+                if (flag) {
                     continue;
-                }else{
+                } else {
                     OperationLog operationLog = this.operationLogService.selectObjById(Long.parseLong(s));
-                    if(operationLog != null){
+                    if (operationLog != null) {
                         return ResponseUtil.error(operationLog.getAccount() + "删除失败");
                     }
                     continue;
                 }
             }
             return ResponseUtil.ok();
-        }else{
+        } else {
             boolean flag = this.operationLogService.delete(Long.parseLong(id));
-            if(flag){
+            if (flag) {
                 return ResponseUtil.ok();
             }
             return ResponseUtil.error();

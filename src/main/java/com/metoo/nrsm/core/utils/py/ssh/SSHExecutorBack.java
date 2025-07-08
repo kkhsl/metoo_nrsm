@@ -1,4 +1,5 @@
 package com.metoo.nrsm.core.utils.py.ssh;
+
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 import com.github.pagehelper.util.StringUtil;
@@ -29,7 +30,7 @@ public class SSHExecutorBack {
     @Value("${ssh.password}")
     private String password;
 
-    public String exec(String path){
+    public String exec(String path) {
 
         Session session = null;
 
@@ -60,11 +61,11 @@ public class SSHExecutorBack {
             return inStr;
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if(session != null){
+        } finally {
+            if (session != null) {
                 session.close();
             }
-            if(conn != null){
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -72,7 +73,7 @@ public class SSHExecutorBack {
     }
 
 
-    public String exec(String path, String[] params){
+    public String exec(String path, String[] params) {
 
         Session session = null;
 
@@ -127,18 +128,18 @@ public class SSHExecutorBack {
             return inStr;
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if(session != null){
+        } finally {
+            if (session != null) {
                 session.close();
             }
-            if(conn != null){
+            if (conn != null) {
                 conn.close();
             }
         }
         return "";
     }
 
-    public String exec(String path, String[] params, String prefix){
+    public String exec(String path, String[] params, String prefix) {
         Session session = null;
         // 创建连接
         Connection conn = new Connection(host, port);
@@ -151,9 +152,9 @@ public class SSHExecutorBack {
             String py_version = "python3";
 
             String[] args = null;
-            if(StringUtil.isNotEmpty(prefix)){
+            if (StringUtil.isNotEmpty(prefix)) {
                 args = new String[]{prefix, py_version, path};
-            }else{
+            } else {
                 args = new String[]{py_version, path};
             }
 
@@ -195,11 +196,11 @@ public class SSHExecutorBack {
             return inStr;
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if(session != null){
+        } finally {
+            if (session != null) {
                 session.close();
             }
-            if(conn != null){
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -207,7 +208,7 @@ public class SSHExecutorBack {
     }
 
 
-    public static String  execNohup(String path, String[] params, String prefix){
+    public static String execNohup(String path, String[] params, String prefix) {
         String host = "192.168.5.205";
         int port = 22;
         String username = "nrsm";
@@ -230,10 +231,10 @@ public class SSHExecutorBack {
 //            }
 
             String[] args = null;
-            if(StringUtil.isNotEmpty(prefix)){
+            if (StringUtil.isNotEmpty(prefix)) {
                 args = new String[]{
                         prefix, py_version, path};
-            }else{
+            } else {
                 args = new String[]{
                         py_version, path};
             }
@@ -276,11 +277,11 @@ public class SSHExecutorBack {
             return inStr;
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if(session != null){
+        } finally {
+            if (session != null) {
                 session.close();
             }
-            if(conn != null){
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -288,8 +289,7 @@ public class SSHExecutorBack {
     }
 
 
-
-    public Session getSession(){
+    public Session getSession() {
         String host = "192.168.5.205";
         int port = 22;
         String username = "nrsm";
@@ -310,46 +310,44 @@ public class SSHExecutorBack {
     }
 
 
+    public String exec2(String path, String[] params) {
+        Session session = getSession();
+        String py_version = "python";
 
+        if (Global.env.equals("prod")) {
+            py_version = "python3";
+        }
 
-    public String exec2(String path, String[] params){
-            Session session =  getSession();
-            String py_version = "python";
+        String[] args = new String[]{
+                py_version, path};
 
-            if (Global.env.equals("prod")) {
-                py_version = "python3";
-            }
+        if (params.length > 0) {
+            String[] mergedArray = new String[args.length + params.length];
 
-            String[] args = new String[]{
-                    py_version, path};
+            int argsLen = args.length;
 
-            if (params.length > 0) {
-                String[] mergedArray = new String[args.length + params.length];
+            for (int i = 0; i < mergedArray.length; i++) {
 
-                int argsLen = args.length;
-
-                for (int i = 0; i < mergedArray.length; i++) {
-
-                    if (i < argsLen) {
-                        mergedArray[i] = args[i];
-                    } else {
-                        mergedArray[i] = params[i - argsLen];
-                    }
-                }
-                try {
-                    session.execCommand(mergedArray.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    session.execCommand(args.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (i < argsLen) {
+                    mergedArray[i] = args[i];
+                } else {
+                    mergedArray[i] = params[i - argsLen];
                 }
             }
+            try {
+                session.execCommand(mergedArray.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                session.execCommand(args.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-            // 消费所有输入流
+        // 消费所有输入流
         String inStr = null;
         try {
             inStr = consumeInputStream(session.getStdout());
@@ -360,13 +358,13 @@ public class SSHExecutorBack {
     }
 
     /**
-     *   消费inputstream，并返回
+     * 消费inputstream，并返回
      */
     public static String consumeInputStream(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String s ;
+        String s;
         StringBuilder sb = new StringBuilder();
-        while((s=br.readLine())!=null){
+        while ((s = br.readLine()) != null) {
             sb.append(s);
         }
         return sb.toString();

@@ -17,12 +17,11 @@ public class Python {
         try {
             //第二个为python脚本所在位置，后面的为所传参数（得是字符串类型）
 
-            String[] args1 = new String[] {
+            String[] args1 = new String[]{
                     "python", "E:\\python\\project\\djangoProject\\app01\\TestAbstrack.py"};
 
             // 创建新的字符串数组，长度为array1.length + array2.length
             String[] mergedArray = new String[args1.length + args.length];
-
 
 
             // 复制args到mergedArray中
@@ -30,8 +29,6 @@ public class Python {
 
             // 复制array1到mergedArray中
             System.arraycopy(args, 0, mergedArray, args.length, args.length);
-
-
 
 
             Process proc = Runtime.getRuntime().exec(mergedArray);// 执行py文件
@@ -45,7 +42,7 @@ public class Python {
 //            Process proc2 = Runtime.getRuntime().exec("\\n");// 执行回车
 //            proc2.waitFor();
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(),"gb2312"));//解决中文乱码，参数可传中文
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "gb2312"));//解决中文乱码，参数可传中文
             String line = null;
             while ((line = in.readLine()) != null) {
                 System.out.println(line);
@@ -79,7 +76,6 @@ public class Python {
         for (int i = 0; i < mergedArray.length; i++) {
 //            System.out.print(mergedArray[i] + " ");
         }
-
 
 
         String[] array3 = {"Hello", "World"};

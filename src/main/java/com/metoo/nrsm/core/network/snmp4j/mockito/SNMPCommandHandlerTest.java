@@ -27,8 +27,6 @@ public class SNMPCommandHandlerTest {
     }
 
 
-
-
     @Test
     public void snmpCommandHandler() throws Exception {
         // 模拟配置文件中的方法

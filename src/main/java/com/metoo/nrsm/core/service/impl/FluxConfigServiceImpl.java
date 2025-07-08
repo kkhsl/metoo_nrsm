@@ -31,10 +31,10 @@ public class FluxConfigServiceImpl implements IFluxConfigService {
 
     @Override
     public boolean save(FluxConfig instance) {
-       if(instance.getId() == null){
-           instance.setAddTime(new Date());
-       }
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
+            instance.setAddTime(new Date());
+        }
+        if (instance.getId() == null) {
             try {
                 this.fluxConfigMapper.save(instance);
                 return true;
@@ -42,7 +42,7 @@ public class FluxConfigServiceImpl implements IFluxConfigService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
                 this.fluxConfigMapper.update(instance);
                 return true;

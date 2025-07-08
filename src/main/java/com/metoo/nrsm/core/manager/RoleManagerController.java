@@ -31,19 +31,19 @@ public class RoleManagerController {
     @RequiresPermissions("LK:ROLE:MANAGER")
     @ApiOperation("角色列表")
     @RequestMapping("/list")
-    public Object list(@RequestBody RoleDto dto){
+    public Object list(@RequestBody RoleDto dto) {
         Map data = new HashMap();
         Page<Role> page = this.roleService.query(dto);
-        if(page.getResult().size() > 0){
-            return  ResponseUtil.ok(new PageInfo<Role>(page));
+        if (page.getResult().size() > 0) {
+            return ResponseUtil.ok(new PageInfo<Role>(page));
         }
-       return ResponseUtil.ok();
+        return ResponseUtil.ok();
     }
 
     @RequiresPermissions("LK:ROLE:MANAGER")
     @ApiOperation("角色添加")
     @GetMapping("/add")
-    public Object add(){
+    public Object add() {
         Map data = new HashMap();
     /*    List<RoleGroup> roleGroupList = this.roleGroupService.selectByPrimaryType("ADMIN");
         map.put("roleGroupList", roleGroupList);
@@ -84,13 +84,13 @@ public class RoleManagerController {
     @RequiresPermissions("LK:ROLE:MANAGER")
     @ApiOperation("角色修改/回显")
     @PostMapping("/update")
-     public Object udpate(@RequestBody RoleDto dto){
+    public Object udpate(@RequestBody RoleDto dto) {
         Role role = this.roleService.findRoleById(dto.getId());
-        if(role != null){
-            Map data =  new HashMap();
+        if (role != null) {
+            Map data = new HashMap();
             data.put("obj", this.roleService.selectByPrimaryUpdae(dto.getId()));
             // 是否改为idList
-           // data.put("roleResList", this.resService.findResByRoleId(role.getId()));
+            // data.put("roleResList", this.resService.findResByRoleId(role.getId()));
             Map params = new HashMap();
             params.put("currentPage", 0);
             params.put("pageSize", 10000);
@@ -120,24 +120,24 @@ public class RoleManagerController {
     @RequiresPermissions("LK:ROLE:MANAGER")
     @ApiOperation("角色保存")
     @PostMapping("/save")
-    public Object save(@RequestBody RoleDto dto){
-        if(dto.getName() != null){
+    public Object save(@RequestBody RoleDto dto) {
+        if (dto.getName() != null) {
             Role role = this.roleService.findObjByName(dto.getName());
             Role role2 = this.roleService.findRoleById(dto.getId());
             boolean flag = true;
-            if(role != null){
+            if (role != null) {
                 flag = false;
-                if(role2 != null){
-                    if(!role.getName().equals(role2.getName())){
-                        flag =  false;
-                    }else{
+                if (role2 != null) {
+                    if (!role.getName().equals(role2.getName())) {
+                        flag = false;
+                    } else {
                         flag = true;
                     }
                 }
             }
 
-            if(flag){
-                if(this.roleService.save(dto)){
+            if (flag) {
+                if (this.roleService.save(dto)) {
                     return ResponseUtil.ok();
                 }
             }
@@ -166,15 +166,15 @@ public class RoleManagerController {
     @RequiresPermissions("LK:ROLE:MANAGER")
     @ApiOperation("角色删除")
     @RequestMapping("/delete")
-    public Object delete(@RequestBody RoleDto dto){
+    public Object delete(@RequestBody RoleDto dto) {
         Role role = this.roleService.findRoleById(dto.getId());
-        if(role != null){
+        if (role != null) {
             // 根据角色ID查询权限
-            List<Res> resList =  this.resService.findResByRoleId(role.getId());
-            if(resList.size() > 0){
+            List<Res> resList = this.resService.findResByRoleId(role.getId());
+            if (resList.size() > 0) {
                 return ResponseUtil.fail("已有用户关联当前角色，禁止删除");
             }
-            if(this.roleService.delete(role.getId())){
+            if (this.roleService.delete(role.getId())) {
                 return ResponseUtil.ok();
             }
         }

@@ -27,6 +27,7 @@ public class PingSubnetConcurrent {
     /**
      * 控制并发ip数量
      * 直接利用线程池的队列和拒绝策略控制并发，去掉冗余的 Semaphore 和 CountDownLatch：
+     *
      * @param ip
      * @param mask
      */
@@ -76,12 +77,12 @@ public class PingSubnetConcurrent {
 
 //                log.info("Pinging {} - {}", ip, isAlive ? "Success" : "Failed");
 
-            }  catch (IOException e) {
+            } catch (IOException e) {
                 log.error("Ping failed for {} (IO): {}", ip, e.getMessage());
             }/* catch (InterruptedException e) {
                 log.error("Ping interrupted for {}: {}", ip, e.getMessage());
                 Thread.currentThread().interrupt();  // 恢复中断状态
-            } */catch (Exception e) {
+            } */ catch (Exception e) {
                 log.error("Unexpected ping error for {}: {}", ip, e.getMessage());
             }
         }

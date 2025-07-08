@@ -19,13 +19,14 @@ public class SNMPRequestFactory<T> {
 
     /**
      * 根据网元创建相应版本的SNMP请求对象
+     *
      * @param networkElement 网元信息
-     * @param <T> 返回类型
+     * @param <T>            返回类型
      * @return 具体版本的SNMP请求对象
      */
     @SuppressWarnings("unchecked")
     public static <T> T createRequest(NetworkElement networkElement) {
-        switch(networkElement.getVersion()) {
+        switch (networkElement.getVersion()) {
 //            case "v1":
 //                return (T) new SNMPv1Request();
             case "v2":

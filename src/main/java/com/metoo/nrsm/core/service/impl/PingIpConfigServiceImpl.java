@@ -31,7 +31,7 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
     public boolean update(PingIpConfig install) {
         try {
             PingIpConfig config = this.pingIpConfigMapper.selectOneObj();
-            if(config == null){
+            if (config == null) {
                 this.pingIpConfigMapper.save(install);
             }
             this.pingIpConfigMapper.update(install);
@@ -47,7 +47,7 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
         PingIpConfig dbConfig = this.pingIpConfigMapper.selectOneObj();
         int i = 0;
         // 尝试并发写入
-        if(dbConfig == null){
+        if (dbConfig == null) {
             i = this.pingIpConfigMapper.save(newConfig);
         }
         newConfig.updateStatusIfChanged(dbConfig);
@@ -66,7 +66,7 @@ public class PingIpConfigServiceImpl implements IPingIpConfigService {
 //        String path = Global.PYPATH + "checkping.py";
 //        String result = pythonExecUtils.exec(path);
         String result = SNMPv2Request.checkdhcpd("checkaliveip");
-        if("None".equals(result)){
+        if ("None".equals(result)) {
             return false;
         }
         return Boolean.valueOf(result);

@@ -3,12 +3,12 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.DnsTempLogMapper">
     <insert id="saveInfo" parameterType="com.metoo.nrsm.entity.DnsTempLog">
         insert into metoo_dns_temp_log
-                (log_time,ip,domain_data,type,is_cache)
+        (log_time,ip,domain_data,type,is_cache)
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-                #{logTime,jdbcType=BIGINT},
-                #{ip,jdbcType=VARCHAR},
-                #{domainData,jdbcType=VARCHAR},
-                #{type,jdbcType=VARCHAR},
+            #{logTime,jdbcType=BIGINT},
+            #{ip,jdbcType=VARCHAR},
+            #{domainData,jdbcType=VARCHAR},
+            #{type,jdbcType=VARCHAR},
             #{isCache,jdbcType=BIT},
         </trim>
     </insert>

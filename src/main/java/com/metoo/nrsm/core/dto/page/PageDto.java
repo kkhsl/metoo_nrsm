@@ -34,11 +34,12 @@ public class PageDto<T> {
     private String orderType = "DESC";
 
     // 添加无参构造函数（Spring 反序列化需要）
-    public PageDto() {}
+    public PageDto() {
+    }
 
     public PageDto(Integer currentPage, Integer pageSize) {
-       this.currentPage = currentPage;
-       this.pageSize = pageSize;
+        this.currentPage = currentPage;
+        this.pageSize = pageSize;
     }
 
 }

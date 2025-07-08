@@ -45,9 +45,9 @@ public class DnsRunStatusServiceImpl implements IDnsRunStatusService {
 //        String path = Global.PYPATH + "checkdns.py";
 //        String result = pythonExecUtils.exec(path);
         String result = SNMPv2Request.checkdhcpd("Dnsredis");
-        if("None".equals(result)){
+        if ("None".equals(result)) {
             return false;
-        }else{
+        } else {
             return Boolean.valueOf(result);
         }
     }

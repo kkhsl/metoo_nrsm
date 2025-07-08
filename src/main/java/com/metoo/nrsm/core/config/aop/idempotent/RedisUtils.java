@@ -12,9 +12,8 @@ import java.util.concurrent.TimeUnit;
  * @author HKK
  * @version 1.0
  * @date 2024-04-19 16:10
- *
+ * <p>
  * redis工具类
- *
  */
 @Slf4j
 @Component

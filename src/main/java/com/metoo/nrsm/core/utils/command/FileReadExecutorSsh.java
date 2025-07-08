@@ -12,11 +12,7 @@ import java.util.Scanner;
 public class FileReadExecutorSsh {
 
 
-
-
-
     /**
-     *
      * @param path 文件绝对路径
      * @return
      */

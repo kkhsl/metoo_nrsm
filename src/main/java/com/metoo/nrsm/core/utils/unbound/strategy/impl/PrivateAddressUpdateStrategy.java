@@ -39,8 +39,7 @@ public class PrivateAddressUpdateStrategy implements ConfigUpdateStrategy {
                     String provateAddres = indentation + "# " + trimmedLine;
                     updatedLines.add(provateAddres);
                 }
-            }
-            else {
+            } else {
                 // 对于其他行，直接添加
                 updatedLines.add(line);
             }

@@ -51,6 +51,7 @@ public class MacServiceImpl implements IMacService {
     /**
      * 查询tag为DE条目
      * # 修改为，不为NSwitch的DE条目
+     *
      * @return
      */
     @Override
@@ -62,7 +63,7 @@ public class MacServiceImpl implements IMacService {
     public List<Mac> selectTagDEWithoutNswitch() {
         List<Mac> list = this.macMapper.selectTagDEWithoutNswitch();
         list = filterMirrorData(list);
-        if(list.size() > 0){
+        if (list.size() > 0) {
             list = macDataSupplement(list);
         }
         return list;
@@ -72,31 +73,31 @@ public class MacServiceImpl implements IMacService {
     public List<Mac> selectTagDEWithNswitch() {
         List<Mac> list = this.macMapper.selectTagDEWithNswitch();
         list = filterMirrorData(list);
-        if(list.size() > 0){
+        if (list.size() > 0) {
             list = macDataSupplement(list);
         }
         return list;
     }
 
-    private List<Mac> macDataSupplement(List<Mac> list){
+    private List<Mac> macDataSupplement(List<Mac> list) {
         Map params = new HashMap();
         for (Mac de : list) {
             params.clear();
-            if(StringUtil.isNotEmpty(de.getDeviceIp())){
+            if (StringUtil.isNotEmpty(de.getDeviceIp())) {
                 params.put("ip", de.getDeviceIp());
                 List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
-                if(networkElements.size() > 0){
+                if (networkElements.size() > 0) {
                     NetworkElement networkElement = networkElements.get(0);
-                    if(networkElement.getDeviceTypeId() != null){
+                    if (networkElement.getDeviceTypeId() != null) {
                         DeviceType deviceType = this.deviceTypeService.selectObjById(networkElement.getDeviceTypeId());
                         de.setDeviceTypeUuid(deviceType.getUuid());
                         de.setDeviceType(deviceType.getName());
                     }
-                    if(StringUtil.isNotEmpty(de.getRemoteDevice())){
+                    if (StringUtil.isNotEmpty(de.getRemoteDevice())) {
                         params.clear();
                         params.put("hostname", de.getRemoteDevice());
                         List<Mac> remoteDeviceList = this.macMapper.selectObjByMap(params);
-                        if(remoteDeviceList.size() > 0){
+                        if (remoteDeviceList.size() > 0) {
                             Mac remoteDevice = remoteDeviceList.get(0);
                             de.setRemoteDeviceIp(remoteDevice.getDeviceIp());
                             de.setRemoteDeviceName(remoteDevice.getDeviceName());
@@ -104,14 +105,14 @@ public class MacServiceImpl implements IMacService {
                             params.put("hostname", de.getRemoteDevice());
                             params.put("remoteDevice", de.getHostname());
                             List<Mac> portMac = this.macMapper.selectObjByMap(params);
-                            if(portMac.size() > 0){
+                            if (portMac.size() > 0) {
                                 de.setPort(portMac.get(0).getRemotePort());
                             }
-                            if(StringUtil.isNotEmpty(remoteDevice.getDeviceIp())){
+                            if (StringUtil.isNotEmpty(remoteDevice.getDeviceIp())) {
                                 params.clear();
                                 params.put("ip", remoteDevice.getDeviceIp());
                                 List<NetworkElement> remote_networkElements = this.networkElementService.selectObjByMap(params);
-                                if(remote_networkElements.size() > 0) {
+                                if (remote_networkElements.size() > 0) {
                                     NetworkElement remote_networkElement = remote_networkElements.get(0);
                                     de.setRemoteDeviceUuid(remote_networkElement.getUuid());
                                     if (remote_networkElement.getDeviceTypeId() != null) {
@@ -125,12 +126,12 @@ public class MacServiceImpl implements IMacService {
                     }
                 }
             }
-            if(StringUtil.isNotEmpty(de.getRemoteDevice())){
+            if (StringUtil.isNotEmpty(de.getRemoteDevice())) {
                 params.clear();
                 params.put("deviceName", de.getDeviceName());
                 params.put("display", 1);
                 List<NetworkElement> NSwitch_nes2 = this.networkElementService.selectObjByMap(params);
-                if(NSwitch_nes2.size() > 0){
+                if (NSwitch_nes2.size() > 0) {
                     NetworkElement NSwitch_ne = NSwitch_nes2.get(0);
                     de.setDeviceUuid(NSwitch_ne.getUuid());
                     if (NSwitch_ne.getDeviceTypeId() != null) {
@@ -140,12 +141,12 @@ public class MacServiceImpl implements IMacService {
                     }
                 }
             }
-            if(StringUtil.isNotEmpty(de.getRemoteDevice())){
+            if (StringUtil.isNotEmpty(de.getRemoteDevice())) {
                 params.clear();
                 params.put("deviceName", de.getRemoteDevice());
                 params.put("displayList", Arrays.asList(0, 1));
                 List<NetworkElement> NSwitch_nes = this.networkElementService.selectObjByMap(params);
-                if(NSwitch_nes.size() > 0){
+                if (NSwitch_nes.size() > 0) {
                     NetworkElement NSwitch_ne = NSwitch_nes.get(0);
                     de.setRemoteDeviceUuid(NSwitch_ne.getUuid());
                     de.setRemoteDeviceIp(NSwitch_ne.getIp());
@@ -163,12 +164,13 @@ public class MacServiceImpl implements IMacService {
 
     /**
      * TODO: 2025/1/6 过滤镜像数据 SQL
-     *
+     * <p>
      * 过滤镜像数据
+     *
      * @param list
      * @return
      */
-    private List<Mac> filterMirrorData(List<Mac> list){
+    private List<Mac> filterMirrorData(List<Mac> list) {
         if (list != null && !list.isEmpty()) {
             // 使用 Set 来存储已处理的唯一键
             Set<String> uniqueDevices = new HashSet<>();
@@ -290,7 +292,7 @@ public class MacServiceImpl implements IMacService {
 
     @Override
     public Page<Mac> selectDTAndDynamicByConditionQuery(MacDTO instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new MacDTO();
         }
         Page<Mac> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
@@ -396,7 +398,7 @@ public class MacServiceImpl implements IMacService {
     }
 
     public static void main(String[] args) {
-        String getlldp =  "[{\"hostname\": \"core_sw2\", \"localport\": \"GigabitEthernet0/1\", \"remoteport\": \"GigabitEthernet0/1\"}, {\"hostname\": \"jr_sw3\", \"localport\": \"GigabitEthernet0/5\", \"remoteport\": \"GigabitEthernet0/1\"}, {\"hostname\": \"jr_sw2\", \"localport\": \"GigabitEthernet0/2\", \"remoteport\": \"GigabitEthernet0/2\"}, {\"hostname\": \"jr_sw4\", \"localport\": \"GigabitEthernet0/3\", \"remoteport\": \"GigabitEthernet0/3\"}]";
+        String getlldp = "[{\"hostname\": \"core_sw2\", \"localport\": \"GigabitEthernet0/1\", \"remoteport\": \"GigabitEthernet0/1\"}, {\"hostname\": \"jr_sw3\", \"localport\": \"GigabitEthernet0/5\", \"remoteport\": \"GigabitEthernet0/1\"}, {\"hostname\": \"jr_sw2\", \"localport\": \"GigabitEthernet0/2\", \"remoteport\": \"GigabitEthernet0/2\"}, {\"hostname\": \"jr_sw4\", \"localport\": \"GigabitEthernet0/3\", \"remoteport\": \"GigabitEthernet0/3\"}]";
 
         String a = "[\"a\",\"b\"]";
 //        List list = Arrays.asList(getlldp);
@@ -406,9 +408,9 @@ public class MacServiceImpl implements IMacService {
     }
 
     @Override
-    public void gatherMac(Date date){
+    public void gatherMac(Date date) {
         List<NetworkElement> networkElements = this.networkElementService.selectObjAll();
-        if(networkElements.size() > 0){
+        if (networkElements.size() > 0) {
             this.macMapper.truncateTable();
             for (NetworkElement networkElement : networkElements) {
                 String path = Global.PYPATH + "gethostname.py";
@@ -433,14 +435,14 @@ public class MacServiceImpl implements IMacService {
                 String[] params = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
                 String result = pythonExecUtils.exec(path, params);
-                if(!"".equals(result)){
+                if (!"".equals(result)) {
                     try {
 
 
                         List<Mac> array = JSONObject.parseArray(result, Mac.class);
-                        if(array.size()>0){
+                        if (array.size() > 0) {
                             array.forEach(e -> {
-                                if("3".equals(e.getType())){
+                                if ("3".equals(e.getType())) {
                                     e.setDeviceIp(networkElement.getIp());
                                     e.setDeviceName(networkElement.getDeviceName());
                                     e.setAddTime(date);
@@ -448,7 +450,7 @@ public class MacServiceImpl implements IMacService {
 //                                    e.setTag("L");
                                     String patten = "^" + "00:00:5e";
                                     boolean flag = this.parseLineBeginWith(e.getMac(), patten);
-                                    if(flag){
+                                    if (flag) {
                                         e.setTag("LV");
                                     }
 
@@ -467,12 +469,12 @@ public class MacServiceImpl implements IMacService {
                 String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
                 result = pythonExecUtils.exec(path, params2);
-                if(!"".equals(result)){
+                if (!"".equals(result)) {
                     try {
                         List<Mac> array = JSONObject.parseArray(result, Mac.class);
-                        if(array.size()>0){
+                        if (array.size() > 0) {
                             array.forEach(e -> {
-                                if("1".equals(e.getStatus())){
+                                if ("1".equals(e.getStatus())) {
                                     e.setAddTime(date);
                                     e.setDeviceIp(networkElement.getIp());
                                     e.setDeviceName(networkElement.getDeviceName());
@@ -480,7 +482,7 @@ public class MacServiceImpl implements IMacService {
                                     e.setHostname(hostname);
                                     String patten = "^" + "00:00:5e";
                                     boolean flag = this.parseLineBeginWith(e.getMac(), patten);
-                                    if(flag){
+                                    if (flag) {
                                         e.setTag("LV");
                                     }
                                     this.macMapper.save(e);
@@ -568,17 +570,22 @@ public class MacServiceImpl implements IMacService {
 
     @Override
     public void lock() {
-         this.macMapper.lock();
+        this.macMapper.lock();
     }
 
     @Override
     public void releaseLock() {
-         this.macMapper.releaseLock();
+        this.macMapper.releaseLock();
     }
 
     @Override
     public int queryLock() {
         return this.macMapper.queryLock();
+    }
+
+    @Override
+    public int copyDataToMacHistory() {
+        return this.macMapper.copyDataToMacHistory();
     }
 
 
@@ -601,10 +608,10 @@ public class MacServiceImpl implements IMacService {
 //    }
 
     // mac对端设备
-    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date){
+    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date) {
         // 写入对端信息
-        if(lldps != null && lldps.size() > 0){
-            for(Map<String, String> obj : lldps){
+        if (lldps != null && lldps.size() > 0) {
+            for (Map<String, String> obj : lldps) {
                 Mac mac = new Mac();
                 mac.setAddTime(date);
                 mac.setDeviceIp(e.getIp());
@@ -621,16 +628,16 @@ public class MacServiceImpl implements IMacService {
         }
     }
 
-    public boolean parseLineBeginWith(String lineText, String head){
+    public boolean parseLineBeginWith(String lineText, String head) {
 
-        if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
+        if (StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)) {
             String patten = "^" + head;
 
             Pattern compiledPattern = Pattern.compile(patten);
 
             Matcher matcher = compiledPattern.matcher(lineText);
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 return true;
             }
         }
@@ -638,10 +645,10 @@ public class MacServiceImpl implements IMacService {
     }
 
     // 将arp表中mac对应的ip地址写入mac表：mac+port+deviceip
-    public String getArpIp(String mac, String port, String deviceIp){
+    public String getArpIp(String mac, String port, String deviceIp) {
         Map params = new HashMap();
         List<Arp> arps = this.arpService.selectObjByMap(params);
-        if(arps.size() > 0){
+        if (arps.size() > 0) {
             return arps.get(0).getDeviceIp();
         }
         return "";

@@ -73,22 +73,22 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public boolean save(RoleDto instance) {
         Role role = null;
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             role = new Role();
             role.setAddTime(new Date());
-        }else{
+        } else {
             role = this.roleMapper.findRoleById(instance.getId());
         }
         BeanUtils.copyProperties(instance, role);
-        if(role.getId() == null){
+        if (role.getId() == null) {
             try {
                 this.roleMapper.insert(role);
                 // 批量添加权限
-                if(instance.getRes_id() != null && instance.getRes_id().length > 0){
+                if (instance.getRes_id() != null && instance.getRes_id().length > 0) {
                     List<Integer> idList = Arrays.asList(instance.getRes_id());
                     List<Res> resList = this.resService.findResByResIds(idList);
                     List<RoleRes> roleResList = new ArrayList<RoleRes>();
-                    for(Res res : resList){
+                    for (Res res : resList) {
                         RoleRes roleRes = new RoleRes();
                         roleRes.setRes_id(res.getId());
                         roleRes.setRole_id(role.getId());
@@ -101,17 +101,17 @@ public class RoleServiceImpl implements IRoleService {
                 e.printStackTrace();
                 return false;
             }
-        }else{
+        } else {
             try {
-                if(instance.getRes_id() != null){
+                if (instance.getRes_id() != null) {
                     // 清除角色权限信息
                     this.roleResService.deleteRoleResByRoleId(role.getId());
                     // 批量添加权限
                     List<Integer> idList = Arrays.asList(instance.getRes_id());
-                    if(idList.size() > 0){
+                    if (idList.size() > 0) {
                         List<Res> resList = this.resService.findResByResIds(idList);
                         List<RoleRes> roleResList = new ArrayList<RoleRes>();
-                        for(Res res : resList){
+                        for (Res res : resList) {
                             RoleRes roleRes = new RoleRes();
                             roleRes.setRes_id(res.getId());
                             roleRes.setRole_id(role.getId());
@@ -137,14 +137,14 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public Page<Role> query(RoleDto dto) {
         Page<Role> page = PageHelper.startPage(dto.getCurrentPage(), dto.getPageSize());
-            this.roleMapper.query(dto);
+        this.roleMapper.query(dto);
         return page;
     }
 
     @Override
     public List<Role> findObjByMap(Map params) {
 
-        Page<Role> page = PageHelper.startPage((Integer)params.get("currentPage"), (Integer)params.get("pageSize"));
+        Page<Role> page = PageHelper.startPage((Integer) params.get("currentPage"), (Integer) params.get("pageSize"));
 
         return this.roleMapper.findObjByMap(params);
 

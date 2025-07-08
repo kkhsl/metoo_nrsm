@@ -35,7 +35,7 @@
 
     <sql id="Domain_Vlan_Column_List">
         `domain`.*,
-	    vlan.id vlan_id, vlan.name vlan_name
+        vlan.id vlan_id, vlan.name vlan_name
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Domain">
@@ -43,7 +43,8 @@
         where id = #{id}
     </select>
 
-    <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.DomainDTO" resultMap="Base_Result_Map">
+    <select id="selectObjByConditionQuery" parameterType="com.metoo.nrsm.core.dto.DomainDTO"
+            resultMap="Base_Result_Map">
         SELECT *
         FROM metoo_domain
         <where>
@@ -68,7 +69,7 @@
             </if>
             <if test="groupIds != null and groupIds != ''">
                 AND group_id in
-                <foreach collection="groupIds" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="groupIds" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -93,7 +94,7 @@
             </if>
             <if test="groupIds != null and groupIds != ''">
                 AND group_id in
-                <foreach collection="groupIds" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="groupIds" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
@@ -105,7 +106,7 @@
 
     <select id="selectDomainAndVlanProceDureByMap" parameterType="java.util.Map" statementType="CALLABLE"
             resultMap="Domain_Vlan_Result_Map">
-        	{call domain_vlan()}
+        {call domain_vlan()}
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Domain" useGeneratedKeys="true" keyProperty="id">

@@ -106,6 +106,9 @@ public class NetworkElement extends IdEntity {
     @ApiModelProperty("nswitch: 0：显示 1：隐藏")
     private boolean display = false;
 
+
+    private boolean nswitch = false;
+
     // snmpv3
     // 安全模型
     // noAuthNoPriv：无认证和加密，最不安全的模式

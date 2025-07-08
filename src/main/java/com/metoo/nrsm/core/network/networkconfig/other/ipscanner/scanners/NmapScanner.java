@@ -29,6 +29,7 @@ public class NmapScanner implements Runnable {
             }
         }
     }
+
     @Override
     public void run() {
         try {
@@ -48,9 +49,9 @@ public class NmapScanner implements Runnable {
             log.error("[NMAP] Error scanning {}: {}", target, e.getMessage());
         } finally {
             // 在扫描完成后，主线程通过 latch.countDown() 知道任务已完成
-           if(latch != null){
-               latch.countDown();  // 任务完成后减少计数
-           }
+            if (latch != null) {
+                latch.countDown();  // 任务完成后减少计数
+            }
         }
     }
 }

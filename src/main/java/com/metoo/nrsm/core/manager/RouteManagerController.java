@@ -26,7 +26,6 @@ public class RouteManagerController {
 
 
 
-
     @RequestMapping("/collect")
     public String collectSingleDevice() {
         List<NetworkElement> devices = networkElementService.selectConditionByIpQuery(null);

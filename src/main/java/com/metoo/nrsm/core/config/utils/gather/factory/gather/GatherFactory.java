@@ -13,21 +13,24 @@ import org.springframework.stereotype.Component;
 public class GatherFactory {
 
     // 非线程安全
-    public Gather getGather(String shapeType){
-        if(shapeType == null){
+    public Gather getGather(String shapeType) {
+        if (shapeType == null) {
             return null;
         }
-        if(shapeType.equalsIgnoreCase(Global.TRAFFIC)){
-            if(Global.env.equals("probe")){
+        if (shapeType.equalsIgnoreCase(Global.TRAFFIC)) {
+            if (Global.env.equals("probe")) {
                 return new TrafficFactoryImpl();
-            } if(Global.env.equals("yuehu")){// yuehu
+            }
+            if (Global.env.equals("yuehu")) {// yuehu
                 return new TrafficFactoryImplYuehu();
-            } if(Global.env.equals("dev")){// yingtan
+            }
+            if (Global.env.equals("dev")) {// yingtan
                 return new TrafficFactoryImplYingtan();
-            } if(Global.env.equals("guixi")){// yingtan
+            }
+            if (Global.env.equals("guixi")) {// yingtan
                 return new TrafficFactoryImplGuixi();
             }
-        } else if(shapeType.equalsIgnoreCase("fileToProbe")){
+        } else if (shapeType.equalsIgnoreCase("fileToProbe")) {
             return new GatherOsScanVersin();
 
         }

@@ -40,7 +40,7 @@ public class PlantRoomServiceImpl implements IPlantRoomService {
 
     @Override
     public List<PlantRoomVO> query(PlantRoom instance) {
-        if(instance == null){
+        if (instance == null) {
             instance = new PlantRoom();
         }
 //        User user = ShiroUserHolder.currentUser();
@@ -91,14 +91,14 @@ public class PlantRoomServiceImpl implements IPlantRoomService {
 
     @Override
     public int save(PlantRoom instance) {
-        if(instance.getId() == null){
+        if (instance.getId() == null) {
             instance.setAddTime(new Date());
 //            if(instance.getUserId() == null){
 //                User user = ShiroUserHolder.currentUser();
 //                instance.setUserId(user.getId());
 //            }
             return this.plantRoomMapper.save(instance);
-        }else{
+        } else {
             return this.plantRoomMapper.update(instance);
         }
     }

@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+
 @Service
 public class RetryService {
 
@@ -19,7 +20,7 @@ public class RetryService {
 
     // 定义重试规则
     @Retryable(
-            value = {ResourceAccessException.class },  // 捕获超时异常
+            value = {ResourceAccessException.class},  // 捕获超时异常
             maxAttempts = 3,  // 最大重试次数
             backoff = @Backoff(delay = 2000, multiplier = 2)  // 延迟设置，每次延迟 2 秒
     )

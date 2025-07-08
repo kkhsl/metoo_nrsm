@@ -30,7 +30,6 @@ public class Interface extends IdEntity {
     private List<Interface> vlans = new ArrayList<>(); // 新增字段
 
 
-
     private String name;        // 接口名称，例如 eth0, eth1
     private String ipv4Address; // IPv4 地址，例如 192.168.1.1/24
     private String ipv6Address; // IPv6 地址，例如 fc00::/64
@@ -43,7 +42,6 @@ public class Interface extends IdEntity {
 
     private String ipv4NetworkSegment;  // 存储 IPv4 网段，如 "192.168.6.0/24"
     private String ipv6NetworkSegment;  // 存储 IPv6 网段，如 "fc00:1000:0:1::/64"
-
 
 
     // 用于构建树形结构的方法

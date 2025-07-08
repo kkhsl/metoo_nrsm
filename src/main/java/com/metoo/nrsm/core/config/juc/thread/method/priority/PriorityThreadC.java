@@ -9,7 +9,7 @@ public class PriorityThreadC extends Thread {
     public void run() {
         long begin = System.currentTimeMillis();
         int sum = 0;
-        for (int i = 0; i <= 10; i ++){
+        for (int i = 0; i <= 10; i++) {
             sum += i;
             System.out.println("C: " + Thread.currentThread().getName() + " num: " + i);
             Thread.sleep(1000);

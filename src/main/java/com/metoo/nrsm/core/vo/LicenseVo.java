@@ -8,9 +8,9 @@ import lombok.experimental.Accessors;
 
 /**
  * Licens验证方式
- *  第一种方式：系统文件
- *  第二种方式：注册表 *
- *  第三种方式：远程服务端
+ * 第一种方式：系统文件
+ * 第二种方式：注册表 *
+ * 第三种方式：远程服务端
  */
 @Data
 @Accessors

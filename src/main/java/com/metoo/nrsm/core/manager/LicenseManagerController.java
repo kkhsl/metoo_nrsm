@@ -60,7 +60,7 @@ public class LicenseManagerController {
     }
 
     @Test
-    public void test(){
+    public void test() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         Date date = null;
         try {
@@ -78,19 +78,19 @@ public class LicenseManagerController {
     }
 
     @Test
-    public void testTimeStamp(){
+    public void testTimeStamp() {
         long curremtTime = 1652976000000L;
         long startTime = 1652889600000L;
         long endTime = 1653062400000L;
-        int useDay = (int) ((int)(curremtTime - startTime) / DateTools.ONEDAY_TIME);
+        int useDay = (int) ((int) (curremtTime - startTime) / DateTools.ONEDAY_TIME);
         System.out.println(useDay);
-        int surplusDay = (int) ((int)(endTime - curremtTime) / DateTools.ONEDAY_TIME);
+        int surplusDay = (int) ((int) (endTime - curremtTime) / DateTools.ONEDAY_TIME);
         System.out.println(surplusDay);
-        System.out.println(DateTools.longToDate(endTime,"yyyyMMdd"));
+        System.out.println(DateTools.longToDate(endTime, "yyyyMMdd"));
     }
 
     @RequestMapping("/systemInfo")
-    public Object systemInfo(){
+    public Object systemInfo() {
         try {
 //            String sn = this.aesEncryptUtils.encrypt(this.systemInfoUtils.getBiosUuid());
 //            String sn = SystemInfoUtils.getBiosUuid();
@@ -99,16 +99,15 @@ public class LicenseManagerController {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
     }
-   }
 
     @GetMapping(value = "/query")
     public Object query() {
         License obj = this.licenseService.query().get(0);
         String uuid = SystemInfoUtils.getSerialNumber();
 
-        if (!uuid.equals(obj.getSystemSN()))
-        {
+        if (!uuid.equals(obj.getSystemSN())) {
             return ResponseUtil.error(413, "未授权设备");
         }
         try {
@@ -142,6 +141,7 @@ public class LicenseManagerController {
 
     /**
      * 授权
+     *
      * @param license
      * @return
      */
@@ -199,7 +199,6 @@ public class LicenseManagerController {
     }
 
 
-
     private Object updateExistingLicense(License existingLicense, String code, String uuid) {
         if (!code.equals(existingLicense.getLicense())) {
             existingLicense.setLicense(code);
@@ -230,6 +229,7 @@ public class LicenseManagerController {
 
     /**
      * 授权
+     *
      * @param //license
      * @return
      */
@@ -259,7 +259,6 @@ public class LicenseManagerController {
         }
         return ResponseUtil.error("非法授权码");
     }*/
-
     @RequestMapping("/license")
     public void license() {
         // 1. 获取设备唯一申请码
@@ -320,8 +319,6 @@ public class LicenseManagerController {
             license.setStatus(1); // 未授权
         }
     }
-
-
 
 
     @PostMapping("/generate")

@@ -16,7 +16,7 @@ import static java.lang.Thread.sleep;
 public class NewFixedThreadPoolTest {
 
     public static void main(String[] args) {
-        int[] arr = new int[]{1,2,3, 4, 5};
+        int[] arr = new int[]{1, 2, 3, 4, 5};
 //        List<Integer> list = Arrays.stream(arr).boxed().collect(Collectors.toList());
         List<Integer> list = Arrays.stream(arr).mapToObj(Integer::valueOf).collect(Collectors.toList());
         List items = new ArrayList();
@@ -35,21 +35,21 @@ public class NewFixedThreadPoolTest {
                 }
             }));
         }
-        if(exe != null){
+        if (exe != null) {
             exe.shutdown();
         }
         while (true) {
             if (exe.isTerminated()) {
-                    System.out.println("结束");
-                    System.out.println(items);
-                    break;
-                }
+                System.out.println("结束");
+                System.out.println(items);
+                break;
             }
+        }
     }
 
     @Test
-    public void test(){
-        int[] arr = new int[]{1 ,2, 3, 4, 5};
+    public void test() {
+        int[] arr = new int[]{1, 2, 3, 4, 5};
 //        List<Integer> list = Arrays.stream(arr).boxed().collect(Collectors.toList());
         List<Integer> list = Arrays.stream(arr).mapToObj(Integer::valueOf).collect(Collectors.toList());
         List items = new ArrayList();
@@ -68,7 +68,7 @@ public class NewFixedThreadPoolTest {
                 }
             }));
         }
-        if(exe != null){
+        if (exe != null) {
             exe.shutdown();
         }
         while (true) {

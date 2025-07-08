@@ -13,7 +13,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class IdEntity implements Serializable{
+public class IdEntity implements Serializable {
 
     private Long id;
 

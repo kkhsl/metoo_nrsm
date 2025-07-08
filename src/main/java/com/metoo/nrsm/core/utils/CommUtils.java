@@ -27,7 +27,6 @@ public class CommUtils {
     }
 
 
-
     public static final String randomString(int length) {
         char[] numbersAndLetters = ("0123456789abcdefghijklmnopqrstuvwxyz" + "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
                 .toCharArray();
@@ -64,9 +63,9 @@ public class CommUtils {
     }
 
 
-    public static String getRtmp(String ip, String bindCode){
-        if(ip != null && !ip.equals("")){
-            if(bindCode != null && !bindCode.equals("")){
+    public static String getRtmp(String ip, String bindCode) {
+        if (ip != null && !ip.equals("")) {
+            if (bindCode != null && !bindCode.equals("")) {
                 String rtmp = "httpclient://" + ip + "/hls/" + bindCode;
                 return rtmp;
             }
@@ -74,21 +73,20 @@ public class CommUtils {
         return null;
     }
 
-    public static String getObsRtmp(String ip){
-        if(ip != null && !ip.equals("")){
-                String rtmp = "rtmp://" + ip + "/hls" ;
-                return rtmp;
+    public static String getObsRtmp(String ip) {
+        if (ip != null && !ip.equals("")) {
+            String rtmp = "rtmp://" + ip + "/hls";
+            return rtmp;
         }
         return null;
     }
 
 
-
     /**
      * 修改目录权限
      *
-     * @param dirPath  目录
-     * @param value 权限值
+     * @param dirPath 目录
+     * @param value   权限值
      */
     public static String filePermisession(String dirPath, String value) {
         Runtime runtime = Runtime.getRuntime();
@@ -108,7 +106,7 @@ public class CommUtils {
         }
     }
 
-    public static String appointedDay(Integer day){
+    public static String appointedDay(Integer day) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(calendar.HOUR_OF_DAY, 0);
         calendar.set(calendar.MINUTE, 0);
@@ -119,11 +117,12 @@ public class CommUtils {
 
     /**
      * 获取当前用户ID
+     *
      * @param map
      */
-    public static void currentUserId(Map map){
+    public static void currentUserId(Map map) {
         User user = ShiroUserHolder.currentUser();
-        if(user.getUserRole().equals("SUPPER")){
+        if (user.getUserRole().equals("SUPPER")) {
             map.put("admin", user.getId());
         }
         map.put("userId", user.getId());
@@ -136,10 +135,11 @@ public class CommUtils {
 
     /**
      * 生成加密密码
+     *
      * @param password
      * @return
      */
-    public static String password(String password, String sale){
+    public static String password(String password, String sale) {
 
         // 明文密码进行 md5 + salt + hash散列
         Md5Hash md5Hash = new Md5Hash(password, sale, 1024);

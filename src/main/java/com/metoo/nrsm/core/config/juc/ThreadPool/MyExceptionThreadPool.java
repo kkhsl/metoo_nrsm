@@ -11,19 +11,19 @@ public class MyExceptionThreadPool {
     /**
      * 自定义类实现Runnable接口，用于计算两个数相除
      */
-    private static class DivideTask implements Runnable{
+    private static class DivideTask implements Runnable {
 
         private int x;
         private int y;
 
-        public DivideTask(int x, int y){
+        public DivideTask(int x, int y) {
             this.x = x;
             this.y = y;
         }
 
         @Override
         public void run() {
-            System.out.println(Thread.currentThread().getId() + "计算：" + x + "/" + y + (x/y));
+            System.out.println(Thread.currentThread().getId() + "计算：" + x + "/" + y + (x / y));
         }
     }
 

@@ -15,13 +15,13 @@ public class ShiroUserHolder {
     private IUserService userService;
 
     public static User currentUser() {
-        if (SecurityUtils.getSubject() != null){
+        if (SecurityUtils.getSubject() != null) {
             Subject subject = SecurityUtils.getSubject();
-            if(subject.getPrincipal() != null && subject.isAuthenticated()){
+            if (subject.getPrincipal() != null && subject.isAuthenticated()) {
                 String userName = SecurityUtils.getSubject().getPrincipal().toString();
                 IUserService userService = (IUserService) ApplicationContextUtils.getBean("userServiceImpl");
-                  User user = userService.findByUserName(userName);
-                if(user != null){
+                User user = userService.findByUserName(userName);
+                if (user != null) {
                     return user;
                 }
             }

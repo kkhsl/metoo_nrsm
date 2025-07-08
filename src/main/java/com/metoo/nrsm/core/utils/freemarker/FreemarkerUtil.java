@@ -25,7 +25,7 @@ public class FreemarkerUtil {
     }
 
 
-    public void createHtmlToBrowser(String templateName, Object object, Writer writer){
+    public void createHtmlToBrowser(String templateName, Object object, Writer writer) {
         //创建fm的配置
         config = new Configuration();
         //指定默认编码格式

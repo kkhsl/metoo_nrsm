@@ -5,8 +5,8 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.TerminalMacIpv6Mapper">
 
     <resultMap id="BaseResultMap" type="com.metoo.nrsm.entity.TerminalMacIpv6">
-            <result property="mac" column="mac" jdbcType="VARCHAR"/>
-            <result property="isipv6" column="isIPv6" jdbcType="TINYINT"/>
+        <result property="mac" column="mac" jdbcType="VARCHAR"/>
+        <result property="isipv6" column="isIPv6" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">

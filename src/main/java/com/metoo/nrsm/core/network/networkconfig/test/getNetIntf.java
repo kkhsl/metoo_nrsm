@@ -14,8 +14,10 @@ public class getNetIntf {
         String networkInterfaces = getNetworkInterfaces();
         System.out.println(networkInterfaces);
     }
+
     /**
      * getnetintf.py
+     *
      * @return
      * @throws Exception
      */

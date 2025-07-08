@@ -18,13 +18,13 @@ public class RsmsDeviceUtils {
     @Autowired
     private IRsmsDeviceService rsmsDeviceService;
 
-    public int syncUpdateDevice(String ip,String mac,  String location, String duty,
-                                Long departmentId){
-        if(ip != null && Ipv4Util.verifyIp(ip)){
+    public int syncUpdateDevice(String ip, String mac, String location, String duty,
+                                Long departmentId) {
+        if (ip != null && Ipv4Util.verifyIp(ip)) {
             Map params = new HashMap();
             params.put("ip", ip);
             List<RsmsDevice> deviceList = this.rsmsDeviceService.selectObjByMap(params);
-            if(deviceList.size() > 0){
+            if (deviceList.size() > 0) {
                 RsmsDevice rsmsDevice = deviceList.get(0);
                 rsmsDevice.setDepartmentId(departmentId);
                 rsmsDevice.setMac(mac);
@@ -32,7 +32,7 @@ public class RsmsDeviceUtils {
                 rsmsDevice.setDuty(duty);
                 int i = this.rsmsDeviceService.update(rsmsDevice);
                 return i;
-            }else{
+            } else {
                 RsmsDevice rsmsDevice = new RsmsDevice();
                 rsmsDevice.setAddTime(new Date());
                 rsmsDevice.setDepartmentId(departmentId);
@@ -46,13 +46,13 @@ public class RsmsDeviceUtils {
         return 0;
     }
 
-    public int syncUpdateDevice(String ip, String name, String mac,  String location, String duty,
-                                Long departmentId){
-        if(ip != null && Ipv4Util.verifyIp(ip)){
+    public int syncUpdateDevice(String ip, String name, String mac, String location, String duty,
+                                Long departmentId) {
+        if (ip != null && Ipv4Util.verifyIp(ip)) {
             Map params = new HashMap();
             params.put("ip", ip);
             List<RsmsDevice> deviceList = this.rsmsDeviceService.selectObjByMap(params);
-            if(deviceList.size() > 0){
+            if (deviceList.size() > 0) {
                 RsmsDevice rsmsDevice = deviceList.get(0);
                 rsmsDevice.setDepartmentId(departmentId);
                 rsmsDevice.setMac(mac);
@@ -60,7 +60,7 @@ public class RsmsDeviceUtils {
                 rsmsDevice.setDuty(duty);
                 int i = this.rsmsDeviceService.update(rsmsDevice);
                 return i;
-            }else{
+            } else {
                 RsmsDevice rsmsDevice = new RsmsDevice();
                 rsmsDevice.setAddTime(new Date());
                 rsmsDevice.setName(name);
@@ -75,9 +75,9 @@ public class RsmsDeviceUtils {
         return 0;
     }
 
-    public void syncUpdateDevice(String ip, String name, Long deviceTypeId, String mac,  String location, String duty,
-                                Long departmentId){
-        if(ip != null && Ipv4Util.verifyIp(ip)) {
+    public void syncUpdateDevice(String ip, String name, Long deviceTypeId, String mac, String location, String duty,
+                                 Long departmentId) {
+        if (ip != null && Ipv4Util.verifyIp(ip)) {
             Map params = new HashMap();
             params.put("ip", ip);
             List<RsmsDevice> deviceList = this.rsmsDeviceService.selectObjByMap(params);
@@ -103,15 +103,15 @@ public class RsmsDeviceUtils {
         }
     }
 
-    public Map getDeviceInfo(String ip){
+    public Map getDeviceInfo(String ip) {
         Map map = new HashMap();
-        if(Strings.isNotBlank(ip)){
+        if (Strings.isNotBlank(ip)) {
             boolean flag = Ipv4Util.verifyIp(ip);
-            if(flag){
+            if (flag) {
                 Map params = new HashMap();
                 params.put("ip", ip);
                 List<RsmsDevice> rsmsDevices = this.rsmsDeviceService.selectObjByMap(params);
-                if(rsmsDevices.size() > 0){
+                if (rsmsDevices.size() > 0) {
                     RsmsDevice device = rsmsDevices.get(0);
                     map.put("mac", device.getMac());
                     map.put("location", device.getLocation());

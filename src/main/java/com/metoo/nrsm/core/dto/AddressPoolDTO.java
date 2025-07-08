@@ -50,5 +50,4 @@ public class AddressPoolDTO extends PageDto<AddressPoolIpv6> {
     private String groupLevel;
 
 
-
 }

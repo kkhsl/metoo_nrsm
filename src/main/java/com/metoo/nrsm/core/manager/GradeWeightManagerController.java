@@ -22,18 +22,18 @@ public class GradeWeightManagerController {
     private IGradWeightService gradWeightService;
 
     @GetMapping
-    public Result list(){
+    public Result list() {
         GradeWeight gradWeight = this.gradWeightService.selectObjOne();
         return ResponseUtil.ok(gradWeight);
     }
 
     @PutMapping
-    public Object update(@RequestBody GradeWeight instance){
+    public Object update(@RequestBody GradeWeight instance) {
         BigDecimal sum = instance.getFlux().add(instance.getTerminal()).add(instance.getNe());
-        if(sum.compareTo(new BigDecimal(10)) > 0){
+        if (sum.compareTo(new BigDecimal(10)) > 0) {
             return ResponseUtil.badArgument("权重之和大于10");
         }
-        if(sum.compareTo(new BigDecimal(10)) < 0){
+        if (sum.compareTo(new BigDecimal(10)) < 0) {
             return ResponseUtil.badArgument("权重之和小于10");
         }
         boolean flag = this.gradWeightService.update(instance);

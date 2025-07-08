@@ -43,19 +43,19 @@
     </select>
 
     <select id="selectAll" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.Interface">
-      WITH RECURSIVE interface_tree AS (
+        WITH RECURSIVE interface_tree AS (
         -- 基础查询：获取所有主接口（parentId 为 null 的接口）
         SELECT
-            id,
-            name,
-            ipv4Address,
-            ipv6Address,
-            gateway4,
-            gateway6,
-            parentId,
-            vlanNum,
-            1 AS level,
-            CAST(name AS CHAR(255)) AS path
+        id,
+        name,
+        ipv4Address,
+        ipv6Address,
+        gateway4,
+        gateway6,
+        parentId,
+        vlanNum,
+        1 AS level,
+        CAST(name AS CHAR(255)) AS path
         FROM metoo_interface
         WHERE parentId IS NULL
 
@@ -63,20 +63,20 @@
 
         -- 递归查询：获取子接口
         SELECT
-            ni.id,
-            ni.name,
-            ni.ipv4Address,
-            ni.ipv6Address,
-            ni.gateway4,
-            ni.gateway6,
-            ni.parentId,
-            ni.vlanNum,
-            it.level + 1,
-            CONCAT(it.path, ' > ', ni.name) AS path
+        ni.id,
+        ni.name,
+        ni.ipv4Address,
+        ni.ipv6Address,
+        ni.gateway4,
+        ni.gateway6,
+        ni.parentId,
+        ni.vlanNum,
+        it.level + 1,
+        CONCAT(it.path, ' > ', ni.name) AS path
         FROM metoo_interface ni
         JOIN interface_tree it ON ni.parentId = it.id
-    )
-    SELECT
+        )
+        SELECT
         id,
         name,
         ipv4Address,
@@ -87,29 +87,30 @@
         vlanNum,
         level,
         path
-    FROM interface_tree
-    ORDER BY path;
+        FROM interface_tree
+        ORDER BY path;
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.InterfaceDTO" resultType="com.metoo.nrsm.entity.Interface">
---         SELECT
---         t1.id, t1.name, t1.ipv4Address, t1.ipv6Address, t1.gateway4, t1.gateway6, t1.vlanNum, t1.parentId,
---         t2.id t2_id, t2.name t2_name, t2.ipv4Address t2_ipv4Address, t2.ipv6Address t2_ipv6Address,
---         t2.gateway4 t2_gateway4, t2.gateway6 t2_gateway6, t2.vlanNum t2_vlanNum, t2.parentId t2_parentId
---         FROM
---         metoo_interface t1
---         LEFT JOIN metoo_interface t2 ON t1.id = t2.parentId
---         WHERE t1.parentId is null
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.InterfaceDTO"
+            resultType="com.metoo.nrsm.entity.Interface">
+        -- SELECT
+        -- t1.id, t1.name, t1.ipv4Address, t1.ipv6Address, t1.gateway4, t1.gateway6, t1.vlanNum, t1.parentId,
+        -- t2.id t2_id, t2.name t2_name, t2.ipv4Address t2_ipv4Address, t2.ipv6Address t2_ipv6Address,
+        -- t2.gateway4 t2_gateway4, t2.gateway6 t2_gateway6, t2.vlanNum t2_vlanNum, t2.parentId t2_parentId
+        -- FROM
+        -- metoo_interface t1
+        -- LEFT JOIN metoo_interface t2 ON t1.id = t2.parentId
+        -- WHERE t1.parentId is null
 
         SELECT
         t1.id, t1.name, t1.ipv4Address, t1.ipv6Address, t1.gateway4, t1.gateway6, t1.vlanNum, t1.parentId, t1.isup
         FROM
         metoo_interface t1
         WHERE t1.parentId IS NULL
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY t1.${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>

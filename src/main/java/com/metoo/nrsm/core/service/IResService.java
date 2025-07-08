@@ -12,6 +12,7 @@ public interface IResService {
 
     /**
      * 根据角色id查询权限集合
+     *
      * @param id
      * @return
      */
@@ -19,6 +20,7 @@ public interface IResService {
 
     /**
      * 根据权限ID查询权限对象
+     *
      * @param id
      * @return
      */

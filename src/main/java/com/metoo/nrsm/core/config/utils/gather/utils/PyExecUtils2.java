@@ -38,7 +38,7 @@ public class PyExecUtils2 {
             log.info("command: " + pyCommand.toParamsString() + "result【" + result + "】end");
 
 
-        }else {
+        } else {
             result = this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
 
             log.info("command: " + pyCommand.toParamsString() + "result【" + result + "】end");
@@ -67,7 +67,6 @@ public class PyExecUtils2 {
             return false;
         }
     }
-
 
 
 }

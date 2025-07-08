@@ -16,8 +16,9 @@ public class DhcpdConfigReaderBck {
 
     /**
      * 读取 dhcpd.conf 文件
-     * @param mode 模式 ("dev" 或 "prob")
-     * @param host 远程主机地址 (仅 dev 模式需要)
+     *
+     * @param mode     模式 ("dev" 或 "prob")
+     * @param host     远程主机地址 (仅 dev 模式需要)
      * @param username 远程主机用户名 (仅 dev 模式需要)
      * @param password 远程主机密码 (仅 dev 模式需要)
      * @throws Exception 读取或文件传输失败时抛出
@@ -34,7 +35,8 @@ public class DhcpdConfigReaderBck {
 
     /**
      * 从远程服务器读取 dhcpd.conf 文件
-     * @param host 远程主机地址
+     *
+     * @param host     远程主机地址
      * @param username 远程主机用户名
      * @param password 远程主机密码
      * @throws Exception 文件传输或读取失败时抛出
@@ -73,6 +75,7 @@ public class DhcpdConfigReaderBck {
 
     /**
      * 上传后从本地读取 dhcpd.conf 文件
+     *
      * @throws IOException 本地文件读取失败时抛出
      */
 //    private void readFromLocalAfterUpload() throws IOException {
@@ -85,7 +88,6 @@ public class DhcpdConfigReaderBck {
 //            throw new FileNotFoundException("Local temp file not found: " + LOCAL_TEMP_PATH);
 //        }
 //    }
-
     public static List<String> readFromLocalAfterUpload() throws IOException {
         String filePath = LOCAL_TEMP_PATH;
         List<String> lines = new ArrayList<>();
@@ -100,6 +102,7 @@ public class DhcpdConfigReaderBck {
 
     /**
      * 读取文件内容
+     *
      * @param inputStream 输入流
      * @return 文件内容
      * @throws IOException 读取失败时抛出
@@ -119,7 +122,7 @@ public class DhcpdConfigReaderBck {
         DhcpdConfigReaderBck reader = new DhcpdConfigReaderBck();
         try {
             // 示例: 开启 dev 模式读取
-            reader.readDhcpdConfig("dev", "192.168.6.100", 22,"root", "Metoo89745000!");
+            reader.readDhcpdConfig("dev", "192.168.6.100", 22, "root", "Metoo89745000!");
 
             // 示例: 开启 prob 模式读取
             // 请确保文件已上传到 LOCAL_TEMP_PATH

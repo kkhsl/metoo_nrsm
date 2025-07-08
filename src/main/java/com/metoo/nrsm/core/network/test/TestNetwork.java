@@ -19,8 +19,8 @@ public class TestNetwork {
             Session session = SnmpHelper.createSession();
 
             // 执行命令来获取目标主机的主机名
-             String command = String.format("snmpwalk -%s -c %s %s 1.3.6.1.2.1.17.4.3.1.2",
-                     snmpWalkResult.getVersion(), snmpWalkResult.getCommunity(), snmpWalkResult.getIp());
+            String command = String.format("snmpwalk -%s -c %s %s 1.3.6.1.2.1.17.4.3.1.2",
+                    snmpWalkResult.getVersion(), snmpWalkResult.getCommunity(), snmpWalkResult.getIp());
 
             ChannelExec channel = (ChannelExec) session.openChannel("exec");
             channel.setCommand(command);

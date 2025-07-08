@@ -22,10 +22,10 @@ public class PyCommand {
 //    @Value("${py.prefix}")
     private String prefix; // 可以设置flag，决定是否使用前缀
 
-//    @Value("${py.version}")
+    //    @Value("${py.version}")
     private String version;
 
-//    @Value("${py.path}")
+    //    @Value("${py.path}")
     @ApiModelProperty("文件绝对路径")
     private String path;
 
@@ -82,8 +82,6 @@ public class PyCommand {
         this.path = path;
         this.params = params;
     }
-
-
 
 
     // 方法：将对象的属性值转换为字符串数组

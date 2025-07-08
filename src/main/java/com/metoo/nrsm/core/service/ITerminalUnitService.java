@@ -13,13 +13,17 @@ public interface ITerminalUnitService {
     TerminalUnit selectObjById(Long id);
 
     List<TerminalUnit> selectObjAll();
+
     void add(TerminalUnit terminalUnit);
+
     void addV4(TerminalUnitSubnet TerminalUnitSubnet);
 
     void addV6(TerminalUnitSubnetV6 terminalUnitSubnetV6);
 
     int delete(Long id);
+
     int deleteV4(Long id);
+
     int deleteV6(Long id);
 
     List<TerminalUnit> selectObjByMap(Map params);
@@ -27,8 +31,6 @@ public interface ITerminalUnitService {
     List<TerminalUnit> selectObjAndTerminalByMap(Map params);
 
     List<TerminalUnit> selectObjAndTerminalHistoryByMap(Map params);
-
-
 
 
 }

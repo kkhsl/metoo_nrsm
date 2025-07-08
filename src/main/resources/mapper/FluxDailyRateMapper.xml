@@ -23,9 +23,9 @@
     <insert id="save" parameterType="com.metoo.nrsm.entity.FluxDailyRate">
         INSERT INTO metoo_flux_daily_rate
         <trim prefix="(" suffix=")" suffixOverrides=",">
-          <if test="addTime != null">
-              addTime,
-          </if>
+            <if test="addTime != null">
+                addTime,
+            </if>
             <if test="rate != null">
                 rate,
             </if>

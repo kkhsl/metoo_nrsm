@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * dns解析服务
+ *
  * @author zzy
  * @version 1.0
  * @date 2025/4/25 15:55
@@ -13,11 +14,14 @@ import java.util.List;
 public interface IDnsLogService {
     /**
      * 解析日志
+     *
      * @return
      */
     void parseLargeLog();
+
     /**
      * 获取解析日志汇总数据（只有ipv4记录）
+     *
      * @return
      */
     List<DnsTempLog> queryDnsLog();

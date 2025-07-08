@@ -20,20 +20,20 @@ public class GatewayManagerController {
     private IGatewayService gatewayService;
 
     @PostMapping("/list")
-    private Result list(@RequestBody GatewayDTO dto){
+    private Result list(@RequestBody GatewayDTO dto) {
         Result result = this.gatewayService.selectObjConditionQuery(dto);
         return result;
     }
 
     @PostMapping("/save")
-    private Result save(@RequestBody Gateway instance){
+    private Result save(@RequestBody Gateway instance) {
         Result result = this.gatewayService.save(instance);
         return result;
     }
 
     @PostMapping("/batch/save")
-    private Result batchSave(@RequestBody List<Gateway> devices){
-        if(devices.size() > 0){
+    private Result batchSave(@RequestBody List<Gateway> devices) {
+        if (devices.size() > 0) {
             Result result = this.gatewayService.batchSave(devices);
             return result;
         }

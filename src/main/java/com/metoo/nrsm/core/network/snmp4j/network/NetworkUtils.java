@@ -8,7 +8,7 @@ import java.net.*;
 public class NetworkUtils {
 
     // 检查设备是否可达
-    public static boolean isHostNameReachable(String ipAddress){
+    public static boolean isHostNameReachable(String ipAddress) {
         try {
             InetAddress address = InetAddress.getByName(ipAddress);
             return address.isReachable(2000);
@@ -22,7 +22,7 @@ public class NetworkUtils {
     }
 
     // 检查设备SNMP服务端口是否可用(TCP)
-    public static boolean isSNMPPortOpen(String ipAddress, int port){
+    public static boolean isSNMPPortOpen(String ipAddress, int port) {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(ipAddress, port), 2000); // 超时设置为2秒
             return true;  // 如果连接成功

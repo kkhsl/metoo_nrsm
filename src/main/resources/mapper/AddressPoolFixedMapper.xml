@@ -16,18 +16,20 @@
         WHERE id = #{id}
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolFixedDTO" resultMap="Base_Result_Map">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolFixedDTO"
+            resultMap="Base_Result_Map">
         SELECT *
         FROM metoo_address_pool_fixed
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>
 
-    <select id="selectObjToVOByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.core.vo.AddressPoolFixedVO">
+    <select id="selectObjToVOByMap" parameterType="java.util.Map"
+            resultType="com.metoo.nrsm.core.vo.AddressPoolFixedVO">
         SELECT *
         FROM metoo_address_pool_fixed
         <where>

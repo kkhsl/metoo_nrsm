@@ -10,13 +10,18 @@ public interface IDnsFilterService {
     boolean saveDnsFilter(DnsFilter instance);
 
     List<DnsFilter> selectAll(Map params);
+
     DnsFilter updateDNSFilter(Long id);
 
     boolean start() throws Exception;
+
     boolean stop() throws Exception;
+
     boolean status() throws Exception;
+
     boolean deleteDnsFilter(String ids);
-    boolean toggleDnsFilter(Long id,boolean enable);
+
+    boolean toggleDnsFilter(Long id, boolean enable);
 
 
 }

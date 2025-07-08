@@ -60,11 +60,11 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * 将字符串日期转换为时间戳
      *
      * @param dateString 日期字符串
-     * @param format 日期格式
+     * @param format     日期格式
      * @return 时间戳（毫秒）
      * @throws ParseException 如果日期字符串无法解析
      */
-    public static long convertDateStringToTimestamp(String dateString, String format)  {
+    public static long convertDateStringToTimestamp(String dateString, String format) {
         // 创建 SimpleDateFormat 对象
         SimpleDateFormat sdf = new SimpleDateFormat(format);
 
@@ -81,7 +81,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
 
-    public static String getCurrentTimeMillis(Date date){
+    public static String getCurrentTimeMillis(Date date) {
         // 创建 Date 对象，表示当前时间
         Date now = new Date();
 
@@ -165,11 +165,11 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static double getDistanceOfTwoDate(Date before, Date after) {
         long beforeTime = before.getTime();
         long afterTime = after.getTime();
-        return (double)((afterTime - beforeTime) / 86400000L);
+        return (double) ((afterTime - beforeTime) / 86400000L);
     }
 
     public static int getDistanceOfTwoDateHour(Long beforeTime, Long afterTime) {
-        return (int)((afterTime - beforeTime) / 3600L);
+        return (int) ((afterTime - beforeTime) / 3600L);
     }
 
     public static Long getHourTimestamp(Long datetime) {
@@ -185,7 +185,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     public static int getDistanceOfTwoDateDay(Long beforeTime, Long afterTime) {
-        return (int)((afterTime - beforeTime) / 86400L);
+        return (int) ((afterTime - beforeTime) / 86400L);
     }
 
     public static boolean isEffectiveDate(Date nowTime, Date startTime, Date endTime) {

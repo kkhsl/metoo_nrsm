@@ -38,11 +38,11 @@ public class AddressPoolIpv6VO implements Serializable {
     }
 
     public void setName(String name) {
-        if(StringUtils.isNotEmpty(name)){
-            name = name.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(name)) {
+            name = name.replaceAll("\\s*|\r|\n|\t", "");
             this.name = "#" + name + " \n";
-        }else{
-            this.name =  name;
+        } else {
+            this.name = name;
         }
     }
 
@@ -52,12 +52,12 @@ public class AddressPoolIpv6VO implements Serializable {
     }
 
     public void setSubnetAddresses(String subnetAddresses) {
-        if(StringUtils.isNotEmpty(subnetAddresses)){
-            if(subnetAddresses.contains("/")){
-                subnetAddresses = subnetAddresses.replaceAll("\\s*|\r|\n|\t","");
+        if (StringUtils.isNotEmpty(subnetAddresses)) {
+            if (subnetAddresses.contains("/")) {
+                subnetAddresses = subnetAddresses.replaceAll("\\s*|\r|\n|\t", "");
                 this.subnetAddresses = "subnet6 " + subnetAddresses + " { \n";
             }
-        }else{
+        } else {
             this.subnetAddresses = subnetAddresses;
         }
     }
@@ -68,12 +68,12 @@ public class AddressPoolIpv6VO implements Serializable {
     }
 
     public void setAddressPoolRange(String addressPoolRange) {
-        if(StringUtils.isNotEmpty(addressPoolRange)){
-            addressPoolRange = addressPoolRange.replaceAll("\r|\n|\t","");
+        if (StringUtils.isNotEmpty(addressPoolRange)) {
+            addressPoolRange = addressPoolRange.replaceAll("\r|\n|\t", "");
             addressPoolRange = addressPoolRange.replaceAll("-", " ");
             this.addressPoolRange = "        range6 " + addressPoolRange + ";\n";
-        }else{
-            this.addressPoolRange =  addressPoolRange;
+        } else {
+            this.addressPoolRange = addressPoolRange;
         }
     }
 
@@ -82,16 +82,16 @@ public class AddressPoolIpv6VO implements Serializable {
     }
 
     public void setDNS(String DNS) {
-        if(StringUtils.isNotEmpty(DNS)){
+        if (StringUtils.isNotEmpty(DNS)) {
 //            DNS = DNS.replaceAll("\\s*|\r|\n|\t","");
 //            this.DNS = "        option dhcp6.name-servers " + DNS + ";\n";
             // 解析dns
             try {
                 List<String> dns = MyStringUtils.str2list(DNS);
-                if(dns.size() >= 0){
-                    if(dns.size() == 1){
+                if (dns.size() >= 0) {
+                    if (dns.size() == 1) {
                         this.DNS = "        option dhcp6.name-servers " + DNS + ";\n";
-                    }else{
+                    } else {
                         StringBuffer sb = new StringBuffer();
                         for (String str : dns) {
                             sb.append(str).append(",");
@@ -102,14 +102,14 @@ public class AddressPoolIpv6VO implements Serializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else{
-            this.DNS =  DNS;
+        } else {
+            this.DNS = DNS;
         }
     }
 
 
-    public void getDefault(){
-         {
+    public void getDefault() {
+        {
             this.defaultLeaseTime = "default-lease-time 2592000; \n";
             this.preferred_lifetime = "preferred-lifetime 604800;\n";
             this.dhcp_renewal_time = "option dhcp-renewal-time 3600;\n";
@@ -117,7 +117,7 @@ public class AddressPoolIpv6VO implements Serializable {
             this.allow_leasequery = "allow leasequery;\n";
             this.option_dhcp6_info_refresh_time = "option dhcp6.info-refresh-time 21600;\n";
         }
-     }
+    }
     // 初始化块为属性设置默认值
 //    {
 //        this.defaultLeaseTime = "default-lease-time 2592000; \n";

@@ -5,13 +5,13 @@
 
 
     <resultMap id="TrafficDataResultMap" type="com.metoo.nrsm.entity.TrafficData">
-        <id column="id" property="id" />
-        <result column="addTime" property="addTime" />
-        <result column="ipv4_input_rate" property="ipv4InputRate" />
-        <result column="ipv4_output_rate" property="ipv4OutputRate" />
-        <result column="ipv6_input_rate" property="ipv6InputRate" />
-        <result column="ipv6_output_rate" property="ipv6OutputRate" />
-        <result column="vlan_id" property="vlanId" />
+        <id column="id" property="id"/>
+        <result column="addTime" property="addTime"/>
+        <result column="ipv4_input_rate" property="ipv4InputRate"/>
+        <result column="ipv4_output_rate" property="ipv4OutputRate"/>
+        <result column="ipv6_input_rate" property="ipv6InputRate"/>
+        <result column="ipv6_output_rate" property="ipv6OutputRate"/>
+        <result column="vlan_id" property="vlanId"/>
     </resultMap>
 
     <insert id="insertTrafficData" parameterType="com.metoo.nrsm.entity.TrafficData">

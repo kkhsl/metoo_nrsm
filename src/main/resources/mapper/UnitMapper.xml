@@ -9,7 +9,8 @@
         WHERE id = #{id}
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UnitNewDTO" resultType="com.metoo.nrsm.entity.Unit">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UnitNewDTO"
+            resultType="com.metoo.nrsm.entity.Unit">
         SELECT id, addTime,updateTime,unitName,deleteStatus
         FROM metoo_unit
         <where>
@@ -96,7 +97,8 @@
             <if test="deleteStatus != null and deleteStatus != ''">
                 deleteStatus = #{deleteStatus},
             </if>
-        </set> WHERE id = #{id}
+        </set>
+        WHERE id = #{id}
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">
@@ -106,5 +108,5 @@
     <select id="countByUnitName" resultType="int">
         SELECT COUNT(*) FROM metoo_unit WHERE unitName = #{unitName}
     </select>
-    
+
 </mapper>

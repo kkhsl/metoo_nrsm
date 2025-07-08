@@ -8,11 +8,12 @@ import static java.lang.Thread.sleep;
 public class TestWaitNotify {
 
     private static Object obj = new Object();
+
     // 测试对象锁
     public static void main(String[] args) {
 
         new Thread(() -> {
-            synchronized (obj){// 获取obj锁对象，然后才可以执行wait()
+            synchronized (obj) {// 获取obj锁对象，然后才可以执行wait()
                 log.info("执行...");
                 try {
                     obj.wait();// 让线程在obj上一直等待下去
@@ -24,7 +25,7 @@ public class TestWaitNotify {
         }, "t1").start();
 
         new Thread(() -> {
-            synchronized (obj){
+            synchronized (obj) {
                 log.info("执行...");
                 try {
                     obj.wait();// 让线程在obj上一直等待下去
@@ -39,8 +40,8 @@ public class TestWaitNotify {
         try {
             Thread.sleep(500);
             log.info("唤醒obj上的其他线程");
-            synchronized (obj){
-                 obj.notify(); // 唤醒obj上的一个线程
+            synchronized (obj) {
+                obj.notify(); // 唤醒obj上的一个线程
 //                 obj.notifyAll(); // 唤醒obj上的所有线程
             }
         } catch (InterruptedException e) {

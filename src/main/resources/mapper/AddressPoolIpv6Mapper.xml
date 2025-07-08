@@ -16,13 +16,14 @@
         WHERE id = #{id}
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolIpv6DTO" resultMap="Base_Result_Map">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.AddressPoolIpv6DTO"
+            resultMap="Base_Result_Map">
         SELECT *
         FROM metoo_address_pool_ipv6
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>

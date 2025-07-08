@@ -22,10 +22,11 @@ public class AnalysisDnsLogTask {
     private IDnsLogService dnsLogService;
     @Resource
     private IDnsRecordService recordService;
+
     /**
      * 定时任务解析dns日志并保存汇总数据
      */
-    @Scheduled(cron="${dnsTask.cron}")
+    @Scheduled(cron = "${dnsTask.cron}")
     public void analysisDnsLogTask() {
         log.info("====================================解析dns日志并保存汇总数据开始执行==========================");
         try {
@@ -37,8 +38,8 @@ public class AnalysisDnsLogTask {
             recordService.saveRecord();
             //删除日志文件
 //            dnsLogService.deleteDnsFile();
-        }catch (Exception e){
-            log.error("定时任务解析dns日志并保存汇总数据出现错误：{}",e);
+        } catch (Exception e) {
+            log.error("定时任务解析dns日志并保存汇总数据出现错误：{}", e);
         }
         log.info("====================================解析dns日志并保存汇总数据定时任务结束==========================");
     }

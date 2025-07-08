@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
- *     Description: 通过ApplicationContextUtils 工厂类，根据bean 的名称获取指定bean对象
+ * Description: 通过ApplicationContextUtils 工厂类，根据bean 的名称获取指定bean对象
  */
 @Component
 public class ApplicationContextUtils implements ApplicationContextAware {
@@ -15,7 +15,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        if(ApplicationContextUtils.applicationContext == null) {
+        if (ApplicationContextUtils.applicationContext == null) {
             ApplicationContextUtils.applicationContext = applicationContext;
         }
     }
@@ -29,7 +29,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 
 
     // 通过bean名称获取工厂中指定bean对象
-    public static Object getBean(String beanName){
+    public static Object getBean(String beanName) {
         return applicationContext.getBean(beanName);
     }
 

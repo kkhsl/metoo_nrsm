@@ -19,6 +19,7 @@ public class PingTest {
     private static final int TIMEOUT_MS = 1000;
 
     private final GatherDataThreadPool gatherDataThreadPool;
+
     @Autowired
     public PingTest(GatherDataThreadPool gatherDataThreadPool) {
         this.gatherDataThreadPool = gatherDataThreadPool;

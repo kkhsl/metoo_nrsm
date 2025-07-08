@@ -30,7 +30,7 @@ public class ExcelUtil {
     private static final String ROW_TIPS = "rowTips";
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance();
 
-    public static <T> List<NetworkElement> readMultipartFile(MultipartFile  file, Class<T> clazz) throws Exception {
+    public static <T> List<NetworkElement> readMultipartFile(MultipartFile file, Class<T> clazz) throws Exception {
         JSONArray array = readMultipartFile(file);
         List<NetworkElement> list = new ArrayList<>();
         for (int i = 0; i < array.size(); i++) {
@@ -83,7 +83,7 @@ public class ExcelUtil {
                 continue;
             }
             // 设置对应属性值
-            setFieldValue(t,field, obj, uniqueBuilder, errMsgList);
+            setFieldValue(t, field, obj, uniqueBuilder, errMsgList);
         }
         // 数据唯一性校验
         if (uniqueBuilder.length() > 0) {
@@ -123,7 +123,7 @@ public class ExcelUtil {
 
     private static <T> void setFieldValue(T t, Field field, JSONObject obj, StringBuilder uniqueBuilder, List<String> errMsgList) {
 //        // 获取 ExcelImport 注解属性
-       NetworkElement networkElement = JSON.toJavaObject(obj, NetworkElement.class);
+        NetworkElement networkElement = JSON.toJavaObject(obj, NetworkElement.class);
         System.out.println(networkElement);
 //        // 其余情况根据类型赋值
 //        String fieldClassName = field.getType().getSimpleName();
@@ -174,8 +174,8 @@ public class ExcelUtil {
         return kvMap;
     }
 
-    public static JSONArray readExcel(MultipartFile mFile){
-        if(mFile != null){
+    public static JSONArray readExcel(MultipartFile mFile) {
+        if (mFile != null) {
             // 解析表格数据
             InputStream in;
             String fileName;
@@ -291,7 +291,6 @@ public class ExcelUtil {
         // 错误类型
         return cell.getCellFormula();
     }
-
 
 
 }

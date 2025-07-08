@@ -22,7 +22,6 @@ public class snmpGetMac {
     }
 
 
-
     @Test
     public void getArpV6() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
@@ -36,8 +35,6 @@ public class snmpGetMac {
         log.info("arpV6:{}", result);
 
     }
-
-
 
 
 }

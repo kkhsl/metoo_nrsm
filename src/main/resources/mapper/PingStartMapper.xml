@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.nrsm.core.mapper.PingStartMapper">
 
-    <select id="selectOneObj"  resultType="com.metoo.nrsm.entity.PingStartParam">
+    <select id="selectOneObj" resultType="com.metoo.nrsm.entity.PingStartParam">
         SELECT * FROM metoo_ping_start_param limit 1
     </select>
 

@@ -23,7 +23,7 @@ public class TestUtils {
     private IVlanService vlanService;
 
     @Transactional
-    public void test(){
+    public void test() {
 
         // 更新用户表
         UserDto userDTO = new UserDto();

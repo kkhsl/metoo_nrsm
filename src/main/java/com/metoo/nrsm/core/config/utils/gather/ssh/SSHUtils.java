@@ -23,18 +23,18 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class SSHUtils {
 
-//    @Value("${ssh.hostname}")
+    //    @Value("${ssh.hostname}")
     private String hostname;
-//    @Value("${ssh.port}")
+    //    @Value("${ssh.port}")
     private Integer port;
-//    @Value("${ssh.username}")
+    //    @Value("${ssh.username}")
     private String username;
-//    @Value("${ssh.password}")
+    //    @Value("${ssh.password}")
     private String password;
 
     @Autowired
-    public SSHUtils(@Value("${ssh.hostname}")String hostname, @Value("${ssh.port}")Integer port,
-                    @Value("${ssh.username}")String username, @Value("${ssh.password}")String password) {
+    public SSHUtils(@Value("${ssh.hostname}") String hostname, @Value("${ssh.port}") Integer port,
+                    @Value("${ssh.username}") String username, @Value("${ssh.password}") String password) {
         this.hostname = hostname;
         this.port = port;
         this.username = username;
@@ -42,9 +42,11 @@ public class SSHUtils {
     }
 
     @Test
-    public void testExecuteCommand(){
+    public void testExecuteCommand() {
         this.executeCommand("cd /opt/netmap/os-scanner/os-scanner4 && ./OS-scanner -i 192.168.100.1 -o 443 -c 1");
-    };
+    }
+
+    ;
 
     public String executeCommand(String command) {
         StringBuilder outputBuffer = new StringBuilder();
@@ -81,18 +83,21 @@ public class SSHUtils {
             e.printStackTrace();
         } finally {
             try {
-                if (reader != null){
+                if (reader != null) {
                     reader.close();
                 }
-                if (stdout != null){
+                if (stdout != null) {
                     stdout.close();
-                };
-                if (session != null){
+                }
+                ;
+                if (session != null) {
                     session.close();
-                };
-                if (connection != null){
+                }
+                ;
+                if (connection != null) {
                     connection.close();
-                };
+                }
+                ;
             } catch (IOException e) {
                 e.printStackTrace();
             }

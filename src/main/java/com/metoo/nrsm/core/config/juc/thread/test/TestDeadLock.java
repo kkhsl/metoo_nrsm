@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * 线程死锁
- *
  */
 @Slf4j
 public class TestDeadLock {
@@ -20,11 +19,11 @@ public class TestDeadLock {
         Object B = new Object();
 
         new Thread(() -> {
-            synchronized (A){
+            synchronized (A) {
                 log.info("Lock A ...");
                 try {
                     Thread.sleep(1000);
-                    synchronized (B){
+                    synchronized (B) {
                         log.info("Lock B ...");
                         log.info("操作");
                     }
@@ -36,11 +35,11 @@ public class TestDeadLock {
         }, "t1").start();
 
         new Thread(() -> {
-            synchronized (B){
+            synchronized (B) {
                 log.info("Lock B ...");
                 try {
                     Thread.sleep(1000);
-                    synchronized (A){
+                    synchronized (A) {
                         log.info("Lock A ...");
                         log.info("操作");
                     }
@@ -84,6 +83,6 @@ public class TestDeadLock {
         t2.join();
 
 
-       log.info(String.valueOf(list.size()));
+        log.info(String.valueOf(list.size()));
     }
 }

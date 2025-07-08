@@ -466,7 +466,7 @@ public class FluxConfigManagerController {
     @GetMapping("/gather")
     @Scheduled(cron = "0 */5 * * * ?")
     public Result gather() {
-        if(!flag){
+        if (!flag) {
             return ResponseUtil.ok();
         }
         Date now = new Date();
@@ -512,7 +512,7 @@ public class FluxConfigManagerController {
                     // 2. 创建只包含指定端口索引的 Map
                     Map<String, String> portMap = createSinglePortMap(snmpParams, portIndex);
 
-                    if (isIPv4){
+                    if (isIPv4) {
                         // 3. 处理IPv4 OID配置
                         List<List<String>> ipv4Oids = parseOidConfig(config.getIpv4Oid());
                         for (List<String> oidTriple : ipv4Oids) {
@@ -555,7 +555,7 @@ public class FluxConfigManagerController {
             }
 
             // 5. 保存流量数据到数据库（用于曲线图展示）
-            saveTrafficData(trafficDataList,now);
+            saveTrafficData(trafficDataList, now);
 
             // 6. 转换为GB单位（在最终结果转换）
             BigDecimal divisor = BigDecimal.valueOf(1_000_000_000);
@@ -844,7 +844,7 @@ public class FluxConfigManagerController {
     /**
      * 保存流量数据到数据库
      */
-    private void saveTrafficData(List<PortTrafficData> trafficDataList,Date now) {
+    private void saveTrafficData(List<PortTrafficData> trafficDataList, Date now) {
         if (CollectionUtils.isEmpty(trafficDataList)) {
             return;
         }
@@ -941,13 +941,15 @@ public class FluxConfigManagerController {
 
         return result;
     }
+
     @Value("${task.switch.is-open}")
     private boolean flag;
+
     @Scheduled(cron = "0 0 1 * * ?")
     @Transactional
     public void cleanupOldTrafficData() {
-        if(!flag){
-           return;
+        if (!flag) {
+            return;
         }
         long thirtyDaysAgo = System.currentTimeMillis() / 1000 - 30 * 24 * 3600;
         portTrafficDataMapper.deleteByTimestampBefore(thirtyDaysAgo);

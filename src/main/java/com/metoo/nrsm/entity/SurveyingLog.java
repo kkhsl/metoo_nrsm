@@ -35,46 +35,47 @@ public class SurveyingLog {
 
     private Integer type;
 
-    public SurveyingLog addTime(String addTime){
+    public SurveyingLog addTime(String addTime) {
         this.addTime = addTime;
         return this;
     }
 
-    public SurveyingLog name(String name){
+    public SurveyingLog name(String name) {
         this.name = name;
         return this;
     }
 
-    public SurveyingLog beginTime(String beginTime){
+    public SurveyingLog beginTime(String beginTime) {
         this.beginTime = beginTime;
         return this;
     }
 
-    public SurveyingLog endTime(String endTime){
+    public SurveyingLog endTime(String endTime) {
         this.endTime = endTime;
         return this;
     }
 
-    public SurveyingLog status(Integer status){
+    public SurveyingLog status(Integer status) {
         this.status = status;
         return this;
     }
 
-    public SurveyingLog desc(String desc){
+    public SurveyingLog desc(String desc) {
         this.desc = desc;
         return this;
     }
 
-    public SurveyingLog info(Integer info){
+    public SurveyingLog info(Integer info) {
         this.info = info;
         return this;
     }
-    public SurveyingLog parentId(Integer parentId){
+
+    public SurveyingLog parentId(Integer parentId) {
         this.parentId = parentId;
         return this;
     }
 
-    public SurveyingLog type(Integer type){
+    public SurveyingLog type(Integer type) {
         this.type = type;
         return this;
     }

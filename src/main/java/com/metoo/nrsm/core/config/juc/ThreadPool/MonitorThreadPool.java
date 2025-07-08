@@ -27,7 +27,7 @@ public class MonitorThreadPool {
         };
 
         // 定义线程池
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 5,0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5),
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 5, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5),
                 Executors.defaultThreadFactory(), new ThreadPoolExecutor.DiscardPolicy());
 
         // 向线程池提交30个任务
@@ -35,12 +35,12 @@ public class MonitorThreadPool {
             executor.submit(runnerble);
             System.out.println(
                     " 当前线程池核心线程数量：" + executor.getCorePoolSize()
-                +   " 最大线程数：" + executor.getMaximumPoolSize()
-                +   " 当前线程池大小：" + executor.getPoolSize()
-                +   " 活动线程："       + executor.getActiveCount()
-                +   " 收到任务数："    + executor.getTaskCount()
-                +   " 完成任务数："    + executor.getCompletedTaskCount()
-                +   " 等待任务数："    + executor.getQueue().size()
+                            + " 最大线程数：" + executor.getMaximumPoolSize()
+                            + " 当前线程池大小：" + executor.getPoolSize()
+                            + " 活动线程：" + executor.getActiveCount()
+                            + " 收到任务数：" + executor.getTaskCount()
+                            + " 完成任务数：" + executor.getCompletedTaskCount()
+                            + " 等待任务数：" + executor.getQueue().size()
             );
             try {
                 TimeUnit.SECONDS.sleep(10);
@@ -49,15 +49,15 @@ public class MonitorThreadPool {
             }
         }
 
-        while (executor.getActiveCount() >= 0){
+        while (executor.getActiveCount() >= 0) {
             System.out.println(
                     " 当前线程池核心线程数量：" + executor.getCorePoolSize()
-                            +   " 最大线程数：" + executor.getMaximumPoolSize()
-                            +   " 当前线程池大小：" + executor.getPoolSize()
-                            +   " 活动线程："       + executor.getActiveCount()
-                            +   " 收到任务数："    + executor.getTaskCount()
-                            +   " 完成任务数："    + executor.getCompletedTaskCount()
-                            +   " 等待任务数："    + executor.getQueue().size()
+                            + " 最大线程数：" + executor.getMaximumPoolSize()
+                            + " 当前线程池大小：" + executor.getPoolSize()
+                            + " 活动线程：" + executor.getActiveCount()
+                            + " 收到任务数：" + executor.getTaskCount()
+                            + " 完成任务数：" + executor.getCompletedTaskCount()
+                            + " 等待任务数：" + executor.getQueue().size()
             );
             try {
                 TimeUnit.SECONDS.sleep(1);

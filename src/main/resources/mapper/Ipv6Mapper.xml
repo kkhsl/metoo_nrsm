@@ -94,22 +94,22 @@
 
     <insert id="batchSaveGather" parameterType="java.util.List">
         INSERT INTO metoo_ipv6_gather (
-            addTime,
-            ip,
-            mac,
-            port,
-            deviceIp,
-            deviceName
+        addTime,
+        ip,
+        mac,
+        port,
+        deviceIp,
+        deviceName
         )
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
-                #{item.addTime},
-                #{item.ip},
-                #{item.mac},
-                #{item.port},
-                #{item.deviceIp},
-                #{item.deviceName}
+            #{item.addTime},
+            #{item.ip},
+            #{item.mac},
+            #{item.port},
+            #{item.deviceIp},
+            #{item.deviceName}
             )
         </foreach>
     </insert>

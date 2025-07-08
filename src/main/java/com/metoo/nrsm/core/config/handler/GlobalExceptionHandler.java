@@ -25,21 +25,20 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
 
 
-
 /**
  * <p>
- *     Title: GlobalExceptionHandler.java
+ * Title: GlobalExceptionHandler.java
  * </p>
  *
  * <p>
- *     Description: 全局异常处理类, 增强的 Controller
- *     全局异常处理
- *     全局数据绑定
-*      全局数据预处理
+ * Description: 全局异常处理类, 增强的 Controller
+ * 全局异常处理
+ * 全局数据绑定
+ * 全局数据预处理
  * </p>
  *
  * <author>
- *     Hkk
+ * Hkk
  * </author>
  */
 @Slf4j
@@ -51,30 +50,29 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
-    public Object badArgumentHandler(IllegalArgumentException e){
-        log.error(e.getMessage(),e);
+    public Object badArgumentHandler(IllegalArgumentException e) {
+        log.error(e.getMessage(), e);
         return ResponseUtil.badArgument();
     }
 
 
-
     @ExceptionHandler(MyIllegalArgumentException.class)
     @ResponseBody
-    public Object badArgumentHandler2(MyIllegalArgumentException e){
-        log.error(e.getMessage(),e);
+    public Object badArgumentHandler2(MyIllegalArgumentException e) {
+        log.error(e.getMessage(), e);
         return ResponseUtil.badArgument(e.getMessage());
     }
 
     @ExceptionHandler(NullPointerException.class)
     @ResponseBody
-    public Object badArgumentHandler(NullPointerException e){
+    public Object badArgumentHandler(NullPointerException e) {
         log.error(e.getMessage(), e);
         return ResponseUtil.nullPointException();
     }
 
     @ExceptionHandler(ArithmeticException.class)
     @ResponseBody
-    public Object ArithmeticException(ArithmeticException e){
+    public Object ArithmeticException(ArithmeticException e) {
         log.error(e.getMessage(), e);
         return ResponseUtil.arithmeticException();
     }
@@ -93,7 +91,7 @@ public class GlobalExceptionHandler {
 //    }
 
     @ExceptionHandler(FileNotFoundException.class)
-    public Object fileNotFoundException(FileNotFoundException e){
+    public Object fileNotFoundException(FileNotFoundException e) {
         log.error(e.getMessage());
         return ResponseUtil.fileNotFoundException();
     }
@@ -120,21 +118,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = HttpServerErrorException.class)
     @ResponseBody
-    public Object httpServletErrorException(HttpServerErrorException e){
+    public Object httpServletErrorException(HttpServerErrorException e) {
         System.out.println(e.getMessage());
         return ResponseUtil.badArgument("远程调用失败，检查参数是否正确");
     }
 
     @ExceptionHandler(value = NoSuchMethodError.class)
     @ResponseBody
-    public Object NoSuchMethodError(NoSuchMethodError e){
+    public Object NoSuchMethodError(NoSuchMethodError e) {
         System.out.println(e.getMessage());
         return ResponseUtil.notFound();
     }
 
     @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
     @ResponseBody
-    public Object MethodArgumentTypeMismatchException(NoSuchMethodError e){
+    public Object MethodArgumentTypeMismatchException(NoSuchMethodError e) {
         return ResponseUtil.badArgument();
     }
 
@@ -147,7 +145,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseBody
-    public Object HttpMessageNotReadableException(HttpMessageNotReadableException e){
+    public Object HttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.info("全局异常捕获：{}", e.getMessage());
         // 如果嵌套的异常是 InvalidFormatException（数据格式无效），提供更具体的错误信息
         if (e.getCause() instanceof InvalidFormatException) {
@@ -191,18 +189,12 @@ public class GlobalExceptionHandler {
 //    }
 
 
-
 //    @ExceptionHandler(value = DataIntegrityViolationException.class)
 //    @ResponseBody
 //    public Object DataIntegrityViolationException(DataIntegrityViolationException e){
 //        System.out.println(e.getMessage());
 //        return ResponseUtil.badArgument("检查日期格式");
 //    }
-
-
-
-
-
 
 
     // 捕捉shiro的异常

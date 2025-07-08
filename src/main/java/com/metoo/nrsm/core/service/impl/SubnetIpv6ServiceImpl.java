@@ -61,9 +61,9 @@ public class SubnetIpv6ServiceImpl implements ISubnetIpv6Service {
     @Override
     public Result update(SubnetIpv6 instance) {
         try {
-            if(this.selectObjById(instance.getId()) != null) {
+            if (this.selectObjById(instance.getId()) != null) {
                 int i = this.subnetIpv6Mapper.update(instance);
-                if(i >= 0){
+                if (i >= 0) {
                     return ResponseUtil.ok();
                 }
             }
@@ -80,9 +80,9 @@ public class SubnetIpv6ServiceImpl implements ISubnetIpv6Service {
 //        String path = Global.PYPATH + "subnetipv6.py";
 //        String result = pythonExecUtils.exec(path);
         String result = analyzeSubnets();
-        if(!"".equals(result)){
+        if (!"".equals(result)) {
             JSONObject obj = JSONObject.parseObject(result);
-            if(obj != null){
+            if (obj != null) {
                 generic(obj, null);
                 return ResponseUtil.ok();
             }

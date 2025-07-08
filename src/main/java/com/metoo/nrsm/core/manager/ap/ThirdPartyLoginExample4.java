@@ -68,7 +68,7 @@ public class ThirdPartyLoginExample4 {
         loginRequest.setHeader("Content-Type", "application/json");
 
         // 构造登录参数，这里假设参数是一个 JSON 格式的字符串
-        String jsonParams = "{\"password\": \""+password+"\"}";
+        String jsonParams = "{\"password\": \"" + password + "\"}";
 
         // 设置请求体
         loginRequest.setEntity(new StringEntity(jsonParams));
@@ -86,7 +86,6 @@ public class ThirdPartyLoginExample4 {
             // 在这里可以处理登录成功后的逻辑
             System.out.println("Login successful.");
             System.out.println("Response body: " + responseBody);
-
 
 
             // 其他接口的 URL
@@ -146,6 +145,7 @@ public class ThirdPartyLoginExample4 {
             return encryptedString;
         } catch (Exception e) {
             e.printStackTrace();
-        }return "";
+        }
+        return "";
     }
 }

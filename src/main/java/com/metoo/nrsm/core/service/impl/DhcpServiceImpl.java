@@ -176,7 +176,7 @@ public class DhcpServiceImpl implements IDhcpService {
                             }
                             data = new HashMap();
                         }
-                        if(data != null){
+                        if (data != null) {
                             DhcpUtils.parseValue(key, line, data);
                         }
                     }
@@ -293,58 +293,57 @@ public class DhcpServiceImpl implements IDhcpService {
         }
     }
 
-        public static void main(String[] args) {
-            String host = "192.168.60.90"; // 远程主机 IP
-            int port = 22; // SSH 端口
-            String user = "root"; // 用户名
-            String password = "Transfar@123"; // 密码
-            String filePath = "/etc/dhcp/dhcpd.conf"; // 配置文件路径
+    public static void main(String[] args) {
+        String host = "192.168.60.90"; // 远程主机 IP
+        int port = 22; // SSH 端口
+        String user = "root"; // 用户名
+        String password = "Transfar@123"; // 密码
+        String filePath = "/etc/dhcp/dhcpd.conf"; // 配置文件路径
 
-            try {
-                // 初始化 JSch
-                JSch jsch = new JSch();
-                Session session = jsch.getSession(user, host, port);
+        try {
+            // 初始化 JSch
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(user, host, port);
 
-                // 设置密码
-                session.setPassword(password);
+            // 设置密码
+            session.setPassword(password);
 
-                // 忽略主机验证
-                session.setConfig("StrictHostKeyChecking", "no");
+            // 忽略主机验证
+            session.setConfig("StrictHostKeyChecking", "no");
 
-                // 建立连接
-                System.out.println("Connecting to " + host + "...");
-                session.connect();
-                System.out.println("Connected to " + host);
+            // 建立连接
+            System.out.println("Connecting to " + host + "...");
+            session.connect();
+            System.out.println("Connected to " + host);
 
-                // 执行命令以读取文件内容
-                String command = "cat " + filePath;
-                ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-                channelExec.setCommand(command);
+            // 执行命令以读取文件内容
+            String command = "cat " + filePath;
+            ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+            channelExec.setCommand(command);
 
-                // 获取命令的输入流
-                InputStream in = channelExec.getInputStream();
+            // 获取命令的输入流
+            InputStream in = channelExec.getInputStream();
 
-                // 打开通道
-                channelExec.connect();
+            // 打开通道
+            channelExec.connect();
 
-                // 读取文件内容
-                try (Scanner scanner = new Scanner(in)) {
-                    System.out.println("File Content:");
-                    while (scanner.hasNextLine()) {
-                        System.out.println(scanner.nextLine());
-                    }
+            // 读取文件内容
+            try (Scanner scanner = new Scanner(in)) {
+                System.out.println("File Content:");
+                while (scanner.hasNextLine()) {
+                    System.out.println(scanner.nextLine());
                 }
-
-                // 关闭通道和会话
-                channelExec.disconnect();
-                session.disconnect();
-                System.out.println("Disconnected from " + host);
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }
 
+            // 关闭通道和会话
+            channelExec.disconnect();
+            session.disconnect();
+            System.out.println("Disconnected from " + host);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }

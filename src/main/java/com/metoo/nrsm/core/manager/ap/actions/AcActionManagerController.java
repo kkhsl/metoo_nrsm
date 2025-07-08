@@ -39,26 +39,26 @@ public class AcActionManagerController {
     private ITerminalService terminalService;
 
     @PostMapping("apsearch")
-    public JSONObject apsearch(@RequestBody AcAction instance){
+    public JSONObject apsearch(@RequestBody AcAction instance) {
         JSONObject jsonObject = GecossApiUtil.getCall(GecossApiUtil.parseParam(instance, "apsearch"));
         return jsonObject;
     }
 
     @PostMapping("stasearch")
-    public JSONObject stasearch(@RequestBody AcUser instance){
+    public JSONObject stasearch(@RequestBody AcUser instance) {
         JSONObject result = GecossApiUtil.getCall(GecossApiUtil.parseParam(instance, "stasearch"));
         JSONObject jsonObject = result;
-        if(StringUtils.isNotBlank(String.valueOf(jsonObject.get("stalist")))/*jsonObject.get("stalist") != null && Strings.isNotBlank(String.valueOf(jsonObject.get("stalist")))*/){
+        if (StringUtils.isNotBlank(String.valueOf(jsonObject.get("stalist")))/*jsonObject.get("stalist") != null && Strings.isNotBlank(String.valueOf(jsonObject.get("stalist")))*/) {
             JSONArray jsonArray = jsonObject.getJSONArray("stalist");
-            if(jsonArray != null){
+            if (jsonArray != null) {
                 Map params = new HashMap();
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject obj = jsonArray.getJSONObject(i);
-                    if(Strings.isNotBlank(obj.getString("mac"))){
+                    if (Strings.isNotBlank(obj.getString("mac"))) {
                         params.clear();
                         params.put("mac", obj.getString("mac"));
                         List<Terminal> terminals = terminalService.selectObjByMap(params);
-                        if(terminals.size() > 0){
+                        if (terminals.size() > 0) {
                             Terminal terminal = terminals.get(0);
                             obj.put("ipv4", terminal.getV4ip());
                             obj.put("ipv41", terminal.getV4ip1());
@@ -77,32 +77,32 @@ public class AcActionManagerController {
     }
 
     @GetMapping("sync")
-    public Result sync(){
+    public Result sync() {
         AcAction instance = new AcAction();
         instance.setNumperpage(1000000);
         instance.setPagenum(1);
         JSONObject jsonObject = GecossApiUtil.getCall(GecossApiUtil.parseParam(instance, "apsearch"));
-        if(Strings.isNotBlank(String.valueOf(jsonObject.get("aplist")))){
+        if (Strings.isNotBlank(String.valueOf(jsonObject.get("aplist")))) {
             JSONArray jsonArray = JSONObject.parseArray(String.valueOf(jsonObject.get("aplist")));
             Set<String> set = new HashSet();
-            if(jsonArray != null){
+            if (jsonArray != null) {
                 Map params = new HashMap();
                 DeviceType deviceType = deviceTypeService.selectObjByType(8);
                 for (Object ele : jsonArray) {
                     JSONObject obj = JSONObject.parseObject(String.valueOf(ele));
                     String name = obj.getString("name");
                     String ip = obj.getString("ip");
-                    if(Strings.isNotBlank(name) && Strings.isNotBlank(ip)){
+                    if (Strings.isNotBlank(name) && Strings.isNotBlank(ip)) {
                         params.clear();
                         params.put("deviceName", name);
                         params.put("ip", ip);
                         List<NetworkElement> list = this.networkElementService.selectObjByMap(params);
-                        if(list.size() <= 0){
+                        if (list.size() <= 0) {
                             NetworkElement ne = new NetworkElement();
                             ne.setDeviceName(name);
                             ne.setIp(ip);
                             ne.setType(3);
-                            if(deviceType != null){
+                            if (deviceType != null) {
                                 ne.setDeviceTypeId(deviceType.getId());
                             }
                             this.networkElementService.save(ne);
@@ -114,7 +114,7 @@ public class AcActionManagerController {
                 params.put("NotEqualdeviceNameSet", set);
                 params.put("type", 3);
                 List<NetworkElement> list = this.networkElementService.selectObjByMap(params);
-                if(list.size() > 0){
+                if (list.size() > 0) {
                     for (NetworkElement networkElement : list) {
                         this.networkElementService.delete(networkElement.getId());
                     }

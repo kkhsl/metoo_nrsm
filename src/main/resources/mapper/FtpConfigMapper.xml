@@ -20,12 +20,12 @@
     <!-- 新增FTP配置 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         INSERT INTO metoo_ftp_config (
-            ftp_host, ftp_port, user_name, password, file_path,
-            delete_status, create_user, create_time, update_user, update_time
+        ftp_host, ftp_port, user_name, password, file_path,
+        delete_status, create_user, create_time, update_user, update_time
         ) VALUES (
-                     #{ftpHost}, #{ftpPort}, #{userName}, #{password}, #{filePath},
-                     COALESCE(#{deleteStatus}, 0), #{createUser}, #{createTime}, #{updateUser}, #{updateTime}
-                 )
+        #{ftpHost}, #{ftpPort}, #{userName}, #{password}, #{filePath},
+        COALESCE(#{deleteStatus}, 0), #{createUser}, #{createTime}, #{updateUser}, #{updateTime}
+        )
     </insert>
 
     <!-- 更新FTP配置 -->
@@ -47,7 +47,7 @@
     <!-- 查询有效配置 -->
     <select id="selectAllActive" resultMap="BaseResultMap">
         SELECT id, ftp_host, ftp_port, user_name, password, file_path,
-               delete_status, create_user, create_time, update_user, update_time
+        delete_status, create_user, create_time, update_user, update_time
         FROM metoo_ftp_config
         WHERE delete_status = 0
     </select>
@@ -55,7 +55,7 @@
     <!-- 按ID查询 -->
     <select id="selectById" resultMap="BaseResultMap">
         SELECT id, ftp_host, ftp_port, user_name, password, file_path,
-               delete_status, create_user, create_time, update_user, update_time
+        delete_status, create_user, create_time, update_user, update_time
         FROM metoo_ftp_config
         WHERE id = #{id}
     </select>

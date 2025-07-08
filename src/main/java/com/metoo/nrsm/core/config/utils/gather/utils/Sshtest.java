@@ -32,17 +32,17 @@ public class Sshtest {
 
     }
 
-    public static Integer ipv4InboundResult(String data, String rule){
-        if(StringUtil.isNotEmpty(data)){
+    public static Integer ipv4InboundResult(String data, String rule) {
+        if (StringUtil.isNotEmpty(data)) {
             JSONArray jsonArray = JSONArray.parseArray(data);
-            if(jsonArray.size() > 0){
+            if (jsonArray.size() > 0) {
 
                 int ipv4Inbound1 = 0;
                 int ipv4Inbound2 = 0;
 
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if(jsonObject.get("Type").equals("sum-ipv4, inbound")){
+                    if (jsonObject.get("Type").equals("sum-ipv4, inbound")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -57,7 +57,7 @@ public class Sshtest {
                     int ipv4Outbound1 = 0;
                     int ipv4Outbound2 = 0;
 
-                    if(jsonObject.get("Type").equals("sum-ipv4, outbound")){
+                    if (jsonObject.get("Type").equals("sum-ipv4, outbound")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -73,7 +73,7 @@ public class Sshtest {
                     int ipv6Inbound1 = 0;
                     int ipv6Inbound2 = 0;
 
-                    if(jsonObject.get("Type").equals("sum-ipv6, inbound")){
+                    if (jsonObject.get("Type").equals("sum-ipv6, inbound")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -88,7 +88,7 @@ public class Sshtest {
                     int ipv6Outbound1 = 0;
                     int ipv6Outbound2 = 0;
 
-                    if(jsonObject.get("Type").equals("sum-ipv6, outbound")){
+                    if (jsonObject.get("Type").equals("sum-ipv6, outbound")) {
                         for (String key : jsonObject.keySet()) {
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
@@ -106,13 +106,13 @@ public class Sshtest {
                 return ipv4Inbound1 - ipv4Inbound2;
             }
         }
-        return 0 ;
+        return 0;
     }
 
-    public static void insertTraffic2(String data){
-        if(StringUtil.isNotEmpty(data)){
+    public static void insertTraffic2(String data) {
+        if (StringUtil.isNotEmpty(data)) {
             JSONArray jsonArray = JSONArray.parseArray(data);
-            if(jsonArray.size() > 0){
+            if (jsonArray.size() > 0) {
 
                 int ipv4Inbound = 0;
 
@@ -124,7 +124,7 @@ public class Sshtest {
 
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    if(jsonObject.get("Protocol").equals("Ipv4")){
+                    if (jsonObject.get("Protocol").equals("Ipv4")) {
                         if (jsonObject.containsKey("Input")) {
                             ipv4Inbound += Integer.parseInt(jsonObject.getString("Input"));
                         }
@@ -133,7 +133,7 @@ public class Sshtest {
                         }
                     }
 
-                    if(jsonObject.get("Protocol").equals("Ipv6")){
+                    if (jsonObject.get("Protocol").equals("Ipv6")) {
                         if (jsonObject.containsKey("Input")) {
                             ipv6Inbound += Integer.parseInt(jsonObject.getString("Input"));
                         }
@@ -157,7 +157,8 @@ public class Sshtest {
             }
         }
     }
-    public static String exec(String path, String[] params){
+
+    public static String exec(String path, String[] params) {
         String host = "192.168.5.205";
         int port = 22;
         String username = "nrsm";
@@ -216,11 +217,11 @@ public class Sshtest {
             return inStr;
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if(session != null){
+        } finally {
+            if (session != null) {
                 session.close();
             }
-            if(conn != null){
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -229,15 +230,13 @@ public class Sshtest {
 
     public static String consumeInputStream(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String s ;
+        String s;
         StringBuilder sb = new StringBuilder();
-        while((s=br.readLine())!=null){
+        while ((s = br.readLine()) != null) {
             sb.append(s);
         }
         return sb.toString();
     }
-
-
 
 
     @Test
@@ -262,9 +261,9 @@ public class Sshtest {
         String errStr = consumeInputStream(session.getStderr());
 
         System.out.println(inStr);
-        if(StringUtils.isNotEmpty(inStr)){
+        if (StringUtils.isNotEmpty(inStr)) {
             System.out.println(1);
-        }else{
+        } else {
             System.out.println(2);
         }
 

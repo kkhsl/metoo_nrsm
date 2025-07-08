@@ -235,6 +235,7 @@ public class PyCommandBuilder3 {
         String[] array = new String[list.size()];
         return list.toArray(array);
     }
+
     public String[] toStringArrayReomveName() {
         List<String> list = new ArrayList<>();
         if (prefix != null && !prefix.isEmpty()) {

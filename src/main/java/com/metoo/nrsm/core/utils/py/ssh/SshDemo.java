@@ -14,7 +14,8 @@ public class SshDemo {
 
         String[] str = {
                 "--version"};
-        System.out.println(exec(str));;
+        System.out.println(exec(str));
+        ;
     }
 
     public static String exec(String[] params) throws IOException {
@@ -88,11 +89,11 @@ public class SshDemo {
             return inStr;
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if(session != null){
+        } finally {
+            if (session != null) {
                 session.close();
             }
-            if(conn != null){
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -101,9 +102,9 @@ public class SshDemo {
 
     public static String consumeInputStream(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String s ;
+        String s;
         StringBuilder sb = new StringBuilder();
-        while((s=br.readLine())!=null){
+        while ((s = br.readLine()) != null) {
             sb.append(s);
         }
         return sb.toString();

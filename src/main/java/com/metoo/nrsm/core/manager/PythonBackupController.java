@@ -56,14 +56,14 @@ public class PythonBackupController {
 
     @GetMapping("/select")
     private Result list(String ip) {
-        DeviceConfigDTO instance=new DeviceConfigDTO();
-        if (ip!=null){
+        DeviceConfigDTO instance = new DeviceConfigDTO();
+        if (ip != null) {
             instance.setName(ip);
         }
         Page<DeviceConfig> page = deviceConfigService.selectAll(instance);
-        if (page!=null){
+        if (page != null) {
             return ResponseUtil.ok(page);
-        }else {
+        } else {
             return ResponseUtil.ok("该设备无备份配置");
         }
     }
@@ -86,9 +86,9 @@ public class PythonBackupController {
             // 删除对应的备份文件
             int filesDeleted = deleteBackupFiles(configs);
 
-            if (deletedCount==filesDeleted){
+            if (deletedCount == filesDeleted) {
                 return ResponseUtil.ok("删除成功");
-            }else {
+            } else {
                 return ResponseUtil.error("删除失败");
             }
         } catch (Exception e) {
@@ -180,11 +180,10 @@ public class PythonBackupController {
     }
 
 
-
     /*
     python main.py switch h3c 192.168.6.1 ssh 22 metoo metoo89745000 cur
      */
-    @GetMapping ("/backup")
+    @GetMapping("/backup")
     private Result gather(String ips) {
         // 初始化结果集合
         Map<String, BackupResult> results = new LinkedHashMap<>();

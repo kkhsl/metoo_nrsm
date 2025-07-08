@@ -18,13 +18,13 @@ import java.nio.charset.StandardCharsets;
  * SM4是一种对称加密算法，也称为国密算法，由中国国家密码管理局设计。
  * 它是一种轻量级块密码算法，适用于多种加密场景，包括数据传输和存储安全等。
  * SM4算法具有高效、安全等特点，适合于在各种软硬件环境中使用
- *
+ * <p>
  * 实现步骤：
  * 1，导入相应的加密库，比如Bouncy Castle。
  * 2，创建一个SM4加密/解密的实例。
  * 3，设置密钥和初始化向量（IV）。
  * 4，使用实例进行数据加密和解密操作
- *
+ * <p>
  * 使用Bouncy Castle库来实现SM4加密算法。
  * 使用了128位的密钥和初始化向量（IV）。
  * 使用CBC模式进行加密，并且采用了填充方式（PaddedBufferedBlockCipher）来处理数据块大小不足的情况
@@ -71,7 +71,7 @@ public class EncrypUtils {
         SM4Engine engine = new SM4Engine();
 
         // CBC模式
-        PaddedBufferedBlockCipher cipher=new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
+        PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
 
         CipherParameters params = new ParametersWithIV(new KeyParameter(keyBytes), ivBytes);
 
@@ -145,7 +145,7 @@ public class EncrypUtils {
         SM4Engine engine = new SM4Engine();
 
         // CBC模式
-        PaddedBufferedBlockCipher cipher=new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
+        PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
 
         CipherParameters params = new ParametersWithIV(new KeyParameter(keyBytes), ivBytes);
 

@@ -11,11 +11,11 @@ import java.io.IOException;
 import java.util.*;
 
 @Slf4j
-public class MyRedisManager<k,v> {
+public class MyRedisManager<k, v> {
 
     private String cacheName;
 
-    public String getCacheName(){
+    public String getCacheName() {
         return this.cacheName;
     }
 
@@ -154,7 +154,6 @@ public class MyRedisManager<k,v> {
     }
 
 
-
 //    public Map<String, Integer> getAllWithValue(int targetValue) {
 //        String luaScript =
 //                "local result = {} " +
@@ -183,7 +182,7 @@ public class MyRedisManager<k,v> {
 //        return resultMap;
 //    }
 
-    private RedisTemplate getRedisTemplate(){
+    private RedisTemplate getRedisTemplate() {
         return (RedisTemplate) ApplicationContextUtils.getBean("redisTemplate");
     }
 }

@@ -30,7 +30,7 @@ public class TrafficServiceImpl implements ITrafficService {
 
     @Override
     public int save(Traffic instance) {
-        if(instance.getAddTime() == null){
+        if (instance.getAddTime() == null) {
             instance.setAddTime(new Date());
         }
         try {

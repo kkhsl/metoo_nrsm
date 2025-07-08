@@ -37,8 +37,8 @@ public class FluxDailyRateManagerController {
     private IFlowStatisticsService flowStatisticsService;
 
     @GetMapping
-    public Result data(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startTime,
-                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime){
+    public Result data(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
+                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime) {
         Map params = new HashMap();
         params.clear();
         params.put("startOfDay", startTime);
@@ -47,7 +47,7 @@ public class FluxDailyRateManagerController {
         return ResponseUtil.ok(fluxDailyRates);
     }
 
-    public void gather(){
+    public void gather() {
         Date endOfDay = DateTools.getEndOfDay();
         FluxDailyRate fluxDailyRate = new FluxDailyRate();
         fluxDailyRate.setRate(new BigDecimal(0));
@@ -57,7 +57,7 @@ public class FluxDailyRateManagerController {
         params.put("startOfDay", DateTools.getStartOfDay());
         params.put("endOfDay", endOfDay);
         List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
-        if(flowStatisticsList.size() > 0){
+        if (flowStatisticsList.size() > 0) {
             BigDecimal sum = flowStatisticsList.stream().filter(e -> e.getIpv6Rate() != null).map(FlowStatistics::getIpv6Rate)
                     .collect(Collectors.toList())
                     .stream().reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -66,13 +66,13 @@ public class FluxDailyRateManagerController {
                     .collect(Collectors.toList())
                     .stream().count();
 
-            if(sum.compareTo(new BigDecimal(0)) >= 1){
+            if (sum.compareTo(new BigDecimal(0)) >= 1) {
                 BigDecimal rate = sum.divide(new BigDecimal(count), 2, BigDecimal.ROUND_HALF_UP);
                 fluxDailyRate.setRate(rate);
                 GradeWeight gradeWeight = this.gradWeightService.selectObjOne();
-                if(gradeWeight != null){
-                    if(gradeWeight.getReach() != null && gradeWeight.getReach().compareTo(new BigDecimal(0)) >= 1){
-                        if(rate.compareTo(gradeWeight.getReach()) > -1){
+                if (gradeWeight != null) {
+                    if (gradeWeight.getReach() != null && gradeWeight.getReach().compareTo(new BigDecimal(0)) >= 1) {
+                        if (rate.compareTo(gradeWeight.getReach()) > -1) {
                             fluxDailyRate.setFlag(true);
                         }
                     }

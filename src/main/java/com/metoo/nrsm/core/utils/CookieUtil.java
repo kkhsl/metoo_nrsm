@@ -12,6 +12,7 @@ public class CookieUtil {
 
     /**
      * 移除指定cookie
+     *
      * @param request
      * @param response
      * @param name
@@ -35,7 +36,7 @@ public class CookieUtil {
             Cookie[] var4 = cookies;
             int var5 = cookies.length;
 
-            for(int var6 = 0; var6 < var5; ++var6) {
+            for (int var6 = 0; var6 < var5; ++var6) {
                 Cookie c = var4[var6];
                 if (name.equals(c.getName())) {
                     cookie = c;

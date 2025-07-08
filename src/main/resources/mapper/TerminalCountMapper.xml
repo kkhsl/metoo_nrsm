@@ -14,11 +14,11 @@
             <if test="time != null">
                 AND addTime = (
                 SELECT
-                  addTime
+                addTime
                 FROM
-                  metoo_terminal_history
+                metoo_terminal_history
                 WHERE
-                  addTime &lt;= #{time}
+                addTime &lt;= #{time}
                 ORDER BY addTime DESC limit 1
                 )
             </if>

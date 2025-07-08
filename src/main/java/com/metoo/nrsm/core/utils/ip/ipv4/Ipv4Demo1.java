@@ -15,9 +15,9 @@ public class Ipv4Demo1 {
         String[] masks = netmask.split("\\.");
         int mask = (Integer.parseInt(masks[0]) << 24) | (Integer.parseInt(masks[1]) << 16) | (Integer.parseInt(masks[2]) << 8) | Integer.parseInt(masks[3]);
         mask = ~mask + 1;
-        if((mask & (mask - 1)) == 0) {
+        if ((mask & (mask - 1)) == 0) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
@@ -36,8 +36,7 @@ public class Ipv4Demo1 {
                 int n = Integer.parseInt(parts[i]);
                 if (n >= 0 && n <= 255) continue;
                 return false;
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 return false;
             }
         }
@@ -51,7 +50,7 @@ public class Ipv4Demo1 {
         String broadcast = new String();
         String[] addresses = address.split("\\.");
         String[] masks = netmask.split("\\.");
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             int opmasksegement = ~Integer.parseInt(masks[i]) & 0xFF;
             //此处有坑，正常的int有32位，如果此数没有32位的话，就会用0填充前面的数，从而导致取反0的部分会用1来填充，用上述方法可以获取想要的部分
             int netsegment = Integer.parseInt(addresses[i]) & Integer.parseInt(masks[i]);
@@ -70,7 +69,7 @@ public class Ipv4Demo1 {
         int ipAddr = (Integer.parseInt(ips[0]) << 24) | (Integer.parseInt(ips[1]) << 16) | (Integer.parseInt(ips[2]) << 8) | Integer.parseInt(ips[3]);
         String[] masks = netmask.split("\\.");
         int mask = (Integer.parseInt(masks[0]) << 24) | (Integer.parseInt(masks[1]) << 16) | (Integer.parseInt(masks[2]) << 8) | Integer.parseInt(masks[3]);
-        String[] networks =network.split("\\.");
+        String[] networks = network.split("\\.");
         int net = (Integer.parseInt(networks[0]) << 24) | (Integer.parseInt(networks[1]) << 16) | (Integer.parseInt(networks[2]) << 8) | Integer.parseInt(networks[3]);
         return (ipAddr & mask) == net;
     }

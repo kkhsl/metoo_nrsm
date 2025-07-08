@@ -83,9 +83,9 @@ public class ProbeServiceImpl implements IProbeService {
 
         for (Probe probe : probes) {
             // 合并v4和仅有v6 probe
-            if(StringUtil.isNotEmpty(probe.getIp_addr())){
+            if (StringUtil.isNotEmpty(probe.getIp_addr())) {
                 mergeByIp(probe.getIp_addr(), probe, mergedProbes);
-            }else{
+            } else {
                 mergeByIp(probe.getIpv6(), probe, mergedProbes);
             }
         }
@@ -213,7 +213,7 @@ public class ProbeServiceImpl implements IProbeService {
         }
     }
 
-//    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    //    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void scanByTerminal() {
 
@@ -225,13 +225,13 @@ public class ProbeServiceImpl implements IProbeService {
 //        params.put("v4ipIsNull", "v4ipIsNull");
 //        List<Terminal> terminals = this.terminalService.selectObjByMap(params);
 //        if(!terminals.isEmpty()){
-            // 调用创发接口
-            try {
-                getProbeResult();
-            } catch (Exception e) {
-                e.printStackTrace();
-                surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.FAIL.getCode());
-            }
+        // 调用创发接口
+        try {
+            getProbeResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.FAIL.getCode());
+        }
 //        }
         surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.SUCCESS.getCode());
     }
@@ -319,7 +319,7 @@ public class ProbeServiceImpl implements IProbeService {
         Map params = new HashMap();
         params.put("online", true);
         List<Terminal> terminals = this.terminalService.selectObjByMap(params);
-        if(terminals.size() > 0){
+        if (terminals.size() > 0) {
             if (terminals.size() >= 300) {
                 // 拆分v4|v6
                 List<Terminal> ipv4List = this.terminalService.selectObjToProbe(MapUtil.of("ipv4IsNotNull", true));
@@ -395,12 +395,12 @@ public class ProbeServiceImpl implements IProbeService {
     }
 
     // 查询metoo_probe_bck，查看是否因动态分配ip地址，导致mac与ip地址对应错误条目，修改metoo_probe_bck mac地址，
-    public void syncProbeIpWithTerminal(){
+    public void syncProbeIpWithTerminal() {
         int backupProbe = this.probeMapper.syncProbeIpWithTerminal();
         log.info("更新动态ip条数{}", backupProbe);
     }
 
-    public void findDiffBetweenProbeAndBackup(){
+    public void findDiffBetweenProbeAndBackup() {
         int backupProbe = this.probeMapper.syncProbeDiffToBackup();
         log.info("备份新增探针数据{}", backupProbe);
     }
@@ -553,38 +553,39 @@ public class ProbeServiceImpl implements IProbeService {
 
     // 写回终端表 合并vendor,os_gen,os_family
     // 判断ttl写os
-    public void writeTerminal(){
+    public void writeTerminal() {
         Map params = new HashMap();
         params.put("online", true);
         List<Terminal> terminals = this.terminalService.selectObjByMap(params);
         List<Probe> probes = this.mergeProbesByIp();
-        if(probes.isEmpty() || terminals.isEmpty()){
+        if (probes.isEmpty() || terminals.isEmpty()) {
             return;
         }
         Map<String, Probe> map = new HashMap<>();
         for (Probe probe : probes) {
             map.put(probe.getIp_addr(), probe);
         }
-        outerLoop: // 给外层循环加个标签
+        outerLoop:
+        // 给外层循环加个标签
         for (Terminal terminal : terminals) {
             Probe probe = map.get(terminal.getV4ip());
-            if(probe != null){
+            if (probe != null) {
                 boolean device = false;
                 List list = new ArrayList();
                 String combined = probe.getCombined();
                 String[] combineds = combined.split(",");
-                if(combineds.length > 0){
+                if (combineds.length > 0) {
                     for (String ele : combineds) {
                         Map stats = new HashMap();
                         String[] eles = ele.split("/", 3);// 字符串的末尾或连续分隔符之间可能会包括一个分隔符本身
-                        if(eles.length > 0){
+                        if (eles.length > 0) {
                             String port_num = eles[0];
-                            if(port_num.equals("2")){
+                            if (port_num.equals("2")) {
 //                                continue outerLoop; // 使用标签跳出外层循环
                                 continue;
                             }
                             String application_protocol = eles[1];
-                            if(application_protocol.contains("telnet")){
+                            if (application_protocol.contains("telnet")) {
                                 device = true;
                                 continue outerLoop; // 使用标签跳出外层循环
                             }
@@ -600,17 +601,17 @@ public class ProbeServiceImpl implements IProbeService {
 
                 String combined_os = probe.getCombined_os();
                 String combined_ttl = probe.getCombined_ttl();
-                if(StringUtils.isNotBlank(combined_ttl)){
+                if (StringUtils.isNotBlank(combined_ttl)) {
                     String[] ttls = combined_ttl.split(",");
-                    if(ttls.length > 0){
+                    if (ttls.length > 0) {
                         for (String ttl : ttls) {
-                            if(Integer.parseInt(ttl) > 120 && Integer.parseInt(ttl) < 129){
-                                if(StringUtil.isEmpty(combined_os)){
+                            if (Integer.parseInt(ttl) > 120 && Integer.parseInt(ttl) < 129) {
+                                if (StringUtil.isEmpty(combined_os)) {
                                     combined_os = "Windows";
                                     flag = true;
                                     break;
                                 }
-                            }else if(Integer.parseInt(ttl) > 200){
+                            } else if (Integer.parseInt(ttl) > 200) {
                                 flag = true;
                                 device = true;
 //                                combined_os = "device";
@@ -620,36 +621,36 @@ public class ProbeServiceImpl implements IProbeService {
                     }
                 }
                 List<JSONObject> osList = new ArrayList();
-                if(StringUtils.isNotEmpty(combined_os)){
-                    if(!flag){
+                if (StringUtils.isNotEmpty(combined_os)) {
+                    if (!flag) {
                         osList = parseInputToJsonList(combined_os);
-                    }else{
+                    } else {
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("vendor", combined_os);
                         osList.add(jsonObject);
                     }
                 }
-                if(osList.size() > 0){
+                if (osList.size() > 0) {
                     JSONObject jsonObject = osList.get(0);
                     terminal.setOs(jsonObject.getString("vendor"));
 
                 }
 
-                if(probe.getCombined_vendor().toLowerCase().contains("Ruijie".toLowerCase()) ||
+                if (probe.getCombined_vendor().toLowerCase().contains("Ruijie".toLowerCase()) ||
                         probe.getCombined_vendor().toLowerCase().contains("Tenda".toLowerCase()) ||
                         probe.getCombined_vendor().toLowerCase().contains("h3c".toLowerCase()) ||
                         probe.getCombined_vendor().toLowerCase().contains("TP-LINK".toLowerCase()) ||
                         probe.getCombined_vendor().toLowerCase().contains("mercury".toLowerCase()) ||
-                        probe.getCombined_vendor().toLowerCase().contains("Device".toLowerCase())){
+                        probe.getCombined_vendor().toLowerCase().contains("Device".toLowerCase())) {
                     device = true;
                 }
-                if(probe.getCombined_application_protocol().toLowerCase().contains("telnet".toLowerCase())){
+                if (probe.getCombined_application_protocol().toLowerCase().contains("telnet".toLowerCase())) {
                     device = true;
                 }
 
                 terminal.setCombined_vendor_gen_family(JSONObject.toJSONString(osList));
                 terminal.setCombined_port_protocol(JSONObject.toJSONString(list));
-                if(device){
+                if (device) {
                     terminal.setDeviceType(1);
                 }
                 this.terminalService.update(terminal);
@@ -662,7 +663,7 @@ public class ProbeServiceImpl implements IProbeService {
 
         // 更新nswitch终端设备ip
         List<Terminal> terminalList = this.terminalService.selectDeviceIpByNSwitch();
-        if(!terminalList.isEmpty()){
+        if (!terminalList.isEmpty()) {
             for (Terminal terminal : terminalList) {
                 this.terminalService.update(terminal);
             }
@@ -673,12 +674,12 @@ public class ProbeServiceImpl implements IProbeService {
         // 存储解析后的 JSON 对象列表
         List<JSONObject> jsonList = new ArrayList<>();
 
-        String os = input.replaceAll(":", "").replaceAll(",","");
-        if("".equals(os)){
+        String os = input.replaceAll(":", "").replaceAll(",", "");
+        if ("".equals(os)) {
             return jsonList;
         }
 
-        if((input == null || !input.isEmpty()) && !input.contains(":")){
+        if ((input == null || !input.isEmpty()) && !input.contains(":")) {
             return jsonList;
         }
 
@@ -695,8 +696,8 @@ public class ProbeServiceImpl implements IProbeService {
                 String vendor = parts[0];
                 String osGen = parts[1];
                 String osFamily = parts[2];
-                if(!StringUtils.isEmpty(vendor)
-                        || !StringUtils.isEmpty(osGen) || !StringUtils.isEmpty(osFamily)){
+                if (!StringUtils.isEmpty(vendor)
+                        || !StringUtils.isEmpty(osGen) || !StringUtils.isEmpty(osFamily)) {
                     // 创建 JSON 对象并存储数据
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("vendor", vendor);

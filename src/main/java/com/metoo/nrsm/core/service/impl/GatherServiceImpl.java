@@ -74,16 +74,16 @@ public class GatherServiceImpl implements IGatherService {
     private static String V3 = "";
 
     // 获取需要采集的设备
-    public List<NetworkElement> getGatherDevice(){
+    public List<NetworkElement> getGatherDevice() {
         List<NetworkElement> networkElements = new ArrayList<>();
         Set<String> uuids = this.snmpStatusUtils.getOnlineDevice();
-        if(uuids.size() >0){
+        if (uuids.size() > 0) {
             for (String uuid : uuids) {
                 NetworkElement networkElement = this.networkElementService.selectObjByUuid(uuid);
-                if(networkElement != null
+                if (networkElement != null
                         && StringUtils.isNotBlank(networkElement.getIp())
                         && StringUtils.isNotBlank(networkElement.getVersion())
-                        && StringUtils.isNotBlank(networkElement.getCommunity())){
+                        && StringUtils.isNotBlank(networkElement.getCommunity())) {
                     networkElements.add(networkElement);
                 }
             }
@@ -92,15 +92,15 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     // 增加snmp判断
-    public void verifySnmpParam(NetworkElement networkElement){
-        if(networkElement.getVersion().equals("")){
+    public void verifySnmpParam(NetworkElement networkElement) {
+        if (networkElement.getVersion().equals("")) {
 
         }
     }
 
     @Override
     public Map gatherMac(Date date, List<NetworkElement> networkElements) {
-        if(networkElements.size() <= 0){
+        if (networkElements.size() <= 0) {
             networkElements = this.getGatherDevice();
         }
         Map log = gatherSingleThreadingMacSNMPUtils.gatherMac(networkElements, date);
@@ -116,7 +116,7 @@ public class GatherServiceImpl implements IGatherService {
     @Override
     public void gatherArp(Date date) {
         List<NetworkElement> networkElements = this.getGatherDevice();
-        if(networkElements.size() > 0) {
+        if (networkElements.size() > 0) {
 //            // 步骤一 清空采集表
 //            this.arpService.truncateTableGather();
 //            // 清空数据之后的插入失败（测试清空表后，等待3秒）
@@ -144,17 +144,17 @@ public class GatherServiceImpl implements IGatherService {
         }
     }
 
-    public void mergeIpv4AndIpv6ToArpGather_sql(Date date){
+    public void mergeIpv4AndIpv6ToArpGather_sql(Date date) {
         Map params = new HashMap();
         params.put("addTime", date);
         List<Arp> arps = this.arpService.mergeIpv4AndIpv6(params);
-        if(arps.size() > 0){
+        if (arps.size() > 0) {
 //            arps.stream().forEach(e -> e.setAddTime(date));
             this.arpService.batchSaveGather(arps);
         }
     }
 
-    public void mergeIpv4AndIpv6ToArpGather_sql_insert(Date date){
+    public void mergeIpv4AndIpv6ToArpGather_sql_insert(Date date) {
         Map params = new HashMap();
         params.put("addTime", date);
         try {
@@ -164,9 +164,9 @@ public class GatherServiceImpl implements IGatherService {
         }
     }
 
-    public void mergeIpv4AndIpv6ToArpGather_code(Date date){
+    public void mergeIpv4AndIpv6ToArpGather_code(Date date) {
         List<Arp> arps = this.arpService.joinSelectObjAndIpv6();
-        if(arps.size() > 0) {
+        if (arps.size() > 0) {
             for (Arp arp : arps) {
                 arp.setAddTime(date);
                 List<Ipv6> ipv6s = arp.getIpv6List();
@@ -176,7 +176,7 @@ public class GatherServiceImpl implements IGatherService {
                     } else {
                         for (int i = 0; i < ipv6s.size(); i++) {
                             String v6ip = "v6ip";
-                            if(i > 0){
+                            if (i > 0) {
                                 v6ip = "v6ip" + i;
                             }
                             Field[] fields = Arp.class.getDeclaredFields();
@@ -202,14 +202,14 @@ public class GatherServiceImpl implements IGatherService {
         }
     }
 
-    public void batchSaveIpV4AndIpv6ToArpGather(Date date){
+    public void batchSaveIpV4AndIpv6ToArpGather(Date date) {
         Map params = new HashMap();
         params.put("addTime", date);
         this.arpService.batchSaveIpV4AndIpv6ToArpGather(params);
     }
 
     // 复制采集数据到ipv4表
-    public void copyGatherDataToArp(){
+    public void copyGatherDataToArp() {
         try {
             this.arpService.copyGatherDataToArp();
         } catch (Exception e) {
@@ -220,23 +220,23 @@ public class GatherServiceImpl implements IGatherService {
     @Override
     public void gatherIpv4(Date date) {
         List<NetworkElement> networkElements = this.getGatherDevice();
-        if(networkElements.size() > 0) {
+        if (networkElements.size() > 0) {
             this.ipv4Service.truncateTableGather();
             for (NetworkElement networkElement : networkElements) {
                 String path = Global.PYPATH + "getarp.py";
 
-                if(StringUtils.isBlank(networkElement.getVersion())
-                        || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion())
+                        || StringUtils.isBlank(networkElement.getCommunity())) {
                     continue;
                 }
 
                 String[] params = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
                 String result = pythonExecUtils.exec(path, params);
-                if(!"".equals(result)){
+                if (!"".equals(result)) {
                     try {
                         List<Ipv4> ipv4s = JSONObject.parseArray(result, Ipv4.class);
-                        if(ipv4s.size()>0){
+                        if (ipv4s.size() > 0) {
                             ipv4s.forEach(e -> {
                                 e.setDeviceIp(networkElement.getIp());
                                 e.setDeviceName(networkElement.getDeviceName());
@@ -261,11 +261,11 @@ public class GatherServiceImpl implements IGatherService {
 
         Map logMessages = new LinkedHashMap();
 
-        if(networkElements.size() <= 0){
+        if (networkElements.size() <= 0) {
             networkElements = this.getGatherDevice();
         }
 
-        if(networkElements.size() > 0) {
+        if (networkElements.size() > 0) {
             // （采集结束，复制到ipv4表中）
             // 多线程并行执行，避免出现采集未结束时，执行copy操作没有数据，所以将复制数据操作（不会出现空表操作，放到最后即可，避免放在前面数据非实时数据）
             // 放到采集前，复制上次采集结果即可
@@ -281,8 +281,8 @@ public class GatherServiceImpl implements IGatherService {
             int count = 0;
             for (NetworkElement networkElement : networkElements) {
 
-                if(StringUtils.isBlank(networkElement.getVersion())
-                        || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion())
+                        || StringUtils.isBlank(networkElement.getCommunity())) {
                     latch.countDown();
                     logMessages.put("IPv4 ARP：" + networkElement.getIp(), "设备信息异常");
                     continue;
@@ -318,7 +318,7 @@ public class GatherServiceImpl implements IGatherService {
         Map params = new HashMap();
         params.clear();
         List<Ipv4> ipv4List = this.ipv4Service.selectDuplicatesObjByMap(params);
-        if(ipv4List.size() > 0){
+        if (ipv4List.size() > 0) {
             Ipv4Detail ipv4DetailInit = this.ipV4DetailService.selectObjByIp("0.0.0.0");
             ipv4DetailInit.setTime(ipv4DetailInit.getTime() + 1);
             this.ipV4DetailService.update(ipv4DetailInit);
@@ -327,9 +327,9 @@ public class GatherServiceImpl implements IGatherService {
 
             for (Ipv4 ipv4 : ipv4List) {
                 ips.add(Ipv4Util.ipConvertDec(ipv4.getIp()));
-                if(StringUtils.isNotBlank(ipv4.getIp())){
+                if (StringUtils.isNotBlank(ipv4.getIp())) {
                     Ipv4Detail ipv4Detail = this.ipV4DetailService.selectObjByIp(Ipv4Util.ipConvertDec(ipv4.getIp()));
-                    if(ipv4Detail == null){
+                    if (ipv4Detail == null) {
                         Ipv4Detail instance = new Ipv4Detail();
                         instance.setAddTime(date);
                         instance.setMac(ipv4.getMac());
@@ -344,7 +344,7 @@ public class GatherServiceImpl implements IGatherService {
                         instance.setUsage(usage);
 
                         this.ipV4DetailService.save(instance);
-                    }else{
+                    } else {
                         ipv4Detail.setAddTime(date);
                         ipv4Detail.setMac(ipv4.getMac());
                         ipv4Detail.setDeviceName(ipv4.getDeviceName());
@@ -361,12 +361,12 @@ public class GatherServiceImpl implements IGatherService {
                 }
             }
 //                 设置离线
-            if(ips.size() > 0){
+            if (ips.size() > 0) {
                 params.clear();
                 params.put("notId", ipv4DetailInit.getId());
                 params.put("notIps", ips);
                 List<Ipv4Detail> ipv4DetailsList = this.ipV4DetailService.selectObjByMap(params);
-                if(ipv4DetailsList.size() > 0){
+                if (ipv4DetailsList.size() > 0) {
                     for (Ipv4Detail ipv4Detail : ipv4DetailsList) {
                         ipv4Detail.setAddTime(date);
                         ipv4Detail.setOnline(false);
@@ -379,7 +379,7 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     // 去重ipv4重复数据到ipv4_mirror(组合arp表)
-    public void removeDuplicatesIpv4(){
+    public void removeDuplicatesIpv4() {
         try {
             // 去重（将采集到的数据，复制并创创建相同结构的表中，并去除重复数据（mac + ip），使用存储过程完成）
             this.ipv4Service.removeDuplicates();
@@ -393,29 +393,29 @@ public class GatherServiceImpl implements IGatherService {
 
         Map logMessages = new LinkedHashMap();
 
-        if(networkElements.size() <= 0){
+        if (networkElements.size() <= 0) {
             networkElements = this.getGatherDevice();
         }
 
-        if(networkElements.size() > 0) {
+        if (networkElements.size() > 0) {
 
             this.ipv6Service.truncateTableGather();
             int count = 0;
             for (NetworkElement networkElement : networkElements) {
 
-                if(StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())) {
                     logMessages.put("IPv6 ARP：" + networkElement.getIp(), "设备信息异常");
                     continue;
                 }
                 count++;
-                String path = Global.PYPATH +  "getarpv6.py";
+                String path = Global.PYPATH + "getarpv6.py";
                 String[] params2 = {networkElement.getIp(), networkElement.getVersion(),
                         networkElement.getCommunity()};
                 String result = pythonExecUtils.exec(path, params2);
-                if(!"".equals(result)){
+                if (!"".equals(result)) {
                     try {
                         List<Ipv6> array = JSONObject.parseArray(result, Ipv6.class);
-                        if(array.size()>0){
+                        if (array.size() > 0) {
                             array.forEach(e -> {
                                 e.setDeviceIp(networkElement.getIp());
                                 e.setDeviceName(networkElement.getDeviceName());
@@ -442,11 +442,11 @@ public class GatherServiceImpl implements IGatherService {
     @Override
     public Map gatherIpv6Thread(Date date, List<NetworkElement> networkElements) {
         Map logMessages = new LinkedHashMap();
-        if(networkElements.size() <= 0){
+        if (networkElements.size() <= 0) {
             networkElements = this.getGatherDevice();
         }
 
-        if(networkElements.size() > 0) {
+        if (networkElements.size() > 0) {
 
             this.copyGatherDataToIpv6();
 
@@ -458,7 +458,7 @@ public class GatherServiceImpl implements IGatherService {
             int count = 0;
             for (NetworkElement networkElement : networkElements) {
 
-                if(StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())) {
                     latch.countDown();
                     logMessages.put("IPv6 ARP：" + networkElement.getIp(), "设备信息异常");
                     continue;
@@ -485,7 +485,7 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     // 复制采集数据到ipv6表
-    public void copyGatherDataToIpv6(){
+    public void copyGatherDataToIpv6() {
         try {
             this.ipv6Service.copyGatherToIpv6();
         } catch (Exception e) {
@@ -494,7 +494,7 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     // 去重ipv4重复数据，组合arp表
-    public void removeDuplicatesIpv6(){
+    public void removeDuplicatesIpv6() {
         try {
             // 去重（将采集到的数据，复制并创创建相同结构的表中，并去除重复数据（mac + ip），使用存储过程完成）
             this.ipv6Service.removeDuplicates();
@@ -508,15 +508,13 @@ public class GatherServiceImpl implements IGatherService {
      * 获取设备端口
      */
     @Override
-    public void gatherPort(Date date, List<NetworkElement> networkElements){
+    public void gatherPort(Date date, List<NetworkElement> networkElements) {
 
-        if(networkElements.size() <= 0){
+        if (networkElements.size() <= 0) {
             networkElements = this.getGatherDevice();
         }
 
-        if(networkElements.size() > 0) {
-
-            this.portService.copyGatherData();
+        if (networkElements.size() > 0) {
 
             this.portService.truncateTableGather();
 
@@ -524,12 +522,10 @@ public class GatherServiceImpl implements IGatherService {
 
             for (NetworkElement networkElement : networkElements) {
 
-
-                if(StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())) {
                     latch.countDown();
                     continue;
                 }
-
 
                 gatherDataThreadPool.execute(new GatherPortSNMPRunnable(networkElement, date, latch));
 
@@ -538,6 +534,9 @@ public class GatherServiceImpl implements IGatherService {
             try {
 
                 boolean completed = latch.await(10, TimeUnit.MINUTES);
+
+                this.portService.copyGatherData();
+
                 log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
 
                 log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
@@ -550,19 +549,19 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     @Override
-    public void gatherPortIpv6(Date date, List<NetworkElement> networkElements){
-        if(networkElements.size() <= 0){
+    public void gatherPortIpv6(Date date, List<NetworkElement> networkElements) {
+        if (networkElements.size() <= 0) {
             networkElements = this.getGatherDevice();
         }
 
-        if(networkElements.size() > 0) {
+        if (networkElements.size() > 0) {
 
             this.portIpv6Service.truncateTableGather();
 
             CountDownLatch latch = new CountDownLatch(networkElements.size());
 
             for (NetworkElement networkElement : networkElements) {
-                if(StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())) {
                     latch.countDown();
                     continue;
                 }
@@ -594,11 +593,11 @@ public class GatherServiceImpl implements IGatherService {
 
         CountDownLatch latch = new CountDownLatch(networkElements.size());
 
-        if(networkElements.size() > 0) {
+        if (networkElements.size() > 0) {
 
             for (NetworkElement networkElement : networkElements) {
 
-                if(StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion()) || StringUtils.isBlank(networkElement.getCommunity())) {
                     latch.countDown();
                     continue;
                 }
@@ -803,7 +802,7 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     @Test
-    public void test(){
+    public void test() {
         Map<String, String> data = new HashMap<>(2);
         data.put("in", "99364507281218");
         data.put("out", "99364507281218");
@@ -838,11 +837,11 @@ public class GatherServiceImpl implements IGatherService {
 
         List<NetworkElement> nes = this.networkElementService.selectObjAllByGather();
 
-        if(nes.size() > 0){
+        if (nes.size() > 0) {
             for (NetworkElement element : nes) {
 
                 String hostName = getHostName(element);
-                if(StringUtils.isNotEmpty(hostName)){
+                if (StringUtils.isNotEmpty(hostName)) {
                     String key = element.getUuid();
                     keys.add(key);
                 }
@@ -853,7 +852,7 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     // 获取设备名
-    public String getHostName(NetworkElement networkElement){
+    public String getHostName(NetworkElement networkElement) {
 
 
 //        String path = Global.PYPATH + "gethostname.py";
@@ -870,7 +869,7 @@ public class GatherServiceImpl implements IGatherService {
     }
 
     // 获取上一分钟的时间
-    public static Date getLastMinute(){
+    public static Date getLastMinute() {
 
         Calendar cal = Calendar.getInstance();
 
@@ -906,7 +905,7 @@ public class GatherServiceImpl implements IGatherService {
                 .build();
 
         String traffic = SNMPv3Request.getTraffic(snmpv3Params, in, out);
-        if(StringUtil.isNotEmpty(traffic)){
+        if (StringUtil.isNotEmpty(traffic)) {
             return traffic;
         }
         return "";

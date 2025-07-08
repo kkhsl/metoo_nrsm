@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 /**
  * SSH远程命令执行工具
  * 封装了通过SSH协议执行远程命令的功能
@@ -25,7 +26,7 @@ public class SshCommandExecutor {
     private final int timeout;
 
     public SshCommandExecutor(String host, int port, String username,
-                                      String password, int timeout) {
+                              String password, int timeout) {
         this.host = host;
         this.port = port;
         this.username = username;
@@ -35,6 +36,7 @@ public class SshCommandExecutor {
 
     /**
      * 执行远程命令
+     *
      * @param command 要执行的命令
      * @return 命令输出结果
      * @throws RemoteOperationException 当执行失败时抛出

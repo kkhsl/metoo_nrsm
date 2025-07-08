@@ -21,14 +21,14 @@ public class UserManagerControllerApi {
     private RedisResponseUtils redisResponseUtils;
 
     @GetMapping
-    private Object user(@RequestParam(value = "userId") Long id){
+    private Object user(@RequestParam(value = "userId") Long id) {
         User user = this.userService.findObjById(id);
         NoticeWebsocketResp rep = new NoticeWebsocketResp();
-        if(user != null){
+        if (user != null) {
             rep.setNoticeStatus(1);
             rep.setNoticeInfo(user);
             return rep;
-        }else{
+        } else {
             rep.setNoticeStatus(0);
         }
         return rep;

@@ -63,6 +63,7 @@ public class CIDRUtils {
 
     /**
      * 计算 IPv4 的网段（网络地址）
+     *
      * @param cidr 如 "192.168.1.10/24"
      * @return 网段，如 "192.168.1.0/24"
      */

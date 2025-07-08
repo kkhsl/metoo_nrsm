@@ -17,12 +17,14 @@ public interface IMacService {
 
     /**
      * DE过滤虚拟服务器
+     *
      * @return
      */
     List<Mac> selectTagDEWithoutNswitch();
 
     /**
      * DE 虚拟服务器
+     *
      * @return
      */
     List<Mac> selectTagDEWithNswitch();
@@ -109,4 +111,6 @@ public interface IMacService {
 
     // 查看锁
     int queryLock();
+
+    int copyDataToMacHistory();
 }

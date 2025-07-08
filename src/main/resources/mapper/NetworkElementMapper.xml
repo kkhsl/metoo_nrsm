@@ -46,9 +46,9 @@
 
     <sql id="Base_Column_List">
         id, addTime,updateTime, deleteStatus, ip, v6ip, device_name, group_id, group_name,
-         device_type_id, device_type_name, vendor_id, vendor_name, description, user_id, user_name,
-         uuid, interface_name, interface_names, flux, connect_type, port, credential_id,
-         web_url, permit_connect, community, version, sync_device, snmpPort
+        device_type_id, device_type_name, vendor_id, vendor_name, description, user_id, user_name,
+        uuid, interface_name, interface_names, flux, connect_type, port, credential_id,
+        web_url, permit_connect, community, version, sync_device, snmpPort
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
@@ -65,7 +65,7 @@
 
     <select id="selectConditionQuery" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
-          <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List"/>
         FROM metoo_ne
         <where>
             deleteStatus = COALESCE(#{deleteStatus, jdbcType=INTEGER}, 0)
@@ -142,7 +142,7 @@
             <if test="ips != null and ips.size() > 0">
                 AND ip in
                 <foreach collection="ips" index="index" item="item" open="(" close=")" separator=",">
-                  #{item}
+                    #{item}
                 </foreach>
             </if>
             <if test="deviceName != null and deviceName != ''">
@@ -196,7 +196,7 @@
     </sql>
     <select id="selectObjAll" resultMap="Base_Result_Map">
         SELECT
-          *
+        *
         FROM metoo_ne
         <where>
             deleteStatus = 0
@@ -214,7 +214,7 @@
         SELECT *
         FROM metoo_ne
         WHERE
-          ip IS NOT NULL AND ip != ''
+        ip IS NOT NULL AND ip != ''
         AND version IS NOT NULL AND version != ''
         AND community IS NOT NULL AND community != ''
         AND deleteStatus = 0
@@ -367,6 +367,9 @@
             <if test="portTelnet != null">
                 portTelnet,
             </if>
+            <if test="nswitch != null">
+                nswitch,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="addTime != null">
@@ -486,6 +489,9 @@
             <if test="portTelnet != null">
                 #{portTelnet},
             </if>
+            <if test="nswitch != null">
+                #{nswitch},
+            </if>
         </trim>
     </insert>
 
@@ -497,23 +503,23 @@
         VALUES
         <foreach collection="list" item="item" separator=",">
             (
-                #{item.addTime},
-                #{updateTime},
-                #{item.uuid},
-                #{item.deviceName},
-                #{item.interfaceName},
-                #{item.ip},
-                #{item.v6ip},
-                #{item.vendorId},
-                #{item.vendorName},
-                #{item.deviceTypeId},
-                #{item.deviceTypeName},
-                #{item.description},
-                #{item.userId},
-                #{item.userName},
-                #{item.version},
-                #{item.community},
-                #{item.type}
+            #{item.addTime},
+            #{updateTime},
+            #{item.uuid},
+            #{item.deviceName},
+            #{item.interfaceName},
+            #{item.ip},
+            #{item.v6ip},
+            #{item.vendorId},
+            #{item.vendorName},
+            #{item.deviceTypeId},
+            #{item.deviceTypeName},
+            #{item.description},
+            #{item.userId},
+            #{item.userName},
+            #{item.version},
+            #{item.community},
+            #{item.type}
             )
         </foreach>
     </insert>
@@ -643,20 +649,20 @@
     <update id="updateObjDisplay">
         UPDATE metoo_ne d1
         JOIN (
-            SELECT
-                *
-            FROM
-                metoo_terminal
-            WHERE
-                deviceTypeId = 34
-            AND
-                online = true
-            GROUP BY
-                deviceName
+        SELECT
+        *
+        FROM
+        metoo_terminal
+        WHERE
+        deviceTypeId = 34
+        AND
+        online = true
+        AND
+        nswitch = true
+        GROUP BY
+        deviceName
         ) AS d2 ON d1.device_name = d2.deviceName
         SET d1.display = 1;
-
-
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">

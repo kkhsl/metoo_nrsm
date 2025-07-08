@@ -17,7 +17,7 @@ public class SnmpStatusUtils {
         snmp.put("bfc0e2f4-dd8a-4f5e-886e-305319e22005", 0);
     }
 
-   private static MyRedisManager snmp = new MyRedisManager("snmp");
+    private static MyRedisManager snmp = new MyRedisManager("snmp");
 
     // 获取在线设备，然后redis在线设备改为离线
     public void editSnmpStatus(Set<String> newDevices) {
@@ -75,6 +75,7 @@ public class SnmpStatusUtils {
 
     /**
      * 获取所有在线设备UUID集合
+     *
      * @return 返回在线设备UUID集合（不会返回null）
      */
     public Set<String> getOnlineDevice() {
@@ -89,7 +90,6 @@ public class SnmpStatusUtils {
         // 直接返回keySet（已经是Set<String>）
         return onlineDevices.keySet();
     }
-
 
 
     // 优化redis数据获取，避免数据量过多，造成的性能问题

@@ -24,9 +24,9 @@ public class DhcpManagerFtlController {
 
 
     @GetMapping("/ftl/list")
-    public String ftl_list(Model model){
+    public String ftl_list(Model model) {
         List<Dhcp> dhcps = this.dhcpService.selectObjByMap(null);
-        model.addAttribute("dhcps",dhcps);
+        model.addAttribute("dhcps", dhcps);
         return "dhcp";
     }
 

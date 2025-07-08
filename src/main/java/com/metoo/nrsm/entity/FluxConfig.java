@@ -66,6 +66,7 @@ public class FluxConfig extends IdEntity {
     private String privProtocol;
     @ApiModelProperty("加密密码")
     private String privPassword;
+
     public List<String> getAllIpList() {
         return parseIpList(this.ips);
     }

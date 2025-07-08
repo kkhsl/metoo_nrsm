@@ -23,8 +23,6 @@ public class MyFutureTask {
         });
 
 
-
-
         Runnable run = new Runnable() {
             @Override
             public void run() {
@@ -33,7 +31,7 @@ public class MyFutureTask {
         };
 
 
-        Thread t1 = new Thread(futrueTask,"t1");
+        Thread t1 = new Thread(futrueTask, "t1");
         t1.start();
 
         log.info(String.valueOf(futrueTask.get()));// 主线程阻塞
@@ -41,7 +39,6 @@ public class MyFutureTask {
         log.info("123");
 
     }
-
 
 
 }

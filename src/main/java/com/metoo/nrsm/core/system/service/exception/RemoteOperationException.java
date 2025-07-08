@@ -7,6 +7,7 @@ package com.metoo.nrsm.core.system.service.exception;
 public class RemoteOperationException extends Exception {
     /**
      * 基础构造方法
+     *
      * @param message 异常信息
      */
     public RemoteOperationException(String message) {
@@ -15,8 +16,9 @@ public class RemoteOperationException extends Exception {
 
     /**
      * 带原因的构造方法
+     *
      * @param message 异常信息
-     * @param cause 原始异常
+     * @param cause   原始异常
      */
     public RemoteOperationException(String message, Throwable cause) {
         super(message, cause);

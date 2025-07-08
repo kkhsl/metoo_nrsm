@@ -23,7 +23,7 @@ public class TerminalTypeManagerController {
     private IDeviceTypeService deviceTypeService;
 
     @GetMapping
-    public Object terminal(){
+    public Object terminal() {
         Map params = new HashMap();
         params.put("diff", 1);
         params.put("orderBy", "sequence");

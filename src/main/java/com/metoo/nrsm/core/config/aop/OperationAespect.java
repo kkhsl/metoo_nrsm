@@ -70,8 +70,8 @@ public class OperationAespect {
         System.out.println(operationLogAnno.name());
         //4. 获取方法的参数 一一对应
         Object[] args = joinPoint.getArgs();
-        if(args.length > 0){
-            if(operationLogAnno.name().equals("")){
+        if (args.length > 0) {
+            if (operationLogAnno.name().equals("")) {
                 System.out.println(args[0]);
             }
         }

@@ -28,12 +28,12 @@ public class UnboundConfForward {
         for (String line : lines) {
             String trimmedLine = line.trim();
 
-            if(trimmedLine.startsWith("forward-zone:") && validForwardAddresses.size()<= 0){
+            if (trimmedLine.startsWith("forward-zone:") && validForwardAddresses.size() <= 0) {
                 skipForwardZone = true; // 设置跳过标志，后续的行会被跳过
                 continue; // 跳过当前 forward-zone 配置块
             }
 
-            if(skipForwardZone){
+            if (skipForwardZone) {
                 skipForwardZone = false;
                 continue;
             }
@@ -50,7 +50,7 @@ public class UnboundConfForward {
         }
 
         // 如果没有找到 forward-zone 配置块，添加它
-        if(validForwardAddresses.size() > 0){
+        if (validForwardAddresses.size() > 0) {
             if (!forwardZoneSectionFound) {
                 updatedLines.add("\nforward-zone:");
                 updatedLines.add("  name: \".\"");
@@ -88,7 +88,6 @@ public class UnboundConfForward {
     }
 
 
-
     public static List<String> updateConfig(List<String> lines, Set<String> validForwardAddresses) throws IOException {
         // 读取配置文件内容
         List<String> updatedLines = new ArrayList<>();
@@ -102,12 +101,12 @@ public class UnboundConfForward {
         for (String line : lines) {
             String trimmedLine = line.trim();
 
-            if(trimmedLine.startsWith("forward-zone:") && validForwardAddresses.size()<= 0){
+            if (trimmedLine.startsWith("forward-zone:") && validForwardAddresses.size() <= 0) {
                 skipForwardZone = true; // 设置跳过标志，后续的行会被跳过
                 continue; // 跳过当前 forward-zone 配置块
             }
 
-            if(skipForwardZone){
+            if (skipForwardZone) {
                 skipForwardZone = false;
                 continue;
             }
@@ -124,7 +123,7 @@ public class UnboundConfForward {
         }
 
         // 如果没有找到 forward-zone 配置块，添加它
-        if(validForwardAddresses.size() > 0){
+        if (validForwardAddresses.size() > 0) {
             if (!forwardZoneSectionFound) {
                 updatedLines.add("\nforward-zone:");
                 updatedLines.add("  name: \".\"");

@@ -61,7 +61,7 @@ public class FlowStatisticsServiceImpl implements IFlowStatisticsService {
             log.error("获取流量摘要失败", e);
             throw new ServiceException("获取流量摘要失败");
         }
-}
+    }
 
     @Override
     public List<FlowStatistics> selectObjByMap(Map params) {

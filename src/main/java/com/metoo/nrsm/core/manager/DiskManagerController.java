@@ -18,7 +18,7 @@ public class DiskManagerController {
     private IDiskService diskService;
 
     @GetMapping("/")
-    public Result disk(){
+    public Result disk() {
         DiskVO disk = this.diskService.getRootDisk();
         return ResponseUtil.ok(disk);
     }

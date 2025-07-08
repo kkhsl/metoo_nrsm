@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author HKK
  * @version 1.0
  * @date 2024-03-27 10:48
- *
+ * <p>
  * 测试打断
  */
 @Slf4j
@@ -25,9 +25,9 @@ public class InterruptDemo {
         for (int i = 0; i < 3; i++) {
             int a = i;
             Thread t1 = new Thread(() -> {
-                while (true){
+                while (true) {
                     Thread current = Thread.currentThread();
-                    if(current.isInterrupted()){
+                    if (current.isInterrupted()) {
                         log.debug("打断退出");
                         break;
                     }

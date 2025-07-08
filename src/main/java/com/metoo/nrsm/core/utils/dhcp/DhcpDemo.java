@@ -86,7 +86,7 @@ public class DhcpDemo {
     }
 
     @Test
-    public void test(){
+    public void test() {
         // 通过ClassLoader读取resources下的文件
         InputStream inputStream = ResourceReader.class.getClassLoader().getResourceAsStream("./dhcpd/dhcpd.leases");
         if (inputStream != null) {
@@ -95,12 +95,12 @@ public class DhcpDemo {
                 Map data = null;
                 List dataList = new ArrayList();
                 while ((line = reader.readLine()) != null) {
-                    if(StringUtil.isNotEmpty(line)){
+                    if (StringUtil.isNotEmpty(line)) {
                         line = line.trim();
                         String key = this.getKey(line);
-                        if(StringUtil.isNotEmpty(key)){
-                            if(key.equals("lease")){
-                                if(data != null){
+                        if (StringUtil.isNotEmpty(key)) {
+                            if (key.equals("lease")) {
+                                if (data != null) {
                                     dataList.add(data);
                                 }
                                 data = new HashMap();
@@ -126,44 +126,44 @@ public class DhcpDemo {
 
 
     @Test
-    public void test1(){
+    public void test1() {
 //        String s = "lease 192.168.5.204 {";
 //        String str = s.replaceAll("{","\\{");
 
         String str = "lease 192.168.5.204 {";
         str = escapeExprSpecialWord(str);
 
-        int index1 =  MyStringUtils.acquireCharacterPositions(str, " ", 1);
+        int index1 = MyStringUtils.acquireCharacterPositions(str, " ", 1);
 
         String str1 = str.substring(0, index1);
         System.out.println(str1);
 
 
-        int index2 =  MyStringUtils.acquireCharacterPositions(str, escapeExprSpecialWord("{"), 1);
+        int index2 = MyStringUtils.acquireCharacterPositions(str, escapeExprSpecialWord("{"), 1);
         String str2 = str.substring(str1.length(), index2);
         str2 = str2.trim();
 
-        str2.replace("\\","#");
+        str2.replace("\\", "#");
 
         System.out.println(str2);
 
     }
 
     @Test
-    public void test2(){
+    public void test2() {
 //        String s = "lease 192.168.5.204 {";
 //        String str = s.replaceAll("{","\\{");
 
         String str = "lease 192.168.5.204 \\{";
 //        str = escapeExprSpecialWord(str);
 
-        int index1 =  MyStringUtils.acquireCharacterPositions(str, " ", 1);
+        int index1 = MyStringUtils.acquireCharacterPositions(str, " ", 1);
 
         String str1 = str.substring(0, index1);
         System.out.println(str1);
 
 
-        int index2 =  MyStringUtils.acquireCharacterPositions(str,  "\\{", 1);
+        int index2 = MyStringUtils.acquireCharacterPositions(str, "\\{", 1);
 //
         String str2 = str.substring(str1.length(), index2 - 1);
         str2 = str2.trim();
@@ -173,20 +173,20 @@ public class DhcpDemo {
     }
 
     @Test
-    public void test3(){
+    public void test3() {
 //        String s = "lease 192.168.5.204 {";
 //        String str = s.replaceAll("{","\\{");
 
         String str = "starts 1 2024/01/15 03:26:17\\;";
 //        str = escapeExprSpecialWord(str);
 
-        int index1 =  MyStringUtils.acquireCharacterPositions(str, " ", 2);
+        int index1 = MyStringUtils.acquireCharacterPositions(str, " ", 2);
 
         String str1 = str.substring(0, index1);
-        System.out.println(str.substring(0, index1 - 1) );
+        System.out.println(str.substring(0, index1 - 1));
 
 
-        int index2 =  MyStringUtils.acquireCharacterPositions(str,  "\\;", 1);
+        int index2 = MyStringUtils.acquireCharacterPositions(str, "\\;", 1);
 //
         String str2 = str.substring(str1.length(), index2 - 1);
         str2 = str2.trim();
@@ -197,20 +197,20 @@ public class DhcpDemo {
 
 
     @Test
-    public void test4(){
+    public void test4() {
 //        String s = "lease 192.168.5.204 {";
 //        String str = s.replaceAll("{","\\{");
 
         String str = "hardware ethernet 8e:ab:e9:5c:a7:68\\;";
 //        str = escapeExprSpecialWord(str);
 
-        int index1 =  MyStringUtils.acquireCharacterPositions(str, " ", 2);
+        int index1 = MyStringUtils.acquireCharacterPositions(str, " ", 2);
 
         String str1 = str.substring(0, index1);
         System.out.println(str1);
 
 
-        int index2 =  MyStringUtils.acquireCharacterPositions(str,  "\\;", 1);
+        int index2 = MyStringUtils.acquireCharacterPositions(str, "\\;", 1);
 //
         String str2 = str.substring(str1.length(), index2 - 1);
         str2 = str2.trim();
@@ -228,7 +228,7 @@ public class DhcpDemo {
      */
     public static String escapeExprSpecialWord(String keyword) {
         if (StringUtils.isNotBlank(keyword)) { //
-            String[] fbsArr = { "\\", "$", "(", ")", "*", "+", ".",  "[", "]", "?", "^", "{", "}", "|" };
+            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
             for (String key : fbsArr) {
                 if (keyword.contains(key)) {
                     keyword = keyword.replace(key, "\\" + key);
@@ -249,7 +249,7 @@ public class DhcpDemo {
 
 
     @Test
-    public void testParseLineLease(){
+    public void testParseLineLease() {
         Map data = new HashMap();
         String lineText = "lease 192.168.5.201 {";
         this.parseLineLease(lineText, data);
@@ -260,18 +260,18 @@ public class DhcpDemo {
     }
 
 
-    public void parseLineLease(String lineText, Map data){
+    public void parseLineLease(String lineText, Map data) {
 
         String text = myEscapeExprSpecialWord(lineText, "{");
 
-        int index1 =  MyStringUtils.acquireCharacterPositions(text, " ", 1);
+        int index1 = MyStringUtils.acquireCharacterPositions(text, " ", 1);
 
         String text1 = text.substring(0, index1);
 
         System.out.println(text1);
 
 
-        int index2 =  MyStringUtils.acquireCharacterPositions(text,  "\\{", 1);
+        int index2 = MyStringUtils.acquireCharacterPositions(text, "\\{", 1);
 
         String text2 = text.substring(text1.length(), index2 - 1).trim();
 
@@ -284,7 +284,7 @@ public class DhcpDemo {
 
 
     @Test
-    public void testParseSpecialLineText(){
+    public void testParseSpecialLineText() {
         Map data = new HashMap();
 //        String lineText = "starts 1 2024/01/15 03:33:01;";
 //        this.parseSpecialLineText(lineText, data, 2, 1);
@@ -298,15 +298,15 @@ public class DhcpDemo {
 
     }
 
-    public void parseLineText(String lineText, Map data, int startIndex, int subIndex, String symbol){
+    public void parseLineText(String lineText, Map data, int startIndex, int subIndex, String symbol) {
 
         String text = myEscapeExprSpecialWord(lineText, symbol);
 
-        int index1 =  MyStringUtils.acquireCharacterPositions(text, " ", startIndex);
+        int index1 = MyStringUtils.acquireCharacterPositions(text, " ", startIndex);
 
         String text1 = text.substring(0, index1);
 
-        int index2 =  MyStringUtils.acquireCharacterPositions(text,  "\\" + symbol, 1);
+        int index2 = MyStringUtils.acquireCharacterPositions(text, "\\" + symbol, 1);
 
         String text2 = text.substring(text1.length(), index2 - 1);
 
@@ -314,7 +314,7 @@ public class DhcpDemo {
 
     }
 
-    public String getKey(String lineText){
+    public String getKey(String lineText) {
 
         String[] beginHeads = {"lease", "starts", "ends", "cltt", "binding state", "next binding state", "rewind binding state",
                 "hardware ethernet", "uid", "client-hostname"};
@@ -325,21 +325,21 @@ public class DhcpDemo {
                 break;
             }
         }
-        if(eleFlag){
+        if (eleFlag) {
             for (String key : beginHeads) {
 
                 String patten = "^" + key;
 
                 boolean flag = this.parseLineBeginWith(lineText, patten);
 
-                if(flag){
+                if (flag) {
                     // 保存结果
 //                 public void parseLineText(String lineText, Map data, int startIndex, int subIndex, String symbol){
 //                if(key.equals("lease")){
 //                    this.parseLineText(lineText, );
 //                }
                     return key;
-                }else{
+                } else {
                     continue;
                 }
             }
@@ -347,9 +347,9 @@ public class DhcpDemo {
         return "";
     }
 
-    public void parseValue( String key, String lineText, Map data){
+    public void parseValue(String key, String lineText, Map data) {
 
-        switch (key){
+        switch (key) {
             case "lease":
                 this.parseLineText(lineText, data, 1, 0, "{");
                 break;
@@ -360,7 +360,7 @@ public class DhcpDemo {
                 this.parseLineText(lineText, data, 2, 1, ";");
                 break;
             case "cltt":
-                this.parseLineText(lineText, data, 2, 1,";");
+                this.parseLineText(lineText, data, 2, 1, ";");
                 break;
             case "binding state":
                 this.parseLineText(lineText, data, 2, 0, ";");
@@ -380,21 +380,21 @@ public class DhcpDemo {
             case "client-hostname":
                 this.parseLineText(lineText, data, 1, 0, ";");
                 break;
-                default:
-                    break;
+            default:
+                break;
         }
     }
 
-    public boolean parseLineBeginWith(String lineText, String head){
+    public boolean parseLineBeginWith(String lineText, String head) {
 
-        if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
+        if (StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)) {
             String patten = "^" + head;
 
             Pattern compiledPattern = Pattern.compile(patten);
 
             Matcher matcher = compiledPattern.matcher(lineText);
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 return true;
             }
         }

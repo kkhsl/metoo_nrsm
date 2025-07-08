@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * dns解析服务
+ *
  * @author zzy
  * @version 1.0
  * @date 2025/4/25 15:55
@@ -13,6 +14,7 @@ import java.util.List;
 public interface IDnsRecordService {
     /**
      * 解析临时文件数据到记录表
+     *
      * @return
      */
     void saveRecord();

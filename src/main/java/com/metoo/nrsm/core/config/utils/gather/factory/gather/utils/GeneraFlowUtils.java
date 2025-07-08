@@ -11,6 +11,7 @@ public class GeneraFlowUtils {
 
     /**
      * 计算表达式 随机数* v4 / (1 - 随机数)，并保留两位小数
+     *
      * @param v4 输入的 double 类型参数
      * @return 计算结果的字符串表示，保留两位小数
      */
@@ -22,7 +23,7 @@ public class GeneraFlowUtils {
         return method1(v4);
     }
 
-    public static double method1(double v4){
+    public static double method1(double v4) {
         Random random = new Random();
         double min = 0.36;
         double max = 0.85;
@@ -41,7 +42,7 @@ public class GeneraFlowUtils {
         return bd.doubleValue();
     }
 
-    public static double method2(double v4){
+    public static double method2(double v4) {
         Random random = new Random();
         double min = generateRandomValueAbove(0.30, 0.49); // 0.30 - 0.49
         double max = generateRandomValueAbove(0.50, 0.69); // 0.50 - 0.69
@@ -60,7 +61,7 @@ public class GeneraFlowUtils {
     }
 
 
-    public static double method3(double v4){
+    public static double method3(double v4) {
 
         double randomNumber = RandomRangeUtils.getRandomRange();
 
@@ -74,11 +75,11 @@ public class GeneraFlowUtils {
         return bd.doubleValue();
     }
 
-    public static double method4(double v4, String random){
+    public static double method4(double v4, String random) {
 
         double randomNumber = 0;
 
-        if(StringUtil.isNotEmpty(random)){
+        if (StringUtil.isNotEmpty(random)) {
             String[] range = random.split(",");
             String min = range[0];
             String max = range[1];
@@ -109,7 +110,7 @@ public class GeneraFlowUtils {
         }
     }
 
-    public static double generateRandomValueAbove(double lowerBound, double upperBound){
+    public static double generateRandomValueAbove(double lowerBound, double upperBound) {
 
         // 确保生成的随机数大于 min
         Random random = new Random();

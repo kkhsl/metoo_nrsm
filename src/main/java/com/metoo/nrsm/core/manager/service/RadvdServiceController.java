@@ -26,7 +26,7 @@ public class RadvdServiceController {
     public Result controlService(@PathVariable String action) {
         try {
             List<Radvd> radvdList = this.radvdService.selectObjByMap(Collections.emptyMap());
-            if(radvdList.size() <= 0){
+            if (radvdList.size() <= 0) {
                 return ResponseUtil.badArgument("请至少增加一条IPv6前缀!");
             }
             SmartServiceManager serviceManager = new SmartServiceManager();

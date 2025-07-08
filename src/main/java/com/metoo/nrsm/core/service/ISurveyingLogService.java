@@ -21,6 +21,7 @@ public interface ISurveyingLogService {
 
     /**
      * 获取测绘采集日志
+     *
      * @return
      */
     List<SurveyingLogVo> queryLogInfo();

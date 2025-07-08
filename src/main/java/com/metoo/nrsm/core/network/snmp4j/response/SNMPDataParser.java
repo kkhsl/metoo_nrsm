@@ -706,21 +706,36 @@ public class SNMPDataParser {
         }
 
         switch (typeCode) {
-            case "1": return "other";
-            case "2": return "local";
-            case "3": return "netmgmt";
-            case "4": return "icmp";
-            case "5": return "egp";
-            case "6": return "ggp";
-            case "7": return "hello";
-            case "8": return "rip";
-            case "9": return "isIs";
-            case "10": return "esIs";
-            case "11": return "ciscoIgrp";
-            case "12": return "bbnSpfIgp";
-            case "13": return "ospf";
-            case "14": return "bgp";
-            default: return "unknown(" + typeCode + ")";
+            case "1":
+                return "other";
+            case "2":
+                return "local";
+            case "3":
+                return "netmgmt";
+            case "4":
+                return "icmp";
+            case "5":
+                return "egp";
+            case "6":
+                return "ggp";
+            case "7":
+                return "hello";
+            case "8":
+                return "rip";
+            case "9":
+                return "isIs";
+            case "10":
+                return "esIs";
+            case "11":
+                return "ciscoIgrp";
+            case "12":
+                return "bbnSpfIgp";
+            case "13":
+                return "ospf";
+            case "14":
+                return "bgp";
+            default:
+                return "unknown(" + typeCode + ")";
         }
     }
 

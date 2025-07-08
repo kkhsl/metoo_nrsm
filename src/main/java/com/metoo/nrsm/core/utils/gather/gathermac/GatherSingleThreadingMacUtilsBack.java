@@ -85,8 +85,8 @@ public class GatherSingleThreadingMacUtilsBack {
             PythonExecUtils pythonExecUtils = (PythonExecUtils) ApplicationContextUtils.getBean("pythonExecUtils");
 
             for (NetworkElement networkElement : networkElements) {
-                if(StringUtils.isBlank(networkElement.getVersion())
-                        || StringUtils.isBlank(networkElement.getCommunity())){
+                if (StringUtils.isBlank(networkElement.getVersion())
+                        || StringUtils.isBlank(networkElement.getCommunity())) {
                     continue;
                 }
 
@@ -201,33 +201,34 @@ public class GatherSingleThreadingMacUtilsBack {
 
     /**
      * 判断mac是否以某个规则开始
+     *
      * @param lineText
      * @param head
      * @return
      */
-    public boolean parseLineBeginWith(String lineText, String head){
+    public boolean parseLineBeginWith(String lineText, String head) {
 
-        if(StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)){
+        if (StringUtil.isNotEmpty(lineText) && StringUtil.isNotEmpty(head)) {
             String patten = "^" + head;
 
             Pattern compiledPattern = Pattern.compile(patten);
 
             Matcher matcher = compiledPattern.matcher(lineText);
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 return true;
             }
         }
         return false;
     }
 
-    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date){
+    public void setRemoteDevice(NetworkElement e, List<Map> lldps, String hostname, Date date) {
         // 写入对端信息
-        if(lldps != null && lldps.size() > 0){
+        if (lldps != null && lldps.size() > 0) {
 
             MacServiceImpl macService = (MacServiceImpl) ApplicationContextUtils.getBean("macServiceImpl");
             List<Mac> list = new ArrayList();
-            for(Map<String, String> obj : lldps){
+            for (Map<String, String> obj : lldps) {
                 Mac mac = new Mac();
                 mac.setAddTime(date);
                 mac.setDeviceIp(e.getIp());
@@ -241,7 +242,7 @@ public class GatherSingleThreadingMacUtilsBack {
 //                macService.save(mac);
                 list.add(mac);
             }
-            if(list.size() > 0){
+            if (list.size() > 0) {
                 macService.batchSaveGather(list);
             }
         }

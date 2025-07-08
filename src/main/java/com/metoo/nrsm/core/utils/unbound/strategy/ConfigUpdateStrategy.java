@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 策略模式
  */
-public interface  ConfigUpdateStrategy {
+public interface ConfigUpdateStrategy {
 
     List<String> updateConfig(List<String> lines, Object configData) throws IOException;
 }

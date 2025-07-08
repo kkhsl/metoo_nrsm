@@ -11,7 +11,7 @@
     <settings>
         <setting name="logImpl" value="LOG4J"/>
     </settings>
-    
+
     <!--全局通用属性-->
     <properties>
 
@@ -20,7 +20,8 @@
         <property name="log4j2.file.path">/opt/nrsm/nrsm/logs</property>
 
         <!-- 日志输出格式 -->
-        <property name="log.pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n" />
+        <property name="log.pattern"
+                  value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n"/>
 
 
         <!--<property name="log4j2.file.path">/opt/nrsm/logs</property>-->
@@ -30,7 +31,7 @@
         <!--输出信息到控制台-->
         <console name="Console" target="SYSTEM_ERR"><!--SYSTEM_OUT-->
             <!--控制日志输出的格式-->
-            <patternLayout pattern="%d{yyyy-MM-dd HH:mm:ss}[%t] [%-5level] %logger{36} - %msg%n" />
+            <patternLayout pattern="%d{yyyy-MM-dd HH:mm:ss}[%t] [%-5level] %logger{36} - %msg%n"/>
         </console>
         <!--文件位置-->
         <!--<File name="nrsm" fileName="/opt/nmap/service/nmap/logs/nmap.log" append="true">-->
@@ -53,15 +54,15 @@
 
             <Policies>
                 <!--在系统启动是时，触发拆分规则，产生一个日志文件-->
-                <OnStartupTriggeringPolicy />
+                <OnStartupTriggeringPolicy/>
                 <!--按照文件的大小进行拆分-->
-                <SizeBasedTriggeringPolicy size="10MB" />
+                <SizeBasedTriggeringPolicy size="10MB"/>
                 <!--按照时间节点进行拆分 拆分规则就是filepattern-->
-                <TimeBasedTriggeringPolicy />
+                <TimeBasedTriggeringPolicy/>
             </Policies>
 
             <!--同一目录下，文件的个数限制，如果超出了设置的数值，则根据时间进行覆盖，新的覆盖旧的规则-->
-            <DefaultRolloverStrategy max="30" />
+            <DefaultRolloverStrategy max="30"/>
         </RollingFile>
 
         <!--配置异步-->

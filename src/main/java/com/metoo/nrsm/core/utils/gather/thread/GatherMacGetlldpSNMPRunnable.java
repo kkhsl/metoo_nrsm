@@ -24,7 +24,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherMacGetlldpSNMPRunnable implements Runnable{
+public class GatherMacGetlldpSNMPRunnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -46,7 +46,8 @@ public class GatherMacGetlldpSNMPRunnable implements Runnable{
 
 
     @Override
-    public void run() {}
+    public void run() {
+    }
 
 
 }

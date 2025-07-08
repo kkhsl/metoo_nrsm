@@ -26,16 +26,16 @@ public class Dhcp6ManagerController {
     private IDhcp6Service dhcp6Service;
 
     @PostMapping("/list")
-    public Result list(@RequestBody Dhcp6Dto dto){
+    public Result list(@RequestBody Dhcp6Dto dto) {
         Page<Dhcp6> page = this.dhcp6Service.selectConditionQuery(dto);
-        if(page.getResult().size() > 0) {
+        if (page.getResult().size() > 0) {
             return ResponseUtil.ok(new PageInfo<Dhcp>(page));
         }
         return ResponseUtil.ok();
     }
 
     @PostMapping("/get")
-    public void get(){
+    public void get() {
         this.dhcp6Service.gather(new Date());
     }
 

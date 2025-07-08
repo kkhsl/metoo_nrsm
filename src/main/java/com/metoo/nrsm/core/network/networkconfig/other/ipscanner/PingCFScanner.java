@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 @Component
 public class PingCFScanner {
 
-    public static void scan(String cidr){
+    public static void scan(String cidr) {
 //        if (!Ipv4Util.verifyCidr(cidr)) {
 //            log.warn("无效的CIDR格式: {}", cidr);
 //            return;

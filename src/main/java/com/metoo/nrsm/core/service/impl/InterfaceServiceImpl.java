@@ -48,7 +48,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
-    public List<Interface> selectParentInterfaces(List<Long> parentIds){
+    public List<Interface> selectParentInterfaces(List<Long> parentIds) {
         return this.interfaceMapper.selectParentInterfaces(parentIds);
     }
 
@@ -170,7 +170,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
         updateConfig(instance);
 
         int i = 0;
-        if(instance.getId() == null || instance.getId().equals("")){
+        if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             try {
                 i = this.interfaceMapper.save(instance);
@@ -178,7 +178,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
                 e.printStackTrace();
                 return 0;
             }
-        }else{
+        } else {
             try {
                 i = this.interfaceMapper.update(instance);
             } catch (Exception e) {
@@ -190,12 +190,12 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
 
-    public void updateConfig(Interface instance){
+    public void updateConfig(Interface instance) {
         Interface mastInterface = null;
-        if(instance.getParentId() != null){
+        if (instance.getParentId() != null) {
             // 清空主接口配置数据
             mastInterface = this.interfaceMapper.selectObjById(instance.getParentId());
-            if(mastInterface != null && (mastInterface.getIpv4Address() != null || StringUtil.isNotEmpty(mastInterface.getIpv4Address()))){
+            if (mastInterface != null && (mastInterface.getIpv4Address() != null || StringUtil.isNotEmpty(mastInterface.getIpv4Address()))) {
                 mastInterface.setGateway4(null);
                 mastInterface.setIpv4Address(null);
                 mastInterface.setIpv4netmask(null);
@@ -215,21 +215,21 @@ public class InterfaceServiceImpl implements IInterfaceService {
         try {
 
             // 获取子接口网络接口的实时状态
-            if(mastInterface != null){
+            if (mastInterface != null) {
                 instance.setParentName(mastInterface.getName());
                 NetworkInterface netIntf = NetworkInterface.getByName(instance.getName() + "." + instance.getVlanNum());
-                if(netIntf != null){
+                if (netIntf != null) {
                     boolean isUp = netIntf.isUp(); // 接口是否启用
                     instance.setIsup(isUp ? "up" : "dowm"); // 假设 Interface 类有 setIsUp 方法
-                }else{
+                } else {
                     instance.setIsup("dowm");
                 }
-            }else{
+            } else {
                 NetworkInterface netIntf = NetworkInterface.getByName(instance.getName());
-                if(netIntf != null){
+                if (netIntf != null) {
                     boolean isUp = netIntf.isUp(); // 接口是否启用
                     instance.setIsup(isUp ? "up" : "dowm"); // 假设 Interface 类有 setIsUp 方法
-                }else{
+                } else {
                     instance.setIsup("dowm");
                 }
 
@@ -240,11 +240,12 @@ public class InterfaceServiceImpl implements IInterfaceService {
             e.printStackTrace();
         }
     }
+
     @Override
     public List<Interface> select() {
         List<Interface> list = new ArrayList<>();
         String result = SNMPv2Request.getNetworkInterfaces();
-        if(!"".equals(result)){
+        if (!"".equals(result)) {
             LinkedHashMap<String, Object> map = JSONObject.parseObject(result, LinkedHashMap.class);
             for (String key : map.keySet()) {
                 Interface inteface = JSONObject.parseObject(JSONObject.toJSONString(map.get(key)), Interface.class);
@@ -260,7 +261,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
     public int update(Interface instance) {
         try {
             // 如果是vlan接口，拼接vlan接口名
-            if(instance.getParentId() != null && instance.getVlanNum() != null){
+            if (instance.getParentId() != null && instance.getVlanNum() != null) {
                 Interface mastInterface = this.interfaceMapper.selectObjById(instance.getParentId());
                 instance.setParentName(mastInterface.getName());
             }
@@ -280,7 +281,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
             try {
                 Interface instance = this.interfaceMapper.selectObjById(id);
                 // 如果是vlan接口，拼接vlan接口名
-                if(instance.getParentId() != null && instance.getVlanNum() != null){
+                if (instance.getParentId() != null && instance.getVlanNum() != null) {
                     Interface mastInterface = this.interfaceMapper.selectObjById(id);
                     String name = mastInterface.getName() + "." + instance.getVlanNum();
                     NetplanConfigManager.removeVlanInterface(name);
@@ -297,13 +298,13 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
-    public boolean modify_ip(Interface instance){
+    public boolean modify_ip(Interface instance) {
 //        String path = Global.PYPATH + "modifyip.py";
 //        String[] params = {instance.getName(), instance.getIpv4Address(),
 //                instance.getIpv6Address(), instance.getGateway4(), instance.getGateway6()};
 //        String result = pythonExecUtils.exec(path, params);
         String result = SNMPv2Request.modifyIp(instance.getName(), instance.getIpv4Address(), instance.getIpv6Address(), instance.getGateway4(), instance.getGateway6());
-        if(result.equals("0")){
+        if (result.equals("0")) {
             return true;
         }
         return false;
@@ -312,9 +313,9 @@ public class InterfaceServiceImpl implements IInterfaceService {
 
     // TODO Vlan改用Interface
     @Override
-    public boolean modify_vlans(String name, Interface instance){
-        String result = SNMPv2Request.modifyVlans(name, String.valueOf(instance.getVlanNum()), instance.getIpv4Address(),instance.getIpv6Address(),instance.getGateway4(),instance.getGateway6());
-        if(result.equals("0")){
+    public boolean modify_vlans(String name, Interface instance) {
+        String result = SNMPv2Request.modifyVlans(name, String.valueOf(instance.getVlanNum()), instance.getIpv4Address(), instance.getIpv6Address(), instance.getGateway4(), instance.getGateway6());
+        if (result.equals("0")) {
             return true;
         }
         return false;

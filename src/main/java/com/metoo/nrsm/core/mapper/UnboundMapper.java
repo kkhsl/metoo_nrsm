@@ -10,9 +10,14 @@ import java.util.Map;
 public interface UnboundMapper {
 
     Unbound selectObjByOne(Map params);
+
     int save(Unbound instance);
+
     int update(Unbound instance);
+
     int delete(Long id);
+
     int deleteDNS(Long id);
+
     int deleteAll(Long id);
 }

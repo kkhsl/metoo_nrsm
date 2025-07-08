@@ -27,21 +27,21 @@ public class TrafficFactoryImplGuixi implements Gather {
     }
 
     public void executeMethod() {
-        IFlowUnitService flowUnitService = (IFlowUnitService)ApplicationContextUtils.getBean("flowUnitServiceImpl");
-        IGatewayService gatewayService = (IGatewayService)ApplicationContextUtils.getBean("gatewayServiceImpl");
-        List<Gateway> list = gatewayService.selectObjByMap((Map)null);
+        IFlowUnitService flowUnitService = (IFlowUnitService) ApplicationContextUtils.getBean("flowUnitServiceImpl");
+        IGatewayService gatewayService = (IGatewayService) ApplicationContextUtils.getBean("gatewayServiceImpl");
+        List<Gateway> list = gatewayService.selectObjByMap((Map) null);
         if (list.size() > 0) {
             Iterator var5 = list.iterator();
 
-            while(var5.hasNext()) {
-                Gateway gateway = (Gateway)var5.next();
+            while (var5.hasNext()) {
+                Gateway gateway = (Gateway) var5.next();
                 Map params = new HashMap();
                 params.put("hidden", false);
                 params.put("gatewayId", gateway.getId());
                 List<FlowUnit> units = flowUnitService.selectObjByMap(params);
                 Iterator iterator = units.iterator();
-                while(iterator.hasNext()) {
-                    FlowUnit unit = (FlowUnit)iterator.next();
+                while (iterator.hasNext()) {
+                    FlowUnit unit = (FlowUnit) iterator.next();
                     this.insertTraffic(unit);
                     flowUnitService.update(unit);
                 }
@@ -196,13 +196,13 @@ public class TrafficFactoryImplGuixi implements Gather {
                 double vfourFlow = 0.0D;
                 double vsixFlow = 0.0D;
 
-                for(int i = 0; i < jsonArray.size(); ++i) {
+                for (int i = 0; i < jsonArray.size(); ++i) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.get("Type") != null && jsonObject.get("Type").equals("sum-ipv4-in")) {
                         Iterator var9 = jsonObject.keySet().iterator();
 
-                        while(var9.hasNext()) {
-                            String key = (String)var9.next();
+                        while (var9.hasNext()) {
+                            String key = (String) var9.next();
                             if (jsonObject.get(key) instanceof JSONObject) {
                                 JSONObject nestedObject = jsonObject.getJSONObject(key);
                                 if (nestedObject.containsKey(rule)) {

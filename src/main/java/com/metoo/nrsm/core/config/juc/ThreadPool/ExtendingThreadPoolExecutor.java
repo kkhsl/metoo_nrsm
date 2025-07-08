@@ -16,7 +16,7 @@ public class ExtendingThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     // 定义方法，对执行的任务进行包装，接收两个参数，第一个参数接收要执行的任务，第二个参数是一个Exception异常
-    public Runnable wrap(Runnable task, Exception exception){
+    public Runnable wrap(Runnable task, Exception exception) {
         return new Runnable() {
             @Override
             public void run() {
@@ -33,13 +33,13 @@ public class ExtendingThreadPoolExecutor extends ThreadPoolExecutor {
 
     // 重写submit方法
     @Override
-    public Future<?> submit(Runnable task){
+    public Future<?> submit(Runnable task) {
         return super.submit(wrap(task, new Exception("客户跟踪异常")));
     }
 
     // 重写execute方法
     @Override
-    public void execute(Runnable task){
+    public void execute(Runnable task) {
         super.execute(wrap(task, new Exception("客户跟踪异常")));
     }
 }

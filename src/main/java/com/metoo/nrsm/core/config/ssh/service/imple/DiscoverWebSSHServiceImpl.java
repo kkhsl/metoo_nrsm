@@ -42,6 +42,7 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
     private INetworkElementService networkElementService;
     @Autowired
     private ICredentialService credentialService;
+
     public DiscoverWebSSHServiceImpl() {
     }
 
@@ -66,12 +67,12 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
                             DiscoverWebSSHServiceImpl.this.close(session);
                             // 返回异常信息
                             Map map = new HashMap();
-                            map.put("msg", var2.getLocalizedMessage()   );
+                            map.put("msg", var2.getLocalizedMessage());
                             sendMessage(session, JSONObject.toJSONBytes(map));
                         }
                     }
                 });
-            }else if ("command".equals(webSSHData.getOperate())) {
+            } else if ("command".equals(webSSHData.getOperate())) {
                 String command = webSSHData.getCommand();
                 SSHConnectInfo sshConnectInfo = (SSHConnectInfo) ConstantPool.SSHMAP.get(userId);
                 if (sshConnectInfo != null) {
@@ -107,7 +108,7 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
                 Session session1 = sshConnectInfo.getjSch().getSession(credential.getLoginName(), ne.getIp(), ne.getPort());
                 Session session = sshConnectInfo.getjSch().getSession(credential.getLoginName(), ne.getIp(), ne.getPort());
 
-                if(!StringUtil.isEmpty(credential.getLoginPassword())){
+                if (!StringUtil.isEmpty(credential.getLoginPassword())) {
                     session.setPassword(credential.getLoginPassword());
                 }
                 Properties config = new Properties();
@@ -146,7 +147,7 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
     }
 
     public void connectToSSHTest(SSHConnectInfo sshConnectInfo, WebSocketSession webSocketSession,
-                 String ipv4, String loginName, String password) throws JSchException, IOException {
+                                 String ipv4, String loginName, String password) throws JSchException, IOException {
 
         Session session = sshConnectInfo.getjSch().getSession(loginName, ipv4, 22);
 
@@ -167,9 +168,7 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
 
         InputStream inputStream = channel.getInputStream();
 
-        try
-
-        {
+        try {
             byte[] buffer = new byte[1024];
             boolean var24 = false;
 
@@ -177,9 +176,7 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
             while ((i = inputStream.read(buffer)) != -1) {
                 this.sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
-        } finally
-
-        {
+        } finally {
             session.disconnect();
             channel.disconnect();
             if (inputStream != null) {

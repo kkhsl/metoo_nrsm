@@ -24,7 +24,8 @@
         where `name` = #{name}
     </select>
 
-    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.BackupSqlDTO" resultMap="Base_Result_Map">
+    <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.BackupSqlDTO"
+            resultMap="Base_Result_Map">
         SELECT * FROM metoo_backup
         <where>
             <if test="name != null and name != ''">
@@ -34,10 +35,10 @@
                 AND `size` = #{size}
             </if>
         </where>
-        <if test = "orderBy != null and orderBy != ''">
+        <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
         </if>
-        <if test = "orderType != null and orderType != ''">
+        <if test="orderType != null and orderType != ''">
             ${orderType}
         </if>
     </select>

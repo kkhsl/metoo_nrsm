@@ -19,25 +19,25 @@
     </resultMap>
 
     <select id="selectDuplicatesObjByMap" resultType="com.metoo.nrsm.entity.Ipv4">
-          SELECT
-           *
+        SELECT
+        *
         FROM
-            metoo_ipv4_duplicates
+        metoo_ipv4_duplicates
     </select>
 
     <select id="joinSelectObjAndIpv6" resultMap="joinSelectObjAndIpv6_Result">
-          SELECT
-            metoo_ipv4.id v4id,
-            metoo_ipv4.ip v4ip,
-            metoo_ipv4.mac,
-            metoo_ipv4.port,
-            metoo_ipv4.deviceIp,
-            metoo_ipv4.deviceName,
-            metoo_ipv6.id v6id,
-            metoo_ipv6.ip v6ip,
-            metoo_mac_vendor.vendor macVendor
+        SELECT
+        metoo_ipv4.id v4id,
+        metoo_ipv4.ip v4ip,
+        metoo_ipv4.mac,
+        metoo_ipv4.port,
+        metoo_ipv4.deviceIp,
+        metoo_ipv4.deviceName,
+        metoo_ipv6.id v6id,
+        metoo_ipv6.ip v6ip,
+        metoo_mac_vendor.vendor macVendor
         FROM
-            metoo_ipv4
+        metoo_ipv4
         JOIN metoo_ipv6 ON metoo_ipv4.mac = metoo_ipv6.mac
         AND metoo_ipv4.port = metoo_ipv6.port
         LEFT JOIN metoo_mac_vendor ON metoo_mac_vendor.mac = substring(metoo_ipv4.mac, 1, 8);
@@ -134,22 +134,22 @@
 
     <insert id="batchSaveGather" parameterType="java.util.List">
         INSERT INTO metoo_ipv4_gather (
-            addTime,
-            ip,
-            mac,
-            port,
-            deviceIp,
-            deviceName
+        addTime,
+        ip,
+        mac,
+        port,
+        deviceIp,
+        deviceName
         )
         VALUES
-        <foreach collection ="list" item="item" separator ="," >
+        <foreach collection="list" item="item" separator=",">
             (
-                #{item.addTime},
-                #{item.ip},
-                #{item.mac},
-                #{item.port},
-                #{item.deviceIp},
-                #{item.deviceName}
+            #{item.addTime},
+            #{item.ip},
+            #{item.mac},
+            #{item.port},
+            #{item.deviceIp},
+            #{item.deviceName}
             )
         </foreach>
     </insert>

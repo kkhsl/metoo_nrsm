@@ -48,11 +48,11 @@ public class MyStringUtils {
 
 
     // 方式二：Character
-    public static boolean isDigit(String value){
+    public static boolean isDigit(String value) {
 
-        for (int i = value.length(); --i >= 0;){
+        for (int i = value.length(); --i >= 0; ) {
             System.out.println(value.charAt(i));
-            if (!Character.isDigit(value.charAt(i))){
+            if (!Character.isDigit(value.charAt(i))) {
 
                 return false;
             }
@@ -72,7 +72,7 @@ public class MyStringUtils {
     }
 
     @Test
-    public void acquireCharacterPositionTest(){
+    public void acquireCharacterPositionTest() {
         String param = "aa:bb:cc:dd:ee:ff";
         String position = getSubstringAfterNthDelimiter(param, ":", 3);
         System.out.println(position);
@@ -119,27 +119,27 @@ public class MyStringUtils {
     }
 
 
-
     /**
      * 获取指定字符第N次出现的位置(下标)
+     *
      * @return
      */
-    public static int acquireCharacterPositions(String param, String symbol, int num){
-        if(StringUtils.isBlank(param)){
+    public static int acquireCharacterPositions(String param, String symbol, int num) {
+        if (StringUtils.isBlank(param)) {
             return -1;
         }
         boolean flag = false;
-        if(symbol.equals(".")){
+        if (symbol.equals(".")) {
             flag = true;
         }
-        if(param.contains(symbol) && param.indexOf(symbol) != -1){
+        if (param.contains(symbol) && param.indexOf(symbol) != -1) {
             flag = true;
         }
-        if(flag){
+        if (flag) {
             Pattern pattern = Pattern.compile(symbol);
             Matcher findMatcher = pattern.matcher(param);
             List<Integer> list = new ArrayList();
-            while(findMatcher.find()) {
+            while (findMatcher.find()) {
                 list.add(findMatcher.start());
             }
             return list.get(num - 1);
@@ -150,7 +150,7 @@ public class MyStringUtils {
     /**
      * 获取指定字符串出现的次数
      *
-     * @param srcText 源字符串
+     * @param srcText  源字符串
      * @param findText 要查找的字符串
      * @return
      */
@@ -165,25 +165,27 @@ public class MyStringUtils {
     }
 
     @Test
-    public void t(){
+    public void t() {
         System.out.println("输出整型数组:");
-        Integer[] integerArray = { 1, 2, 3, 4, 5, 6 };
-        for (Integer element : integerArray){
+        Integer[] integerArray = {1, 2, 3, 4, 5, 6};
+        for (Integer element : integerArray) {
             System.out.printf("%s ", element);
             System.out.println();
         }
 
     }
-    static  class MainClass{
+
+    static class MainClass {
         public static void main(String[] args) {
             int nDisks = 4;
             doTowers(nDisks, 'A', 'B', 'C');
         }
+
         public static void doTowers(int topN, char from, char inter, char to) {
-            if (topN == 1){
+            if (topN == 1) {
                 System.out.println("Disk 1 from "
                         + from + " to " + to);
-            }else {
+            } else {
                 doTowers(topN - 1, from, to, inter);
                 System.out.println("Disk "
                         + topN + " from " + from + " to " + to);

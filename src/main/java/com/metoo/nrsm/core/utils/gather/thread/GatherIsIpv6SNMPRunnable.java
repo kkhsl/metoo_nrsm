@@ -20,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 @Component
-public class GatherIsIpv6SNMPRunnable implements Runnable{
+public class GatherIsIpv6SNMPRunnable implements Runnable {
 
     private NetworkElement networkElement;
 
@@ -50,14 +50,14 @@ public class GatherIsIpv6SNMPRunnable implements Runnable{
 //            Boolean result = SNMPv2Request.getIsV6(snmpParams);
             Boolean result = SNMPv3Request.getIsV6(SNMPParamFactory.createSNMPParam(networkElement));
 
-            if(result != null){
+            if (result != null) {
                 networkElement.setIsipv6(result);
                 networkElementServiceImpl.update(networkElement);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(latch != null){
+            if (latch != null) {
                 latch.countDown();
             }
         }

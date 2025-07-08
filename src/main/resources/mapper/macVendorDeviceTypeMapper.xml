@@ -4,7 +4,8 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.MacVendorDeviceTypeMapper">
 
 
-    <select id="selectObjByMacVendor" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.MacVendorDeviceType">
+    <select id="selectObjByMacVendor" parameterType="java.lang.String"
+            resultType="com.metoo.nrsm.entity.MacVendorDeviceType">
         SELECT *
         FROM metoo_mac_vendor_device_type
         where macVendor = #{macVendor}

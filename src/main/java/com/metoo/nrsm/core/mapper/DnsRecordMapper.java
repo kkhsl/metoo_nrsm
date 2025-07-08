@@ -10,6 +10,7 @@ import java.util.List;
 public interface DnsRecordMapper {
     /**
      * 批量保存数据
+     *
      * @param record
      */
     void saveInfo(List<DnsRecord> record);

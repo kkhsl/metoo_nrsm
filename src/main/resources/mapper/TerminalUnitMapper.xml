@@ -15,9 +15,9 @@
     <update id="updateTerminalUnitV4" parameterType="com.metoo.nrsm.entity.TerminalUnitSubnet">
         UPDATE metoo_terminal_unit_subnet_v4
         SET addTime = #{addTime},
-            ip = #{ip},
-            terminalUnitId = #{terminalUnitId},
-            mask = #{mask}
+        ip = #{ip},
+        terminalUnitId = #{terminalUnitId},
+        mask = #{mask}
         WHERE id = #{id}
     </update>
 
@@ -37,7 +37,6 @@
     </delete>
 
 
-
     <insert id="insertTerminalUnitV6" parameterType="com.metoo.nrsm.entity.TerminalUnitSubnetV6">
         INSERT INTO metoo_terminal_unit_subnet_v6 (addTime, ip, terminalUnitId, mask)
         VALUES (#{addTime}, #{ip}, #{terminalUnitId}, #{mask})
@@ -46,9 +45,9 @@
     <update id="updateTerminalUnitV6" parameterType="com.metoo.nrsm.entity.TerminalUnitSubnetV6">
         UPDATE metoo_terminal_unit_subnet_v6
         SET addTime = #{addTime},
-            ip = #{ip},
-            terminalUnitId = #{terminalUnitId},
-            mask = #{mask}
+        ip = #{ip},
+        terminalUnitId = #{terminalUnitId},
+        mask = #{mask}
         WHERE id = #{id}
     </update>
 
@@ -61,7 +60,7 @@
     <update id="updateTerminalUnit" parameterType="com.metoo.nrsm.entity.TerminalUnit">
         UPDATE metoo_terminal_unit
         SET addTime = #{addTime},
-            name = #{name}
+        name = #{name}
         WHERE id = #{id}
     </update>
 
@@ -86,163 +85,163 @@
         <id column="unit_id1" property="id"></id>
         <result column="unit_name1" property="name"></result>
         <collection property="terminalList" ofType="com.metoo.nrsm.entity.Terminal">
-            <id column="id" property="id" />
-            <result column="addTime" property="addTime" />
-            <result column="name" property="name" />
-            <result column="mac" property="mac" />
-            <result column="port" property="port" />
-            <result column="type" property="type" />
-            <result column="macVendor" property="macVendor" />
-            <result column="v4ip" property="v4ip" />
-            <result column="v4ip1" property="v4ip1" />
-            <result column="v4ip2" property="v4ip2" />
-            <result column="v4ip3" property="v4ip3" />
-            <result column="v4ipDynamic" property="v4ipDynamic" />
-            <result column="v4ip1Dynamic" property="v4ip1Dynamic" />
-            <result column="v4ip2Dynamic" property="v4ip2Dynamic" />
-            <result column="v4ip3Dynamic" property="v4ip3Dynamic" />
-            <result column="v6ip" property="v6ip" />
-            <result column="v6ip1" property="v6ip1" />
-            <result column="v6ip2" property="v6ip2" />
-            <result column="v6ip3" property="v6ip3" />
-            <result column="v6ipDynamic" property="v6ipDynamic" />
-            <result column="v6ip1Dynamic" property="v6ip1Dynamic" />
-            <result column="v6ip2Dynamic" property="v6ip2Dynamic" />
-            <result column="v6ip3Dynamic" property="v6ip3Dynamic" />
-            <result column="deviceIp" property="deviceIp" />
-            <result column="deviceName" property="deviceName" />
-            <result column="deviceType" property="deviceType" />
-            <result column="deviceUuid" property="deviceUuid" />
-            <result column="deviceTypeId" property="deviceTypeId" />
-            <result column="deviceTypeName" property="deviceTypeName" />
-            <result column="deviceTypeUuid" property="deviceTypeUuid" />
-            <result column="hostname" property="hostname" />
-            <result column="remoteDeviceIp" property="remoteDeviceIp" />
-            <result column="remoteDeviceName" property="remoteDeviceName" />
-            <result column="remoteDeviceUuid" property="remoteDeviceUuid" />
-            <result column="remoteDeviceType" property="remoteDeviceType" />
-            <result column="client_hostname" property="client_hostname" />
-            <result column="online" property="online" />
-            <result column="interfaceName" property="interfaceName" />
-            <result column="index" property="index" />
-            <result column="uuid" property="uuid" />
-            <result column="interfaceIndex" property="interfaceIndex" />
-            <result column="interfaceStatus" property="interfaceStatus" />
-            <result column="vlan" property="vlan" />
-            <result column="vendor" property="vendor" />
-            <result column="duty" property="duty" />
-            <result column="location" property="location" />
-            <result column="unit_name" property="unitName" />
-            <result column="combined_port_protocol" property="combined_port_protocol" />
-            <result column="combined_vendor_gen_family" property="combined_vendor_gen_family" />
+            <id column="id" property="id"/>
+            <result column="addTime" property="addTime"/>
+            <result column="name" property="name"/>
+            <result column="mac" property="mac"/>
+            <result column="port" property="port"/>
+            <result column="type" property="type"/>
+            <result column="macVendor" property="macVendor"/>
+            <result column="v4ip" property="v4ip"/>
+            <result column="v4ip1" property="v4ip1"/>
+            <result column="v4ip2" property="v4ip2"/>
+            <result column="v4ip3" property="v4ip3"/>
+            <result column="v4ipDynamic" property="v4ipDynamic"/>
+            <result column="v4ip1Dynamic" property="v4ip1Dynamic"/>
+            <result column="v4ip2Dynamic" property="v4ip2Dynamic"/>
+            <result column="v4ip3Dynamic" property="v4ip3Dynamic"/>
+            <result column="v6ip" property="v6ip"/>
+            <result column="v6ip1" property="v6ip1"/>
+            <result column="v6ip2" property="v6ip2"/>
+            <result column="v6ip3" property="v6ip3"/>
+            <result column="v6ipDynamic" property="v6ipDynamic"/>
+            <result column="v6ip1Dynamic" property="v6ip1Dynamic"/>
+            <result column="v6ip2Dynamic" property="v6ip2Dynamic"/>
+            <result column="v6ip3Dynamic" property="v6ip3Dynamic"/>
+            <result column="deviceIp" property="deviceIp"/>
+            <result column="deviceName" property="deviceName"/>
+            <result column="deviceType" property="deviceType"/>
+            <result column="deviceUuid" property="deviceUuid"/>
+            <result column="deviceTypeId" property="deviceTypeId"/>
+            <result column="deviceTypeName" property="deviceTypeName"/>
+            <result column="deviceTypeUuid" property="deviceTypeUuid"/>
+            <result column="hostname" property="hostname"/>
+            <result column="remoteDeviceIp" property="remoteDeviceIp"/>
+            <result column="remoteDeviceName" property="remoteDeviceName"/>
+            <result column="remoteDeviceUuid" property="remoteDeviceUuid"/>
+            <result column="remoteDeviceType" property="remoteDeviceType"/>
+            <result column="client_hostname" property="client_hostname"/>
+            <result column="online" property="online"/>
+            <result column="interfaceName" property="interfaceName"/>
+            <result column="index" property="index"/>
+            <result column="uuid" property="uuid"/>
+            <result column="interfaceIndex" property="interfaceIndex"/>
+            <result column="interfaceStatus" property="interfaceStatus"/>
+            <result column="vlan" property="vlan"/>
+            <result column="vendor" property="vendor"/>
+            <result column="duty" property="duty"/>
+            <result column="location" property="location"/>
+            <result column="unit_name" property="unitName"/>
+            <result column="combined_port_protocol" property="combined_port_protocol"/>
+            <result column="combined_vendor_gen_family" property="combined_vendor_gen_family"/>
             <result column="deviceUuid2" property="deviceUuid2"/>
-            <result column="deviceName2" property="deviceName2" />
-            <result column="devicePort2" property="devicePort2" />
-            <result column="os" property="os" />
+            <result column="deviceName2" property="deviceName2"/>
+            <result column="devicePort2" property="devicePort2"/>
+            <result column="os" property="os"/>
         </collection>
     </resultMap>
 
     <resultMap id="TerminalResultMap" type="com.metoo.nrsm.entity.Terminal">
-        <id column="id" property="id" />
-        <result column="addTime" property="addTime" />
-        <result column="name" property="name" />
-        <result column="mac" property="mac" />
-        <result column="port" property="port" />
-        <result column="type" property="type" />
-        <result column="macVendor" property="macVendor" />
-        <result column="v4ip" property="v4ip" />
-        <result column="v4ip1" property="v4ip1" />
-        <result column="v4ip2" property="v4ip2" />
-        <result column="v4ip3" property="v4ip3" />
-        <result column="v4ipDynamic" property="v4ipDynamic" />
-        <result column="v4ip1Dynamic" property="v4ip1Dynamic" />
-        <result column="v4ip2Dynamic" property="v4ip2Dynamic" />
-        <result column="v4ip3Dynamic" property="v4ip3Dynamic" />
-        <result column="v6ip" property="v6ip" />
-        <result column="v6ip1" property="v6ip1" />
-        <result column="v6ip2" property="v6ip2" />
-        <result column="v6ip3" property="v6ip3" />
-        <result column="v6ipDynamic" property="v6ipDynamic" />
-        <result column="v6ip1Dynamic" property="v6ip1Dynamic" />
-        <result column="v6ip2Dynamic" property="v6ip2Dynamic" />
-        <result column="v6ip3Dynamic" property="v6ip3Dynamic" />
-        <result column="deviceIp" property="deviceIp" />
-        <result column="deviceName" property="deviceName" />
-        <result column="deviceType" property="deviceType" />
-        <result column="deviceUuid" property="deviceUuid" />
-        <result column="deviceTypeId" property="deviceTypeId" />
-        <result column="deviceTypeName" property="deviceTypeName" />
-        <result column="deviceTypeUuid" property="deviceTypeUuid" />
-        <result column="hostname" property="hostname" />
-        <result column="remoteDeviceIp" property="remoteDeviceIp" />
-        <result column="remoteDeviceName" property="remoteDeviceName" />
-        <result column="remoteDeviceUuid" property="remoteDeviceUuid" />
-        <result column="remoteDeviceType" property="remoteDeviceType" />
-        <result column="client_hostname" property="client_hostname" />
-        <result column="online" property="online" />
-        <result column="interfaceName" property="interfaceName" />
-        <result column="index" property="index" />
-        <result column="uuid" property="uuid" />
-        <result column="interfaceIndex" property="interfaceIndex" />
-        <result column="interfaceStatus" property="interfaceStatus" />
-        <result column="vlan" property="vlan" />
-        <result column="vendor" property="vendor" />
-        <result column="duty" property="duty" />
-        <result column="location" property="location" />
-        <result column="unit_name" property="unitName" />
-        <result column="combined_port_protocol" property="combined_port_protocol" />
-        <result column="combined_vendor_gen_family" property="combined_vendor_gen_family" />
+        <id column="id" property="id"/>
+        <result column="addTime" property="addTime"/>
+        <result column="name" property="name"/>
+        <result column="mac" property="mac"/>
+        <result column="port" property="port"/>
+        <result column="type" property="type"/>
+        <result column="macVendor" property="macVendor"/>
+        <result column="v4ip" property="v4ip"/>
+        <result column="v4ip1" property="v4ip1"/>
+        <result column="v4ip2" property="v4ip2"/>
+        <result column="v4ip3" property="v4ip3"/>
+        <result column="v4ipDynamic" property="v4ipDynamic"/>
+        <result column="v4ip1Dynamic" property="v4ip1Dynamic"/>
+        <result column="v4ip2Dynamic" property="v4ip2Dynamic"/>
+        <result column="v4ip3Dynamic" property="v4ip3Dynamic"/>
+        <result column="v6ip" property="v6ip"/>
+        <result column="v6ip1" property="v6ip1"/>
+        <result column="v6ip2" property="v6ip2"/>
+        <result column="v6ip3" property="v6ip3"/>
+        <result column="v6ipDynamic" property="v6ipDynamic"/>
+        <result column="v6ip1Dynamic" property="v6ip1Dynamic"/>
+        <result column="v6ip2Dynamic" property="v6ip2Dynamic"/>
+        <result column="v6ip3Dynamic" property="v6ip3Dynamic"/>
+        <result column="deviceIp" property="deviceIp"/>
+        <result column="deviceName" property="deviceName"/>
+        <result column="deviceType" property="deviceType"/>
+        <result column="deviceUuid" property="deviceUuid"/>
+        <result column="deviceTypeId" property="deviceTypeId"/>
+        <result column="deviceTypeName" property="deviceTypeName"/>
+        <result column="deviceTypeUuid" property="deviceTypeUuid"/>
+        <result column="hostname" property="hostname"/>
+        <result column="remoteDeviceIp" property="remoteDeviceIp"/>
+        <result column="remoteDeviceName" property="remoteDeviceName"/>
+        <result column="remoteDeviceUuid" property="remoteDeviceUuid"/>
+        <result column="remoteDeviceType" property="remoteDeviceType"/>
+        <result column="client_hostname" property="client_hostname"/>
+        <result column="online" property="online"/>
+        <result column="interfaceName" property="interfaceName"/>
+        <result column="index" property="index"/>
+        <result column="uuid" property="uuid"/>
+        <result column="interfaceIndex" property="interfaceIndex"/>
+        <result column="interfaceStatus" property="interfaceStatus"/>
+        <result column="vlan" property="vlan"/>
+        <result column="vendor" property="vendor"/>
+        <result column="duty" property="duty"/>
+        <result column="location" property="location"/>
+        <result column="unit_name" property="unitName"/>
+        <result column="combined_port_protocol" property="combined_port_protocol"/>
+        <result column="combined_vendor_gen_family" property="combined_vendor_gen_family"/>
         <result column="deviceUuid2" property="deviceUuid2"/>
-        <result column="deviceName2" property="deviceName2" />
-        <result column="devicePort2" property="devicePort2" />
-        <result column="os" property="os" />
+        <result column="deviceName2" property="deviceName2"/>
+        <result column="devicePort2" property="devicePort2"/>
+        <result column="os" property="os"/>
     </resultMap>
 
 
     <select id="selectObjAndTerminalByMap" parameterType="java.util.Map" resultMap="Unit_And_Terminals">
         SELECT
-    metoo_unit.id unit_id1,
-    metoo_unit.unitName unit_name1,
-    terminal.*
-    FROM
-    metoo_unit
-    LEFT JOIN metoo_terminal terminal ON metoo_unit.id = terminal.unitId
-    <where>
-        <!-- 默认删除状态为0 -->
-        metoo_unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
-        <!-- 优化IP检查条件 -->
-        or (
-        NULLIF(TRIM(terminal.v4ip), '') IS NOT NULL
-        OR NULLIF(TRIM(terminal.v6ip), '') IS NOT NULL
-        )
-        <if test="ids != null and ids.size() > 0">
-            AND metoo_unit.id in
-            <foreach collection="ids" index = "index" item="item" separator="," open="(" close=")">
-                #{item}
-            </foreach>
-        </if>
-        <if test="unitId != null and unitId != ''">
-            AND metoo_unit.id = #{unitId}
-        </if>
-    </where>
-</select>
+        metoo_unit.id unit_id1,
+        metoo_unit.unitName unit_name1,
+        terminal.*
+        FROM
+        metoo_unit
+        LEFT JOIN metoo_terminal terminal ON metoo_unit.id = terminal.unitId
+        <where>
+            <!-- 默认删除状态为0 -->
+            metoo_unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
+            <!-- 优化IP检查条件 -->
+            or (
+            NULLIF(TRIM(terminal.v4ip), '') IS NOT NULL
+            OR NULLIF(TRIM(terminal.v6ip), '') IS NOT NULL
+            )
+            <if test="ids != null and ids.size() > 0">
+                AND metoo_unit.id in
+                <foreach collection="ids" index="index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="unitId != null and unitId != ''">
+                AND metoo_unit.id = #{unitId}
+            </if>
+        </where>
+    </select>
 
     <select id="selectObjAndTerminalHistoryByMap" parameterType="java.util.Map" resultMap="Unit_And_Terminals">
         SELECT
-            unit.id unit_id,
-            unit. NAME unit_name,
-            terminal.*
+        unit.id unit_id,
+        unit. NAME unit_name,
+        terminal.*
         FROM
-            metoo_unit unit
+        metoo_unit unit
         JOIN metoo_terminal_history terminal ON unit.id = terminal.unitId
         <where>
             <!-- 默认删除状态为0 -->
             unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
             <!-- 优化IP检查条件 -->
             AND (
-                NULLIF(TRIM(terminal.v4ip), '') IS NOT NULL
-                OR NULLIF(TRIM(terminal.v6ip), '') IS NOT NULL
-                )
+            NULLIF(TRIM(terminal.v4ip), '') IS NOT NULL
+            OR NULLIF(TRIM(terminal.v6ip), '') IS NOT NULL
+            )
             <if test="time != null">
                 AND terminal.addTime = (
                 SELECT
@@ -256,7 +255,7 @@
             </if>
             <if test="ids != null and ids.size() > 0">
                 AND unit.id in
-                <foreach collection="ids" index = "index" item="item" separator="," open="(" close=")">
+                <foreach collection="ids" index="index" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
