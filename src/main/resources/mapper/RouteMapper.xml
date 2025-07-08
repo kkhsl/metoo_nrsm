@@ -20,4 +20,19 @@
             )
         </foreach>
     </insert>
+    <select id="selectObjByDeviceUuid" resultType="com.metoo.nrsm.entity.RouteEntry">
+        SELECT
+        time,
+        deviceIp,
+        destnetwork,
+        mask,
+        interface AS interfaceName,
+        port,
+        nexthop,
+        cost,
+        preference,
+        type
+        FROM metoo_route_table
+        WHERE deviceIp = #{deviceIp}
+    </select>
 </mapper>

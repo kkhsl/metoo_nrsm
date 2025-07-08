@@ -17,6 +17,8 @@ public interface IArpService {
 
     List<Arp> selectObjByMap(Map params);
 
+    List<Arp> getDeviceArpByUuid(String uuid);
+
     List<Arp> joinSelectObjAndIpv6();
 
     List<Arp> mergeIpv4AndIpv6(Map params);
