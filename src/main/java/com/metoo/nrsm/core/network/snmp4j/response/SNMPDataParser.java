@@ -709,9 +709,9 @@ public class SNMPDataParser {
             case "1":
                 return "other";
             case "2":
-                return "local";
+                return "Direct";
             case "3":
-                return "netmgmt";
+                return "Static";
             case "4":
                 return "icmp";
             case "5":
