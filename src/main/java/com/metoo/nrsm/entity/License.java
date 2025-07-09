@@ -83,4 +83,8 @@ public class License extends IdEntity {
 
     @ApiModelProperty("Probe授权：是否开启扫描")
     private boolean licenseProbe;
+
+    @ApiModelProperty("单位名称")
+    private String unitName;
+
 }
