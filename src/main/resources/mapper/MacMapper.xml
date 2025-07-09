@@ -5,7 +5,33 @@
 <mapper namespace="com.metoo.nrsm.core.mapper.MacMapper">
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
-        select * from metoo_mac
+        SELECT
+        *,
+        TRIM(
+        BOTH ','
+        FROM
+        CONCAT_WS(
+        ',',
+        NULLIF( deviceIp, '' ),
+        NULLIF( v4ip, '' ),
+        NULLIF( v4ip1, '' ),
+        NULLIF( v4ip2, '' ),
+        NULLIF( v4ip3, '' )
+        )
+        ) AS ipv4,
+        TRIM(
+        BOTH ','
+        FROM
+        CONCAT_WS(
+        ',',
+        NULLIF( v6ip, '' ),
+        NULLIF( v6ip1, '' ),
+        NULLIF( v6ip2, '' ),
+        NULLIF( v6ip3, '' )
+        )
+        ) AS ipv6
+        FROM
+        `metoo_mac`
         <where>
             <if test="hostname != null and hostname != ''">
                 AND hostname = #{hostname}
