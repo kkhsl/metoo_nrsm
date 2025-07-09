@@ -1,5 +1,8 @@
 package com.metoo.nrsm.core.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.metoo.nrsm.core.dto.ArpDTO;
 import com.metoo.nrsm.core.mapper.ArpMapper;
 import com.metoo.nrsm.core.service.IArpService;
 import com.metoo.nrsm.core.service.INetworkElementService;
@@ -14,7 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author HKK
@@ -45,20 +51,19 @@ public class ArpServiceImpl implements IArpService {
     }
 
     @Override
-    public List<Arp> getDeviceArpByUuid(String uuid) {
+    public Page<Arp> getDeviceArpByUuid(ArpDTO instance) {
         Map params = new HashMap();
-        params.put("uuid", uuid);
+        params.put("uuid", instance.getUuid());
         List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
         if(networkElements.size() > 0){
             NetworkElement networkElement = networkElements.get(0);
             Map map=new HashMap();
             map.put("v4ip",networkElement.getIp());
-            List<Arp> arps = arpMapper.selectObjByMap(map);
-            if(arps.size() > 0){
-                return arps;
-            }
+            Page<Arp> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
+            arpMapper.selectObjByMap(map);
+            return page;
         }
-        return new ArrayList<>();
+        return null;
     }
 
     @Override

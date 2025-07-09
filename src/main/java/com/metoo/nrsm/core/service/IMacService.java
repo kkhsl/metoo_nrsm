@@ -12,6 +12,7 @@ import java.util.Set;
 public interface IMacService {
 
     List<Mac> selectObjByMap(Map params);
+    Page<Mac> selectByUuid(MacDTO dto);
 
     List<Mac> selectTagByDE();
 

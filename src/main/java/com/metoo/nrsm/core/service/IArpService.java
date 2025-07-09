@@ -1,5 +1,7 @@
 package com.metoo.nrsm.core.service;
 
+import com.github.pagehelper.Page;
+import com.metoo.nrsm.core.dto.ArpDTO;
 import com.metoo.nrsm.entity.Arp;
 
 import java.util.Date;
@@ -17,7 +19,7 @@ public interface IArpService {
 
     List<Arp> selectObjByMap(Map params);
 
-    List<Arp> getDeviceArpByUuid(String uuid);
+    Page<Arp> getDeviceArpByUuid(ArpDTO dto);
 
     List<Arp> joinSelectObjAndIpv6();
 

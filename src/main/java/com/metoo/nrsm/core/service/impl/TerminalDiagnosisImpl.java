@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.metoo.nrsm.core.mapper.NetworkDataMapper;
 import com.metoo.nrsm.core.mapper.TerminalDiagnosisMapper;
 import com.metoo.nrsm.core.service.ITerminalDiagnosisService;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.util.retry.Retry;
 
@@ -85,10 +87,10 @@ public class TerminalDiagnosisImpl implements ITerminalDiagnosisService {
         AiDifyRequest vo = new AiDifyRequest();
         vo.addData("input_text", "根据ipv6改造建议的文档逻辑，结合终端表、端口表、ipv6端口表、动态内容表、出口ipv6是否通表。结合给出ipv4地址为" + ipv4 + "的最终结果");
         vo.addData("Multisentiment", "True");
-        vo.addData("terminal", networkDataMapper.getTerminalTable());
-        vo.addData("ipv6Port", networkDataMapper.getIpv6PortTable());
-        vo.addData("ping", networkDataMapper.getIpv6Connectivity());
-        vo.addData("port", networkDataMapper.getPortTable());
+        vo.addData("terminal", JSONUtil.toJsonStr(networkDataMapper.getTerminalTable()));
+        vo.addData("ipv6Port", JSONUtil.toJsonStr(networkDataMapper.getIpv6PortTable()));
+        vo.addData("ping", JSONUtil.toJsonStr(networkDataMapper.getIpv6Connectivity()));
+        vo.addData("port", JSONUtil.toJsonStr(networkDataMapper.getPortTable()));
         return vo;
     }
 
@@ -104,18 +106,26 @@ public class TerminalDiagnosisImpl implements ITerminalDiagnosisService {
         String ipv4Address = terminal.getV4ip();
         AiDifyRequest requestBody = buildDifyAiRequest(ipv4Address);
         WebClient webClient = WebClient.create(difyUrl);
-        String tokenKey = "Bearer " + token;
         return webClient.post()
-                .uri("/run")
+                // 明确路径和参数
+                .uri("/run?stream=true")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", tokenKey)
+                .header("Authorization", "Bearer " + token)
                 .bodyValue(requestBody)
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .acceptCharset(StandardCharsets.UTF_8)
                 .retrieve()
                 .bodyToFlux(String.class)
-                .retryWhen(Retry.backoff(3, Duration.ofSeconds(1)))
-                .onErrorResume(e -> Flux.just("event: error\ndata: " + e.getMessage()));
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(1))
+                        .filter(e -> !(e instanceof WebClientResponseException))
+                )
+                .onErrorResume(e -> {
+                    if (e instanceof WebClientResponseException) {
+                        String errorBody = ((WebClientResponseException) e).getResponseBodyAsString();
+                        return Flux.just("event: error\ndata: " + errorBody);
+                    }
+                    return Flux.just("event: error\ndata: " + e.getMessage());
+                });
     }
 
 

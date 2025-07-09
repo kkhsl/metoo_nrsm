@@ -5,6 +5,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
+import com.metoo.nrsm.core.dto.ArpDTO;
+import com.metoo.nrsm.core.dto.MacDTO;
+import com.metoo.nrsm.core.dto.RouteDTO;
 import com.metoo.nrsm.core.dto.TopologyDTO;
 import com.metoo.nrsm.core.manager.utils.MacUtils;
 import com.metoo.nrsm.core.service.*;
@@ -507,44 +510,57 @@ public class TopologyManagerController {
 
 
     @ApiOperation("路由信息")
-    @GetMapping("/route")
-    public Result route(@RequestParam(value = "uuid") String uuid){
-        if(Strings.isBlank(uuid)){
+    @PostMapping("/route")
+    public Result route(@RequestBody(required = false) RouteDTO dto){
+        if (dto == null) {
+            dto = new RouteDTO();
+        }
+        if(Strings.isBlank(dto.getUuid())){
             return ResponseUtil.badArgument();
         }
-        Map map = new HashMap();
-        List list = routeService.getDeviceRouteByUuid(uuid);
-        List list6 = route6Service.getDeviceRouteByUuid(uuid);
-        map.put("route", list);
-        map.put("route6", list6);
-        return ResponseUtil.ok(map);
+        Page<RouteEntry> list = routeService.getDeviceRouteByUuid(dto);
+        return ResponseUtil.ok(new PageInfo<RouteEntry>(list));
+    }
+
+    @ApiOperation("路由信息")
+    @PostMapping("/route6")
+    public Result route6(@RequestBody(required = false) RouteDTO dto){
+        if (dto == null) {
+            dto = new RouteDTO();
+        }
+        if(Strings.isBlank(dto.getUuid())){
+            return ResponseUtil.badArgument();
+        }
+        Page<Route6Entry> list6= route6Service.getDeviceRouteByUuid(dto);
+        return ResponseUtil.ok(new PageInfo<RouteEntry>(list6));
     }
 
 
 
     @ApiOperation("mac信息")
-    @GetMapping("/mac")
-    public Result mac(@RequestParam(value = "uuid") String uuid){
-        if(Strings.isBlank(uuid)){
+    @PostMapping("/mac")
+    public Result mac(@RequestBody(required = false) MacDTO dto){
+        if (dto == null) {
+            dto = new MacDTO();
+        }
+        if(Strings.isBlank(dto.getDeviceUuid())){
             return ResponseUtil.badArgument();
         }
-        Map map = new HashMap();
-        map.put("deviceUuid",uuid);
-        List list = macService.selectObjByMap(map);
-        return ResponseUtil.ok(list);
+        Page<Mac> page = macService.selectByUuid(dto);
+        return ResponseUtil.ok(new PageInfo<Mac>(page));
     }
 
 
     @ApiOperation("arp信息")
-    @GetMapping("/arp")
-    public Result arp(@RequestParam(value = "uuid") String uuid){
-        if(Strings.isBlank(uuid)){
+    @PostMapping("/arp")
+    public Result arp(@RequestBody(required = false) ArpDTO dto){
+        if (dto == null) {
+            dto = new ArpDTO();
+        }
+        if(Strings.isBlank(dto.getUuid())){
             return ResponseUtil.badArgument();
         }
-        List list = arpService.getDeviceArpByUuid(uuid);
-        return ResponseUtil.ok(list);
+        Page<Arp> page = arpService.getDeviceArpByUuid(dto);
+        return ResponseUtil.ok(new PageInfo<Arp>(page));
     }
-
-
-
 }
