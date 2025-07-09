@@ -98,5 +98,7 @@ public class Mac extends IdEntity {
     private String deviceIp2;
     private String deviceName2;
     private String devicePort2;
+    private String ipv4;
+    private String ipv6;
 
 }
