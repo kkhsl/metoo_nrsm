@@ -13,6 +13,12 @@ public interface Route6TableMapper {
     void batchInsertRoutes(@Param("routes") List<Route6Entry> routes);
 
     // 按设备IP删除路由
-    @Delete("DELETE FROM metoo_route_table WHERE deviceIp = #{deviceIp}")
+    @Delete("DELETE FROM metoo_route6_table WHERE deviceIp = #{deviceIp}")
     void deleteByDeviceIp(@Param("deviceIp") String deviceIp);
+
+
+    List<Route6Entry> selectObjByDeviceUuid(String deviceIp);
+
+
+    void copyDataToRoute6History();
 }

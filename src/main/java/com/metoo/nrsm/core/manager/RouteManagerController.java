@@ -30,6 +30,7 @@ public class RouteManagerController {
     public String collectSingleDevice() {
         List<NetworkElement> devices = networkElementService.selectConditionByIpQuery(null);
         devices.forEach(routeService::processDeviceRoutes);
+        routeService.copyDataToRouteHistory();
         return "已触发所有设备路由收集: " + devices.size() + "台设备";
     }
 
@@ -37,6 +38,7 @@ public class RouteManagerController {
     public String collectDevice() {
         List<NetworkElement> devices = networkElementService.selectConditionByIpQuery(null);
         devices.forEach(route6Service::processDeviceRoutes6);
+        route6Service.copyDataToRoute6History();
         return "已触发所有设备路由收集: " + devices.size() + "台设备";
     }
 

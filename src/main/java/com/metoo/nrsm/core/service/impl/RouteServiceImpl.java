@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class RouteServiceImpl {
@@ -23,6 +21,10 @@ public class RouteServiceImpl {
 
     @Autowired
     private RouteTableMapper routeTableMapper;
+
+    @Autowired
+    private NetworkElementServiceImpl networkElementService;
+
 
     /**
      * 处理单个设备的路由数据
@@ -112,5 +114,27 @@ public class RouteServiceImpl {
         }
 
         return entries;
+    }
+
+
+
+    public List<RouteEntry> getDeviceRouteByUuid(String uuid) {
+        Map params = new HashMap();
+        params.put("uuid", uuid);
+        List<NetworkElement> networkElements = networkElementService.selectObjByMap(params);
+        if(networkElements.size() > 0){
+            NetworkElement networkElement = networkElements.get(0);
+            List<RouteEntry> routes = routeTableMapper.selectObjByDeviceUuid(networkElement.getIp());
+            if(routes.size() > 0){
+                return routes;
+            }
+        }
+        return new ArrayList<>();
+    }
+
+
+
+    public void copyDataToRouteHistory(){
+        routeTableMapper.copyDataToRouteHistory();
     }
 }

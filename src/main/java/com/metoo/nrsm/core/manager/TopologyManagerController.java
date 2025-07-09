@@ -8,11 +8,14 @@ import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.TopologyDTO;
 import com.metoo.nrsm.core.manager.utils.MacUtils;
 import com.metoo.nrsm.core.service.*;
+import com.metoo.nrsm.core.service.impl.Route6ServiceImpl;
+import com.metoo.nrsm.core.service.impl.RouteServiceImpl;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.ip.Ipv6Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
+import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +46,20 @@ public class TopologyManagerController {
     private IPortService portService;
     @Autowired
     private IPortIpv6Service portIpv6Service;
+
+    @Autowired
+    private RouteServiceImpl routeService;
+    @Autowired
+    private Route6ServiceImpl route6Service;
+
+    @Autowired
+    private IMacService macService;
+
+    @Autowired
+    private IArpService arpService;
+
+
+
 
     @RequestMapping("/list")
     public Object list(@RequestBody(required = false) TopologyDTO dto) {
@@ -487,5 +504,47 @@ public class TopologyManagerController {
         List list = this.topologyService.getDevicePortsByUuid(uuid);
         return ResponseUtil.ok(list);
     }
+
+
+    @ApiOperation("路由信息")
+    @GetMapping("/route")
+    public Result route(@RequestParam(value = "uuid") String uuid){
+        if(Strings.isBlank(uuid)){
+            return ResponseUtil.badArgument();
+        }
+        Map map = new HashMap();
+        List list = routeService.getDeviceRouteByUuid(uuid);
+        List list6 = route6Service.getDeviceRouteByUuid(uuid);
+        map.put("route", list);
+        map.put("route6", list6);
+        return ResponseUtil.ok(map);
+    }
+
+
+
+    @ApiOperation("mac信息")
+    @GetMapping("/mac")
+    public Result mac(@RequestParam(value = "uuid") String uuid){
+        if(Strings.isBlank(uuid)){
+            return ResponseUtil.badArgument();
+        }
+        Map map = new HashMap();
+        map.put("deviceUuid",uuid);
+        List list = macService.selectObjByMap(map);
+        return ResponseUtil.ok(list);
+    }
+
+
+    @ApiOperation("arp信息")
+    @GetMapping("/arp")
+    public Result arp(@RequestParam(value = "uuid") String uuid){
+        if(Strings.isBlank(uuid)){
+            return ResponseUtil.badArgument();
+        }
+        List list = arpService.getDeviceArpByUuid(uuid);
+        return ResponseUtil.ok(list);
+    }
+
+
 
 }

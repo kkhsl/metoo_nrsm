@@ -7,15 +7,14 @@ import com.metoo.nrsm.core.service.Ipv4Service;
 import com.metoo.nrsm.core.service.Ipv6Service;
 import com.metoo.nrsm.entity.Arp;
 import com.metoo.nrsm.entity.Ipv6;
+import com.metoo.nrsm.entity.NetworkElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author HKK
@@ -43,6 +42,23 @@ public class ArpServiceImpl implements IArpService {
     @Override
     public List<Arp> selectObjByMap(Map params) {
         return this.arpMapper.selectObjByMap(params);
+    }
+
+    @Override
+    public List<Arp> getDeviceArpByUuid(String uuid) {
+        Map params = new HashMap();
+        params.put("uuid", uuid);
+        List<NetworkElement> networkElements = this.networkElementService.selectObjByMap(params);
+        if(networkElements.size() > 0){
+            NetworkElement networkElement = networkElements.get(0);
+            Map map=new HashMap();
+            map.put("v4ip",networkElement.getIp());
+            List<Arp> arps = arpMapper.selectObjByMap(map);
+            if(arps.size() > 0){
+                return arps;
+            }
+        }
+        return new ArrayList<>();
     }
 
     @Override
