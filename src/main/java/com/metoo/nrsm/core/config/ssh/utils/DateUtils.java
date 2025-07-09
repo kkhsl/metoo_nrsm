@@ -54,6 +54,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         String currentTimestamp = String.valueOf(currentTime);
         System.out.println(time);
         System.out.println(currentTimestamp);
+
+        System.out.println(new Date(currentTime));
     }
 
     /**

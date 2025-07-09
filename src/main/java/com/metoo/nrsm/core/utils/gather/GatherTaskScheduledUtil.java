@@ -3,6 +3,8 @@ package com.metoo.nrsm.core.utils.gather;
 import com.alibaba.fastjson.JSONObject;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.Session;
+import com.metoo.nrsm.core.api.traffic.TimeUtils;
+import com.metoo.nrsm.core.api.traffic.TrafficApi;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
@@ -29,6 +31,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -47,6 +51,8 @@ public class GatherTaskScheduledUtil {
     private boolean flag;
     @Value("${task.switch.traffic.is-open}")
     private boolean traffic;
+    @Value("${task.switch.traffic.api.is-open}")
+    private boolean trafficApi;
     @Autowired
     private IDhcpService dhcpService;
     @Autowired
@@ -91,12 +97,74 @@ public class GatherTaskScheduledUtil {
                 try {
                     Long time = System.currentTimeMillis();
                     log.info("流量推送开始：{}", time);
-                    apiExecUtils.exec();
+                        apiExecUtils.exec();
                     log.info("流量推送结束：{}", (System.currentTimeMillis() - time));
                 } catch (Exception e) {
                     log.error("流量推送失败：{}", e.getMessage());
                 } finally {
                     lock.unlock();
+                }
+            }
+        }
+    }
+
+    @Autowired
+    private TrafficApi trafficApiService;
+    @Autowired
+    private IFlowUnitService flowUnitService;
+    @Autowired
+    private ITrafficService trafficService;
+    private final ReentrantLock trafficApiLock = new ReentrantLock();
+    @Scheduled(cron = "0 */5 * * * ?")
+    public void trafficAPI(){
+        if (trafficApi) {
+            if (trafficApiLock.tryLock()) {
+                try {
+                    LocalDateTime baseTime = TimeUtils.getNow();
+                    String currentTime = TimeUtils.format(TimeUtils.clearSecondAndNano(baseTime));
+                    String fiveMinutesBefore = TimeUtils.format(TimeUtils.getFiveMinutesBefore(baseTime));
+                    List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(Collections.emptyMap());
+                    if (flowUnits == null || flowUnits.isEmpty()) {
+                        log.info("未获取到任何单位，跳过调用 NetFlow API。");
+                        return;
+                    }
+                    for (FlowUnit flowUnit : flowUnits) {
+
+                        String unitName = flowUnit.getUnitName();
+                        if (unitName == null || unitName.trim().isEmpty()) {
+                            log.warn("单位名称为空，跳过该单位的流量查询。");
+                            continue;
+                        }
+
+                        TrafficApi.ApiResponse response = trafficApiService.queryNetFlow(unitName, fiveMinutesBefore, currentTime);
+
+                        if (!response.isSuccess()) {
+                            log.error("调用 NetFlow API 失败，单位: {}, 错误信息: {}", unitName, response.getError());
+                            continue;
+                        }
+                        Map<String, Object> dataMap = Optional.ofNullable(response.getData())
+                                .map(d -> (Map<String, Object>) d.get("data"))
+                                .orElse(null);
+
+                        if (dataMap == null) {
+                            log.warn("NetFlow API 返回空数据，单位: {}", unitName);
+                            continue;
+                        }
+                        Traffic traffic = new Traffic();
+                        traffic.setUnitName(String.valueOf(dataMap.getOrDefault("name", unitName)));
+                        traffic.setVfourFlow(String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0")));
+                        traffic.setVsixFlow(String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0")));
+                        traffic.setAddTime(Date.from(baseTime.atZone(ZoneId.systemDefault()).toInstant()));
+                        trafficService.save(traffic);
+                        log.info("成功保存流量数据: 单位: {}, IPv4: {}, IPv6: {}", traffic.getUnitName(),
+                                traffic.getVfourFlow(), traffic.getVsixFlow());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }finally {
+                    if(trafficApiLock != null){
+                        trafficApiLock.unlock();
+                    }
                 }
             }
         }

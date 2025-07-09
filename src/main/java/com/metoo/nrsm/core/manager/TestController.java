@@ -1,11 +1,16 @@
 package com.metoo.nrsm.core.manager;
 
+import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.api.traffic.TimeUtils;
+import com.metoo.nrsm.core.api.traffic.TrafficApi;
+import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
 import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
 import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingCFScanner;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
+import com.metoo.nrsm.core.service.impl.FlowUnitServiceImpl;
 import com.metoo.nrsm.core.system.conf.network.strategy.NetplanConfigManager;
 import com.metoo.nrsm.core.system.conf.network.sync.LocalNetplanSyncService;
 import com.metoo.nrsm.core.system.conf.network.sync.WindowsSshNetplanSyncService;
@@ -13,10 +18,7 @@ import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.utils.system.DiskInfo;
-import com.metoo.nrsm.entity.Interface;
-import com.metoo.nrsm.entity.Subnet;
-import com.metoo.nrsm.entity.Terminal;
-import com.metoo.nrsm.entity.User;
+import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -38,9 +40,7 @@ import javax.annotation.Resource;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.text.DecimalFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -66,6 +66,56 @@ public class TestController {
         System.out.println(JSONObject.class.getProtectionDomain().getCodeSource().getLocation());
     }
 
+    @Autowired
+    private TrafficApi trafficApi;
+    @Autowired
+    private IFlowUnitService flowUnitService;
+    @Autowired
+    private ITrafficService trafficService;
+
+
+    @GetMapping("/traffic/api")
+    public void trafficAPI(){
+        LocalDateTime baseTime = TimeUtils.getNow();
+        String currentTime = TimeUtils.format(TimeUtils.clearSecondAndNano(baseTime));
+        String fiveMinutesBefore = TimeUtils.format(TimeUtils.getFiveMinutesBefore(baseTime));
+        List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(Collections.emptyMap());
+        if (flowUnits == null || flowUnits.isEmpty()) {
+            log.info("未获取到任何单位，跳过调用 NetFlow API。");
+            return;
+        }
+        for (FlowUnit flowUnit : flowUnits) {
+
+            String unitName = flowUnit.getUnitName();
+            if (unitName == null || unitName.trim().isEmpty()) {
+                log.warn("单位名称为空，跳过该单位的流量查询。");
+                continue;
+            }
+
+            TrafficApi.ApiResponse response = trafficApi.queryNetFlow(unitName, fiveMinutesBefore, currentTime);
+
+            if (!response.isSuccess()) {
+                log.error("调用 NetFlow API 失败，单位: {}, 错误信息: {}", unitName, response.getError());
+                continue;
+            }
+            Map<String, Object> dataMap = Optional.ofNullable(response.getData())
+                    .map(d -> (Map<String, Object>) d.get("data"))
+                    .orElse(null);
+
+            if (dataMap == null) {
+                log.warn("NetFlow API 返回空数据，单位: {}", unitName);
+                continue;
+            }
+            Traffic traffic = new Traffic();
+            traffic.setUnitName(String.valueOf(dataMap.getOrDefault("name", unitName)));
+            traffic.setVfourFlow(String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0")));
+            traffic.setVsixFlow(String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0")));
+            traffic.setAddTime(Date.from(baseTime.atZone(ZoneId.systemDefault()).toInstant()));
+            trafficService.save(traffic);
+            log.info("成功保存流量数据: 单位: {}, IPv4: {}, IPv6: {}", traffic.getUnitName(),
+                    traffic.getVfourFlow(), traffic.getVsixFlow());
+        }
+    }
 
     // interface vlans
     public void interfaceVlans() {
