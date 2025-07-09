@@ -12,7 +12,6 @@
         FROM
         CONCAT_WS(
         ',',
-        NULLIF( deviceIp, '' ),
         NULLIF( v4ip, '' ),
         NULLIF( v4ip1, '' ),
         NULLIF( v4ip2, '' ),
