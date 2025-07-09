@@ -41,5 +41,6 @@
         type
         FROM metoo_route_table
         WHERE deviceIp = #{deviceIp}
+        ORDER BY destnetwork
     </select>
 </mapper>
