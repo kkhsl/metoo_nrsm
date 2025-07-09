@@ -6,7 +6,10 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.dto.MacDTO;
 import com.metoo.nrsm.core.mapper.MacMapper;
-import com.metoo.nrsm.core.service.*;
+import com.metoo.nrsm.core.service.IArpService;
+import com.metoo.nrsm.core.service.IDeviceTypeService;
+import com.metoo.nrsm.core.service.IMacService;
+import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Arp;
@@ -16,7 +19,6 @@ import com.metoo.nrsm.entity.NetworkElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -47,6 +49,16 @@ public class MacServiceImpl implements IMacService {
     public List<Mac> selectObjByMap(Map params) {
         return this.macMapper.selectObjByMap(params);
     }
+
+    @Override
+    public Page<Mac> selectByUuid(MacDTO instance) {
+        Map map=new HashMap();
+        map.put("deviceUuid",instance.getDeviceUuid());
+        Page<Mac> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
+        macMapper.selectObjByMap(map);
+        return page;
+    }
+
 
     /**
      * 查询tag为DE条目

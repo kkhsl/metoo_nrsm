@@ -3,6 +3,9 @@ package com.metoo.nrsm.core.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.metoo.nrsm.core.dto.RouteDTO;
 import com.metoo.nrsm.core.mapper.RouteTableMapper;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
@@ -118,18 +121,18 @@ public class RouteServiceImpl {
 
 
 
-    public List<RouteEntry> getDeviceRouteByUuid(String uuid) {
+    public Page<RouteEntry> getDeviceRouteByUuid(RouteDTO instance) {
         Map params = new HashMap();
-        params.put("uuid", uuid);
+        params.put("uuid", instance.getUuid());
         List<NetworkElement> networkElements = networkElementService.selectObjByMap(params);
         if(networkElements.size() > 0){
             NetworkElement networkElement = networkElements.get(0);
-            List<RouteEntry> routes = routeTableMapper.selectObjByDeviceUuid(networkElement.getIp());
-            if(routes.size() > 0){
-                return routes;
-            }
+            Page<RouteEntry> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
+            routeTableMapper.selectObjByDeviceUuid(networkElement.getIp());
+            return page;
+        }else {
+            return null;
         }
-        return new ArrayList<>();
     }
 
 
