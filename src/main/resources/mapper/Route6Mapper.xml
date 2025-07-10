@@ -37,8 +37,21 @@
             cost,
             preference,
             type
-        FROM metoo_route6_table
+        FROM
+        <choose>
+            <!-- 当time参数存在且不为空时，查询历史表 -->
+            <when test="time != null">
+                metoo_route6_table_history
+            </when>
+            <!-- 否则查询当前表 -->
+            <otherwise>
+                metoo_route6_table
+            </otherwise>
+        </choose>
         WHERE deviceIp = #{deviceIp}
+        <if test="time != null">
+            AND time = #{time}
+        </if>
         ORDER BY destnetwork
     </select>
 </mapper>

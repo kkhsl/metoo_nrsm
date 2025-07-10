@@ -254,7 +254,34 @@ public class SNMPv2Request {
     public static String getDeviceArpPort(SNMPParams snmpParams) {
         // 调用 sendArpRequest 方法进行 SNMP 请求和 ArpPort 表遍历
         Map<String, String> arpPortMap = sendGETNEXTRequest(snmpParams, SNMP_OID.ARP_PORT);
-        return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceArpPort(arpPortMap));
+        String strNew;
+        String newPorts = null;
+        Map<String, String> arpResult = new HashMap<>();
+
+        // 遍历每一条 OID 数据
+        for (Map.Entry<String, String> entry : arpPortMap.entrySet()) {
+            String oid = entry.getKey();
+            String port = entry.getValue();
+       /*     strNew = "1.3.6.1.2.1.17.1.4.1.2." + port;
+            PDU pdu = sendStrRequest(snmpParams, strNew);
+            newPorts = pdu.getVariableBindings().firstElement().toString().split("=")[1].trim().replace("= ", "").replace("\"", "");
+*/
+            String ip = oid.replace("1.3.6.1.2.1.4.22.1.1.", "");
+            // 格式化 IP 地址：这里假设处理规则是去除 OID 前缀后得到的 IP 地址格式
+            String[] ipParts = ip.split("\\.");
+            if (ipParts.length == 5) {
+                // 直接采用从 OID 提取的 IP 地址
+                String ipAddress = String.join(".", ipParts[1], ipParts[2], ipParts[3], ipParts[4]);
+                // 将 IP 地址和端口加入结果 Map
+                arpResult.put(ipAddress, port);
+            } else {
+                // 如果 IP 地址格式不正确，输出错误
+                System.err.println("Error: IP format is not correct in OID: " + oid);
+            }
+        }
+
+        return SNMPDataParser.convertToJson(arpResult);
+        //return SNMPDataParser.convertToJson(SNMPDataParser.parseDeviceArpPort(arpPortMap));
     }
 
     public static String getDeviceArpV6(SNMPParams snmpParams) {

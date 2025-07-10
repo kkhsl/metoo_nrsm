@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -17,7 +18,7 @@ public interface Route6TableMapper {
     void deleteByDeviceIp(@Param("deviceIp") String deviceIp);
 
 
-    List<Route6Entry> selectObjByDeviceUuid(String deviceIp);
+    List<Route6Entry> selectObjByDeviceUuid(String deviceIp, Date time);
 
 
     void copyDataToRoute6History();
