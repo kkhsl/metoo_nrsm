@@ -128,7 +128,7 @@ public class RouteServiceImpl {
         if(networkElements.size() > 0){
             NetworkElement networkElement = networkElements.get(0);
             Page<RouteEntry> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
-            routeTableMapper.selectObjByDeviceUuid(networkElement.getIp());
+            routeTableMapper.selectObjByDeviceUuid(networkElement.getIp(),instance.getTime());
             return page;
         }else {
             return null;

@@ -126,7 +126,7 @@ public class Route6ServiceImpl {
         if(networkElements.size() > 0){
             NetworkElement networkElement = networkElements.get(0);
             Page<Route6Entry> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
-            route6TableMapper.selectObjByDeviceUuid(networkElement.getIp());
+            route6TableMapper.selectObjByDeviceUuid(networkElement.getIp(),instance.getTime());
             return page;
         }
         return null;
