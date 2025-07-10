@@ -59,6 +59,7 @@ public class ArpServiceImpl implements IArpService {
             NetworkElement networkElement = networkElements.get(0);
             Map map=new HashMap();
             map.put("deviceIp",networkElement.getIp());
+            map.put("addTime",instance.getTime());
             Page<Arp> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
             arpMapper.selectObjByMap(map);
             return page;

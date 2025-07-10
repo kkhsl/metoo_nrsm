@@ -54,6 +54,7 @@ public class MacServiceImpl implements IMacService {
     public Page<Mac> selectByUuid(MacDTO instance) {
         Map map=new HashMap();
         map.put("deviceUuid",instance.getDeviceUuid());
+        map.put("addTime",instance.getTime());
         Page<Mac> page = PageHelper.startPage(instance.getCurrentPage(), instance.getPageSize());
         macMapper.selectObjByMap(map);
         return page;
