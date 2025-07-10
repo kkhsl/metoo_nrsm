@@ -33,7 +33,7 @@ public class Route6ServiceImpl {
      * 处理单个设备的路由数据
      */
     @Transactional
-    public void processDeviceRoutes6(NetworkElement networkElement) {
+    public void processDeviceRoutes6(NetworkElement networkElement,Date date) {
         String deviceIp = networkElement.getIp();
         
         // 1. 清空该设备现有路由
@@ -46,7 +46,7 @@ public class Route6ServiceImpl {
         }
         
         // 3. 解析JSON
-        List<Route6Entry> routeEntries = parseJsonToRouteEntries(deviceIp, jsonResult);
+        List<Route6Entry> routeEntries = parseJsonToRouteEntries(deviceIp, jsonResult,date);
         if (routeEntries.isEmpty()) {
             return;
         }
@@ -74,7 +74,7 @@ public class Route6ServiceImpl {
     /**
      * 解析JSON到路由实体列表
      */
-    private List<Route6Entry> parseJsonToRouteEntries(String deviceIp, String jsonData) {
+    private List<Route6Entry> parseJsonToRouteEntries(String deviceIp, String jsonData,Date date) {
         List<Route6Entry> entries = new ArrayList<>();
         
         try {
@@ -84,7 +84,7 @@ public class Route6ServiceImpl {
                 JSONObject obj = jsonArray.getJSONObject(i);
 
                 Route6Entry entry = new Route6Entry();
-                entry.setTime(new Date());
+                entry.setTime(date);
                 entry.setDeviceIp(deviceIp);
                 entry.setDestnetwork(obj.getString("Destnetwork"));
                 entry.setMask(obj.getString("Mask"));
