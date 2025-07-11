@@ -31,4 +31,9 @@ public interface IProbeService {
 
     // 扫描
     void scanByTerminal();
+
+
+    void wart() throws InterruptedException;
+
+    void insertProbe();
 }

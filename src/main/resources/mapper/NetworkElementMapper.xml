@@ -63,6 +63,12 @@
         WHERE uuid = #{uuid, jdbcType=BIGINT}
     </select>
 
+    <select id="selectObjByName" parameterType="java.lang.String" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_ne
+        WHERE device_name = #{name, jdbcType=BIGINT}
+    </select>
+
     <select id="selectConditionQuery" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
         <include refid="Base_Column_List"/>

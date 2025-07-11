@@ -72,6 +72,19 @@ public class TestController {
     private IFlowUnitService flowUnitService;
     @Autowired
     private ITrafficService trafficService;
+    @Autowired
+    private IProbeService probeService;
+
+    @GetMapping("/waits") // 'wait()' cannot override 'wait()' in 'java.lang.Object'; overridden method is final
+    public void waits() throws InterruptedException {
+        this.probeService.wart();
+    }
+
+
+    @GetMapping("/insert")
+    public void insert() throws InterruptedException {
+        this.probeService.insertProbe();
+    }
 
 
     @GetMapping("/traffic/api")

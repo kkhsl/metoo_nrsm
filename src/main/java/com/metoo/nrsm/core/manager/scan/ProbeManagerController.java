@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.manager.scan;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.druid.sql.visitor.functions.Char;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.body.ProbeBody;
 import com.metoo.nrsm.core.service.IArpService;
@@ -14,15 +15,14 @@ import com.metoo.nrsm.entity.Arp;
 import com.metoo.nrsm.entity.Probe;
 import com.metoo.nrsm.entity.ProbeResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @author HKK
@@ -40,13 +40,6 @@ public class ProbeManagerController {
     private IProbeResultService probeResultService;
     @Autowired
     private IArpService arpService;
-    @Autowired
-    private IMacVendorService macVendorService;
-
-    public static void main(String[] args) {
-        String result = "[{\"createTime\":1733036653000,\"fingerIdOsScan\":\"IBM AIX 5.3\",\"id\":14,\"ip_addr\":\"192.168.5.51\",\"mac\":\"00:25:9e:03:76:12\",\"os_family\":\"5.3\",\"os_gen\":\"aix\",\"port_num\":\"2\",\"reliability\":0.9,\"ttl\":255,\"vendor\":\"ibm\"},{\"createTime\":1733036653000,\"id\":15,\"ip_addr\":\"192.168.5.55\",\"mac\":\"58:48:49:2f:f8:4a\",\"port_num\":\"2\"},{\"createTime\":1733036653000,\"id\":16,\"ip_addr\":\"192.168.5.101\",\"mac\":\"a0:36:9f:17:e4:c6\",\"port_num\":\"2\"},{\"createTime\":1733036653000,\"id\":17,\"ip_addr\":\"192.168.5.205\",\"mac\":\"58:48:49:27:54:fb\",\"port_num\":\"2\"},{\"createTime\":1733036653000,\"fingerIdOsScan\":\"Adtran Total Access 904 router\",\"id\":18,\"ip_addr\":\"192.168.6.65\",\"mac\":\"00:25:b3:c8:69:e8\",\"os_gen\":\"total_access_904\",\"port_num\":\"2\",\"reliability\":0.73,\"vendor\":\"adtran\"},{\"createTime\":1733036653000,\"fingerIdOsScan\":\"Adtran Total Access 904 router\",\"id\":19,\"ip_addr\":\"192.168.6.67\",\"mac\":\"00:e0:4c:69:66:36\",\"os_gen\":\"total_access_904\",\"port_num\":\"2\",\"reliability\":0.73,\"vendor\":\"adtran\"},{\"createTime\":1733036654000,\"fingerIdOsScan\":\"Adtran Total Access 904 router\",\"id\":20,\"ip_addr\":\"192.168.6.76\",\"mac\":\"30:b4:9e:33:51:8d\",\"os_gen\":\"total_access_904\",\"port_num\":\"2\",\"reliability\":0.73,\"vendor\":\"adtran\"},{\"createTime\":1733036654000,\"fingerIdOsScan\":\"Linux 2.4.21\",\"id\":21,\"ip_addr\":\"192.168.6.77\",\"mac\":\"50:33:f0:a4:33:c4\",\"os_family\":\"2.4.21\",\"os_gen\":\"linux_kernel\",\"port_num\":\"2\",\"reliability\":0.96,\"ttl\":63,\"vendor\":\"linux\"},{\"createTime\":1733036654000,\"fingerIdOsScan\":\"Adtran Total Access 904 router\",\"id\":22,\"ip_addr\":\"192.168.6.88\",\"mac\":\"00:e0:4c:69:66:52\",\"os_gen\":\"total_access_904\",\"port_num\":\"2\",\"reliability\":0.73,\"vendor\":\"adtran\"},{\"createTime\":1733036654000,\"fingerIdOsScan\":\"Adtran Total Access 904 router\",\"id\":23,\"ip_addr\":\"192.168.6.97\",\"mac\":\"32:fa:3b:68:59:21\",\"os_gen\":\"total_access_904\",\"port_num\":\"2\",\"reliability\":0.73,\"vendor\":\"adtran\"},{\"createTime\":1733036654000,\"fingerIdOsScan\":\"Adtran Total Access 904 router\",\"id\":24,\"ip_addr\":\"192.168.6.252\",\"mac\":\"58:41:20:86:00:c0\",\"os_gen\":\"total_access_904\",\"port_num\":\"2\",\"reliability\":0.73,\"vendor\":\"adtran\"},{\"createTime\":1733036654000,\"fingerIdOsScan\":\"Adtran Total Access 904 router\",\"id\":25,\"ip_addr\":\"192.168.6.253\",\"mac\":\"74:05:a5:2c:38:0d\",\"os_gen\":\"total_access_904\",\"port_num\":\"2\",\"reliability\":0.73,\"vendor\":\"adtran\"}]";
-        List<Probe> probeDataList = JSONObject.parseArray(result, Probe.class);
-    }
 
     @PostMapping("/probeNmap/uploadScanResult")
     public String probe(@RequestBody ProbeBody body) {
@@ -79,6 +72,7 @@ public class ProbeManagerController {
                             probe.setMac_vendor(arpList.get(0).getMacVendor());
                         }
                     }
+                    // TODO 优化建议：改为批量插入，避免并发导致锁死（尽量在一个事务中解决？为什么多个事务存在隔离吗，插入隔离级别）
                     boolean flag = this.probeService.insert(probe);
                     System.out.println("probe 插入状态：" + flag);
 
@@ -95,4 +89,45 @@ public class ProbeManagerController {
     }
 
 
+    // TODO 模拟并发回调
+    @GetMapping("/addProbe")
+    public void addProbe() throws InterruptedException {
+        Probe probe = new Probe();
+        probe.setMac("00:00:00:00:00:" + generateMacLastTwo());
+        boolean f = this.probeService.insert(probe);
+        log.info("插入状态：{}", f);
+    }
+
+    public static void main(String[] args) {
+        String firstString = RandomStringUtils.randomAlphanumeric(2); // 5个字母数字字符
+        String secondString = RandomStringUtils.randomAlphabetic(2); // 5个字母字符
+
+        System.out.println("第一个随机字符串: " + firstString);
+        System.out.println("第二个随机字符串: " + secondString);
+
+        String lastTwo = generateMacLastTwo();
+        System.out.println("MAC地址最后两位: " + lastTwo);
+
+        System.out.println(new Random().nextInt());
+    }
+
+    public static String generateMacLastTwo() {
+        Random random = new Random();
+
+        // 方式一：
+        char[] hexChars = "0123456789ABCDEF".toCharArray();
+
+        // 生成第一个十六进制字符
+        char first = hexChars[random.nextInt(16)];
+        // 生成第二个十六进制字符
+        char second = hexChars[random.nextInt(16)];
+
+        return String.valueOf(first) + String.valueOf(second);
+
+        // 方式二
+//        Random random = new Random();
+        // 生成0-255的随机数，然后格式化为两位十六进制
+//        int value = random.nextInt(256);
+//        return String.format("%02X", value);
+    }
 }

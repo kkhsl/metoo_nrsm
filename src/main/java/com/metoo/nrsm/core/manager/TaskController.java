@@ -45,11 +45,12 @@ public class TaskController {
      */
     @GetMapping("/start")
     public Result startTask() throws Exception {
+        // 开始测绘
+        if (isTaskRunning()) {
+            return ResponseUtil.ok(201, "任务已在运行中，请勿重复启动");
+        }
+
         synchronized (taskLock) {
-            // 开始测绘
-            if (isTaskRunning()) {
-                return ResponseUtil.error("任务已在运行中，请勿重复启动");
-            }
 
             surveyingLogService.deleteTable();
 

@@ -33,6 +33,11 @@ public class NetworkElementServiceImpl implements INetworkElementService {
         return this.networkElementMapper.selectObjByUuid(uuid);
     }
 
+    @Override
+    public NetworkElement selectObjByName(String name) {
+        return this.networkElementMapper.selectObjByName(name);
+    }
+
 
     @Override
     public Page<NetworkElement> selectConditionQuery(NetworkElementDto instance) {

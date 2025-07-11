@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -213,7 +214,7 @@ public class ProbeServiceImpl implements IProbeService {
         }
     }
 
-    //    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void scanByTerminal() {
 
@@ -234,6 +235,23 @@ public class ProbeServiceImpl implements IProbeService {
         }
 //        }
         surveyingLogService.updateSureyingLog(probeLogId, LogStatusType.SUCCESS.getCode());
+    }
+
+//    @Transactional(isolation = Isolation.READ_COMMITTED) // 使用读已提交隔离级别
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Override
+    public void wart() throws InterruptedException {
+        this.probeMapper.deleteTable();
+        while (true){
+            Thread.sleep(5000);
+        }
+    }
+
+    @Override
+    public void insertProbe() {
+        Probe probe = new Probe();
+        probe.setCreateTime(new Date());
+        this.probeMapper.insert(probe);
     }
 
 //    public void getProbeResult() {

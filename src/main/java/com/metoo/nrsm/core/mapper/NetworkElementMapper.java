@@ -14,6 +14,8 @@ public interface NetworkElementMapper {
 
     NetworkElement selectObjByUuid(String uuid);
 
+    NetworkElement selectObjByName(String name);
+
     List<NetworkElement> selectConditionQuery(NetworkElementDto instance);
 
     List<NetworkElement> selectConditionByIpsQuery(List<String> instance);

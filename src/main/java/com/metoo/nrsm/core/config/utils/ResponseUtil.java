@@ -49,7 +49,7 @@ public class ResponseUtil {
     }
 
     public static Result add() {
-        return new Result(200, "Successfully added");
+        return new Result(200, "Success added");
     }
 
     public static Result badArgument() {
@@ -85,15 +85,15 @@ public class ResponseUtil {
     }
 
     public static Result delete() {
-        return new Result(200, "Successfully delete");
+        return new Result(200, "Success delete");
     }
 
     public static Result query(Map data) {
-        return new Result(200, "Successfully query", data);
+        return new Result(200, "Success query", data);
     }
 
     public static Result query() {
-        return new Result(200, "Successfully query");
+        return new Result(200, "Success query");
     }
 
     public static Result prohibitDel() {
@@ -117,11 +117,15 @@ public class ResponseUtil {
     }
 
     public static Result ok() {
-        return new Result(200, "Successfully");
+        return new Result(200, "Success");
+    }
+
+    public static Result ok(Integer code, String message) {
+        return new Result(code, message);
     }
 
     public static Result ok(Object data) {
-        return new Result(200, "Successfully", data);
+        return new Result(200, "Success", data);
     }
 
     public static Object notFound() {
@@ -143,7 +147,7 @@ public class ResponseUtil {
 
 
     public static Result noContent() {
-        return new Result(204, "Successfully");
+        return new Result(204, "Success");
     }
 
     public static Result fail(int errno, String errmsg) {

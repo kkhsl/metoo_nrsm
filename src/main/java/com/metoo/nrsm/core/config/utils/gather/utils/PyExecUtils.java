@@ -51,6 +51,20 @@ public class PyExecUtils {
     }
 
 
+    public String exec2(PyCommandBuilder3 pyCommand) {
+        String result = "";
+        if (pyCommand.getName().contains(".py")) {
+            result = this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
+        } else if (pyCommand.getName().contains(".exe")) {
+            result = this.pythonScriptRunner.exec_exe(pyCommand.getPath(), pyCommand.getName(), pyCommand.toStringArrayReomveName());
+        } else {
+            result = this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
+        }
+        log.info("command: " + pyCommand.toParamsString() + "result【" + result + "】end");
+        return result;
+    }
+
+
     public static boolean isJsonObject(String jsonString) {
         try {
             // 尝试解析字符串

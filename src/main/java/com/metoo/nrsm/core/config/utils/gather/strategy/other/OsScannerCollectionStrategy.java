@@ -53,9 +53,8 @@ public class OsScannerCollectionStrategy implements DataCollectionStrategy {
                         "-c",
                         "1"
                 });
-                log.info("os-scanner start" + " ip: " + ip + " port " + obj.getPort_num());
-                this.pyExecUtils.exec(pyCommand);
-                log.info("os-scanner end");
+                log.info("os-scanner" + " ip: " + ip + " port " + obj.getPort_num());
+                this.pyExecUtils.exec2(pyCommand);
             }
         } catch (Exception e) {
             e.printStackTrace();

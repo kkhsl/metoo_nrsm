@@ -13,6 +13,8 @@ public interface INetworkElementService {
 
     NetworkElement selectObjByUuid(String uuid);
 
+    NetworkElement selectObjByName(String name);
+
     Page<NetworkElement> selectConditionQuery(NetworkElementDto instance);
 
     List<NetworkElement> selectConditionByIpQuery(List<String> instance);

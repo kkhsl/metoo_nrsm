@@ -251,7 +251,6 @@ public class GatherTaskScheduledUtil {
     }
 
     private volatile boolean isRunningMAC = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void gatherMac() {
         if (flag && !isRunningMAC) {

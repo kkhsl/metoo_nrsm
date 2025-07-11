@@ -1520,6 +1520,9 @@
             <if test="deviceName != null and deviceName != '' ">
                 deviceName = #{deviceName},
             </if>
+            <if test="deviceUuid != null and deviceUuid != '' ">
+                deviceUuid = #{deviceUuid},
+            </if>
             <if test="tag != null and tag != '' ">
                 tag = #{tag},
             </if>

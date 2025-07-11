@@ -75,7 +75,7 @@
     </select>
 
     <select id="mergeProbesByIp" resultType="com.metoo.nrsm.entity.Probe">
-        SELECT
+         SELECT
         ip_addr,
         reliability,
         GROUP_CONCAT(
@@ -109,19 +109,19 @@
         ORDER BY
         port_num SEPARATOR ', '
         ) AS combined,
-        -- TRIM(BOTH ':' FROM CONCAT(
-        -- TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl
+        TRIM(BOTH ':' FROM CONCAT(
+         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl
         != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, vendor, '') ORDER BY vendor
         SEPARATOR ',')),
-        -- ':',
-        -- TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_gen IS NOT NULL AND os_gen != ''AND ttl IS NOT NULL AND ttl !=
+         ':',
+         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_gen IS NOT NULL AND os_gen != ''AND ttl IS NOT NULL AND ttl !=
         '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_gen, '') ORDER BY os_gen
         SEPARATOR ',')),
-        -- ':',
-        -- TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_family IS NOT NULL AND os_family != ''AND ttl IS NOT NULL AND
+        ':',
+         TRIM(BOTH ',' FROM GROUP_CONCAT(DISTINCT IF(os_family IS NOT NULL AND os_family != ''AND ttl IS NOT NULL AND
         ttl != '' AND reliability IS NOT NULL AND reliability != '' AND reliability > 0.85, os_family, '') ORDER BY
         os_family SEPARATOR ','))
-        -- ))AS aa,
+         ))AS aa,
         GROUP_CONCAT(DISTINCT ttl SEPARATOR ',') as combined_ttl,
         GROUP_CONCAT(DISTINCT CONCAT(
         if(vendor IS NOT NULL AND vendor != '' AND ttl IS NOT NULL AND ttl != '' AND reliability IS NOT NULL AND

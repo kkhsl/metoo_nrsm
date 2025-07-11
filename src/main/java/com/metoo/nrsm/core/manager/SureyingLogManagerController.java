@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.service.ISurveyingLogService;
 import com.metoo.nrsm.core.vo.Result;
@@ -23,6 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RequestMapping("/admin/sureying/log")
 @RestController
@@ -109,15 +111,106 @@ public class SureyingLogManagerController {
 //        return emitter;
 //    }
 
+//    @GetMapping(value = "/logs-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+//    public SseEmitter streamLogs() {
+//
+//
+////        SseEmitter emitter = new SseEmitter(60_000L); // 60秒超时
+//        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE); // 60秒超时
+//
+//        // 在 scheduler 启动前发送初始事件
+//        try {
+//            emitter.send(SseEmitter.event()
+//                    .data("SSE连接已建立")
+//                    .id("initial"));
+//        } catch (IOException e) {
+//            emitter.completeWithError(e);
+//            return emitter;
+//        }
+//
+//        AtomicBoolean isCompleted = new AtomicBoolean(false);
+//        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+//
+//        // 用于保存上一次发送的日志列表的哈希值
+//        AtomicInteger lastHash = new AtomicInteger(0);
+//
+//        Runnable checkLogsTask = () -> {
+//            try {
+//                if (isCompleted.get()) {
+//                    scheduler.shutdown();
+//                    return;
+//                }
+//
+//                List<SurveyingLog> surveyingLogList = surveyingLogService.selectObjByMap(null);
+//                boolean finish = false;
+//
+//                if (surveyingLogList != null && !surveyingLogList.isEmpty()) {
+//                    finish = surveyingLogList.stream()
+//                            .anyMatch(log -> log.getType() != null
+//                                    && log.getType() == 4 && (log.getStatus() == 2 || log.getStatus() == 3));
+//                }
+//
+//                // 计算当前日志列表的哈希值
+//                int currentHash = surveyingLogList != null ? surveyingLogList.hashCode() : 0;
+//
+//                // 只有当列表发生变化时才发送
+//                if (currentHash != lastHash.get()) {
+//                    emitter.send(SseEmitter.event()
+//                            .data(surveyingLogList)
+//                            .id(String.valueOf(System.currentTimeMillis()))
+//                            .name("log-update"));
+//
+//                    lastHash.set(currentHash); // 更新哈希值
+//                }
+//
+//                if (finish) {
+//                    isCompleted.set(true);
+//                    emitter.complete();
+//                    scheduler.shutdown();
+//                }
+//            } catch (Exception e) {
+//                isCompleted.set(true);
+//                emitter.completeWithError(e);
+//                scheduler.shutdown();
+//            }
+//        };
+//
+//        scheduler.scheduleAtFixedRate(checkLogsTask, 0, 2, TimeUnit.SECONDS);
+//
+//        emitter.onCompletion(() -> {
+//            isCompleted.set(true);
+//            scheduler.shutdown();
+//            System.out.println("SSE 连接正常关闭");
+//        });
+//
+//        emitter.onTimeout(() -> {
+//            isCompleted.set(true);
+//            scheduler.shutdown();
+//            System.out.println("SSE 连接超时关闭");
+//        });
+//
+//        return emitter;
+//    }
+
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @GetMapping(value = "/logs-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamLogs() {
         SseEmitter emitter = new SseEmitter(60_000L); // 60秒超时
-        AtomicBoolean isCompleted = new AtomicBoolean(false);
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        AtomicBoolean isCompleted = new AtomicBoolean(false);
+        AtomicReference<String> lastLogsJson = new AtomicReference<>("");
 
-        // 用于保存上一次发送的日志列表的哈希值
-        AtomicInteger lastHash = new AtomicInteger(0);
+        // 1. 立即发送初始事件
+        try {
+            emitter.send(SseEmitter.event().data("SSE连接成功").id("0"));
+        } catch (IOException e) {
+            emitter.completeWithError(e);
+            return emitter;
+        }
 
+        // 2. 定时任务检查日志
         Runnable checkLogsTask = () -> {
             try {
                 if (isCompleted.get()) {
@@ -125,57 +218,47 @@ public class SureyingLogManagerController {
                     return;
                 }
 
-                List<SurveyingLog> surveyingLogList = surveyingLogService.selectObjByMap(null);
-                boolean finish = false;
+                List<SurveyingLog> logs = surveyingLogService.selectObjByMap(null);
+                String currentLogsJson = objectMapper.writeValueAsString(logs);
 
-                if (surveyingLogList != null && !surveyingLogList.isEmpty()) {
-                    finish = surveyingLogList.stream()
-                            .anyMatch(log -> log.getType() != null
-                                    && log.getType() == 5 && (log.getStatus() == 2 || log.getStatus() == 3));
-                }
-
-                // 计算当前日志列表的哈希值
-                int currentHash = surveyingLogList != null ? surveyingLogList.hashCode() : 0;
-
-                // 只有当列表发生变化时才发送
-                if (currentHash != lastHash.get()) {
+                // 仅当日志变化时发送
+                if (!currentLogsJson.equals(lastLogsJson.get())) {
                     emitter.send(SseEmitter.event()
-                            .data(surveyingLogList)
+                            .data(logs)
                             .id(String.valueOf(System.currentTimeMillis()))
                             .name("log-update"));
-
-                    lastHash.set(currentHash); // 更新哈希值
+                    lastLogsJson.set(currentLogsJson);
                 }
 
-                if (finish) {
-                    isCompleted.set(true);
+                // 检查是否结束
+                boolean isFinished = logs != null && logs.stream()
+                        .anyMatch(log -> log.getType() != null
+                                && log.getType() == 4
+                                && (log.getStatus() == 2 || log.getStatus() == 3));
+                if (isFinished) {
                     emitter.complete();
-                    scheduler.shutdown();
+                    isCompleted.set(true);
                 }
             } catch (Exception e) {
-                isCompleted.set(true);
                 emitter.completeWithError(e);
-                scheduler.shutdown();
+                isCompleted.set(true);
             }
         };
 
         scheduler.scheduleAtFixedRate(checkLogsTask, 0, 2, TimeUnit.SECONDS);
 
+        // 3. 确保资源释放
         emitter.onCompletion(() -> {
             isCompleted.set(true);
             scheduler.shutdown();
-            System.out.println("SSE completed");
         });
-
         emitter.onTimeout(() -> {
             isCompleted.set(true);
             scheduler.shutdown();
-            System.out.println("SSE timed out");
         });
 
         return emitter;
     }
-
 
     @GetMapping("/sse/time")
     public void streamTime(HttpServletResponse response) throws IOException {

@@ -526,7 +526,12 @@ public class GatherMacUtils {
                     mac.setDeviceName(nswitchName);
                     mac.setHostname(nswitchName);
                     mac.setDeviceIp(null);
-
+                    NetworkElement networkElement = networkElementService.selectObjByName(nswitchName);
+                    if(networkElement != null){
+                        mac.setDeviceUuid(networkElement.getUuid());
+                    }else{
+                        mac.setDeviceUuid(null);
+                    }
                     // 查询ap用户列表
                     // 验证api是否可用
 
