@@ -17,7 +17,17 @@
     <select id="selectObjByMap" parameterType="java.util.Map"
             resultType="com.metoo.nrsm.entity.Arp">
         SELECT *
-        FROM metoo_arp
+        FROM
+        <choose>
+            <!-- 当addTime参数存在且不为空时，查询历史表 -->
+            <when test="addTime != null">
+                metoo_arp_history
+            </when>
+            <!-- 否则查询当前表 -->
+            <otherwise>
+                metoo_arp
+            </otherwise>
+        </choose>
         <where>
             <if test="v4ip != '' and v4ip != null">
                 AND v4ip = #{v4ip}
@@ -53,6 +63,13 @@
                 </foreach>
             </if>
         </where>
+        <if test="addTime != null">
+            AND addTime = #{addTime}
+        </if>
+
+
+
+
     </select>
 
     <resultMap id="joinSelectObjAndIpv6_Result" type="com.metoo.nrsm.entity.Arp">
