@@ -2,6 +2,9 @@ package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.vo.Result;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,10 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
 
 @RequestMapping("/admin/upload")
 @RestController
@@ -32,25 +41,39 @@ public class UpgradeController {
     private String BACKEND_JAR;
     //private static final String BACKEND_JAR = "C:\\Users\\leo\\Desktop\\update\\opt\\nrsm\\nrsm\\nrsm.jar";
 
+
+    // 备份目录
+    private static final String BACKUP_DIR = "backup";
+    private String currentBackupDir = null;
+
+    private static final int MAX_BACKUPS = 2; // 最大保留备份数
+
     @PostMapping("/upgrade")
     public Result uploadUpgrade(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseUtil.error("Upload failed: File is empty");
+            return ResponseUtil.error("上传失败：文件为空");
         }
 
+        File tempZip = null;
         try (InputStream inputStream = file.getInputStream()) {
             // 验证 ZIP 文件头
             if (!isValidZipFile(inputStream)) {
-                return ResponseUtil.error("Invalid ZIP file format");
+                return ResponseUtil.error("无效的ZIP文件格式");
             }
 
             // 保存上传文件
-            File tempZip = saveUploadedFile(file);
+            tempZip = saveUploadedFile(file);
 
             // 再次验证 ZIP 文件结构
             if (!isValidZipStructure(tempZip)) {
-                return ResponseUtil.error("Malformed ZIP file structure");
+                return ResponseUtil.error("非法的ZIP文件结构");
             }
+
+            // 清理旧备份
+            cleanupOldBackups();
+
+            // 创建当前备份目录
+            currentBackupDir = createBackupDir();
 
             // 检测升级包类型
             UpgradeType type = detectUpgradeType(tempZip);
@@ -58,7 +81,101 @@ public class UpgradeController {
             // 执行升级
             return executeUpgrade(type, tempZip);
         } catch (Exception e) {
-            return ResponseUtil.error("Upgrade failed: " + e.getMessage());
+            // 尝试回滚
+            try {
+                rollbackUpgrade();
+            } catch (Exception ex) {
+                return ResponseUtil.error("升级失败且回滚失败: " + e.getMessage() + "; 回滚错误: " + ex.getMessage());
+            }
+            return ResponseUtil.error("升级失败，已回滚: " + e.getMessage());
+        } finally {
+            // 清理临时文件
+            if (tempZip != null && !tempZip.delete()) {
+                tempZip.deleteOnExit();
+            }
+        }
+    }
+
+    private void cleanupOldBackups() {
+        File backupRoot = new File(FRONTEND_DIR, BACKUP_DIR);
+        if (!backupRoot.exists() || !backupRoot.isDirectory()) {
+            return;
+        }
+
+        File[] backups = backupRoot.listFiles(File::isDirectory);
+        if (backups == null || backups.length <= MAX_BACKUPS) {
+            return;
+        }
+
+        // 按修改时间排序（最旧的在前面）
+        Arrays.sort(backups, Comparator.comparingLong(File::lastModified));
+
+        // 删除超出数量限制的旧备份
+        for (int i = 0; i < backups.length - MAX_BACKUPS; i++) {
+            try {
+                deleteDirectory(backups[i]);
+            } catch (Exception e) {
+                // 记录错误但继续执行
+            }
+        }
+    }
+
+    private String createBackupDir() {
+        String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+        return BACKUP_DIR + "/backup-" + timestamp;
+    }
+
+    private void backupFrontend() throws IOException {
+        File backupDir = new File(FRONTEND_DIR, currentBackupDir);
+        if (!backupDir.exists() && !backupDir.mkdirs()) {
+            throw new IOException("无法创建备份目录: " + backupDir.getAbsolutePath());
+        }
+
+        File source = new File(FRONTEND_DIR);
+        File[] files = source.listFiles(f -> !f.getName().equals(BACKUP_DIR));
+
+        if (files != null) {
+            for (File file : files) {
+                copyFileOrDirectory(file, new File(backupDir, file.getName()));
+            }
+        }
+    }
+
+    private void copyFileOrDirectory(File source, File dest) throws IOException {
+        if (source.isDirectory()) {
+            if (!dest.exists() && !dest.mkdirs()) {
+                throw new IOException("无法创建目录: " + dest.getAbsolutePath());
+            }
+
+            File[] files = source.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    copyFileOrDirectory(file, new File(dest, file.getName()));
+                }
+            }
+        } else {
+            try (InputStream in = new FileInputStream(source);
+                 OutputStream out = new FileOutputStream(dest)) {
+                byte[] buffer = new byte[4096];
+                int length;
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+            }
+        }
+    }
+
+    private void deleteDirectory(File dir) throws IOException {
+        if (dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    deleteDirectory(file);
+                }
+            }
+        }
+        if (!dir.delete()) {
+            throw new IOException("无法删除: " + dir.getAbsolutePath());
         }
     }
 
@@ -118,101 +235,145 @@ public class UpgradeController {
     }
 
     private Result executeUpgrade(UpgradeType type, File zipFile) throws Exception {
-        switch (type) {
-            case FRONTEND:
-                unzipTo(zipFile, FRONTEND_DIR);
-                return ResponseUtil.ok("Frontend upgrade success");
+        try {
+            switch (type) {
+                case FRONTEND:
+                    // 备份前端
+                    backupFrontend();
 
-            case BACKEND:
-                File newJar = extractJar(zipFile);
-                replaceJar(newJar, BACKEND_JAR);
-                //runCommand("sudo systemctl restart nrsm");
-                return ResponseUtil.ok("Backend upgrade success. Service restarted");
+                    // 执行升级
+                    unzipTo(zipFile, FRONTEND_DIR);
 
-            default:
-                return ResponseUtil.ok("Unknown package type");
+                    // 清理更新包
+                    zipFile.delete();
+
+                    return ResponseUtil.ok("前端升级成功");
+
+                case BACKEND:
+                    // 备份后端
+                    File backupJar = new File(BACKEND_JAR + ".bak");
+                    if (new File(BACKEND_JAR).exists()) {
+                        copyFile(new File(BACKEND_JAR), backupJar);
+                    }
+
+                    // 执行升级
+                    File newJar = extractJar(zipFile);
+                    replaceJar(newJar, BACKEND_JAR);
+
+                    // 异步重启（避免中断HTTP响应）
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(3000); // 等待响应返回
+                            runCommand("sudo systemctl restart nrsm");
+                        } catch (Exception e) {
+                            // 记录日志
+                        }
+                    }).start();
+
+                    return ResponseUtil.ok("后端升级成功，服务将在后台重启");
+
+                default:
+                    return ResponseUtil.ok("未知的升级包类型");
+            }
+        } catch (Exception e) {
+            rollbackUpgrade();
+            throw e;
         }
     }
 
-    private void unzipTo(File zipFile, String outputDir) throws IOException {
+    private void rollbackUpgrade() throws IOException, InterruptedException {
+        // 回滚前端
+        if (currentBackupDir != null) {
+            File backupDir = new File(FRONTEND_DIR, currentBackupDir);
+            if (backupDir.exists()) {
+                // 恢复备份
+                File[] files = backupDir.listFiles();
+                if (files != null) {
+                    File frontend = new File(FRONTEND_DIR);
+                    // 清空当前目录
+                    Arrays.stream(frontend.listFiles(f -> !f.getName().equals(BACKUP_DIR)))
+                            .forEach(File::delete);
+                    // 恢复文件
+                    for (File file : files) {
+                        copyFileOrDirectory(file, new File(frontend, file.getName()));
+                    }
+                }
+            }
+        }
+
+        // 回滚后端
+        File backupJar = new File(BACKEND_JAR + ".bak");
+        if (backupJar.exists()) {
+            replaceJar(backupJar, BACKEND_JAR);
+            runCommand("sudo systemctl restart nrsm");
+        }
+    }
+
+    public static void unzipTo(File zipFile, String outputDir) throws IOException {
+        File output = new File(outputDir);
+        if (!output.exists() && !output.mkdirs()) {
+            throw new IOException("Failed to create output directory: " + outputDir);
+        }
 
         try (ZipFile zip = new ZipFile(zipFile)) {
-            File output = new File(outputDir);
-            if (!output.exists() && !output.mkdirs()) {
-                throw new IOException("Failed to create output directory: " + outputDir);
-            }
-
-            String canonicalOutputPath = output.getCanonicalPath() + File.separator;
-
-
-            Enumeration<? extends ZipEntry> entries = zip.entries();
-            int fileCount = 0, dirCount = 0;
+            Enumeration<ZipArchiveEntry> entries = zip.getEntries();
 
             while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
+                ZipArchiveEntry entry = entries.nextElement();
+                File destFile = new File(output, sanitizeFileName(entry.getName()));
 
-                // 跳过无效条目
-                if (!isValidZipEntry(entry)) {
-                    System.out.println("Skipping invalid entry: " + entry.getName());
-                    continue;
-                }
-
-                File destFile = new File(output, entry.getName());
-                String canonicalEntryPath = destFile.getCanonicalPath();
-
-                // 检查路径安全
-                if (!canonicalEntryPath.startsWith(canonicalOutputPath)) {
-                    throw new IOException("Blocked path traversal attempt: " + entry.getName());
+                // 路径安全检查
+                if (!destFile.getCanonicalPath().startsWith(output.getCanonicalPath())) {
+                    throw new IOException("Invalid ZIP entry path: " + entry.getName());
                 }
 
                 if (entry.isDirectory()) {
                     if (!destFile.exists() && !destFile.mkdirs()) {
                         throw new IOException("Failed to create directory: " + destFile);
                     }
-                    dirCount++;
                 } else {
+                    // 创建父目录
                     File parent = destFile.getParentFile();
                     if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                        throw new IOException("Failed to create parent directory: " + parent);
+                        throw new IOException("Failed to create parent directory");
                     }
+
+                    // 使用临时文件确保原子操作
+                    File tempFile = File.createTempFile("unzip_", ".tmp", parent);
 
                     try (InputStream in = zip.getInputStream(entry);
-                         OutputStream out = new FileOutputStream(destFile)) {
-
-                        byte[] buffer = new byte[8192];
-                        int bytesRead;
-                        while ((bytesRead = in.read(buffer)) != -1) {
-                            out.write(buffer, 0, bytesRead);
-                        }
-                    } catch (IOException e) {
-                        throw new IOException("Failed to extract: " + entry.getName(), e);
+                         OutputStream out = new FileOutputStream(tempFile)) {
+                        IOUtils.copy(in, out);
                     }
-                    fileCount++;
+
+                    // 原子移动文件
+                    Files.move(tempFile.toPath(), destFile.toPath(),
+                            StandardCopyOption.REPLACE_EXISTING);
+
+                    // 设置文件权限
+                    setFilePermissions(destFile);
                 }
             }
-        } catch (IOException e) {
-            throw new IOException(e);
+        } catch (Exception e) {
+            throw new IOException("Unzip failed: " + e.getMessage(), e);
         }
     }
 
-    // 辅助方法：验证ZIP条目
-    private boolean isValidZipEntry(ZipEntry entry) {
-        if (entry == null) return false;
-
-        String name = entry.getName();
-        // 过滤无效字符
-        if (name.contains("..") || name.contains("\0") || name.contains(":") ||
-                name.contains("?") || name.contains("*")) {
-            return false;
-        }
-
-        // 过滤特殊目录
-        if (name.startsWith("__MACOSX/") || name.equals(".DS_Store")) {
-            return false;
-        }
-
-        return true;
+    private static String sanitizeFileName(String name) {
+        return name.replaceAll("[:*?\"<>|]", "_") // 替换非法字符
+                .replace("..", ".")             // 防止路径遍历
+                .trim();                        // 去除空白
     }
+
+    private static void setFilePermissions(File file) throws IOException {
+        // 设置文件权限为755（rwxr-xr-x）
+        if (!file.setReadable(true, false) ||
+                !file.setWritable(true, true) ||
+                !file.setExecutable(true, false)) {
+            throw new IOException("Failed to set permissions for: " + file.getAbsolutePath());
+        }
+    }
+
 
 
 
