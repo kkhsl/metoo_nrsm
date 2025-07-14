@@ -32,13 +32,13 @@ public class ProcessManagerController {
             String dhcpd6Status = checkProcessStatus.checkProcessStatus("dhcpd6");
             PingIpConfig oldPingIpConfig = this.pingIpConfigService.selectOneObj();
             boolean dnsStatus = unboundService.status(); // DNS状态
-            boolean radvdStatus = unboundService.radvdStatus(); // radvd状态
+            //boolean radvdStatus = unboundService.radvdStatus(); // radvd状态
             Map<String, String> statusMap = new LinkedHashMap<>(4);
             statusMap.put("dhcpdStatus", convertStringStatus(dhcpdStatus));
             statusMap.put("dhcpd6Status", convertStringStatus(dhcpd6Status));
             statusMap.put("checkaliveipStatus", oldPingIpConfig.isEnabled() == true ? "true" : "false");
             statusMap.put("dnsStatus", String.valueOf(dnsStatus).toLowerCase());
-            statusMap.put("radvdStatus", String.valueOf(radvdStatus).toLowerCase());
+            //statusMap.put("radvdStatus", String.valueOf(radvdStatus).toLowerCase());
 
             return ResponseUtil.ok(statusMap);
         } catch (Exception e) {
