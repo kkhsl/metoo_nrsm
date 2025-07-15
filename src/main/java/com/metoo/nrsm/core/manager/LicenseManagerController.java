@@ -1,31 +1,37 @@
 package com.metoo.nrsm.core.manager;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.LicenseDto;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.mapper.NetworkElementMapper;
-import com.metoo.nrsm.core.service.ILicenseService;
+import com.metoo.nrsm.core.network.networkconfig.test.checkProcessStatus;
+import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
 import com.metoo.nrsm.core.utils.license.LicenseTools;
+import com.metoo.nrsm.core.vo.DiskVO;
 import com.metoo.nrsm.core.vo.LicenseVo;
+import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.License;
-import com.metoo.nrsm.entity.NetworkElement;
-import org.junit.Test;
+import com.metoo.nrsm.entity.PingIpConfig;
+import com.metoo.nrsm.entity.SystemUsage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.metoo.nrsm.core.utils.license.AesEncryptUtils.encrypt;
 
 @RequestMapping("/license")
 @RestController
+@Slf4j
 public class LicenseManagerController {
 
     @Autowired
@@ -34,60 +40,170 @@ public class LicenseManagerController {
     private AesEncryptUtils aesEncryptUtils;
     @Autowired
     private LicenseTools licenseTools;
-
+    @Autowired
+    private IDiskService diskService;
+    @Autowired
+    private ISystemUsageService systemUsageService;
+    @Autowired
+    private IUnboundService unboundService;
+    @Autowired
+    private IPingIpConfigService pingIpConfigService;
     @Resource
     private NetworkElementMapper networkElementMapper;
 
-    public static void main(String[] args) {
-//        long currentTime = System.currentTimeMillis();
-//        System.out.println(currentTime);
-//        long ONEDAY_TIME = 24*60*60;
-//        System.out.println(ONEDAY_TIME);
-//        int day = (1653232116 - 1653019716)/(24*60*60);
-//        System.out.println(day);
 
-        // 当前日期时间戳
-        String currentDate = DateTools.dateToStr(new Date(), DateTools.FORMAT_yyyyMMdd);
-        long currentTime = DateTools.strToLong(currentDate + DateTools.TIME_000000, DateTools.FORMAT_yyyyMMddHHmmss);
-        long startTime = DateTools.strToLong("20220519000000", DateTools.FORMAT_yyyyMMddHHmmss);
 
-        int useDay = (int) ((currentTime - startTime) / DateTools.ONEDAY_TIME);
-
-        System.out.println(useDay);
-        long endTime = DateTools.strToLong("20220521000000", DateTools.FORMAT_yyyyMMddHHmmss);
-        int surplusDay = (int) ((endTime - currentTime) / DateTools.ONEDAY_TIME);
-        System.out.println(surplusDay);
+    @RequestMapping("/all")
+    @Scheduled(cron = "0 0 * * * ?")
+    public Result hourlyReport() throws Exception {
+        Map<String, Object> reportData = collectSystemInfo();
+        //sendToPlatform(reportData);
+        return ResponseUtil.ok(reportData);
     }
 
-    @Test
-    public void test() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        Date date = null;
-        try {
-            date = sdf.parse("20220522");
-            System.out.println(date);
-            System.out.println(date.getTime());
-            Calendar cd = Calendar.getInstance();
-            cd.setTime(date);
-            System.out.println(cd.getTime());
-            System.out.println(sdf.format(cd.getTime()));
-        } catch (ParseException e) {
-            e.printStackTrace();
+    public Map<String, Object> collectSystemInfo() throws Exception {
+        Map<String, Object> reportData = new LinkedHashMap<>();
+
+        // 1. 收集基础信息
+        Map<String, Object> baseInfo = new LinkedHashMap<>();
+        License obj = licenseService.query().get(0);
+        String sn = SystemInfoUtils.getSerialNumber();
+        String licenseInfo = aesEncryptUtils.decrypt(obj.getLicense());
+        LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+        calculateLicenseDays(license);
+        Map<String, Object> licensesInfo = new LinkedHashMap<>();
+        licensesInfo.put("Probe",license.isLicenseProbe());
+
+
+        baseInfo.put("sn", sn);
+        baseInfo.put("unit", license.getCustomerInfo());
+        baseInfo.put("version", license.getLicenseVersion());
+        baseInfo.put("licenseModule", licensesInfo);
+
+        reportData.put("baseInfo", baseInfo);
+
+        // 2. 收集资源利用率
+        Map<String, Object> resourceUsage = new LinkedHashMap<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND, -31);
+        Date startTime = calendar.getTime();
+        calendar.add(Calendar.SECOND, +62);
+        Date endTime = calendar.getTime();
+        Map map=new HashMap();
+        map.put("startTime",startTime);
+        map.put("endTime",endTime);
+        // CPU和内存 (取最新记录)
+        List<SystemUsage> usages = systemUsageService.selectObjByMap(map);
+        if (!usages.isEmpty()) {
+            SystemUsage latest = usages.get(0);
+            resourceUsage.put("cpuUsage", latest.getCpu_usage());
+            resourceUsage.put("memUsage", latest.getMem_usage());
+        }else {
+            resourceUsage.put("cpuUsage", "N/A");
+            resourceUsage.put("memUsage", "N/A");
         }
 
+        // 磁盘空间
+        DiskVO disk = diskService.getRootDisk();
+        Map<String, Object> diskInfo = new LinkedHashMap<>();
+        diskInfo.put("total", disk.getTotalSpaceFormatted());
+        diskInfo.put("free", disk.getFreeSpaceFormatted());
+        diskInfo.put("used", disk.getUsableSpaceFormatted());
+        // 将格式化字符串转换为数字用于计算
+        double utilization = calculateDiskUtilization(
+                disk.getTotalSpaceFormatted(),
+                disk.getUsableSpaceFormatted()
+        );
+        diskInfo.put("utilization", String.format("%.2f%%", utilization));
+        resourceUsage.put("disk", diskInfo);
+
+        reportData.put("resourceUsage", resourceUsage);
+
+        // 3. 收集进程状态
+        Map<String, Object> processStatus = new LinkedHashMap<>();
+        processStatus.put("dhcpd", checkProcessStatus("dhcpd"));
+        processStatus.put("dhcpd6", checkProcessStatus("dhcpd6"));
+        processStatus.put("dns", unboundService.status());
+
+        PingIpConfig pingConfig = pingIpConfigService.selectOneObj();
+        processStatus.put("checkaliveip", pingConfig != null && pingConfig.isEnabled());
+
+        reportData.put("processStatus", processStatus);
+
+        return reportData;
     }
 
-    @Test
-    public void testTimeStamp() {
-        long curremtTime = 1652976000000L;
-        long startTime = 1652889600000L;
-        long endTime = 1653062400000L;
-        int useDay = (int) ((int) (curremtTime - startTime) / DateTools.ONEDAY_TIME);
-        System.out.println(useDay);
-        int surplusDay = (int) ((int) (endTime - curremtTime) / DateTools.ONEDAY_TIME);
-        System.out.println(surplusDay);
-        System.out.println(DateTools.longToDate(endTime, "yyyyMMdd"));
+    /**
+     * 计算磁盘利用率（基于格式化的字符串）
+     * @param totalStr 总空间（如"56.88 GB"）
+     * @param usedStr 已用空间（如"26.62 GB"）
+     * @return 利用率百分比（如46.8）
+     */
+    private double calculateDiskUtilization(String totalStr, String usedStr) {
+        try {
+            // 解析空间值（转换为GB单位）
+            double totalGB = parseSpaceValue(totalStr);
+            double usedGB = parseSpaceValue(usedStr);
+
+            if (totalGB > 0) {
+                return (usedGB / totalGB) * 100;
+            }
+            return 0.0;
+        } catch (Exception e) {
+            return -1.0; // 计算失败标记
+        }
     }
+    /**
+     * 将格式化的空间字符串转换为GB单位的数字
+     * 支持GB/MB/KB/B等单位
+     */
+    private double parseSpaceValue(String spaceStr) {
+        // 分割数值和单位（如["56.88", "GB"]）
+        String[] parts = spaceStr.split(" ");
+        if (parts.length < 2) return 0.0;
+
+        double value = Double.parseDouble(parts[0]);
+        String unit = parts[1].toUpperCase();
+
+        // 转换为GB单位
+        switch (unit) {
+            case "TB": return value * 1024;
+            case "GB": return value;
+            case "MB": return value / 1024;
+            case "KB": return value / (1024 * 1024);
+            case "B": return value / (1024 * 1024 * 1024);
+            default: return value; // 默认为GB
+        }
+    }
+
+
+    private boolean checkProcessStatus(String processName) {
+        String status = checkProcessStatus.checkProcessStatus(processName);
+        return (status != null && status.equalsIgnoreCase("true"));
+    }
+
+    // 发送数据到平台接口
+    private void sendToPlatform(Map<String, Object> reportData) {
+        RestTemplate restTemplate = new RestTemplate();
+        String apiUrl = "https://platform-api.example.com/monitor/data";
+
+        try {
+            // 添加时间戳和主机标识
+            reportData.put("reportTime", new Date());
+            reportData.put("hostId", System.getenv("HOST_ID")); // 或从配置读取
+
+            // 转换并发送JSON数据
+            String jsonData = JSON.toJSONString(reportData);
+            restTemplate.postForObject(apiUrl, jsonData, String.class);
+
+        } catch (Exception e) {
+            log.error("平台接口上报失败: {}", e.getMessage());
+        }
+    }
+
+
+
+
 
     @RequestMapping("/systemInfo")
     public Object systemInfo() {
