@@ -1,6 +1,8 @@
 package com.metoo.nrsm.core.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@ApiModel("测绘脚本调用")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
