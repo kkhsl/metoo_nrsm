@@ -134,9 +134,9 @@ public class SshGetTrafficTest {
             saveToDatabase(vlanId, rates[0], rates[1], rates[2], rates[3]);
 
         } catch (NumberFormatException e) {
-            logger.error("Invalid number format in traffic data: {}", e.getMessage());
+            logger.error("Invalid number format in controller data: {}", e.getMessage());
         } catch (Exception e) {
-            logger.error("Error parsing traffic data: {}", e.getMessage(), e);
+            logger.error("Error parsing controller data: {}", e.getMessage(), e);
         }
     }
 

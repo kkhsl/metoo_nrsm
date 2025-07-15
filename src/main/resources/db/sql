@@ -1,0 +1,9 @@
+CREATE TABLE metoo_device_sys_info(
+	id BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+	addTime DATETIME COMMENT '添加时间',
+	updateTime DATETIME COMMENT '更新时间',
+	manufacturer VARCHAR(255) COMMENT '系统型号',
+	model VARCHAR(255) COMMENT '系统型号',
+	os VARCHAR(255) COMMENT '操作系统',
+	PRIMARY KEY(id)
+)ENGINE = InnoDB DEFAULT CHARSET = utf8mb4  COMMENT = '系统信息表';

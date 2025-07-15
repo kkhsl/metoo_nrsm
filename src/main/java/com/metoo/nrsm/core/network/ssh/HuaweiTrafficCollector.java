@@ -78,7 +78,7 @@ public class HuaweiTrafficCollector {
 
 
         // 根据方向参数构建命令
-        // String command = String.format("dis traffic-policy statistics interface vlanif %s %s rule-base\n", vlan, direction);
+        // String command = String.format("dis controller-policy statistics interface vlanif %s %s rule-base\n", vlan, direction);
         command = String.format("cat test_out.txt");
         channel.setCommand(command);
         channel.setInputStream(null);

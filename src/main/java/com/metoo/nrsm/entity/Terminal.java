@@ -1,8 +1,8 @@
 package com.metoo.nrsm.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.DoubleSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
 import com.metoo.nrsm.core.domain.IdEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
@@ -146,7 +146,7 @@ public class Terminal extends IdEntity {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date warranty_time;
 
-    @JSONField(name = "price", serializeUsing = DoubleSerializer.class)
+    @JSONField(name = "price", serializeUsing = NumberSerializers.DoubleSerializer.class)
     @ApiModelProperty("价格")
     private Double price;
 

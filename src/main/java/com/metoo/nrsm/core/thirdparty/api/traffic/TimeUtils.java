@@ -1,4 +1,4 @@
-package com.metoo.nrsm.core.api.traffic;
+package com.metoo.nrsm.core.thirdparty.api.traffic;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -1,8 +1,8 @@
 package com.metoo.nrsm.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.DoubleSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
 import com.metoo.nrsm.core.config.annotation.excel.ExcelExport;
 import com.metoo.nrsm.core.config.annotation.excel.ExcelImport;
 import com.metoo.nrsm.core.domain.IdEntity;
@@ -128,7 +128,7 @@ public class RsmsDevice extends IdEntity {
     private Date warranty_time;
 
     @ExcelExport(value = "价格", sort = 16)
-    @JSONField(name = "price", serializeUsing = DoubleSerializer.class)
+    @JSONField(name = "price", serializeUsing = NumberSerializers.DoubleSerializer.class)
     @ApiModelProperty("价格")
     private Double price;
 

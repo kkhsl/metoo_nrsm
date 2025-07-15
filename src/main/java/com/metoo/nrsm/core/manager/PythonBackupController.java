@@ -426,7 +426,7 @@ public class PythonBackupController {
                 params.getOption()
         };
 
-        log.debug("Executing backup script for {} with params: {}", params.getIp(), Arrays.toString(scriptParams));
+        log.debug("Executing backup controller for {} with params: {}", params.getIp(), Arrays.toString(scriptParams));
         return pythonExecUtils.execPy(path, scriptParams);
     }
 

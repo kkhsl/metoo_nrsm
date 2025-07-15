@@ -51,7 +51,7 @@ public class PyCommandBuilder3 {
         PyCommandBuilder3 pyCommand = new PyCommandBuilder3();
         pyCommand.setVersion("py.exe");
         pyCommand.setPy_prefix("-W ignore");
-        pyCommand.setPath("C:\\\\netmap\\\\script");
+        pyCommand.setPath("C:\\\\netmap\\\\controller");
         pyCommand.setName("main.py");
 //        pyCommand.setParams(new String[]{
 //                "h3c",

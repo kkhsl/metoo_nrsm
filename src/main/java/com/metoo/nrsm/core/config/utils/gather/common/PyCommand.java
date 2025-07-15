@@ -210,11 +210,11 @@ public class PyCommand {
     }
 
     public static void main(String[] args) {
-        // python3 /opt/sqlite/script/main.py h3c switch 192.168.100.1 ssh 22 metoo metoo89745000 aliveint
+        // python3 /opt/sqlite/controller/main.py h3c switch 192.168.100.1 ssh 22 metoo metoo89745000 aliveint
         PyCommand command = new PyCommand();
 //        command.setPrefix("nohup");
 //        command.setVersion("python3");
-        command.setPath("/opt/sqlite/script/");
+        command.setPath("/opt/sqlite/controller/");
         command.setName("main.py");
         command.setParams(new String[]{"h3c", "switch", "192.168.100.1", "ssh", "22",
                 "metoo", "metoo89745000", "aliveint"});

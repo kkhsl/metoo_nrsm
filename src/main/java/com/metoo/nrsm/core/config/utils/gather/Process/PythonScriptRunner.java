@@ -39,7 +39,7 @@ public class PythonScriptRunner {
             // 构建命令行参数，包括 Python 解释器和脚本路径
             ProcessBuilder pb = new ProcessBuilder();
             pb.redirectErrorStream(true);
-            pb.directory(new File("/opt/sqlite/script/"));
+            pb.directory(new File("/opt/sqlite/controller/"));
 
             // 将参数添加到命令行参数中
             pb.command().addAll(Arrays.asList(args));
@@ -96,15 +96,15 @@ public class PythonScriptRunner {
 
     public static void main(String[] args) {
 
-        // python3 /opt/sqlite/script/main.py h3c switch 192.168.100.1 ssh 22 metoo metoo89745000 aliveint
+        // python3 /opt/sqlite/controller/main.py h3c switch 192.168.100.1 ssh 22 metoo metoo89745000 aliveint
 
         PythonScriptRunner runner = new PythonScriptRunner();
 
-        String result = runner.runPythonScript("python3", "/opt/sqlite/script/main.py",
+        String result = runner.runPythonScript("python3", "/opt/sqlite/controller/main.py",
                 "h3c", "switch", "192.168.100.1",
                 "ssh", "22", "metoo", "metoo89745000", "aliveint");
 
-        System.out.println("Python script output:\n" + result);
+        System.out.println("Python controller output:\n" + result);
     }
 
 

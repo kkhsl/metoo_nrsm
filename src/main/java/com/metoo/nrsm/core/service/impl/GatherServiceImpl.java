@@ -929,8 +929,8 @@ public class GatherServiceImpl implements IGatherService {
 //                    .community("transfar@123")
 //                    .build();
 //
-//            String traffic = SNMPv3Request.getTraffic(snmpv3Params, "1.3.6.1.2.1.31.1.1.1.6.6", "1.3.6.1.2.1.31.1.1.1.10.6");
-//            log.info("流量：{}", traffic);
+//            String controller = SNMPv3Request.getTraffic(snmpv3Params, "1.3.6.1.2.1.31.1.1.1.6.6", "1.3.6.1.2.1.31.1.1.1.10.6");
+//            log.info("流量：{}", controller);
 
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .host("113.240.243.196")

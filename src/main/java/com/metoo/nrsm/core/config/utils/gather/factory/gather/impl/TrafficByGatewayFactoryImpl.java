@@ -35,7 +35,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
     @Override
     public void executeMethod() {
-        log.info("unit exec traffic start...");
+        log.info("unit exec controller start...");
 
         IFlowUnitService flowUnitService = (IFlowUnitService) ApplicationContextUtils.getBean("flowUnitServiceImpl");
         IGatewayService gatewayService = (IGatewayService) ApplicationContextUtils.getBean("gatewayServiceImpl");
@@ -44,7 +44,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
         List<Gateway> list = gatewayService.selectObjByMap(null);
 
-        log.info("untit exec traffic start gatewat number =================" + list.size());
+        log.info("untit exec controller start gatewat number =================" + list.size());
 
         if (list.size() > 0) {
 
@@ -106,7 +106,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
             return;
         }
 
-        log.info("untit exec traffic end...");
+        log.info("untit exec controller end...");
 
         return;
     }
@@ -333,7 +333,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
                 // 入库traffic表
                 try {
-                    log.info("traffic=================================start");
+                    log.info("controller=================================start");
                     Traffic traffic = new Traffic();
                     traffic.setAddTime(date);
                     traffic.setVfourFlow(formattedVfourFlow);
@@ -345,7 +345,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                     ApiService apiService = new ApiService(new RestTemplate());
                     apiService.sendDataToMTO(JSON.toJSONString(traffic));
 
-                    log.info("traffic=================================end" + i + "num");
+                    log.info("controller=================================end" + i + "num");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -426,23 +426,23 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 //
 //            // 入库traffic表
 //        try {
-//            log.info("traffic=================================start");
+//            log.info("controller=================================start");
 //
-//            Traffic traffic = new Traffic();
-//            traffic.setAddTime(date);
-//            traffic.setVfourFlow(formattedVfourFlow);
-//            traffic.setVsixFlow(formattedVsixFlow);
-//            traffic.setUnitName(unit.getUnitName());
+//            Traffic controller = new Traffic();
+//            controller.setAddTime(date);
+//            controller.setVfourFlow(formattedVfourFlow);
+//            controller.setVsixFlow(formattedVsixFlow);
+//            controller.setUnitName(unit.getUnitName());
 //
 //
-//            int i = trafficService.save(traffic);
+//            int i = trafficService.save(controller);
 //
 //
 //            // 发送数据-netmap-monitor
 //            ApiService apiService = new ApiService(new RestTemplate());
-//            apiService.sendDataToMTO(JSON.toJSONString(traffic));
+//            apiService.sendDataToMTO(JSON.toJSONString(controller));
 //
-//            log.info("traffic=================================end" + i + "num");
+//            log.info("controller=================================end" + i + "num");
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
@@ -510,7 +510,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
         // 入库traffic表
         try {
-            log.info("traffic=================================start");
+            log.info("controller=================================start");
 
             Traffic traffic = new Traffic();
             traffic.setAddTime(date);
@@ -522,7 +522,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
             ApiService apiService = new ApiService(new RestTemplate());
             apiService.sendDataToMTO(JSON.toJSONString(traffic));
 
-            log.info("traffic=================================end");
+            log.info("controller=================================end");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -686,7 +686,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
                 // 入库traffic表
                 try {
-                    log.info("traffic=================================start");
+                    log.info("controller=================================start");
                     Traffic traffic = new Traffic();
                     traffic.setAddTime(date);
                     traffic.setVfourFlow(formattedVfourFlow);
@@ -699,7 +699,7 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                     ApiService apiService = new ApiService(new RestTemplate());
                     apiService.sendDataToMTO(JSON.toJSONString(traffic));
 
-                    log.info("traffic=================================end" + i + "num");
+                    log.info("controller=================================end" + i + "num");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

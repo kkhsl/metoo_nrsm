@@ -144,16 +144,16 @@ public class IndexManagerController {
         SysConfig configs = this.configService.select();
         map.put("domain", configs.getDomain());
         List<License> licenses = this.licenseService.query();
-        map.put("licenseAC", false);
-        if (licenses.size() > 0) {
-            try {
-                String licenseInfo = this.aesEncryptUtils.decrypt(licenses.get(0).getLicense());
-                LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
-                map.put("licenseAC", license.isLicenseAC());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        map.put("licenseAC", false);
+//        if (licenses.size() > 0) {
+//            try {
+//                String licenseInfo = this.aesEncryptUtils.decrypt(licenses.get(0).getLicense());
+//                LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+//                map.put("licenseAC", license.isLicenseAC());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
         return ResponseUtil.ok(map);
     }
 }

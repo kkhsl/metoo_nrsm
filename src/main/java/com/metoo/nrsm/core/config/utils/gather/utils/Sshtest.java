@@ -26,7 +26,7 @@ public class Sshtest {
         String[] params4 = {"huawei", "192.168.100.1", "ssh", "22", "metoo", "metoo89745000",
                 "20", "1"};
 
-        String result = exec("/opt/netmap/script/traffic.py", params4);
+        String result = exec("/opt/netmap/controller/controller.py", params4);
 
         insertTraffic2(result);
 

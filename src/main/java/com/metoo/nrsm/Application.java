@@ -7,7 +7,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@MapperScan("com.metoo.nrsm.core.mapper")
+@MapperScan({"com.metoo.nrsm.core.mapper", "com.metoo.nrsm.core.api.mapper"})
 @EnableTransactionManagement
 @ServletComponentScan(basePackages = {"com.metoo.nrsm"})
 @EnableScheduling //  注解启用Spring的调度任务功能（启动类增加该注解，使项目启动后执行定时任务）

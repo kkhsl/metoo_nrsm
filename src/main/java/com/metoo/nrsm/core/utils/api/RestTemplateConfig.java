@@ -1,9 +1,8 @@
 package com.metoo.nrsm.core.utils.api;
 
-import com.metoo.nrsm.core.api.traffic.TrafficApi;
+import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficApi;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

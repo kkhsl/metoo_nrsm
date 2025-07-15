@@ -75,7 +75,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                 pyCommand.setVersion(Global.py_name);
                 pyCommand.setPath(Global.py_path);
                 pyCommand.setPy_prefix("-W ignore");
-                pyCommand.setName("traffic.py");
+                pyCommand.setName("controller.py");
                 pyCommand.setParams(new String[]{
                         gateway.getVendorAlias(),
                         gateway.getIp(),
@@ -95,9 +95,9 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                                 this.insertTraffic2(result, unit, date);
 
                             } else if (pattern.equals("0")) {
-                                log.info("traffic ============== pattern 0 =============== ");
+                                log.info("controller ============== pattern 0 =============== ");
 
-                                log.info("traffic - data " + result);
+                                log.info("controller - data " + result);
 
                                 this.insertTrafficYingTan(result, unit, date);
                             }
@@ -176,7 +176,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
 
     public void insertTrafficYingTan(String data, FlowUnit unit, Date date) {
 
-        log.info("traffic - data - start ==========================");
+        log.info("controller - data - start ==========================");
         if (StringUtil.isNotEmpty(data)) {
 
             JSONArray jsonArray = JSONArray.parseArray(data);
@@ -320,21 +320,21 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                 unit.setVfourFlow(formattedVfourFlow);
                 unit.setVsixFlow(formattedVsixFlow);
 
-                log.info("traffic - data - start - vfourFlow ==========================" + vfourFlow);
+                log.info("controller - data - start - vfourFlow ==========================" + vfourFlow);
 
-                log.info("traffic - data - start - vsixFlow ==========================" + vsixFlow);
+                log.info("controller - data - start - vsixFlow ==========================" + vsixFlow);
 
-                log.info("traffic - data - start - ipv6Inbound ==========================" + ipv6Inbound);
+                log.info("controller - data - start - ipv6Inbound ==========================" + ipv6Inbound);
 
-                log.info("traffic - data - start - ipv6Outbound ==========================" + ipv6Outbound);
+                log.info("controller - data - start - ipv6Outbound ==========================" + ipv6Outbound);
 
-                log.info("traffic - data - end - formattedVfourFlow  ==========================" + formattedVfourFlow);
+                log.info("controller - data - end - formattedVfourFlow  ==========================" + formattedVfourFlow);
 
-                log.info("traffic - data - end - formattedVsixFlow  ==========================" + formattedVsixFlow);
+                log.info("controller - data - end - formattedVsixFlow  ==========================" + formattedVsixFlow);
 
                 // 入库traffic表
                 try {
-                    log.info("traffic=================================start");
+                    log.info("controller=================================start");
                     Traffic traffic = new Traffic();
                     traffic.setAddTime(date);
                     traffic.setVfourFlow(formattedVfourFlow);
@@ -343,7 +343,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                     int i = trafficService.save(traffic);
 
 
-                    log.info("traffic=================================end" + i + "num");
+                    log.info("controller=================================end" + i + "num");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

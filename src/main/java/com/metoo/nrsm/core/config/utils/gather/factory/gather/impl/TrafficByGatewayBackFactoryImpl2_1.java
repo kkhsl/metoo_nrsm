@@ -27,7 +27,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
 
 
     public void executeMethod() {
-        log.info("unit exec traffic start...");
+        log.info("unit exec controller start...");
         IFlowUnitService flowUnitService = (IFlowUnitService) ApplicationContextUtils.getBean("flowUnitServiceImpl");
         IGatewayService gatewayService = (IGatewayService) ApplicationContextUtils.getBean("gatewayServiceImpl");
         PyExecUtils pyExecUtils = (PyExecUtils) ApplicationContextUtils.getBean("pyExecUtils");
@@ -58,7 +58,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                         pyCommand.setVersion(Global.py_name);
                         pyCommand.setPath(Global.py_path);
                         pyCommand.setPy_prefix("-W ignore");
-                        pyCommand.setName("traffic.py");
+                        pyCommand.setName("controller.py");
                         pyCommand.setParams(new String[]{
                                 gateway.getVendorAlias(),
                                 gateway.getIp(),
@@ -78,7 +78,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                                     // 根据pattern，判断使用哪种方式获取流量
                                     if (pattern.equals("1")) {
                                     } else if (pattern.equals("0")) {
-                                        log.info("traffic ============== pattern 0 " + unit.getUnitName() + "=============== ");
+                                        log.info("controller ============== pattern 0 " + unit.getUnitName() + "=============== ");
                                         insertTraffic(result, unit, date);
                                     }
                                 } catch (Exception e) {
@@ -93,7 +93,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                 }
 
             }
-            log.info("untit exec traffic end...");
+            log.info("untit exec controller end...");
         }
     }
 
@@ -155,7 +155,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                     // 入库traffic表
                     ITrafficService trafficService = (ITrafficService) ApplicationContextUtils.getBean("trafficServiceImpl");
                     try {
-                        log.info("traffic=================================start");
+                        log.info("controller=================================start");
                         Traffic traffic = new Traffic();
                         traffic.setAddTime(date);
                         traffic.setVfourFlow(formattedVfourFlow);
@@ -163,7 +163,7 @@ public class TrafficByGatewayBackFactoryImpl2_1 implements Gather {
                         traffic.setUnitName(unit.getUnitName());
                         trafficService.save(traffic);
 
-                        log.info("traffic=================================end" + i + "num");
+                        log.info("controller=================================end" + i + "num");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

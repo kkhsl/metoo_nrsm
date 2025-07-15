@@ -369,15 +369,15 @@ public class FluxConfigManagerController {
                 List<List<String>> ipv4Oids = parseOidConfig(config.getIpv4Oid());
                 // 2. 采集IPv4流量
                 for (List<String> oidPair : ipv4Oids) {
-                    Map<String, BigDecimal> traffic = getTraffic(snmpParams, oidPair.get(0), oidPair.get(1));
-                    ipv4Total = ipv4Total.add(traffic.get("in")).add(traffic.get("out"));
+                    Map<String, BigDecimal> controller = getTraffic(snmpParams, oidPair.get(0), oidPair.get(1));
+                    ipv4Total = ipv4Total.add(controller.get("in")).add(controller.get("out"));
                 }
 
                 // 3. 采集IPv6流量
                 List<List<String>> ipv6Oids = parseOidConfig(config.getIpv6Oid());
                 for (List<String> oidPair : ipv6Oids) {
-                    Map<String, BigDecimal> traffic = getTraffic(snmpParams, oidPair.get(0), oidPair.get(1));
-                    ipv6Total = ipv6Total.add(traffic.get("in")).add(traffic.get("out"));
+                    Map<String, BigDecimal> controller = getTraffic(snmpParams, oidPair.get(0), oidPair.get(1));
+                    ipv6Total = ipv6Total.add(controller.get("in")).add(controller.get("out"));
                 }
             }
 

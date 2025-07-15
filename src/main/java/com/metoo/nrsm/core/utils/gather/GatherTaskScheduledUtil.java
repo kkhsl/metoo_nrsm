@@ -3,8 +3,8 @@ package com.metoo.nrsm.core.utils.gather;
 import com.alibaba.fastjson.JSONObject;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.Session;
-import com.metoo.nrsm.core.api.traffic.TimeUtils;
-import com.metoo.nrsm.core.api.traffic.TrafficApi;
+import com.metoo.nrsm.core.thirdparty.api.traffic.TimeUtils;
+import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficApi;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
@@ -12,7 +12,6 @@ import com.metoo.nrsm.core.mapper.TrafficDataMapper;
 import com.metoo.nrsm.core.network.ssh.SnmpHelper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.api.ApiExecUtils;
-import com.metoo.nrsm.core.utils.api.ApiService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
 import com.metoo.nrsm.core.utils.gather.snmp.utils.DeviceManager;
@@ -587,7 +586,7 @@ public class GatherTaskScheduledUtil {
             trafficDataMapper.insertTrafficData(trafficData);
             System.out.println("Traffic data saved for VLAN ID " + trafficData.getVlanId());
         } catch (Exception e) {
-            System.err.println("Error saving traffic data for VLAN ID " + trafficData.getVlanId() + ": " + e.getMessage());
+            System.err.println("Error saving controller data for VLAN ID " + trafficData.getVlanId() + ": " + e.getMessage());
         }
     }
 

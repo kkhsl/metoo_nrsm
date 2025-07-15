@@ -56,7 +56,7 @@ public class TrafficFactoryImpl implements Gather {
                         pyCommand.setVersion(Global.py_name);
                         pyCommand.setPath(Global.py_path);
                         pyCommand.setPy_prefix("-W ignore");
-                        pyCommand.setName("traffic.py");
+                        pyCommand.setName("controller.py");
                         pyCommand.setParams(new String[]{
                                 gateway.getVendorAlias(),
                                 gateway.getIp(),

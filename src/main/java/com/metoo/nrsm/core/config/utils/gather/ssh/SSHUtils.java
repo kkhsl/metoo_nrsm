@@ -134,9 +134,9 @@ public class SSHUtils {
         String password = "metoo89745000";
 
         PyCommand pyCommand = new PyCommand();
-        pyCommand.setPrefix("cd /opt/sqlite/script &&");
+        pyCommand.setPrefix("cd /opt/sqlite/controller &&");
         pyCommand.setVersion("python3");
-        pyCommand.setPath("/opt/sqlite/script/");
+        pyCommand.setPath("/opt/sqlite/controller/");
         pyCommand.setName("main.py");
         pyCommand.setParams(new String[]{"h3c", "switch", "192.168.100.1", "ssh", "22", "metoo", "metoo89745000", "aliveint"});
         String command = pyCommand.toParamsString();

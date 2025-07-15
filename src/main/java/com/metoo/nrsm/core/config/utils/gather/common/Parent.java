@@ -16,6 +16,6 @@ public class Parent {
 
     //    @Value("${py.path}")
     @ApiModelProperty("文件绝对路径")
-    private String path = "/opt/sqlite/script/";
+    private String path = "/opt/sqlite/controller/";
 
 }

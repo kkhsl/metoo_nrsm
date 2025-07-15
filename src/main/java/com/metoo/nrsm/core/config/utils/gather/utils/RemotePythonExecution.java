@@ -36,7 +36,7 @@ public class RemotePythonExecution {
 
             // Executing command
             ChannelExec channel = (ChannelExec) session.openChannel("exec");
-            channel.setCommand("python3 /opt/sqlite/script/main.py h3c switch 192.168.100.1 ssh 22 metoo metoo89745000 aliveint");
+            channel.setCommand("python3 /opt/sqlite/controller/main.py h3c switch 192.168.100.1 ssh 22 metoo metoo89745000 aliveint");
             channel.setInputStream(null);
             InputStream stdout = channel.getInputStream();
             InputStream stderr = channel.getErrStream();

@@ -25,7 +25,7 @@ public class RetryService {
             backoff = @Backoff(delay = 2000, multiplier = 2)  // 延迟设置，每次延迟 2 秒
     )
     public void callExternalService() {
-        String url = "http://127.0.0.1:8931/api/nrsm/traffic/data/{data}";
+        String url = "http://127.0.0.1:8931/api/nrsm/controller/data/{data}";
 
         // 发送请求，模拟一个可能超时的请求
 //        try {

@@ -1,8 +1,8 @@
 package com.metoo.nrsm.core.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.DoubleSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
 import com.metoo.nrsm.core.dto.page.PageDto;
 import com.metoo.nrsm.entity.RsmsDevice;
 import io.swagger.annotations.Api;
@@ -70,7 +70,7 @@ public class RsmsDeviceDTO extends PageDto<RsmsDevice> {
     @ApiModelProperty("过保时间")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date warranty_time;
-    @JSONField(name = "price", serializeUsing = DoubleSerializer.class)
+    @JSONField(name = "price", serializeUsing = NumberSerializers.DoubleSerializer.class)
     @ApiModelProperty("价格")
     private Double price;
     @ApiModelProperty("序列号")
