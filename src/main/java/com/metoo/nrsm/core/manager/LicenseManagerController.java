@@ -20,8 +20,11 @@ import com.metoo.nrsm.entity.PingIpConfig;
 import com.metoo.nrsm.entity.SystemUsage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -51,14 +54,17 @@ public class LicenseManagerController {
     @Resource
     private NetworkElementMapper networkElementMapper;
 
+    @Value("${api.url}")
+    private String apiUrl;
+
 
 
     @RequestMapping("/all")
     @Scheduled(cron = "0 0 * * * ?")
     public Result hourlyReport() throws Exception {
         Map<String, Object> reportData = collectSystemInfo();
-        //sendToPlatform(reportData);
-        return ResponseUtil.ok(reportData);
+        String result = sendToPlatform(reportData);
+        return ResponseUtil.ok(result);
     }
 
     public Map<String, Object> collectSystemInfo() throws Exception {
@@ -183,22 +189,41 @@ public class LicenseManagerController {
     }
 
     // 发送数据到平台接口
-    private void sendToPlatform(Map<String, Object> reportData) {
+    private String sendToPlatform(Map<String, Object> reportData) {
         RestTemplate restTemplate = new RestTemplate();
-        String apiUrl = "https://platform-api.example.com/monitor/data";
 
         try {
-            // 添加时间戳和主机标识
-            reportData.put("reportTime", new Date());
-            reportData.put("hostId", System.getenv("HOST_ID")); // 或从配置读取
+            // 1. 设置请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-            // 转换并发送JSON数据
+            // 2. 转换JSON数据
             String jsonData = JSON.toJSONString(reportData);
-            restTemplate.postForObject(apiUrl, jsonData, String.class);
 
+            // 3. 创建请求实体
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonData, headers);
+
+            // 4. 发送POST请求
+            ResponseEntity<String> response = restTemplate.exchange(
+                    apiUrl,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+
+            return response.getBody();
         } catch (Exception e) {
             log.error("平台接口上报失败: {}", e.getMessage());
+            // 记录更详细的错误信息
+            if (e instanceof RestClientResponseException) {
+                RestClientResponseException rc = (RestClientResponseException) e;
+                log.error("平台返回状态码: {}, 响应内容: {}",
+                        rc.getRawStatusCode(), rc.getResponseBodyAsString());
+            }
+            return null;
         }
+
     }
 
 
