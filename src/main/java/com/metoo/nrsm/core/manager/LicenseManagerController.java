@@ -72,7 +72,7 @@ public class LicenseManagerController {
         LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
         calculateLicenseDays(license);
         Map<String, Object> licensesInfo = new LinkedHashMap<>();
-        licensesInfo.put("Probe",license.isLicenseProbe());
+        licensesInfo.put("probe",license.isLicenseProbe());
 
 
         baseInfo.put("sn", sn);
