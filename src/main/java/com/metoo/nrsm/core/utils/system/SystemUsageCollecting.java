@@ -19,17 +19,17 @@ public class SystemUsageCollecting {
     private IDiskService diskService;
 
 
-//    @Scheduled(cron = "0 */1 * * * ?")
-//    public void dhcp6() {
-//        Long time=System.currentTimeMillis();
-////        log.info("System usage start ......");
-//        try {
-//            systemUsageService.saveSystemUsageToDatabase();
-//            diskService.getRootDiskSpaceInformation();
-//
-//        } catch (Exception e) {
-////            log.error("Error occurred during System usage", e);
-//        }
-////        log.info("System usage end ......" + (System.currentTimeMillis()-time));
-//    }
+    @Scheduled(cron = "0 */1 * * * ?")
+    public void dhcp6() {
+        Long time=System.currentTimeMillis();
+        log.info("System usage start ......");
+        try {
+            systemUsageService.saveSystemUsageToDatabase();
+            diskService.getRootDiskSpaceInformation();
+
+        } catch (Exception e) {
+            log.error("Error occurred during System usage", e);
+        }
+        log.info("System usage end ......" + (System.currentTimeMillis()-time));
+    }
 }
