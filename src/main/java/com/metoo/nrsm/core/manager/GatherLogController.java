@@ -21,7 +21,7 @@ public class GatherLogController {
     @GetMapping(path = "/logs", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamAllLogs(HttpServletRequest request) {
         String sessionId = request.getSession().getId();
-        SseEmitter emitter = new SseEmitter(0L);
+        SseEmitter emitter = new SseEmitter(30 * 60 * 1000L);
         sseManager.addEmitter(sessionId, emitter);
         return emitter;
     }

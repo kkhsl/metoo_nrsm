@@ -58,7 +58,7 @@ public class SseManager {
         );
 
         // 构建SSE事件
-        return "log\n" +
+        return "\n" +
                 "id: " + UUID.randomUUID() + "\n" +
                 "data: " + json + "\n\n";
     }
