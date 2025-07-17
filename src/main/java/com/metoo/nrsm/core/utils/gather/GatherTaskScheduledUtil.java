@@ -19,6 +19,7 @@ import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
 import com.metoo.nrsm.core.vo.LicenseVo;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.*;
+import com.metoo.nrsm.core.manager.utils.SseManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,7 +98,7 @@ public class GatherTaskScheduledUtil {
                     Long time = System.currentTimeMillis();
                     log.info("流量推送开始：{}", time);
                         apiExecUtils.exec();
-                    log.info("流量推送结束：{}", (System.currentTimeMillis() - time));
+                    log.info("流量推送完成：{}", (System.currentTimeMillis() - time));
                 } catch (Exception e) {
                     log.error("流量推送失败：{}", e.getMessage());
                 } finally {
@@ -171,17 +172,25 @@ public class GatherTaskScheduledUtil {
 
     private volatile boolean isRunningDhcp = false;
 
+    SseManager sseManager=new SseManager();
+
     @Scheduled(fixedDelay = 180_000)
     public void dhcp() {
         if (flag && !isRunningDhcp) {
             log.info("DHCP采集任务开始");
             isRunningDhcp = true;
+            final String TASK_TYPE = "DHCP"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "DHCP采集任务开始");
                 Long time = System.currentTimeMillis();
                 dhcpService.gather(DateTools.gatherDate());
                 log.info("DHCP采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "DHCP采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "DHCP采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "DHCP采集异常: " + e.getMessage());
                 log.error("DHCP采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningDhcp = false;
@@ -196,12 +205,18 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningDhcp6) {
             log.info("DHCP6采集任务开始");
             isRunningDhcp6 = true;
+            final String TASK_TYPE = "DHCP6"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "DHCP6采集任务开始");
                 Long time = System.currentTimeMillis();
                 dhcp6Service.gather(DateTools.gatherDate());
                 log.info("DHCP6采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "DHCP6采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "DHCP6采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "DHCP6采集任务异常: " + e.getMessage());
                 log.error("DHCP6采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningDhcp6 = false;
@@ -216,12 +231,18 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningARP) {
             log.info("ARP采集任务开始");
             isRunningARP = true;
+            final String TASK_TYPE = "ARP"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "ARP采集任务开始");
                 Long time = System.currentTimeMillis();
                 gatherService.gatherArp(DateTools.gatherDate());
                 log.info("ARP采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "ARP采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "ARP采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "ARP采集任务异常: " + e.getMessage());
                 log.error("ARP采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningARP = false;
@@ -236,12 +257,18 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningTerminal) {
             log.info("终端采集任务开始");
             isRunningTerminal = true;
+            final String TASK_TYPE = "Terminal"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务开始");
                 Long time = System.currentTimeMillis();
                 this.gatherSingleThreadingMacSNMPUtils.updateTerminal(DateTools.gatherDate());
                 log.info("终端采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "Terminal终端采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务异常: " + e.getMessage());
                 log.error("终端采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningTerminal = false;
@@ -255,12 +282,18 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningMAC) {
             log.info("MAC采集任务开始");
             isRunningMAC = true;
+            final String TASK_TYPE = "MAC"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "MAC采集任务开始");
                 Long time = System.currentTimeMillis();
                 this.gatherService.gatherMac(DateTools.gatherDate(), new ArrayList<>());
                 log.info("MAC采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "MAC采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "MAC采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "MAC采集任务异常: " + e.getMessage());
                 log.error("MAC采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningMAC = false;
@@ -277,12 +310,18 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningIPV4) {
             log.info("IPV4采集任务开始");
             isRunningIPV4 = true;
+            final String TASK_TYPE = "IPV4"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4采集任务开始");
                 Long time = System.currentTimeMillis();
                 gatherService.gatherIpv4Thread(DateTools.gatherDate(), new ArrayList<>());
                 log.info("IPV4采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "IPV4采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4采集任务异常: " + e.getMessage());
                 log.error("IPV4采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningIPV4 = false;
@@ -297,13 +336,19 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningIPV4Detail) {
             log.info("IPV4 detail 采集任务开始");
             isRunningIPV4Detail = true;
+            final String TASK_TYPE = "IPV4 detail"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4 detail 采集任务开始");
                 Long time = System.currentTimeMillis();
                 gatherService.gatherIpv4Detail(DateTools.gatherDate());
                 log.info("IPV4 detail 采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "IPV4 detail 采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4 detail 采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("IPV4采集任务异常: {}", e.getMessage());
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4 detail采集任务异常: " + e.getMessage());
+                log.error("IPV4 detail采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningIPV4Detail = false;
             }
@@ -317,12 +362,18 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningPort) {
             log.info("IPV4 Port采集任务开始");
             isRunningPort = true;
+            final String TASK_TYPE = "IPV4 Port"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4 Port采集任务开始");
                 Long time = System.currentTimeMillis();
                 gatherService.gatherPort(DateTools.gatherDate(), new ArrayList<>());
                 log.info("IPV4 Port 采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "IPV4 Port 采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4 Port采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "IPV4 Port采集任务异常: " + e.getMessage());
                 log.error("IPV4 Port采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningPort = false;
@@ -338,13 +389,19 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningIPV6) {
             log.info("Ipv6采集任务开始");
             isRunningIPV6 = true;
+            final String TASK_TYPE = "Ipv6"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "Ipv6采集任务开始");
                 Long time = System.currentTimeMillis();
                 gatherService.gatherIpv6Thread(DateTools.gatherDate(), new ArrayList<>());
                 log.info("Ipv6采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "Ipv6采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "Ipv6采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("IPV4 Port采集任务异常: {}", e.getMessage());
+                sseManager.sendLogToAll(TASK_TYPE, "Ipv6采集任务异常: " + e.getMessage());
+                log.error("Ipv6采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningIPV6 = false;
             }
@@ -358,12 +415,18 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningIPV6Port) {
             log.info("Ipv6 Port采集任务开始");
             isRunningIPV6Port = true;
+            final String TASK_TYPE = "Ipv6 Port"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "Ipv6 Port采集任务开始");
                 Long time = System.currentTimeMillis();
                 gatherService.gatherPortIpv6(DateTools.gatherDate(), new ArrayList<>());
                 log.info("Ipv6 Port采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "Ipv6 Port采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "Ipv6 Port采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "Ipv6 Port采集任务异常: " + e.getMessage());
                 log.error("Ipv6 Port采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningIPV6Port = false;
@@ -378,12 +441,18 @@ public class GatherTaskScheduledUtil {
         if (flag && !isRunningIsIPV6) {
             log.info("IsIpv6采集任务开始");
             isRunningIsIPV6 = true;
+            final String TASK_TYPE = "IsIpv6"; // 任务类型标识
             try {
+                sseManager.sendLogToAll(TASK_TYPE, "IsIpv6采集任务开始");
                 Long time = System.currentTimeMillis();
                 gatherService.gatherIsIpv6(DateTools.gatherDate());
                 log.info("IsIpv6采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+                String execTime = "IsIpv6采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "IsIpv6采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
+                sseManager.sendLogToAll(TASK_TYPE, "IsIpv6采集任务异常: " + e.getMessage());
                 log.error("IsIpv6采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningIsIPV6 = false;
@@ -415,7 +484,7 @@ public class GatherTaskScheduledUtil {
     /**
      * 任务开始时间：T=0
      * <p>
-     * 任务结束时间：T=5分钟
+     * 任务完成时间：T=5分钟
      * <p>
      * 下一次执行时间：T=5 + 3 = 8分钟（不会在 T=3分钟 时触发新任务）。
      * <p>
@@ -433,7 +502,7 @@ public class GatherTaskScheduledUtil {
                 this.subnetService.pingSubnet();
                 log.info("PING 网段采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
 
-                log.info("PING 网段采集结束===========================================================");
+                log.info("PING 网段采集完成===========================================================");
 
             } catch (Exception e) {
                 e.printStackTrace();
