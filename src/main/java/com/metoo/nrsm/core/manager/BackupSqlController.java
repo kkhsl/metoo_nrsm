@@ -9,9 +9,9 @@ import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.file.DownLoadFileUtil;
 import com.metoo.nrsm.core.utils.file.FileUtil;
 import com.metoo.nrsm.core.utils.query.PageInfo;
+import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.BackupSql;
 import io.swagger.annotations.ApiOperation;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileSystemUtils;
@@ -20,9 +20,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.sql.*;
-import java.util.concurrent.TimeUnit;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.*;
 
 /**
  * 数据库维护
@@ -36,66 +44,6 @@ public class BackupSqlController {
 
     @Value("${spring.datasource.password}")
     private String DB_PASSWORD;
-
-    // 系统剩余空间
-
-    // 上传
-
-    // 下载
-
-    // 备份
-
-    // 还原
-
-    // 还原状态
-
-    // 重置
-
-    //
-
-    // 命令行备份数据库
-//    @GetMapping
-//    public boolean backupDB(String fileName) {
-//        // 命令行
-//        fileName += ".sql";
-//
-//        String savePath = Global.DBPATH;
-//
-//        File saveFile = new File(Global.DBPATH);
-//
-//        if (!saveFile.exists()) {
-//            saveFile.mkdirs();
-//        }
-//
-//        if (!savePath.endsWith(File.separator)) {
-//            savePath = savePath + File.separator;
-//        }
-//
-//        //拼接命令行的命令
-//        StringBuilder stringBuilder = new StringBuilder();
-//        stringBuilder.append("mysqldump").append(" --opt").append(" -h").append("nmap-mysql");
-//        stringBuilder.append(" --user=").append("root").append(" --password=").append("metoo89745000")
-//                .append(" --lock-all-tables=true");
-//        stringBuilder.append(" --result-file=").append(savePath + fileName).append(" --default-character-set=utf8 ")
-//                .append("nmap");
-//        // 追加表名
-//
-//        stringBuilder.append(" rsms_terminal rsms_device ");
-//
-//        try {
-//            System.out.println(stringBuilder.toString());
-//            //调用外部执行exe文件的javaAPI
-//            Process Process = Runtime.getRuntime().exec(stringBuilder.toString());
-//            if (Process.waitFor() == 0) {// 0 表示线程正常终止。
-//                return true;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
 
     @PostMapping("/list")
     public Object list(@RequestBody(required = false) BackupSqlDTO dto) {
@@ -194,7 +142,7 @@ public class BackupSqlController {
         String scriptPath2;
         String backupDir = null;
         String backupDir2 = null;
-        if ("dev".equals(Global.env)) {
+        if ("test".equals(Global.env)) {
             backupDir = Global.LICENSEPATHLOCAL;
             backupDir2 = Global.DBPATHLOCAL;
             scriptPath1 = Global.DBSCRIPTPATHLOCAL; // Windows 脚本路径
@@ -307,214 +255,180 @@ public class BackupSqlController {
     }
 
 
-    public static void main(String[] args) {
-        try {
-            // 创建命令数组
-            String[] command = {
-                    "C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe",
-                    "-uroot",
-                    "-h",
-                    "127.0.0.1",
-                    "-p123456",
-                    "metoo_nrsm_local"
-            };
-
-            // 创建 ProcessBuilder 对象并设置命令
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-
-            // 将输入重定向到文件
-            processBuilder.redirectInput(new File("C:\\Users\\Administrator\\Desktop\\backup\\db\\TestAbstrack\\metoo_nrsm_local.sql"));
-
-            // 启动进程
-            Process process = processBuilder.start();
-
-            // 读取进程输出
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            // 等待进程结束并获取退出状态
-            int exitCode = process.waitFor();
-            System.out.println("Exit code: " + exitCode);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-//    @ApiOperation("恢复备份")
-//    @PutMapping("/recover/{id}")
-//    public Object recoverSBackup(@PathVariable Long id){
-//        BackupSql backupSql = this.backupSqlService.selectObjById(id);
-//        if(backupSql != null){
-//            try {
-//                // 构建MySQL导入命令
-//                String recover = this.recover(backupSql.getName());
-//                // 创建ProcessBuilder对象
-//
-//                // 创建命令数组
-//                StringBuilder sb = new StringBuilder();
-//                sb.append("C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe");
-//                sb.append(" -h"+ "127.0.0.1");
-//                sb.append(" -P"+ "3306");
-//                sb.append(" -u"+ "root");
-//                sb.append(" -p"+ "123456");
-//                sb.append(" "+ "metoo_nrsm_local");
-//                String[] command = {
-//                        "C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe",
-//                        "-uroot",
-//                        "-p123456",
-//                        "metoo_nrsm_local"
-//                };
-//
-//                String[] command2 = {
-//                        "C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe",
-//                        "-uroot",
-//                        "-h",
-//                        "127.0.0.1",
-//                        "-p123456",
-//                        "metoo_nrsm_local"
-//                };
-//
-//                // 创建 ProcessBuilder 对象并设置命令
-////                ProcessBuilder processBuilder = new ProcessBuilder(sb.toString());
-//
-//                ProcessBuilder processBuilder = new ProcessBuilder(command2);
-//
-////                ProcessBuilder processBuilder = new ProcessBuilder(recover);
-//
-//                processBuilder.redirectErrorStream(true);
-//                // 将输入重定向到文件
-//                String dbPath = getDbPath(backupSql.getName());
-//                String fileName = getDbName();
-//                processBuilder.redirectInput(new File(dbPath + fileName));
-//                // 启动进程
-//                Process Process = processBuilder.start();
-//
-//                // 读取进程的输出流并打印
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(Process.getInputStream()));
-//                String line;
-//                while ((line = reader.readLine()) != null) {
-//                    System.out.println(line);
-//                }
-//
-//                // 启动一个单独的线程来读取进程的错误流
-//                Thread errorReaderThread = new Thread(() -> {
-//                    BufferedReader errorReader = new BufferedReader(new InputStreamReader(Process.getErrorStream()));
-//                    String errorLine;
-//                    try {
-//                        while ((errorLine = errorReader.readLine()) != null) {
-//                            System.err.println(errorLine);
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                });
-//                errorReaderThread.start();
-//
-//                // 等待进程执行完毕
-//                int exitCode = Process.waitFor();
-//                System.out.println("MySQL command executed, exit code: " + exitCode);
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return ResponseUtil.badArgument();
-//    }
-
-
     @ApiOperation("恢复备份")
     @PutMapping("/recover/{id}")
     public Object recoverSBackup(@PathVariable Long id) {
         BackupSql backupSql = this.backupSqlService.selectObjById(id);
-        if (backupSql != null) {
-            try {
-                // 构建 MySQL 导入命令
-                String recover = this.recover(backupSql.getName());
-                String[] command = recover.split("\\s+");
-                ProcessBuilder processBuilder = new ProcessBuilder(command);
-                processBuilder.redirectErrorStream(true); // 合并标准错误流
-
-                // 启动进程
-                Process process = processBuilder.start();
-
-                // 读取进程的输出流
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                }
-
-                // 等待进程执行完毕
-                int exitCode = process.waitFor();
-                if (exitCode == 0) {
-                    return ResponseUtil.ok("恢复成功");
-                } else {
-                    return handleProcessError(process);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                return ResponseUtil.error("恢复过程中发生异常: " + e.getMessage());
-            }
+        if (backupSql == null) {
+            return ResponseUtil.badArgument();
         }
-        return ResponseUtil.badArgument();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Path configFile = null;
+        Path logFile = null;
+        final boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
+
+        try {
+            // 1. 预处理 - 命令构建与安全校验
+            configFile = createSecuredConfigFile();
+            String sqlFilePath = Global.DBPATH+"/" + backupSql.getName() + ".sql";
+
+            // 检查备份文件是否存在
+            if (!Files.exists(Paths.get(sqlFilePath))) {
+                return ResponseUtil.error("备份文件不存在: " + sqlFilePath);
+            }
+
+            // 2. 命令构建（避免路径空格问题）
+            String[] command = buildRecoverCommand(sqlFilePath, configFile);
+
+            // 3. 创建唯一日志文件（添加时间戳避免并发冲突）
+            logFile = Paths.get("/opt/nrsm/nrsm/resource/db_recover_" + backupSql.getName() + "_" + System.currentTimeMillis() + ".log");
+
+            Path finalLogFile = logFile;
+            Future<Integer> future = executor.submit(() -> {
+                try {
+                    // 4. 进程构建与执行
+                    ProcessBuilder processBuilder = new ProcessBuilder(command);
+                    processBuilder.redirectErrorStream(true);
+                    processBuilder.redirectOutput(finalLogFile.toFile());
+
+                    Process process = processBuilder.start();
+                    long pid = getProcessId(process);
+                    // 5. 双重超时控制机制
+                    final long timeoutMs = 2 * 60 * 60 * 1000; // 2小时
+                    final long endTime = System.currentTimeMillis() + timeoutMs;
+
+                    while (true) {
+                        try {
+                            // 每10秒检查一次
+                            if (process.waitFor(10, TimeUnit.SECONDS)) {
+                                return process.exitValue();
+                            }
+
+                            // 检查超时
+                            if (System.currentTimeMillis() > endTime) {
+                                destroyProcessTree(pid, isWindows);
+                                throw new TimeoutException("恢复超时强制终止");
+                            }
+                        } catch (InterruptedException e) {
+                            // 处理中断
+                        }
+                    }
+                } catch (IOException | TimeoutException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            // 6. 外部超时控制（比进程多5分钟）
+            int exitCode = future.get(125, TimeUnit.MINUTES);
+
+            if (exitCode == 0) {
+                Files.deleteIfExists(logFile); // 成功时清理日志
+                return ResponseUtil.ok("恢复成功");
+            } else {
+                return handleProcessError(logFile);
+            }
+        } catch (TimeoutException e) {
+            return ResponseUtil.error("恢复超时，已终止");
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            String msg = (cause != null) ? cause.getMessage() : e.getMessage();
+            return ResponseUtil.error("执行错误: " + msg);
+        } catch (Exception e) {
+            return ResponseUtil.error("恢复异常: " + e.getMessage());
+        } finally {
+            // 7. 确保资源清理
+            if (configFile != null) {
+                try { Files.deleteIfExists(configFile); } catch (IOException ignored) {}
+            }
+            executor.shutdownNow();
+        }
+    }
+    private long getProcessId(Process process) {
+        try {
+            if (process.getClass().getName().equals("java.lang.UNIXProcess") ||
+                    process.getClass().getName().equals("java.lang.ProcessImpl")) {
+
+                Field pidField = process.getClass().getDeclaredField("pid");
+                pidField.setAccessible(true);
+                return (long) pidField.get(process);
+            }
+        } catch (Exception e) {
+            // 反射失败
+        }
+        return -1;
     }
 
-    private Object handleProcessError(Process process) {
-        StringBuilder errorMsg = new StringBuilder();
-        try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-            String errorLine;
-            while ((errorLine = errorReader.readLine()) != null) {
-                errorMsg.append(errorLine).append("\n");
+
+    private String[] buildRecoverCommand(String sqlFilePath, Path configFile) {
+        // 安全构建命令数组（避免路径空格问题）
+        return new String[]{
+                "mysql",
+                "--defaults-file=" + configFile.toString(),
+                "--max_allowed_packet=1G",
+                "--quick",
+                "--compress",
+                "-e",
+                String.format("SET autocommit=0; " +
+                                "SET unique_checks=0; " +
+                                "SET foreign_key_checks=0; " +
+                                "SET sql_log_bin=0; " +
+                                "SOURCE %s; " +
+                                "COMMIT;",
+                        sqlFilePath.replace("'", "\\'")), // 转义单引号
+                "nrsm"  // 目标数据库名
+        };
+    }
+
+    private void destroyProcessTree(long pid, boolean isWindows) {
+        try {
+            if (pid == -1) {
+                return; // 无法获取PID
+            }
+
+            if (isWindows) {
+                // Windows 终止进程树
+                new ProcessBuilder("taskkill", "/F", "/T", "/PID", String.valueOf(pid)).start();
+            } else {
+                // Linux/Mac 终止进程组
+                new ProcessBuilder("pkill", "-P", String.valueOf(pid)).start();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // 终止失败时记录
+            try {
+                Files.write(Paths.get("/tmp/nrsm_kill_error.log"),
+                        ("无法终止进程: " + pid).getBytes(),
+                        StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } catch (IOException ignored) {}
         }
-        return ResponseUtil.error("恢复失败，错误信息: " + errorMsg.toString());
+    }
+
+    private Object handleProcessError(Path logFile) {
+        try {
+            // 读取日志尾部（最后200行）
+            List<String> lines = Files.readAllLines(logFile);
+            int startIndex = Math.max(0, lines.size() - 200);
+            String errorTail = String.join("\n", lines.subList(startIndex, lines.size()));
+
+            // 识别常见错误
+            if (errorTail.contains("ERROR 2006 (HY000) at line") ||
+                    errorTail.contains("MySQL server has gone away")) {
+                return ResponseUtil.error("数据库连接中断，请增加max_allowed_packet");
+            } else if (errorTail.contains("Lock wait timeout")) {
+                return ResponseUtil.error("数据库锁等待超时，请稍后重试");
+            }
+
+            return ResponseUtil.error("恢复失败，错误信息:\n" + errorTail);
+        } catch (IOException e) {
+            return ResponseUtil.error("读取错误日志失败: " + e.getMessage());
+        }
     }
 
 
     @GetMapping("/get/size")
-    public String size() {
-        return this.getAvailableSpace("/opt/nrsm/nrsm/resource/db/");
-    }
-
-    public String getSize(String path) {
-        try {
-            Process p = Runtime.getRuntime().exec("du -sh " + path);
-
-            // 等待进程完成
-            if (p.waitFor() == 0) {
-                StringBuilder builder = new StringBuilder();
-
-                // 使用 try-with-resources 自动管理资源
-                try (InputStream is = p.getInputStream();
-                     BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        builder.append(line).append(System.lineSeparator());
-                    }
-                }
-
-                // 返回处理后的结果
-                String result = builder.toString().trim();
-                if (!result.isEmpty() && result.contains("/")) {
-                    return result.substring(0, result.indexOf("/")).trim();
-                }
-                return result;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // 恢复中断状态
-            e.printStackTrace();
-        }
-        return "";
+    public Result size() {
+        String availableSpace = this.getAvailableSpace("/opt/nrsm/nrsm/resource/db/");
+        return ResponseUtil.ok(availableSpace);
     }
 
     public String getAvailableSpace(String path) {
@@ -698,7 +612,7 @@ public class BackupSqlController {
     public String recover(String name) {
         String dbPath = getDbPath();
         String recover = "";
-        if ("dev".equals(Global.env)) {
+        if ("test".equals(Global.env)) {
             recover = recoverWindows(dbPath, name);
         } else {
             recover = recoverLinux(dbPath, name);
@@ -730,29 +644,68 @@ public class BackupSqlController {
     }
 
     public String recoverLinux(String dbPath, String dbName) {
-        StringBuilder sb = new StringBuilder();
-//        sb.append("mysql");
-//        sb.append(" -h"+ "127.0.0.1");
-//        sb.append(" -P"+ "3306");
-//        sb.append(" -u"+ "root");
-//        sb.append(" -p"+ "metoo89745000");
-//        sb.append(" "+ "nrsm" + " --default-character-set=utf8  < ");
-//        sb.append(dbPath + fileName + ".sql");
+        try {
+            // 1. 创建安全配置文件（避免密码暴露在命令中）
+            Path configFile = createSecuredConfigFile();
 
-        StringBuilder command = new StringBuilder();
-        command.append("mysql").append(" ");
-        command.append("--user=").append("root").append(" ");
-        command.append("--password=").append(DB_PASSWORD).append(" ");
-        command.append("nrsm").append(" ");
-        command.append("-e \"source ").append(dbPath + dbName + ".sql").append("\"");
+            // 2. 构建SQL文件完整路径
+            Path sqlFile = Paths.get(dbPath, dbName + ".sql");
 
-        return command.toString();
+            // 3. 构建优化的恢复命令（Java 8 兼容版本）
+            return String.format(
+                    "mysql --defaults-file=%s %s --max_allowed_packet=1G --quick " +
+                            "--compress -e \"SET autocommit=0; " +
+                            "SET unique_checks=0; " +
+                            "SET foreign_key_checks=0; " +
+                            "SET sql_log_bin=0; " +
+                            "SOURCE %s; " +
+                            "COMMIT;\"",
+                    configFile.toString(),
+                    "nrsm",  // 目标数据库名
+                    sqlFile.toString()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("恢复命令构建失败: " + e.getMessage());
+        }
+    }
+
+    // 安全配置文件创建方法（Java 8 兼容）
+    private Path createSecuredConfigFile() throws IOException {
+        // 创建临时配置文件
+        Path configPath = Files.createTempFile("mysql_config_", ".cnf");
+
+        // 配置内容（包含密码）
+        String configContent = String.format(
+                "[client]%n" +
+                        "user=root%n" +
+                        "password=%s%n" +
+                        "loose-local-infile=1", // 启用本地文件加载（安全模式）
+                DB_PASSWORD
+        );
+
+        Files.write(configPath, configContent.getBytes());
+
+        // 设置权限（仅所有者可读写）
+        try {
+            // Java 8 兼容的权限设置
+            Set<PosixFilePermission> perms = new HashSet<>();
+            perms.add(PosixFilePermission.OWNER_READ);
+            perms.add(PosixFilePermission.OWNER_WRITE);
+            Files.setPosixFilePermissions(configPath, perms);
+        } catch (UnsupportedOperationException ignored) {
+            // Windows系统跳过权限设置
+        }
+
+        // JVM退出时自动删除
+        configPath.toFile().deleteOnExit();
+
+        return configPath;
     }
 
     public String dump(String name) {
         String dbPath = getDbPath();
         String dump = "";
-        if ("dev".equals(Global.env)) {
+        if ("test".equals(Global.env)) {
             dump = dumpWindows(dbPath, name);
         } else {
             dump = dumpLinux(dbPath, name);
@@ -763,7 +716,7 @@ public class BackupSqlController {
     public String dump1(String name) {
         String dbPath = getDbPath1();
         String dump = "";
-        if ("dev".equals(Global.env)) {
+        if ("test".equals(Global.env)) {
             dump = dumpWindows1(dbPath, name);
         } else {
             dump = dumpLinux1(dbPath, name);
@@ -866,7 +819,7 @@ public class BackupSqlController {
     public String getDbPath() {
         // 命令行
         String dbPath = "";
-        if ("dev".equals(Global.env)) {
+        if ("test".equals(Global.env)) {
             dbPath = Global.DBPATHLOCAL;
         } else {
             dbPath = Global.DBPATH;
@@ -884,7 +837,7 @@ public class BackupSqlController {
     public String getDbPath1() {
         // 命令行
         String dbPath = "";
-        if ("dev".equals(Global.env)) {
+        if ("test".equals(Global.env)) {
             dbPath = Global.LICENSEPATHLOCAL;
         } else {
             dbPath = Global.LICENSEPATH;
@@ -898,108 +851,6 @@ public class BackupSqlController {
         }
         return dbPath;
     }
+    
 
-    // 获取文件大小
-    @Test
-    public void getDatabaseSize() {
-        String url = "jdbc:mysql://localhost:3306/nsrm";
-        String user = "root";
-        String password = "xsl101410";
-
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             Statement statement = connection.createStatement()) {
-
-            String query = "SELECT SUM(data_length + index_length) AS Size " +
-                    "FROM information_schema.tables " +
-                    "WHERE table_schema = 'nsrm';";
-
-            ResultSet resultSet = statement.executeQuery(query);
-
-            if (resultSet.next()) {
-                long size = resultSet.getLong("Size");
-                System.out.println("数据库大小：" + size + " bytes");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // 获取系统大小
-    @Test
-    public void getSpace() {
-        // 指定文件路径
-        File file = new File("D:\\java");
-
-        // 查询磁盘空间
-        long totalSpace = file.getTotalSpace(); // 总空间
-        long freeSpace = file.getFreeSpace();   // 可用空间
-
-        // 打印磁盘空间信息
-        System.out.println("总空间: " + convertFileSize(totalSpace));
-        System.out.println("可用空间: " + convertFileSize(freeSpace));
-    }
-
-    @Test
-    public void getWindowsSpace() {
-        try {
-            // 执行 wmic 命令并获取输出
-            Process process = Runtime.getRuntime().exec("wmic logicaldisk get FreeSpace");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            // 解析输出
-            String line;
-            long availableSpace = 0;
-            while ((line = reader.readLine()) != null) {
-                // 跳过标题行
-                if (line.startsWith("FreeSpace")) continue;
-
-                // 解析输出中的可用空间
-                String[] tokens = line.trim().split("\\s+");
-                if (tokens.length > 0) {
-                    try {
-                        availableSpace += Long.parseLong(tokens[0]);
-                    } catch (NumberFormatException e) {
-                        // 解析失败
-                    }
-                }
-            }
-
-            System.out.println("可用磁盘空间：" + convertFileSize(availableSpace));
-
-            // 关闭 BufferedReader
-            reader.close();
-
-            // 等待进程执行完毕
-            process.waitFor();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @Test
-    public void getLinuxSpace() {
-        String url = "jdbc:mysql://localhost:3306/nsrm";
-        String user = "root";
-        String password = "xsl101410";
-
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             Statement statement = connection.createStatement()) {
-
-            String query = "SELECT SUM(data_length + index_length) AS Size " +
-                    "FROM information_schema.tables " +
-                    "WHERE table_schema = 'nsrm';";
-
-            ResultSet resultSet = statement.executeQuery(query);
-
-            if (resultSet.next()) {
-                long size = resultSet.getLong("Size");
-                System.out.println("数据库大小：" + convertFileSize(size));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 }
