@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+
 @RequestMapping("/admin/upload")
 @RestController
 public class UpgradeController {
@@ -30,12 +31,16 @@ public class UpgradeController {
     // 系统配置常量
     @Value("${upload.dir}")
     private String UPLOAD_DIR;
+    //private static final String UPLOAD_DIR = "C:\\Users\\leo\\Desktop\\update\\home";
 
     @Value("${fronted.dir}")
     private String FRONTEND_DIR;
+    //private static final String FRONTEND_DIR = "C:\\Users\\leo\\Desktop\\update\\opt\\nrsm";
 
     @Value("${backend.dir}")
     private String BACKEND_JAR;
+    //private static final String BACKEND_JAR = "C:\\Users\\leo\\Desktop\\update\\opt\\nrsm\\nrsm\\nrsm.jar";
+
 
     // 备份目录
     private static final String BACKUP_DIR = "backup";
@@ -126,14 +131,22 @@ public class UpgradeController {
             throw new IOException("无法创建备份目录: " + backupDir.getAbsolutePath());
         }
 
-        File source = new File(FRONTEND_DIR);
-        File[] files = source.listFiles(f -> !f.getName().equals(BACKUP_DIR));
-
-        if (files != null) {
-            for (File file : files) {
-                copyFileOrDirectory(file, new File(backupDir, file.getName()));
-            }
+        // 1. 创建 www 目录的备份文件夹
+        File wwwBackupDir = new File(backupDir, "www");
+        if (!wwwBackupDir.exists() && !wwwBackupDir.mkdirs()) {
+            throw new IOException("无法创建 www 备份目录");
         }
+
+        // 2. 仅备份 www 目录
+        File wwwSource = new File(FRONTEND_DIR, "www");
+
+        // 检查 www 目录是否存在
+        if (!wwwSource.exists()) {
+            throw new IOException("前端 www 目录不存在: " + wwwSource.getAbsolutePath());
+        }
+
+        // 3. 复制整个 www 目录
+        copyFileOrDirectory(wwwSource, wwwBackupDir);
     }
 
     private void copyFileOrDirectory(File source, File dest) throws IOException {
@@ -203,8 +216,7 @@ public class UpgradeController {
 
     private boolean isValidZipStructure(File zipFile) {
         try {
-            //return runCommand("unzip -tq " + zipFile.getAbsolutePath()).contains("No errors detected");
-            return true;
+            return runCommand("unzip -tq " + zipFile.getAbsolutePath()).contains("No errors detected");
         } catch (Exception e) {
             return false;
         }
@@ -254,7 +266,6 @@ public class UpgradeController {
         }
     }
 
-    // 获取路径的基本名称（第一个目录或文件名）
     private String getBaseName(String path) {
         if (path.contains("/")) {
             return path.split("/")[0];
@@ -272,20 +283,33 @@ public class UpgradeController {
                     // 执行升级
                     unzipTo(zipFile, FRONTEND_DIR);
 
+                    // 清理更新包
+                    zipFile.delete();
+
                     return ResponseUtil.ok("前端升级成功");
 
                 case BACKEND:
                     // 备份后端
-                    backupBackend();
+                    File backupJar = new File(BACKEND_JAR + ".bak");
+                    if (new File(BACKEND_JAR).exists()) {
+                        copyFile(new File(BACKEND_JAR), backupJar);
+                    }
 
                     // 执行升级
-                    upgradeBackend(zipFile);
+                    File newJar = extractJar(zipFile);
+                    replaceJar(newJar, BACKEND_JAR);
 
-                    // 异步重启服务
-                    asyncRestartService();
+                    // 异步重启（避免中断HTTP响应）
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(3000); // 等待响应返回
+                            runCommand("sudo systemctl restart nrsm");
+                        } catch (Exception e) {
+                            // 记录日志
+                        }
+                    }).start();
 
                     return ResponseUtil.ok("后端升级成功，服务将在后台重启");
-
                 case FULL:
                     // 备份前后端
                     backupFrontend();
@@ -295,7 +319,7 @@ public class UpgradeController {
                     File tempDir = createTempDirectory();
                     try {
                         unzipTo(zipFile, tempDir.getAbsolutePath());
-                       // 分别升级前后端
+                        // 分别升级前后端
                         upgradeFrontendFromDir(tempDir);
                         upgradeBackendFromDir(tempDir);
 
@@ -312,27 +336,10 @@ public class UpgradeController {
                     return ResponseUtil.ok("未知的升级包类型");
             }
         } catch (Exception e) {
-            // 出错时执行回滚
             rollbackUpgrade();
             throw e;
-        } finally {
-            // 清理更新包
-            zipFile.delete();
         }
     }
-
-    private void asyncRestartService() {
-        new Thread(() -> {
-            try {
-                // 等待3秒确保HTTP响应已经返回
-                Thread.sleep(3000);
-                runCommand("sudo systemctl restart nrsm");
-            } catch (Exception e) {
-                // 记录日志
-            }
-        }).start();
-    }
-
     private void backupBackend() throws IOException {
         File backupFile = new File(BACKEND_JAR + ".bak");
         File sourceFile = new File(BACKEND_JAR);
@@ -341,12 +348,6 @@ public class UpgradeController {
             copyFile(sourceFile, backupFile);
         }
     }
-
-    private void upgradeBackend(File zipFile) throws IOException {
-        File newJar = extractJar(zipFile);
-        replaceJar(newJar, BACKEND_JAR);
-    }
-
     private File createTempDirectory() throws IOException {
         File tempDir = Files.createTempDirectory("upgrade_tmp_").toFile();
         tempDir.deleteOnExit();
@@ -393,24 +394,33 @@ public class UpgradeController {
         replaceJar(jarFiles[0], BACKEND_JAR);
     }
 
+    private void asyncRestartService() {
+        new Thread(() -> {
+            try {
+                // 等待3秒确保HTTP响应已经返回
+                Thread.sleep(3000);
+                runCommand("sudo systemctl restart nrsm");
+            } catch (Exception e) {
+                // 记录日志
+            }
+        }).start();
+    }
+
+
     private void rollbackUpgrade() throws IOException, InterruptedException {
         // 回滚前端
         if (currentBackupDir != null) {
             File backupDir = new File(FRONTEND_DIR, currentBackupDir);
-            if (backupDir.exists() && backupDir.isDirectory()) {
-                // 清空当前前端目录
-                File frontend = new File(FRONTEND_DIR);
-                File[] files = frontend.listFiles(f -> !f.getName().equals(BACKUP_DIR));
+            if (backupDir.exists()) {
+                // 恢复备份
+                File[] files = backupDir.listFiles();
                 if (files != null) {
+                    File frontend = new File(FRONTEND_DIR);
+                    // 清空当前目录
+                    Arrays.stream(frontend.listFiles(f -> !f.getName().equals(BACKUP_DIR)))
+                            .forEach(File::delete);
+                    // 恢复文件
                     for (File file : files) {
-                        deleteDirectory(file);
-                    }
-                }
-
-                // 恢复备份文件
-                File[] backupFiles = backupDir.listFiles();
-                if (backupFiles != null) {
-                    for (File file : backupFiles) {
                         copyFileOrDirectory(file, new File(frontend, file.getName()));
                     }
                 }
@@ -421,8 +431,6 @@ public class UpgradeController {
         File backupJar = new File(BACKEND_JAR + ".bak");
         if (backupJar.exists()) {
             replaceJar(backupJar, BACKEND_JAR);
-
-            // 重启服务
             runCommand("sudo systemctl restart nrsm");
         }
     }
@@ -430,7 +438,7 @@ public class UpgradeController {
     public static void unzipTo(File zipFile, String outputDir) throws IOException {
         File output = new File(outputDir);
         if (!output.exists() && !output.mkdirs()) {
-            throw new IOException("创建目录失败: " + outputDir);
+            throw new IOException("Failed to create output directory: " + outputDir);
         }
 
         try (ZipFile zip = new ZipFile(zipFile)) {
@@ -442,18 +450,18 @@ public class UpgradeController {
 
                 // 路径安全检查
                 if (!destFile.getCanonicalPath().startsWith(output.getCanonicalPath())) {
-                    throw new IOException("无效的ZIP路径: " + entry.getName());
+                    throw new IOException("Invalid ZIP entry path: " + entry.getName());
                 }
 
                 if (entry.isDirectory()) {
                     if (!destFile.exists() && !destFile.mkdirs()) {
-                        throw new IOException("创建目录失败: " + destFile);
+                        throw new IOException("Failed to create directory: " + destFile);
                     }
                 } else {
                     // 创建父目录
                     File parent = destFile.getParentFile();
                     if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                        throw new IOException("创建父目录失败");
+                        throw new IOException("Failed to create parent directory");
                     }
 
                     // 使用临时文件确保原子操作
@@ -473,7 +481,7 @@ public class UpgradeController {
                 }
             }
         } catch (Exception e) {
-            throw new IOException("解压失败: " + e.getMessage(), e);
+            throw new IOException("Unzip failed: " + e.getMessage(), e);
         }
     }
 
@@ -488,53 +496,52 @@ public class UpgradeController {
         if (!file.setReadable(true, false) ||
                 !file.setWritable(true, true) ||
                 !file.setExecutable(true, false)) {
-            throw new IOException("设置权限失败: " + file.getAbsolutePath());
+            throw new IOException("Failed to set permissions for: " + file.getAbsolutePath());
         }
     }
 
+
+
+
     private File extractJar(File zipFile) throws IOException {
-        try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile))) {
-            ZipEntry entry;
+        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile));
+        ZipEntry entry;
 
-            while ((entry = zipIn.getNextEntry()) != null) {
-                String name = entry.getName().toLowerCase();
+        while ((entry = zipIn.getNextEntry()) != null) {
+            if (entry.getName().toLowerCase().endsWith(".jar")) {
+                File tempJar = File.createTempFile("nrsm", ".jar");
+                tempJar.deleteOnExit(); // 确保临时文件会被删除
 
-                if (name.endsWith(".jar") || name.endsWith(".war") || name.endsWith(".ear")) {
-                    File tempJar = File.createTempFile("nrsm", ".jar");
-                    tempJar.deleteOnExit();
-
-                    try (FileOutputStream out = new FileOutputStream(tempJar)) {
-                        byte[] buffer = new byte[4096];
-                        int len;
-                        while ((len = zipIn.read(buffer)) > 0) {
-                            out.write(buffer, 0, len);
-                        }
+                try (FileOutputStream out = new FileOutputStream(tempJar)) {
+                    byte[] buffer = new byte[4096];
+                    int len;
+                    while ((len = zipIn.read(buffer)) > 0) {
+                        out.write(buffer, 0, len);
                     }
-
-                    return tempJar;
                 }
-            }
-        }
 
-        throw new IOException("升级包中没有找到JAR文件");
+                zipIn.close();
+                return tempJar;
+            }
+            zipIn.closeEntry();
+        }
+        zipIn.close();
+        throw new IOException("No JAR file found in package");
     }
 
     private void replaceJar(File newJar, String targetPath) throws IOException {
         File target = new File(targetPath);
-        File parentDir = target.getParentFile();
+        File backup = new File(targetPath + ".bak");
 
-        // 确保父目录存在
-        if (!parentDir.exists() && !parentDir.mkdirs()) {
-            throw new IOException("创建目录失败: " + parentDir.getAbsolutePath());
+        // 备份原文件
+        if (target.exists()) {
+            copyFile(target, backup);
         }
 
-        // 尝试直接移动文件
+        // 移动新文件
         if (!newJar.renameTo(target)) {
             // 如果跨设备移动失败，使用复制方法
             copyFile(newJar, target);
-
-            // 删除临时文件
-            newJar.delete();
         }
     }
 
@@ -562,27 +569,14 @@ public class UpgradeController {
             }
         }
 
-        // 读取错误流
-        StringBuilder error = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getErrorStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                error.append(line).append("\n");
-            }
-        }
-
         // 等待命令完成
         int exitCode = process.waitFor();
         if (exitCode != 0) {
-            throw new IOException(String.format(
-                    "命令执行失败: %d\n命令: %s\n错误: %s",
-                    exitCode, command, error.toString().trim()
-            ));
+            throw new IOException("Command failed with exit code " + exitCode + ": " + command);
         }
 
         return output.toString();
     }
 
-    enum UpgradeType { FRONTEND, BACKEND, FULL, UNKNOWN }
+    enum UpgradeType { FRONTEND,FULL, BACKEND, UNKNOWN }
 }
