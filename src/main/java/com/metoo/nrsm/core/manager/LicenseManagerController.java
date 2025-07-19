@@ -82,7 +82,7 @@ public class LicenseManagerController {
 
 
         baseInfo.put("sn", sn);
-        baseInfo.put("unit", license.getCustomerInfo());
+        baseInfo.put("unit", license.getUnitName());
         baseInfo.put("version", license.getLicenseVersion());
         baseInfo.put("licenseModule", licensesInfo);
 
@@ -91,9 +91,9 @@ public class LicenseManagerController {
         // 2. 收集资源利用率
         Map<String, Object> resourceUsage = new LinkedHashMap<>();
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.SECOND, -31);
+        calendar.add(Calendar.SECOND, -61);
         Date startTime = calendar.getTime();
-        calendar.add(Calendar.SECOND, +62);
+        calendar.add(Calendar.SECOND, +61);
         Date endTime = calendar.getTime();
         Map map=new HashMap();
         map.put("startTime",startTime);

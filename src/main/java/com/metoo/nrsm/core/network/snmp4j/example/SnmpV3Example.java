@@ -1,23 +1,11 @@
 package com.metoo.nrsm.core.network.snmp4j.example;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
-import com.metoo.nrsm.core.network.snmp4j.request.SNMPParamFactory;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
-import com.metoo.nrsm.core.utils.py.ssh.SSHExecutor;
-import com.metoo.nrsm.entity.NetworkElement;
-import com.metoo.nrsm.entity.Port;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.junit.Test;
-import org.snmp4j.security.SecurityLevel;
 
 import java.io.IOException;
-import java.util.List;
 
 // 测试通过snmp获取
 @Slf4j

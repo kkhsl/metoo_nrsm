@@ -503,14 +503,16 @@
 
     <insert id="batchInsert" parameterType="java.util.List">
         INSERT INTO metoo_ne(
-        addTime,updateTime, uuid, device_name, interface_name, ip, v6ip,
-        vendor_id, vendor_name,
-        device_type_id, device_type_name, description, user_id, user_name, version, community, type)
-        VALUES
+        addTime, uuid, device_name, interface_name, ip, v6ip,
+        vendor_id, vendor_name, device_type_id, device_type_name,
+        description, user_id, user_name, version, community, type,
+        securityName, securityLevel, authProtocol, authPassword,
+        privProtocol, privPassword, snmpPort
+        ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
-            #{item.addTime},
-            #{updateTime},
+            <!-- 确保所有字段逗号分隔 -->
+            COALESCE(#{item.addTime}, NOW()),  <!-- 空值处理 -->
             #{item.uuid},
             #{item.deviceName},
             #{item.interfaceName},
@@ -523,9 +525,16 @@
             #{item.description},
             #{item.userId},
             #{item.userName},
-            #{item.version},
+            COALESCE(#{item.version}, 'v2c'), <!-- 默认值 -->
             #{item.community},
-            #{item.type}
+            #{item.type},                      <!-- 关键逗号 -->
+            #{item.securityName},
+            #{item.securityLevel},
+            #{item.authProtocol},
+            #{item.authPassword},
+            #{item.privProtocol},
+            #{item.privPassword},
+            COALESCE(#{item.snmpPort}, 161)    <!-- 默认端口 -->
             )
         </foreach>
     </insert>

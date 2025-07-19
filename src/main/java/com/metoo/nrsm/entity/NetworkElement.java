@@ -90,8 +90,8 @@ public class NetworkElement extends IdEntity {
 
     @ExcelImport("SNMP community")
     private String community;
-    @ApiModelProperty("SNMP版本")
-    @ExcelImport("SNMP版本 version1: 0  version2c：1 version3：3")
+
+    @ExcelImport("SNMP版本")
     private String version;
 
     @ApiModelProperty("启动时间")
@@ -114,19 +114,21 @@ public class NetworkElement extends IdEntity {
     // noAuthNoPriv：无认证和加密，最不安全的模式
     // authNoPriv：仅认证，但不加密
     // authPriv：认证并加密，是最安全的模式
-    @ApiModelProperty("用户名")
+    @ExcelImport("用户名")
     private String securityName;
-    @ApiModelProperty("安全等级 1 2 3")
+
+    @ExcelImport("安全等级（noAuthNoPriv：1、authNoPriv：2、authPriv：3）")
     private Integer securityLevel;
-    @ApiModelProperty("认证协议 MD5/SHA")
+
+    @ExcelImport("认证协议（MD5/SHA）")
     private String authProtocol;
-    @ApiModelProperty("认证密码")
+    @ExcelImport("认证密码")
     private String authPassword;
-    @ApiModelProperty("加密协议 DES/AES")
+    @ExcelImport("加密协议（DES/AES）")
     private String privProtocol;
-    @ApiModelProperty("加密密码")
+    @ExcelImport("加密密码")
     private String privPassword;
-    @ApiModelProperty("SNMP端口")
+    @ExcelImport("SNMP端口")
     private Integer snmpPort;
 
 }
