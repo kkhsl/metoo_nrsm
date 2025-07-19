@@ -91,7 +91,7 @@ public class NetworkElement extends IdEntity {
     @ExcelImport("SNMP community")
     private String community;
 
-    @ExcelImport("SNMP版本")
+    @ExcelImport("SNMP版本（v2c、v3）")
     private String version;
 
     @ApiModelProperty("启动时间")
@@ -117,7 +117,7 @@ public class NetworkElement extends IdEntity {
     @ExcelImport("用户名")
     private String securityName;
 
-    @ExcelImport("安全等级（noAuthNoPriv：1、authNoPriv：2、authPriv：3）")
+    @ExcelImport("安全等级（1、2、3）")
     private Integer securityLevel;
 
     @ExcelImport("认证协议（MD5/SHA）")
