@@ -20,5 +20,6 @@ public interface UnitMapper {
     int delete(Long id);
 
     int countByUnitName(String unitName);
+    List<Unit> selectByUnitName(String unitName);
 
 }

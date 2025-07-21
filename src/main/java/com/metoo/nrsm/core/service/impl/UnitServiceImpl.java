@@ -70,18 +70,32 @@ public class UnitServiceImpl implements IUnitService {
             }
             // 根据unitName查询是否存在重复
             int count = this.unitMapper.countByUnitName(instance.getUnitName());
-            if (count > 0) {
-                return ResponseUtil.error("单位名称已存在");
+            List<Unit> units = unitMapper.selectByUnitName(instance.getUnitName());
+            if (units.isEmpty()){
+                // 新增逻辑
+                instance.setAddTime(new Date());
+                int i = this.unitMapper.save(instance);
+                if (i >= 1) {
+                    return ResponseUtil.ok();
+                }
+            }else {
+                if (count > 0 && units.get(0).getDeleteStatus()==0) {
+                    return ResponseUtil.error("单位名称已存在");
+                }
+                if (units.get(0).getDeleteStatus()==1){
+                    instance.setDeleteStatus(0);
+                    instance.setId(units.get(0).getId());
+                    instance.setUpdateTime(new Date());
+                    int i = this.unitMapper.update(instance);
+                    if (i >= 1) {
+                        return ResponseUtil.ok();
+                    }
+                }
             }
-            // 新增逻辑
-            instance.setAddTime(new Date());
-            int i = this.unitMapper.save(instance);
-            if (i >= 1) {
-                return ResponseUtil.ok();
-            }
+
         } else {
-            int i = this.unitMapper.update(instance);
             instance.setUpdateTime(new Date());
+            int i = this.unitMapper.update(instance);
             if (i >= 1) {
                 return ResponseUtil.ok();
             }
