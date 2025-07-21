@@ -664,19 +664,19 @@
     <update id="updateObjDisplay">
         UPDATE metoo_ne d1
         JOIN (
-        SELECT
-        *
-        FROM
-        metoo_terminal
-        WHERE
-        deviceTypeId = 34
-        AND
-        online = true
-        AND
-        nswitch = true
-        GROUP BY
-        deviceName
+            SELECT
+            *
+            FROM
+            metoo_terminal
+            WHERE
+            deviceTypeId = 34
+            AND
+            online = true
+            GROUP BY
+            deviceName
         ) AS d2 ON d1.device_name = d2.deviceName
+        AND
+        d1.nswitch = 1
         SET d1.display = 1;
     </update>
 

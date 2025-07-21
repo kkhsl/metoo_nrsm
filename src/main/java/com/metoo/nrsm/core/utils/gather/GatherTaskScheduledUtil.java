@@ -157,7 +157,8 @@ public class GatherTaskScheduledUtil {
 
     @Autowired
     private SseManagerUtils sseManagerUtils;
-    @Scheduled(fixedDelay = 180_000)
+//    @Scheduled(fixedDelay = 180_000)
+    @Scheduled(fixedDelay = 10_000)
     public void gatherTerminal() {
         if (true && !isRunningTerminal) {
             log.info("终端采集任务开始");

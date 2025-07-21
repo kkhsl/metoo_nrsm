@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -634,8 +635,8 @@ public class TerminalServiceImpl implements ITerminalService {
             }
         }
 
+        List<Terminal> updatedTerminals = new ArrayList<>();
         if (!unitSubnetList.isEmpty()) {
-
             List<Terminal> terminalList = terminalMapper.selectObjByMap(null);
             if (!terminalList.isEmpty()) {
                 outerLoop:
@@ -643,7 +644,7 @@ public class TerminalServiceImpl implements ITerminalService {
                     // 不排除，避免终端ip地址变化，导致写入错误网段
 //                    if (StringUtils.isEmpty(terminal.getV4ip()) && StringUtils.isEmpty(terminal.getV6ip()) && terminal.getUnitId() != null) {
 //                        continue;
-//                    }
+//                    }// #TODO 记录以改的，未改的删除单位信息
                     if (StringUtils.isNotEmpty(terminal.getV4ip())) {
                         for (UnitSubnet unitSubnet : unitSubnetList) {
                             if (StringUtils.isNotEmpty(unitSubnet.getIpv4())) {
@@ -652,13 +653,14 @@ public class TerminalServiceImpl implements ITerminalService {
                                     try {
                                         boolean flag = IpSubnetMap.isIpInSubnet(terminal.getV4ip(), subnet);
                                         if (flag) {
-                                            terminal.setUnitId(unitSubnet.getUnitId());
-                                            terminalMapper.update(terminal);
-                                            continue outerLoop; // 跳出外层循环
-                                        }else{
-                                            terminal.setUnitId(null);
-                                            terminalMapper.update(terminal);
-                                            continue outerLoop; // 跳出外层循环
+                                            try {
+                                                terminal.setUnitId(unitSubnet.getUnitId());
+                                                terminalMapper.update(terminal);
+                                                updatedTerminals.add(terminal);
+                                                continue outerLoop; // 跳出外层循环
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                         }
                                     } catch (UnknownHostException e) {
                                         e.printStackTrace();
@@ -675,10 +677,7 @@ public class TerminalServiceImpl implements ITerminalService {
                                     if (flag) {
                                         terminal.setUnitId(unitSubnet.getUnitId());
                                         terminalMapper.update(terminal);
-                                        continue outerLoop; // 跳出外层循环
-                                    }else{
-                                        terminal.setUnitId(null);
-                                        terminalMapper.update(terminal);
+                                        updatedTerminals.add(terminal);
                                         continue outerLoop; // 跳出外层循环
                                     }
                                 }
@@ -686,8 +685,38 @@ public class TerminalServiceImpl implements ITerminalService {
                         }
                     }
                 }
+                //
+                // 获取未更新的终端：差集 = allTerminals - updatedTerminals
+                List<Terminal> unchangedTerminals = terminalList.stream()
+                        .filter(terminal -> !updatedTerminals.contains(terminal))
+                        .collect(Collectors.toList());
+                if (!unchangedTerminals.isEmpty()) {
+                    for (Terminal unchangedTerminal : unchangedTerminals) {
+                        try {
+                            unchangedTerminal.setUnitId(null);
+                            this.terminalMapper.update(unchangedTerminal);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }else{
+            List<Terminal> terminalList = terminalMapper.selectObjByMap(null);
+            if (!terminalList.isEmpty()) {
+                for (Terminal terminal : terminalList) {
+                    if(terminal.getUnitId() != null && !"".equals(terminal.getUnitId())){
+                        try {
+                            terminal.setUnitId(null);
+                            this.terminalMapper.update(terminal);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         }
+
     }
 
     @Override
