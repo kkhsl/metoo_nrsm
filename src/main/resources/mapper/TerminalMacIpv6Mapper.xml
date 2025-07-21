@@ -12,4 +12,23 @@
     <sql id="Base_Column_List">
         mac,isIPv6
     </sql>
+
+    <!-- 批量查询 -->
+    <select id="batchGetByMacAddresses" resultType="com.metoo.nrsm.entity.TerminalMacIpv6">
+        SELECT * FROM metoo_terminal_mac_v6
+        WHERE mac IN
+        <foreach item="mac" collection="macs" open="(" separator="," close=")">
+            #{mac}
+        </foreach>
+    </select>
+
+    <!-- 排除MAC地址查询 -->
+    <select id="findAllExcludingMacs" resultType="com.metoo.nrsm.entity.TerminalMacIpv6">
+        SELECT * FROM metoo_terminal_mac_v6
+        WHERE mac NOT IN
+        <foreach item="mac" collection="excludedMacs" open="(" separator="," close=")">
+            #{mac}
+        </foreach>
+    </select>
+
 </mapper>

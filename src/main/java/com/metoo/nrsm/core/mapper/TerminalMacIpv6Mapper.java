@@ -22,21 +22,8 @@ public interface TerminalMacIpv6Mapper {
      * @param macs MAC地址列表
      * @return 匹配的记录列表
      */
-    @Select("<controller>" +
-            "SELECT * FROM metoo_terminal_mac_v6 WHERE mac IN " +
-            "<foreach item='item' collection='macs' open='(' separator=',' close=')'>" +
-            "#{item}" +
-            "</foreach>" +
-            "</controller>")
     List<TerminalMacIpv6> batchGetByMacAddresses(@Param("macs") List<String> macs);
 
-    @Select("<controller>" +
-            "SELECT * FROM metoo_terminal_mac_v6 " +
-            "WHERE mac NOT IN " +
-            "<foreach item='mac' collection='excludedMacs' open='(' separator=',' close=')'>" +
-            "#{mac}" +
-            "</foreach>" +
-            "</controller>")
     List<TerminalMacIpv6> findAllExcludingMacs(@Param("excludedMacs") List<String> excludedMacs);
 
     @Update("UPDATE metoo_terminal_mac_v6 SET isIPv6 = #{isIPv6} WHERE mac = #{mac}")
