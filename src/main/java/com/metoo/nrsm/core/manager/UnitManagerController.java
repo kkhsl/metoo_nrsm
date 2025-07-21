@@ -5,23 +5,18 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.UnitNewDTO;
 import com.metoo.nrsm.core.dto.UserDto;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
+import com.metoo.nrsm.core.mapper.TopologyMapper;
 import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.service.IUserService;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.FlowUnit;
-import com.metoo.nrsm.entity.Unit;
-import com.metoo.nrsm.entity.UnitSubnet;
-import com.metoo.nrsm.entity.User;
+import com.metoo.nrsm.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequestMapping("/admin/unit")
@@ -36,6 +31,10 @@ public class UnitManagerController {
     private TerminalUnitMapper terminalUnitMapper;
     @Autowired
     private IFlowUnitService flowUnitService;
+
+    @Autowired
+    private TopologyMapper topologyMapper;
+
 
     @PostMapping("/list")
     public Result list(@RequestBody(required = false) UnitNewDTO dto) {
@@ -98,6 +97,15 @@ public class UnitManagerController {
             if (unit == null) {
                 errors.add("单位不存在: " + id);
                 continue;
+            }
+
+            //检查关联拓扑
+            Map map=new HashMap();
+            map.put("isDefault",1);
+            map.put("isDefault",id);
+            List<Topology> topologies = topologyMapper.selectObjByMap(map);
+            if (!topologies.isEmpty()) {
+                errors.add("单位ID " + id + " 存在关联拓扑禁止删除!");
             }
 
             // 检查关联用户

@@ -62,7 +62,7 @@
             <if test="unitName != null and unitName != ''">
                 unitName,
             </if>
-            <if test="deleteStatus != null and deleteStatus != ''">
+            <if test="deleteStatus != null">
                 deleteStatus,
             </if>
         </trim>
@@ -76,7 +76,7 @@
             <if test="unitName != null and unitName != ''">
                 #{unitName},
             </if>
-            <if test="deleteStatus != null and deleteStatus != ''">
+            <if test="deleteStatus != null">
                 #{deleteStatus},
             </if>
         </trim>
@@ -94,7 +94,7 @@
             <if test="unitName != null and unitName != ''">
                 unitName = #{unitName},
             </if>
-            <if test="deleteStatus != null and deleteStatus != ''">
+            <if test="deleteStatus != null">
                 deleteStatus = #{deleteStatus},
             </if>
         </set>
@@ -107,6 +107,11 @@
 
     <select id="countByUnitName" resultType="int">
         SELECT COUNT(*) FROM metoo_unit WHERE unitName = #{unitName}
+    </select>
+    <select id="selectByUnitName" resultType="com.metoo.nrsm.entity.Unit">
+        SELECT *
+        FROM metoo_unit
+        where unitName = #{unitName}
     </select>
 
 </mapper>
