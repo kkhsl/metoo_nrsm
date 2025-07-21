@@ -1,6 +1,5 @@
 package com.metoo.nrsm.core.utils.api;
 
-import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficApi;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -43,8 +42,4 @@ public class RestTemplateConfig {
         return new RestTemplate(factory);
     }
 
-    @Bean
-    public TrafficApi netFlowApiClient(RestTemplate restTemplate) {
-        return new TrafficApi(restTemplate);
-    }
 }

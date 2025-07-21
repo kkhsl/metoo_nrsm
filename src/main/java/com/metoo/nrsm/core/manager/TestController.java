@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.thirdparty.api.traffic.TimeUtils;
-import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficApi;
+import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficPullApi;
 import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
 import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingCFScanner;
 import com.metoo.nrsm.core.service.*;
@@ -46,7 +46,7 @@ public class TestController {
     }
 
     @Autowired
-    private TrafficApi trafficApi;
+    private TrafficPullApi trafficPullApi;
     @Autowired
     private IFlowUnitService flowUnitService;
     @Autowired
@@ -84,7 +84,7 @@ public class TestController {
                 continue;
             }
 
-            TrafficApi.ApiResponse response = trafficApi.queryNetFlow(unitName, fiveMinutesBefore, currentTime);
+            TrafficPullApi.ApiResponse response = trafficPullApi.queryNetFlow(unitName, fiveMinutesBefore, currentTime);
 
             if (!response.isSuccess()) {
                 log.error("调用 NetFlow API 失败，单位: {}, 错误信息: {}", unitName, response.getError());

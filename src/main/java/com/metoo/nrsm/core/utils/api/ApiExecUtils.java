@@ -1,6 +1,6 @@
 package com.metoo.nrsm.core.utils.api;
 
-import com.alibaba.fastjson.JSONObject;
+import com.metoo.nrsm.core.client.traffic.utils.ApiTrafficPushUtils;
 import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
@@ -22,6 +22,9 @@ public class ApiExecUtils {
     private IFlowUnitService flowUnitService;
     @Autowired
     private ApiUtils apiUtils;
+    @Autowired
+    private ApiTrafficPushUtils apiTrafficPushUtils;
+
 
     // 执行Gather任务的方法
     private void executeGather() {
@@ -70,25 +73,15 @@ public class ApiExecUtils {
         } catch (Exception e) {
             log.error("推送监管平台失败：{}", e.getMessage());
         }
-//        callThirdPartyApiTWithRetry(unitVos);
+
+        // 推送数据到鹰潭本地流量监测平台
+        try {
+            this.apiTrafficPushUtils.trafficApi(unitVos);
+        } catch (Exception e) {
+            log.error("推送鹰潭监管平台失败：{}", e.getMessage());
+        }
     }
 
-    public String callThirdPartyApiTWithRetry(List<UnitVO> unitVos) {
-        int retries = 3;
-        while (retries > 0) {
-            try {
-                this.apiUtils.partyApi(unitVos);
-            } catch (Exception e) {
-                log.warn("API 调用失败，剩余重试次数: " + retries, e);
-                retries--;
-                if (retries == 0) {
-                    log.error("API 调用失败，重试次数耗尽", e);
-                    throw e;
-                }
-            }
-        }
-        return null;  // 默认返回
-    }
 
     public void exec() {
 

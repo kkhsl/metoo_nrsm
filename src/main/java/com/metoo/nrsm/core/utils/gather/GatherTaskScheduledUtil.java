@@ -4,15 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.Session;
 import com.metoo.nrsm.core.manager.utils.SseManagerUtils;
-import com.metoo.nrsm.core.thirdparty.api.traffic.TimeUtils;
-import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficApi;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
 import com.metoo.nrsm.core.mapper.TrafficDataMapper;
 import com.metoo.nrsm.core.network.ssh.SnmpHelper;
 import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
 import com.metoo.nrsm.core.utils.gather.snmp.utils.DeviceManager;
@@ -32,11 +29,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -50,18 +44,12 @@ public class GatherTaskScheduledUtil {
 
     @Value("${task.switch.is-open}")
     private boolean flag;
-    @Value("${task.switch.traffic.is-open}")
-    private boolean traffic;
-    @Value("${task.switch.traffic.api.is-open}")
-    private boolean trafficApi;
     @Autowired
     private IDhcpService dhcpService;
     @Autowired
     private IDhcp6Service dhcp6Service;
     @Autowired
     private IGatherService gatherService;
-    @Autowired
-    private IProbeService probeService;
     @Autowired
     private ISubnetService subnetService;
     @Autowired
@@ -70,8 +58,6 @@ public class GatherTaskScheduledUtil {
     private IGradWeightService gradWeightService;
     @Autowired
     private IFlowStatisticsService flowStatisticsService;
-    @Autowired
-    private ApiExecUtils apiExecUtils;
     @Autowired
     private ILicenseService licenseService;
     @Autowired
@@ -85,91 +71,6 @@ public class GatherTaskScheduledUtil {
     @Resource
     private TrafficDataMapper trafficDataMapper;
 
-    private final ReentrantLock lock = new ReentrantLock();
-
-    /**
-     * 任务在 00:00 启动，执行耗时 6 分钟（到 00:06）00:05 时，新任务会启动（即使前一个任务未完成）
-     * 该任务必须使用当前表达式
-     */
-    @Scheduled(cron = "0 */5 * * * ?")
-    public void api() {
-        if (traffic) {
-            if (lock.tryLock()) {
-                try {
-                    Long time = System.currentTimeMillis();
-                    log.info("流量推送开始：{}", time);
-                        apiExecUtils.exec();
-                    log.info("流量推送完成：{}", (System.currentTimeMillis() - time));
-                } catch (Exception e) {
-                    log.error("流量推送失败：{}", e.getMessage());
-                } finally {
-                    lock.unlock();
-                }
-            }
-        }
-    }
-
-    @Autowired
-    private TrafficApi trafficApiService;
-    @Autowired
-    private IFlowUnitService flowUnitService;
-    @Autowired
-    private ITrafficService trafficService;
-    private final ReentrantLock trafficApiLock = new ReentrantLock();
-    @Scheduled(cron = "0 */5 * * * ?")
-    public void trafficAPI(){
-        if (trafficApi) {
-            if (trafficApiLock.tryLock()) {
-                try {
-                    LocalDateTime baseTime = TimeUtils.getNow();
-                    String currentTime = TimeUtils.format(TimeUtils.clearSecondAndNano(baseTime));
-                    String fiveMinutesBefore = TimeUtils.format(TimeUtils.getFiveMinutesBefore(baseTime));
-                    List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(Collections.emptyMap());
-                    if (flowUnits == null || flowUnits.isEmpty()) {
-                        log.info("未获取到任何单位，跳过调用 NetFlow API。");
-                        return;
-                    }
-                    for (FlowUnit flowUnit : flowUnits) {
-
-                        String unitName = flowUnit.getUnitName();
-                        if (unitName == null || unitName.trim().isEmpty()) {
-                            log.warn("单位名称为空，跳过该单位的流量查询。");
-                            continue;
-                        }
-
-                        TrafficApi.ApiResponse response = trafficApiService.queryNetFlow(unitName, fiveMinutesBefore, currentTime);
-
-                        if (!response.isSuccess()) {
-                            log.error("调用 NetFlow API 失败，单位: {}, 错误信息: {}", unitName, response.getError());
-                            continue;
-                        }
-                        Map<String, Object> dataMap = Optional.ofNullable(response.getData())
-                                .map(d -> (Map<String, Object>) d.get("data"))
-                                .orElse(null);
-
-                        if (dataMap == null) {
-                            log.warn("NetFlow API 返回空数据，单位: {}", unitName);
-                            continue;
-                        }
-                        Traffic traffic = new Traffic();
-                        traffic.setUnitName(String.valueOf(dataMap.getOrDefault("name", unitName)));
-                        traffic.setVfourFlow(String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0")));
-                        traffic.setVsixFlow(String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0")));
-                        traffic.setAddTime(Date.from(baseTime.atZone(ZoneId.systemDefault()).toInstant()));
-                        trafficService.save(traffic);
-                        log.info("成功保存流量数据: 单位: {}, IPv4: {}, IPv6: {}", traffic.getUnitName(),
-                                traffic.getVfourFlow(), traffic.getVsixFlow());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }finally {
-                    if(trafficApiLock != null){
-                        trafficApiLock.unlock();
-                    }
-                }
-            }
-        }
-    }
 
     private volatile boolean isRunningDhcp = false;
 

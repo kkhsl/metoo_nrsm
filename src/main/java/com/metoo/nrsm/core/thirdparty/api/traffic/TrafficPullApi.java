@@ -1,8 +1,10 @@
 package com.metoo.nrsm.core.thirdparty.api.traffic;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -14,23 +16,36 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Slf4j
-public class TrafficApi {
-    private static final DateTimeFormatter TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+@Component
+public class TrafficPullApi {
 
     private final RestTemplate restTemplate;
     private final String baseUrl;
 
-    public TrafficApi(RestTemplate restTemplate) {
-        this(restTemplate, "http://192.168.7.102:50000");
-//        this(restTemplate, "http://192.168.6.184:50000");
+    /**
+     * 从 application.properties 注入配置
+     * 配置示例: traffic.api.base-url=http://192.168.7.102:50000
+     */
+    public TrafficPullApi(
+            RestTemplate restTemplate,
+            @Value("${traffic.api.base-url}") String baseUrl) {
+
+        this.restTemplate = restTemplate;
+        this.baseUrl = validateAndNormalizeBaseUrl(baseUrl);
     }
 
-    public TrafficApi(RestTemplate restTemplate, String baseUrl) {
-        this.restTemplate = restTemplate;
-        this.baseUrl = baseUrl.endsWith("/") ?
+
+    // 校验并规范化BaseUrl
+    private String validateAndNormalizeBaseUrl(String baseUrl) {
+        if (baseUrl == null || baseUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("traffic.api.base-url 不能为空");
+        }
+
+        // 去除末尾的斜杠
+        return baseUrl.endsWith("/") ?
                 baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
+
 
     /**
      * 查询网络流量数据
@@ -61,10 +76,8 @@ public class TrafficApi {
             params.add("startTime", startTime);
             params.add("endTime", endTime);
 
-
             // 2. 使用 UriComponentsBuilder 构建完整 URL（自动编码）
-            String url = baseUrl + "/netflow/flow/query";
-            String fullUrl = UriComponentsBuilder.fromHttpUrl(url)
+            String fullUrl = UriComponentsBuilder.fromHttpUrl(baseUrl)
                     .queryParams(params)  // 自动添加查询参数
                     .build()
                     .toUriString();     // 生成完整 URL
