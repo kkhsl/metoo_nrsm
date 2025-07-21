@@ -7,3 +7,9 @@ CREATE TABLE metoo_device_sys_info(
 	os VARCHAR(255) COMMENT '操作系统',
 	PRIMARY KEY(id)
 )ENGINE = InnoDB DEFAULT CHARSET = utf8mb4  COMMENT = '系统信息表';
+
+
+CREATE TABLE metoo_risk_port_config (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    port_value VARCHAR(255) NOT NULL    -- 存储风险端口号
+);
