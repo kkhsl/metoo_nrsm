@@ -74,6 +74,7 @@ public class GatherServiceImpl implements IGatherService {
     private static String V3 = "";
 
     // 获取需要采集的设备
+    @Override
     public List<NetworkElement> getGatherDevice() {
         List<NetworkElement> networkElements = new ArrayList<>();
         Set<String> uuids = this.snmpStatusUtils.getOnlineDevice();

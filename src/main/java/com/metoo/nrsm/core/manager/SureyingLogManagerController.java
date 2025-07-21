@@ -248,7 +248,7 @@ public class SureyingLogManagerController {
         scheduler.scheduleAtFixedRate(checkLogsTask, 0, 2, TimeUnit.SECONDS);
 
         // 3. 确保资源释放
-        emitter.onCompletion(() -> {
+        emitter.onCompletion(() -> {// 回调钩子，断开链结构，自动关闭
             isCompleted.set(true);
             scheduler.shutdown();
         });

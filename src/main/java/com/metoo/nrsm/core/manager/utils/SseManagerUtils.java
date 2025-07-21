@@ -1,23 +1,30 @@
 package com.metoo.nrsm.core.manager.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-// SSE管理器
 @Component
 @Slf4j
-public class SseManager {
-    private static final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+public class SseManagerUtils {
+
+    private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
+
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public void addEmitter(String sessionId, SseEmitter emitter) {
         emitter.onCompletion(() -> removeEmitter(sessionId));
@@ -29,7 +36,6 @@ public class SseManager {
         emitters.remove(sessionId);
     }
 
-    // 关键改进：向所有客户端推送任何类型的日志
     public void sendLogToAll(String taskType, String logMessage) {
         if (emitters.isEmpty()) return;
 
@@ -38,7 +44,7 @@ public class SseManager {
 
             emitters.forEach((sessionId, emitter) -> {
                 try {
-                    emitter.send(structuredLog);
+                    emitter.send(SseEmitter.event().data(structuredLog));
                 } catch (Exception e) {
                     removeEmitter(sessionId);
                     log.warn("Client disconnected: {}", sessionId);
@@ -48,19 +54,17 @@ public class SseManager {
     }
 
     private String createLogMessage(String taskType, String logMessage) {
-        // 使用本地化日期时间格式
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        Map<String, String> logData = new HashMap<>();
+        logData.put("type", taskType);
+        logData.put("time", timestamp);
+        logData.put("message", logMessage);
 
-        // 构建带时间信息的JSON
-        String json = String.format(
-                "{\"type\":\"%s\",\"time\":\"%s\",\"message\":\"%s\"}",
-                taskType, timestamp, logMessage.replace("\"", "\\\"")
-        );
-
-        // 构建SSE事件
-        return "\n" +
-                "id: " + UUID.randomUUID() + "\n" +
-                "data: " + json + "\n\n";
+        try {
+            return objectMapper.writeValueAsString(logData);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize log message", e);
+            return "{}";
+        }
     }
-
 }

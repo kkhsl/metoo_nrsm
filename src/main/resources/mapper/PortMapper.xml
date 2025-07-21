@@ -75,23 +75,37 @@
 
     <select id="selectSameSubnetWithTwoPortsNotBothVlan" resultType="com.metoo.nrsm.entity.Port">
         SELECT
-        *, INET_NTOA(INET_ATON(ip) &amp; INET_ATON(mask)) AS networkAddress
+        *, INET_NTOA(
+        INET_ATON(ip) &amp; INET_ATON(mask)
+        ) AS networkAddress
         FROM
         metoo_port
         WHERE
-        INET_NTOA(INET_ATON(ip) &amp; INET_ATON(mask)) IN (
+        INET_NTOA(
+        INET_ATON(ip) &amp; INET_ATON(mask)
+        ) IN (
         SELECT
-        INET_NTOA(INET_ATON(ip) &amp; INET_ATON(mask)) AS networkAddress
+        INET_NTOA(
+        INET_ATON(ip) &amp; INET_ATON(mask)
+        ) AS networkAddress
         FROM
         metoo_port
         WHERE
-        ip != '127.0.0.1'
+        ip != '127.0.0.1' AND status = 1
         GROUP BY
         INET_ATON(ip) &amp; INET_ATON(mask)
         HAVING
         COUNT(*) = 2
-        AND SUM(CASE WHEN LOWER(port) LIKE 'vlan%' THEN 1 ELSE 0 END) &lt; 2
+        AND SUM(
+        CASE
+        WHEN LOWER(PORT) LIKE 'vlan%' THEN
+        1
+        ELSE
+        0
+        END
+        ) &lt; 2
         )
+        AND status = 1
         ORDER BY
         ip
     </select>

@@ -50,6 +50,8 @@ public class RsmsDeviceManagerController {
     private IProjectService projectService;
     @Autowired
     private INetworkElementService networkElementService;
+    @Autowired
+    private IGatherService gatherService;
 
     @GetMapping("/get")
     public Object get(String id) {
@@ -72,6 +74,23 @@ public class RsmsDeviceManagerController {
             }
         }
         Page<RsmsDevice> page = this.rsmsDeviceService.selectConditionQuery(dto);
+
+        List<NetworkElement> networkElements = this.gatherService.getGatherDevice();
+        Set networkIps = new HashSet();
+        if(networkElements != null && !networkElements.isEmpty()){
+            for (NetworkElement networkElement : networkElements) {
+                networkIps.add(networkElement.getIp());
+            }
+        }
+
+        if(page.getResult().size() >= 1){
+            for (RsmsDevice rsmsDevice : page.getResult()) {
+                if(networkIps.contains(rsmsDevice.getIp())){
+                    rsmsDevice.setOnline(true);
+                }
+            }
+        }
+
         Map map = new HashMap();
         // 设备类型term
         Map parmas = new HashMap();

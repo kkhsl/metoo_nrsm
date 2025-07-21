@@ -172,6 +172,8 @@ public class GatherMacUtils {
 //            }
 //        }
 //    }
+
+    // 根据ip地址和网段，生成DE
     public void selectSameSubnetWithTwoPortsNotBothVlan(Date date) {
         List<Port> ports = this.portService.selectSameSubnetWithTwoPortsNotBothVlan();
         // 按 networkAddress 分组

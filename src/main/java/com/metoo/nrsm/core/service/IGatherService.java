@@ -44,4 +44,6 @@ public interface IGatherService {
 
     void gatherSnmpStatus();
 
+    List<NetworkElement> getGatherDevice();
+
 }

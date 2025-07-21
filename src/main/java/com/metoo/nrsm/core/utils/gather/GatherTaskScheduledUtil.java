@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.utils.gather;
 import com.alibaba.fastjson.JSONObject;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.Session;
+import com.metoo.nrsm.core.manager.utils.SseManagerUtils;
 import com.metoo.nrsm.core.thirdparty.api.traffic.TimeUtils;
 import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficApi;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
@@ -199,7 +200,6 @@ public class GatherTaskScheduledUtil {
     }
 
     private volatile boolean isRunningDhcp6 = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void dhcp6() {
         if (flag && !isRunningDhcp6) {
@@ -252,29 +252,58 @@ public class GatherTaskScheduledUtil {
 
     private volatile boolean isRunningTerminal = false;
 
-    @Scheduled(fixedDelay = 180_000)
+
+
+    @Autowired
+    private SseManagerUtils sseManagerUtils;
+    @Scheduled(fixedDelay = 10_000)
     public void gatherTerminal() {
-        if (flag && !isRunningTerminal) {
+        if (true && !isRunningTerminal) {
             log.info("终端采集任务开始");
             isRunningTerminal = true;
             final String TASK_TYPE = "Terminal"; // 任务类型标识
             try {
-                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务开始");
+                sseManagerUtils.sendLogToAll(TASK_TYPE, "Terminal终端采集任务开始");
                 Long time = System.currentTimeMillis();
                 this.gatherSingleThreadingMacSNMPUtils.updateTerminal(DateTools.gatherDate());
                 log.info("终端采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
                 String execTime = "Terminal终端采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
-                sseManager.sendLogToAll(TASK_TYPE, execTime);
-                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务完成");
+                sseManagerUtils.sendLogToAll(TASK_TYPE, execTime);
+                sseManagerUtils.sendLogToAll(TASK_TYPE, "Terminal终端采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
-                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务异常: " + e.getMessage());
+                sseManagerUtils.sendLogToAll(TASK_TYPE, "Terminal终端采集任务异常: " + e.getMessage());
                 log.error("终端采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningTerminal = false;
             }
         }
     }
+//
+////    @Scheduled(fixedDelay = 180_000)
+//    @Scheduled(fixedDelay = 10_000)
+//    public void gatherTerminal() {
+//        if (true && !isRunningTerminal) {
+//            log.info("终端采集任务开始");
+//            isRunningTerminal = true;
+//            final String TASK_TYPE = "Terminal"; // 任务类型标识
+//            try {
+//                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务开始");
+//                Long time = System.currentTimeMillis();
+//                this.gatherSingleThreadingMacSNMPUtils.updateTerminal(DateTools.gatherDate());
+//                log.info("终端采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
+//                String execTime = "Terminal终端采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
+//                sseManager.sendLogToAll(TASK_TYPE, execTime);
+//                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务完成");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务异常: " + e.getMessage());
+//                log.error("终端采集任务异常: {}", e.getMessage());
+//            } finally {
+//                isRunningTerminal = false;
+//            }
+//        }
+//    }
 
     private volatile boolean isRunningMAC = false;
     @Scheduled(fixedDelay = 180_000)
