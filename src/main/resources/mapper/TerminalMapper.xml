@@ -1415,19 +1415,27 @@
             <if test="macVendor != null and macVendor != ''">
                 macVendor = #{macVendor},
             </if>
-            <if test="unitId != null and unitId != ''">
+            <if test="unitId != ''">
                 unitId = #{unitId},
             </if>
-            <if test="unitName != null and unitName != ''">
+            <if test="unitName != ''">
                 unitName = #{unitName},
             </if>
             <if test="config != null and config != ''">
                 config = #{config},
             </if>
-            portName = #{portName},
-            portSubne = #{portSubne},
-            portAddress = #{portAddress},
-            portIpv6Subnet = #{portIpv6Subnet}
+            <if test="portName != null and portName != ''">
+                portName = #{portName},
+            </if>
+            <if test="portSubne != null and portSubne != ''">
+                portSubne = #{portSubne},
+            </if>
+            <if test="portAddress != null and portAddress != ''">
+                portAddress = #{portAddress},
+            </if>
+            <if test="portIpv6Subnet != null and portIpv6Subnet != ''">
+                portIpv6Subnet = #{portIpv6Subnet}
+            </if>
         </set>
         WHERE id = #{id}
     </update>

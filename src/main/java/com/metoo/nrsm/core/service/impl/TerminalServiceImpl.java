@@ -640,10 +640,10 @@ public class TerminalServiceImpl implements ITerminalService {
             if (!terminalList.isEmpty()) {
                 outerLoop:
                 for (Terminal terminal : terminalList) {
-                    if (StringUtils.isEmpty(terminal.getV4ip()) && StringUtils.isEmpty(terminal.getV6ip()) && terminal.getUnitId() != null) {
-                        continue;
-                    }
-
+                    // 不排除，避免终端ip地址变化，导致写入错误网段
+//                    if (StringUtils.isEmpty(terminal.getV4ip()) && StringUtils.isEmpty(terminal.getV6ip()) && terminal.getUnitId() != null) {
+//                        continue;
+//                    }
                     if (StringUtils.isNotEmpty(terminal.getV4ip())) {
                         for (UnitSubnet unitSubnet : unitSubnetList) {
                             if (StringUtils.isNotEmpty(unitSubnet.getIpv4())) {
@@ -653,6 +653,10 @@ public class TerminalServiceImpl implements ITerminalService {
                                         boolean flag = IpSubnetMap.isIpInSubnet(terminal.getV4ip(), subnet);
                                         if (flag) {
                                             terminal.setUnitId(unitSubnet.getUnitId());
+                                            terminalMapper.update(terminal);
+                                            continue outerLoop; // 跳出外层循环
+                                        }else{
+                                            terminal.setUnitId(null);
                                             terminalMapper.update(terminal);
                                             continue outerLoop; // 跳出外层循环
                                         }
@@ -670,7 +674,10 @@ public class TerminalServiceImpl implements ITerminalService {
                                     boolean flag = IPv6SubnetCheck.isInSubnet(terminal.getV6ip(), subnet);
                                     if (flag) {
                                         terminal.setUnitId(unitSubnet.getUnitId());
-                                        terminal.setUnitName(unitSubnet.getName());
+                                        terminalMapper.update(terminal);
+                                        continue outerLoop; // 跳出外层循环
+                                    }else{
+                                        terminal.setUnitId(null);
                                         terminalMapper.update(terminal);
                                         continue outerLoop; // 跳出外层循环
                                     }
