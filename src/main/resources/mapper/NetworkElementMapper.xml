@@ -181,6 +181,9 @@
             <if test="type != null">
                 AND `type` = #{type}
             </if>
+            <if test="nswitch != nswitch">
+                AND `nswitch` = #{nswitch}
+            </if>
             <if test="neId != null">
                 AND id != #{neId}
             </if>

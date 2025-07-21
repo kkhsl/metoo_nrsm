@@ -913,16 +913,25 @@ public class TerminalServiceImpl implements ITerminalService {
             // nswtich
             params.clear();
             params.put("deviceName", e.getDeviceName());
-            params.put("deleteStatus", 1);
+            params.put("nswitch", 1);
             List<NetworkElement> NSwitch_nes = networkElementService.selectObjByMap(params);
             if (NSwitch_nes.size() > 0) {
                 NetworkElement ne = NSwitch_nes.get(0);
                 e.setDeviceUuid(ne.getUuid());
-                e.setDeviceIp(ne.getIp());
             } else {
                 // 写入ap设备信息
                 // ...
             }
+            if(e.getDeviceIp2() != null && !"".equals(e.getDeviceIp2())){
+                params.clear();
+                params.put("ip", e.getDeviceIp2());
+                List<NetworkElement> oldNe = networkElementService.selectObjByMap(params);
+                if (oldNe.size() > 0) {
+                    NetworkElement ne = oldNe.get(0);
+                    e.setDeviceUuid2(ne.getUuid());
+                }
+            }
+
         }
         // 写入ap设备信息
         if (StringUtils.isNotBlank(e.getDeviceName())) {
