@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.mapper.MacTestMapper;
 import com.metoo.nrsm.core.service.IGatherService;
+import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.service.impl.ProbeServiceImpl;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
@@ -30,6 +31,14 @@ public class TestGatherController {
     private GatherMacUtils gatherMacUtils;
     @Autowired
     private MacTestMapper macTestMapper;
+    @Autowired
+    private ITerminalService terminalService;
+
+
+    @GetMapping("/writeTerminalUnitData")
+    public void writeTerminalUnitData() {
+        terminalService.writeTerminalUnitByUnit2();
+    }
 
 
     @GetMapping("/snmp")
