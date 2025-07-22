@@ -9,6 +9,7 @@ import com.metoo.nrsm.core.mapper.TopologyMapper;
 import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.service.IUserService;
+import com.metoo.nrsm.core.service.impl.AreaServiceImpl;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,10 @@ public class UnitManagerController {
 
     @Autowired
     private TopologyMapper topologyMapper;
+
+    @Autowired
+    private AreaServiceImpl areaService;
+
 
 
     @PostMapping("/list")
@@ -66,6 +71,13 @@ public class UnitManagerController {
         result.setData(filteredUnits);
         return result;
     }
+
+    @GetMapping("/tree")
+    public Result getAreaTree() {
+        List<Area> areaTree = areaService.getFullAreaTree();
+        return ResponseUtil.ok(areaTree);
+    }
+
 
     @PostMapping("/save")
     public Result save(@RequestBody Unit instance) {

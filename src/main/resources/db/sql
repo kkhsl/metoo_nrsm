@@ -13,3 +13,12 @@ CREATE TABLE metoo_risk_port_config (
     id INT PRIMARY KEY AUTO_INCREMENT,
     port_value VARCHAR(255) NOT NULL    -- 存储风险端口号
 );
+
+
+ALTER TABLE `metoo_unit`
+ADD COLUMN `city_code` VARCHAR(12) DEFAULT NULL COMMENT '市级行政区划编码' AFTER `id`;
+ALTER TABLE `metoo_unit`
+ADD COLUMN `city_name` VARCHAR(100) DEFAULT NULL COMMENT '市级行政区划名称' AFTER `city_code`,
+ADD COLUMN `county_code` VARCHAR(12) DEFAULT NULL COMMENT '区县级行政区划编码' AFTER `city_name`,
+ADD COLUMN `county_name` VARCHAR(100) DEFAULT NULL COMMENT '区县级行政区划名称' AFTER `county_code`;
+ALTER TABLE `metoo_unit` ADD COLUMN `unitId` VARCHAR(12) DEFAULT NULL COMMENT '关联单位id';
