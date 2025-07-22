@@ -54,7 +54,7 @@ public class GatherSingleThreadingMacSNMPUtils {
     @Autowired
     private PythonExecUtils pythonExecUtils;
     @Autowired
-    private MacManager macManager;
+    private INswitchService nswitchService;
     @Autowired
     private AnalysisTerminalUtils analysisTerminal;
 
@@ -82,10 +82,22 @@ public class GatherSingleThreadingMacSNMPUtils {
             }
             try {
                 boolean completed = latch.await(10, TimeUnit.MINUTES);
+
+
                 log.info("采集结果：{}", completed ? "COMPLETED" : "TIMEOUT");
                 log.info("处理完成，线程池状态: {}", gatherDataThreadPool.getPoolStatus());
+
                 logMessages.put("MAC 采集总数", count);
+
                 gatherMacUtils.copyGatherData(date);
+
+//                try {
+//                    // 清理失效nswitch
+//                    nswitchService.clearOrphanedNSwitch();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 log.warn("处理被中断");

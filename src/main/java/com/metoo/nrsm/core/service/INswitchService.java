@@ -17,4 +17,6 @@ public interface INswitchService {
 
     boolean save(Nswitch instance);
 
+    boolean clearOrphanedNSwitch();
+
 }

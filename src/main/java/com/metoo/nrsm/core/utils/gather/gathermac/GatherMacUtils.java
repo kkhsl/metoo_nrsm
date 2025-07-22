@@ -461,7 +461,6 @@ public class GatherMacUtils {
     public void setTagRTToVDT(Date date) {
         try {
             List<Mac> macs = this.macService.selectRTToVDT();
-            int i = 0;
             if (macs != null && !macs.isEmpty()) {
                 Set ports = new HashSet();
                 for (Mac mac : macs) {
@@ -471,22 +470,61 @@ public class GatherMacUtils {
                     if (nswitch != null) {
                         nswitchName = "NSwitch" + nswitch.getIndex();
                     } else {
+//                        List<Nswitch> nswitchs = this.nswitchService.selectObjAll();
+//                        Integer index = 1;
+//                        if (nswitchs.size() > 0) {
+//                            Nswitch nswitch1 = nswitchs.get(0);
+//                            index = nswitch1.getIndex() + index;
+//                            nswitchName = "NSwitch" + index;
+//                        } else {
+//                            nswitchName = "NSwitch" + index;
+//                        }
+//                        Nswitch nswitch2 = new Nswitch();
+//                        nswitch2.setName(name);
+//                        nswitch2.setIndex(index);
+//                        this.nswitchService.save(nswitch2);
+
                         List<Nswitch> nswitchs = this.nswitchService.selectObjAll();
-                        Integer index = 1;
+//
+//                        // 1. 收集所有现有索引
+//                        Set<Integer> existingIndices = nswitchs.stream()
+//                                .map(Nswitch::getIndex)
+//                                .collect(Collectors.toSet());
+//
+//                        // 2. 找到最大索引（若无数据则默认 0）
+//                        int maxIndex = existingIndices.stream()
+//                                .max(Integer::compareTo)
+//                                .orElse(0);
+//
+//                        // 3. 查找第一个缺失的索引（从 1 开始检查）
+//                        int missingIndex = -1;
+//                        for (int i = 1; i <= maxIndex; i++) {
+//                            if (!existingIndices.contains(i)) {
+//                                missingIndex = i;
+//                                break; // 找到第一个缺失即可
+//                            }
+//                        }
+//
+//                        // 4. 决定最终结果：有缺失用缺失值，否则用 maxIndex+1
+//                        int newIndex = (missingIndex != -1) ? missingIndex : maxIndex + 1;
+
+                        // 递增
+                        Integer newIndex =  1;
                         if (nswitchs.size() > 0) {
                             Nswitch nswitch1 = nswitchs.get(0);
-                            index = nswitch1.getIndex() + index;
-                            nswitchName = "NSwitch" + index;
+                            newIndex = nswitch1.getIndex() + newIndex;
+                            nswitchName = "NSwitch" + newIndex;
                         } else {
-                            nswitchName = "NSwitch" + index;
+                            nswitchName = "NSwitch" + newIndex;
                         }
+
+                        nswitchName = "NSwitch" + newIndex;
                         Nswitch nswitch2 = new Nswitch();
                         nswitch2.setName(name);
-                        nswitch2.setIndex(index);
+                        nswitch2.setIndex(newIndex);
                         this.nswitchService.save(nswitch2);
                     }
                     if (!ports.contains(mac.getPort())) {
-                        i++;
                         ports.add(mac.getPort());
                         Mac obj = new Mac();
                         obj.setAddTime(date);
@@ -522,6 +560,7 @@ public class GatherMacUtils {
                     mac.setDeviceIp2(mac.getDeviceIp());
                     mac.setDeviceName2(mac.getDeviceName());
                     mac.setDevicePort2(mac.getPort());
+                    mac.setDeviceUuid2(mac.getDeviceUuid());
 
                     mac.setTag("DT");
                     mac.setPort("V1");

@@ -32,4 +32,31 @@
             </if>
         </trim>
     </insert>
+
+    <delete id="clearOrphanedNSwitch">
+        -- 第一步：找出要删除的 metoo_nswitch 记录的 index 值
+        CREATE TEMPORARY TABLE temp_deleted_nswitch_indexes AS
+        SELECT n.index
+        FROM metoo_nswitch n
+        LEFT JOIN (
+            SELECT CONCAT(deviceIp, PORT) as name
+            FROM metoo_mac
+            WHERE PORT NOT IN ('v1', 'unknown')
+            GROUP BY PORT, deviceIp
+        ) m ON n.name = m.name
+        WHERE m.name IS NULL;
+
+        -- 第二步：删除 metoo_nswitch 表中符合条件的记录
+        DELETE n FROM metoo_nswitch n
+        WHERE n.index IN (SELECT `index` FROM temp_deleted_nswitch_indexes);
+
+        -- 第三步：删除 metoo_ne 表中对应的记录
+        DELETE ne FROM metoo_ne ne
+        JOIN temp_deleted_nswitch_indexes t ON REPLACE(ne.device_name, 'NSwitch', '')  = t.`index`
+        WHERE ne.nswitch = 1;
+
+        -- 第四步：删除临时表
+        DROP TEMPORARY TABLE IF EXISTS temp_deleted_nswitch_indexes;
+    </delete>
+
 </mapper>

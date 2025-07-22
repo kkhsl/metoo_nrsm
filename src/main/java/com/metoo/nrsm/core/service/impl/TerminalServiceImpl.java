@@ -922,15 +922,16 @@ public class TerminalServiceImpl implements ITerminalService {
                 // 写入ap设备信息
                 // ...
             }
-            if(e.getDeviceIp2() != null && !"".equals(e.getDeviceIp2())){
-                params.clear();
-                params.put("ip", e.getDeviceIp2());
-                List<NetworkElement> oldNe = networkElementService.selectObjByMap(params);
-                if (oldNe.size() > 0) {
-                    NetworkElement ne = oldNe.get(0);
-                    e.setDeviceUuid2(ne.getUuid());
-                }
-            }
+            // 写入mac表时写入，这里不在查询
+//            if(e.getDeviceIp2() != null && !"".equals(e.getDeviceIp2())){
+//                params.clear();
+//                params.put("ip", e.getDeviceIp2());
+//                List<NetworkElement> oldNe = networkElementService.selectObjByMap(params);
+//                if (oldNe.size() > 0) {
+//                    NetworkElement ne = oldNe.get(0);
+//                    e.setDeviceUuid2(ne.getUuid());
+//                }
+//            }
 
         }
         // 写入ap设备信息

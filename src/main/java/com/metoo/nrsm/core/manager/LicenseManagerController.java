@@ -258,7 +258,6 @@ public class LicenseManagerController {
             // 计算使用天数和剩余天数计算授权天数
             calculateLicenseDays(license);
 
-            System.out.println(JSONObject.toJSONString(license));
             return ResponseUtil.ok(license);
         } catch (Exception e) {
             // 使用日志记录异常信息

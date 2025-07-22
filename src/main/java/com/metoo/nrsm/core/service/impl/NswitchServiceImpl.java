@@ -41,4 +41,9 @@ public class NswitchServiceImpl implements INswitchService {
             return false;
         }
     }
+
+    @Override
+    public boolean clearOrphanedNSwitch() {
+        return this.nswitchMapper.clearOrphanedNSwitch();
+    }
 }

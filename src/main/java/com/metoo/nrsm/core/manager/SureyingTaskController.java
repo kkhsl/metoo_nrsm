@@ -24,12 +24,12 @@ import java.util.concurrent.Future;
 @Slf4j
 @RestController
 @RequestMapping("/admin/netmap/task")
-public class TaskController {
+public class SureyingTaskController {
 
     private final IProbeService probeService;
     private final ISurveyingLogService surveyingLogService;
 
-    public TaskController(IProbeService probeService, ISurveyingLogService surveyingLogService) {
+    public SureyingTaskController(IProbeService probeService, ISurveyingLogService surveyingLogService) {
         this.probeService = probeService;
         this.surveyingLogService = surveyingLogService;
     }

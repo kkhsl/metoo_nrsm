@@ -783,22 +783,29 @@
 
     <select id="selectRTToVDT" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
         SELECT
-        *
+            *
         FROM
-        (
-        SELECT
-        *
-        FROM
-        metoo_mac
+            (
+                SELECT
+                    *
+                FROM
+                    metoo_mac
+                WHERE
+                    tag = 'RT'
+            ) rt
         WHERE
-        tag = 'RT'
-        ) rt
-
-        where not exists (select * from metoo_mac where deviceIp = rt.deviceIp and port = rt.port and (tag = 'E' or tag
-        = 'DE'))
-
-        order by rt.port desc
-
+            NOT EXISTS (
+                SELECT
+                    *
+                FROM
+                    metoo_mac
+                WHERE
+                    deviceIp = rt.deviceIp
+                AND PORT = rt. PORT
+                AND (tag = 'E' OR tag = 'DE')
+            )
+        ORDER BY
+            rt. PORT DESC
     </select>
 
     <select id="selectRTToDTByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Mac">
@@ -1509,7 +1516,6 @@
         </trim>
     </insert>
 
-
     <update id="update" parameterType="com.metoo.nrsm.entity.Mac">
         UPDATE metoo_mac
         <set>
@@ -1581,6 +1587,9 @@
             </if>
             <if test="devicePort2 != null and devicePort2 != '' ">
                 devicePort2 = #{devicePort2},
+            </if>
+            <if test="deviceUuid2 != null and deviceUuid2 != '' ">
+                deviceUuid2 = #{deviceUuid2},
             </if>
         </set>
         WHERE id = #{id}

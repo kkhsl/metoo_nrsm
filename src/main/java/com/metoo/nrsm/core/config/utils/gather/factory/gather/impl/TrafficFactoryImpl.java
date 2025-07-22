@@ -402,8 +402,6 @@ public class TrafficFactoryImpl implements Gather {
 
                 formattedVfourFlow = String.format("%.2f", vfourFlow);
                 formattedVsixFlow = String.format("%.2f", vsixFlow);
-                System.out.println(formattedVfourFlow);
-                System.out.println(formattedVsixFlow);
             }
         }
     }

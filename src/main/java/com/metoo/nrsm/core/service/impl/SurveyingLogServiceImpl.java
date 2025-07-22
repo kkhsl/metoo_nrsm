@@ -1,9 +1,6 @@
 package com.metoo.nrsm.core.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.convert.Convert;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
-import com.metoo.nrsm.core.manager.TaskController;
 import com.metoo.nrsm.core.mapper.SurveyingLogMapper;
 import com.metoo.nrsm.core.service.ISurveyingLogService;
 import com.metoo.nrsm.core.utils.date.DateTools;
@@ -15,11 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

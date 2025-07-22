@@ -241,7 +241,6 @@ public class AnalysisTerminalUtils {
                         // 有本地链路地址
                         // 出口IPv6是否通
                         Ping ping = this.pingService.selectOneObj();
-                        System.out.println(Boolean.valueOf(ping.getV6isok()));
                         if (ping != null && ping.getV6isok().equals("0")) {
                             terminal.setConfig(4);
                         } else {

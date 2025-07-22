@@ -17,4 +17,6 @@ public interface NswitchMapper {
     List<Nswitch> selectObjAll();
 
     int save(Nswitch instance);
+
+    boolean clearOrphanedNSwitch();
 }

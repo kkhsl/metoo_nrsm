@@ -58,7 +58,6 @@ public class ApiService {
         try {
             String response = restTemplate.getForObject(URL, String.class, data);
             log.info("Traffic API response: " + response);
-            System.out.println(response);
         }/*catch (HttpHostConnectException e) {// 会被spring restTemplate异常封装类拦截
             log.error("无法连接到目标主机: {}", e.getMessage());
         }*/ catch (ResourceAccessException e) {
@@ -104,8 +103,6 @@ public class ApiService {
         String response = restTemplate.getForObject(url, String.class, data);
 
         log.info("General api ============================== " + response);
-
-        System.out.println(response);
     }
 
     public String callThirdPartyApi(String apiUrl, ProbeRequestVO request) {

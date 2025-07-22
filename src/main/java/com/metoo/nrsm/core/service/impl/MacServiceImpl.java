@@ -298,8 +298,6 @@ public class MacServiceImpl implements IMacService {
 
     @Override
     public List<Mac> selectDTAndDynamicByMap(Map params) {
-
-
         return this.macMapper.selectDTAndDynamicByMap(params);
     }
 

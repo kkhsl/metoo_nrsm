@@ -413,7 +413,8 @@
         mac.deviceName2,
         mac.deviceIp2,
         mac.macVendor,
-        mac.devicePort2
+        mac.devicePort2,
+        mac.deviceUuid2
         FROM prioritized_mac mac
         JOIN metoo_terminal terminal ON terminal.mac = mac.mac
         ORDER BY mac.priority, mac.mac
@@ -523,7 +524,8 @@
         mac.deviceUuid AS deviceUuid2,
         mac.deviceName2,
         mac.deviceIp2,
-        mac.devicePort2
+        mac.devicePort2,
+        mac.deviceUuid2
         FROM distinct_mac mac
         LEFT JOIN metoo_terminal terminal ON terminal.mac = mac.mac
         WHERE terminal.mac IS NULL order by v4ip desc

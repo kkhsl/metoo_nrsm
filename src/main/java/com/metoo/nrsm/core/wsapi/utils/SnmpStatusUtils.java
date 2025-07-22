@@ -107,8 +107,6 @@ public class SnmpStatusUtils {
             Map.Entry<Object, Object> entry = cursor.next();
             result.put(entry.getKey(), entry.getValue());
         }
-        System.out.println(result);
-
 
         List<String> keys = new ArrayList<>();
 //        Cursor<byte[]> cursor2 = redisTemplate.getConnectionFactory().getConnection().scan(scanOptions);
@@ -121,8 +119,5 @@ public class SnmpStatusUtils {
             Map.Entry<Object, Object> entry = cursor2.next();
             keys.add((String) entry.getKey());
         }
-
-        System.out.println(keys);
-
     }
 }

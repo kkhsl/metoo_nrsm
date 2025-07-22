@@ -29,6 +29,7 @@ public class TrafficPushScheduler {
      */
     @Scheduled(cron = "0 */5 * * * ?")
     public void api() {
+        log.info("流量推送...");
         if (traffic) {
             if (lock.tryLock()) {
                 try {
