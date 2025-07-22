@@ -22,3 +22,128 @@ ADD COLUMN `city_name` VARCHAR(100) DEFAULT NULL COMMENT '市级行政区划名�
 ADD COLUMN `county_code` VARCHAR(12) DEFAULT NULL COMMENT '区县级行政区划编码' AFTER `city_name`,
 ADD COLUMN `county_name` VARCHAR(100) DEFAULT NULL COMMENT '区县级行政区划名称' AFTER `county_code`;
 ALTER TABLE `metoo_unit` ADD COLUMN `unitId` VARCHAR(12) DEFAULT NULL COMMENT '关联单位id';
+
+-- 江西 地区表
+DROP TABLE IF EXISTS `area`;
+CREATE TABLE `area` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL COMMENT '地区名称',
+  `code` varchar(12) NOT NULL COMMENT '地区编码',
+  `parent_code` varchar(12) DEFAULT NULL COMMENT '父级地区编码',
+  `level` tinyint NOT NULL COMMENT '1=省, 2=市, 3=县/区',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='行政区划表';
+
+
+INSERT INTO `area` VALUES ('1', '江西省', '360000', null, '1');
+INSERT INTO `area` VALUES ('2', '南昌市', '360100', '360000', '2');
+INSERT INTO `area` VALUES ('3', '景德镇市', '360200', '360000', '2');
+INSERT INTO `area` VALUES ('4', '萍乡市', '360300', '360000', '2');
+INSERT INTO `area` VALUES ('5', '九江市', '360400', '360000', '2');
+INSERT INTO `area` VALUES ('6', '新余市', '360500', '360000', '2');
+INSERT INTO `area` VALUES ('7', '鹰潭市', '360600', '360000', '2');
+INSERT INTO `area` VALUES ('8', '赣州市', '360700', '360000', '2');
+INSERT INTO `area` VALUES ('9', '吉安市', '360800', '360000', '2');
+INSERT INTO `area` VALUES ('10', '宜春市', '360900', '360000', '2');
+INSERT INTO `area` VALUES ('11', '抚州市', '361000', '360000', '2');
+INSERT INTO `area` VALUES ('12', '上饶市', '361100', '360000', '2');
+INSERT INTO `area` VALUES ('13', '东湖区', '360102', '360100', '3');
+INSERT INTO `area` VALUES ('14', '西湖区', '360103', '360100', '3');
+INSERT INTO `area` VALUES ('15', '青云谱区', '360104', '360100', '3');
+INSERT INTO `area` VALUES ('16', '青山湖区', '360111', '360100', '3');
+INSERT INTO `area` VALUES ('17', '新建区', '360112', '360100', '3');
+INSERT INTO `area` VALUES ('18', '红谷滩区', '360113', '360100', '3');
+INSERT INTO `area` VALUES ('19', '南昌县', '360121', '360100', '3');
+INSERT INTO `area` VALUES ('20', '安义县', '360123', '360100', '3');
+INSERT INTO `area` VALUES ('21', '进贤县', '360124', '360100', '3');
+INSERT INTO `area` VALUES ('22', '昌江区', '360202', '360200', '3');
+INSERT INTO `area` VALUES ('23', '珠山区', '360203', '360200', '3');
+INSERT INTO `area` VALUES ('24', '浮梁县', '360222', '360200', '3');
+INSERT INTO `area` VALUES ('25', '乐平市', '360281', '360200', '3');
+INSERT INTO `area` VALUES ('26', '安源区', '360302', '360300', '3');
+INSERT INTO `area` VALUES ('27', '湘东区', '360313', '360300', '3');
+INSERT INTO `area` VALUES ('28', '莲花县', '360321', '360300', '3');
+INSERT INTO `area` VALUES ('29', '上栗县', '360322', '360300', '3');
+INSERT INTO `area` VALUES ('30', '芦溪县', '360323', '360300', '3');
+INSERT INTO `area` VALUES ('31', '濂溪区', '360402', '360400', '3');
+INSERT INTO `area` VALUES ('32', '浔阳区', '360403', '360400', '3');
+INSERT INTO `area` VALUES ('33', '柴桑区', '360404', '360400', '3');
+INSERT INTO `area` VALUES ('34', '武宁县', '360423', '360400', '3');
+INSERT INTO `area` VALUES ('35', '修水县', '360424', '360400', '3');
+INSERT INTO `area` VALUES ('36', '永修县', '360425', '360400', '3');
+INSERT INTO `area` VALUES ('37', '德安县', '360426', '360400', '3');
+INSERT INTO `area` VALUES ('38', '都昌县', '360428', '360400', '3');
+INSERT INTO `area` VALUES ('39', '湖口县', '360429', '360400', '3');
+INSERT INTO `area` VALUES ('40', '彭泽县', '360430', '360400', '3');
+INSERT INTO `area` VALUES ('41', '瑞昌市', '360481', '360400', '3');
+INSERT INTO `area` VALUES ('42', '共青城市', '360482', '360400', '3');
+INSERT INTO `area` VALUES ('43', '庐山市', '360483', '360400', '3');
+INSERT INTO `area` VALUES ('44', '渝水区', '360502', '360500', '3');
+INSERT INTO `area` VALUES ('45', '分宜县', '360521', '360500', '3');
+INSERT INTO `area` VALUES ('46', '月湖区', '360602', '360600', '3');
+INSERT INTO `area` VALUES ('47', '余江区', '360603', '360600', '3');
+INSERT INTO `area` VALUES ('48', '贵溪市', '360681', '360600', '3');
+INSERT INTO `area` VALUES ('49', '章贡区', '360702', '360700', '3');
+INSERT INTO `area` VALUES ('50', '南康区', '360703', '360700', '3');
+INSERT INTO `area` VALUES ('51', '赣县区', '360704', '360700', '3');
+INSERT INTO `area` VALUES ('52', '信丰县', '360722', '360700', '3');
+INSERT INTO `area` VALUES ('53', '大余县', '360723', '360700', '3');
+INSERT INTO `area` VALUES ('54', '上犹县', '360724', '360700', '3');
+INSERT INTO `area` VALUES ('55', '崇义县', '360725', '360700', '3');
+INSERT INTO `area` VALUES ('56', '安远县', '360726', '360700', '3');
+INSERT INTO `area` VALUES ('57', '龙南县', '360727', '360700', '3');
+INSERT INTO `area` VALUES ('58', '定南县', '360728', '360700', '3');
+INSERT INTO `area` VALUES ('59', '全南县', '360729', '360700', '3');
+INSERT INTO `area` VALUES ('60', '宁都县', '360730', '360700', '3');
+INSERT INTO `area` VALUES ('61', '于都县', '360731', '360700', '3');
+INSERT INTO `area` VALUES ('62', '兴国县', '360732', '360700', '3');
+INSERT INTO `area` VALUES ('63', '会昌县', '360733', '360700', '3');
+INSERT INTO `area` VALUES ('64', '寻乌县', '360734', '360700', '3');
+INSERT INTO `area` VALUES ('65', '石城县', '360735', '360700', '3');
+INSERT INTO `area` VALUES ('66', '瑞金市', '360781', '360700', '3');
+INSERT INTO `area` VALUES ('67', '吉州区', '360802', '360800', '3');
+INSERT INTO `area` VALUES ('68', '青原区', '360803', '360800', '3');
+INSERT INTO `area` VALUES ('69', '吉安县', '360821', '360800', '3');
+INSERT INTO `area` VALUES ('70', '吉水县', '360822', '360800', '3');
+INSERT INTO `area` VALUES ('71', '峡江县', '360823', '360800', '3');
+INSERT INTO `area` VALUES ('72', '新干县', '360824', '360800', '3');
+INSERT INTO `area` VALUES ('73', '永丰县', '360825', '360800', '3');
+INSERT INTO `area` VALUES ('74', '泰和县', '360826', '360800', '3');
+INSERT INTO `area` VALUES ('75', '遂川县', '360827', '360800', '3');
+INSERT INTO `area` VALUES ('76', '万安县', '360828', '360800', '3');
+INSERT INTO `area` VALUES ('77', '安福县', '360829', '360800', '3');
+INSERT INTO `area` VALUES ('78', '永新县', '360830', '360800', '3');
+INSERT INTO `area` VALUES ('79', '井冈山市', '360881', '360800', '3');
+INSERT INTO `area` VALUES ('80', '袁州区', '360902', '360900', '3');
+INSERT INTO `area` VALUES ('81', '奉新县', '360921', '360900', '3');
+INSERT INTO `area` VALUES ('82', '万载县', '360922', '360900', '3');
+INSERT INTO `area` VALUES ('83', '上高县', '360923', '360900', '3');
+INSERT INTO `area` VALUES ('84', '宜丰县', '360924', '360900', '3');
+INSERT INTO `area` VALUES ('85', '靖安县', '360925', '360900', '3');
+INSERT INTO `area` VALUES ('86', '铜鼓县', '360926', '360900', '3');
+INSERT INTO `area` VALUES ('87', '丰城市', '360981', '360900', '3');
+INSERT INTO `area` VALUES ('88', '樟树市', '360982', '360900', '3');
+INSERT INTO `area` VALUES ('89', '高安市', '360983', '360900', '3');
+INSERT INTO `area` VALUES ('90', '临川区', '361002', '361000', '3');
+INSERT INTO `area` VALUES ('91', '东乡区', '361003', '361000', '3');
+INSERT INTO `area` VALUES ('92', '南城县', '361021', '361000', '3');
+INSERT INTO `area` VALUES ('93', '黎川县', '361022', '361000', '3');
+INSERT INTO `area` VALUES ('94', '南丰县', '361023', '361000', '3');
+INSERT INTO `area` VALUES ('95', '崇仁县', '361024', '361000', '3');
+INSERT INTO `area` VALUES ('96', '乐安县', '361025', '361000', '3');
+INSERT INTO `area` VALUES ('97', '宜黄县', '361026', '361000', '3');
+INSERT INTO `area` VALUES ('98', '金溪县', '361027', '361000', '3');
+INSERT INTO `area` VALUES ('99', '资溪县', '361028', '361000', '3');
+INSERT INTO `area` VALUES ('100', '广昌县', '361030', '361000', '3');
+INSERT INTO `area` VALUES ('101', '信州区', '361102', '361100', '3');
+INSERT INTO `area` VALUES ('102', '广丰区', '361103', '361100', '3');
+INSERT INTO `area` VALUES ('103', '广信区', '361104', '361100', '3');
+INSERT INTO `area` VALUES ('104', '玉山县', '361123', '361100', '3');
+INSERT INTO `area` VALUES ('105', '铅山县', '361124', '361100', '3');
+INSERT INTO `area` VALUES ('106', '横峰县', '361125', '361100', '3');
+INSERT INTO `area` VALUES ('107', '弋阳县', '361126', '361100', '3');
+INSERT INTO `area` VALUES ('108', '余干县', '361127', '361100', '3');
+INSERT INTO `area` VALUES ('109', '鄱阳县', '361128', '361100', '3');
+INSERT INTO `area` VALUES ('110', '万年县', '361129', '361100', '3');
+INSERT INTO `area` VALUES ('111', '婺源县', '361130', '361100', '3');
+INSERT INTO `area` VALUES ('112', '德兴市', '361181', '361100', '3');
