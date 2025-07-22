@@ -4,10 +4,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.UnitNewDTO;
+import com.metoo.nrsm.core.mapper.AreaMapper;
 import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
+import com.metoo.nrsm.entity.Area;
 import com.metoo.nrsm.entity.Unit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,9 @@ public class UnitServiceImpl implements IUnitService {
 
     @Resource
     private UnitMapper unitMapper;
+
+    @Resource
+    private AreaMapper areaMapper;
 
     @Override
     public Unit selectObjById(Long id) {
@@ -63,10 +68,21 @@ public class UnitServiceImpl implements IUnitService {
 
     @Override
     public Result save(Unit instance) {
+        if (instance.getCityName()==null){
+            Area city = areaMapper.findByCode(instance.getCityCode());
+            instance.setCityName(city.getName());
+        }
+        if (instance.getCountyName()==null){
+            Area county = areaMapper.findByCode(instance.getCountyCode());
+            instance.setCountyName(county.getName());
+        }
         if (instance.getId() == null || instance.getId().equals("")) {
             // 检查unitName是否为空
             if (instance.getUnitName() == null || instance.getUnitName().isEmpty()) {
                 return ResponseUtil.error("单位名称不能为空");
+            }
+            if (instance.getUnitId() == null || instance.getUnitId().isEmpty()) {
+                return ResponseUtil.error("单位id不能为空");
             }
             // 根据unitName查询是否存在重复
             int count = this.unitMapper.countByUnitName(instance.getUnitName());
