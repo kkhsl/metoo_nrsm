@@ -165,16 +165,16 @@ public class GatherTaskScheduledUtil {
             isRunningTerminal = true;
             final String TASK_TYPE = "Terminal"; // 任务类型标识
             try {
-                sseManagerUtils.sendLogToAll(TASK_TYPE, "Terminal终端采集任务开始");
+                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务开始");
                 Long time = System.currentTimeMillis();
                 this.gatherSingleThreadingMacSNMPUtils.updateTerminal(DateTools.gatherDate());
                 log.info("终端采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
                 String execTime = "Terminal终端采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
-                sseManagerUtils.sendLogToAll(TASK_TYPE, execTime);
-                sseManagerUtils.sendLogToAll(TASK_TYPE, "Terminal终端采集任务完成");
+                sseManager.sendLogToAll(TASK_TYPE, execTime);
+                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务完成");
             } catch (Exception e) {
                 e.printStackTrace();
-                sseManagerUtils.sendLogToAll(TASK_TYPE, "Terminal终端采集任务异常: " + e.getMessage());
+                sseManager.sendLogToAll(TASK_TYPE, "Terminal终端采集任务异常: " + e.getMessage());
                 log.error("终端采集任务异常: {}", e.getMessage());
             } finally {
                 isRunningTerminal = false;
