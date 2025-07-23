@@ -17,7 +17,7 @@ import java.util.UUID;
 @Component
 public class ApiTrafficPushUtils {
 
-    private final static String URL = "http://172.18.242.250:30012/apisix/blade-ipv6/industryUnit";
+    private final static String URL = "http://182.109.52.105:30012/apisix/blade-ipv6/industryUnit";
 
     @Autowired
     private ApiService apiService;
@@ -35,10 +35,10 @@ public class ApiTrafficPushUtils {
                 jindustryUnitRequest.setNonce(UUID.randomUUID().toString());
                 DateTools dateTools = new DateTools();
                 jindustryUnitRequest.setTimestamp(dateTools.getTimestamp());
-                log.info("单位信息：" + jindustryUnitRequest.getData());
 
-                apiService.callThirdPartyApiTT(URL,
+                String result = apiService.callThirdPartyApiTT(URL,
                         jindustryUnitRequest);
+                log.info("鹰潭本地流量监管平台 推送单位：{} 结果：{}", unitVO.getUnitName(), result);
 
             } catch (Exception e) {
                 e.printStackTrace();

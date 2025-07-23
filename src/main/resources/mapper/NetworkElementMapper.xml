@@ -205,7 +205,7 @@
     </sql>
     <select id="selectObjAll" resultMap="Base_Result_Map">
         SELECT
-        *
+          *
         FROM metoo_ne
         <where>
             deleteStatus = 0

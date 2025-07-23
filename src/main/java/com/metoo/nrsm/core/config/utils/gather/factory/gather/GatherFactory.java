@@ -24,7 +24,7 @@ public class GatherFactory {
             if (Global.env.equals("yuehu")) {// yuehu
                 return new TrafficFactoryImplYuehu();
             }
-            if (Global.env.equals("dev")) {// yingtan
+            if (Global.env.equals("yingtan")) {// yingtan
                 return new TrafficFactoryImplYingtan();
             }
             if (Global.env.equals("guixi")) {// yingtan

@@ -29,7 +29,7 @@ public class SseManager {
         emitters.remove(sessionId);
     }
 
-    // 关键改进：向所有客户端推送任何类型的日志
+    // 向所有客户端推送任何类型的日志
     public void sendLogToAll(String taskType, String logMessage) {
         if (emitters.isEmpty()) return;
 

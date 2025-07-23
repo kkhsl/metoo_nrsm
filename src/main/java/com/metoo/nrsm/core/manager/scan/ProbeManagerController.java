@@ -6,23 +6,18 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.sql.visitor.functions.Char;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.body.ProbeBody;
-import com.metoo.nrsm.core.service.IArpService;
-import com.metoo.nrsm.core.service.IMacVendorService;
-import com.metoo.nrsm.core.service.IProbeResultService;
-import com.metoo.nrsm.core.service.IProbeService;
+import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.net.Ipv6Utils;
 import com.metoo.nrsm.entity.Arp;
 import com.metoo.nrsm.entity.Probe;
 import com.metoo.nrsm.entity.ProbeResult;
+import com.metoo.nrsm.entity.Terminal;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author HKK
@@ -40,6 +35,8 @@ public class ProbeManagerController {
     private IProbeResultService probeResultService;
     @Autowired
     private IArpService arpService;
+    @Autowired
+    private ITerminalService terminalService;
 
     @PostMapping("/probeNmap/uploadScanResult")
     public String probe(@RequestBody ProbeBody body) {
@@ -57,6 +54,7 @@ public class ProbeManagerController {
             List<Probe> probeDataList = JSONObject.parseArray(body.getResult(), Probe.class);
             log.info("chuangfa result size ---------------------------：" + probeDataList.size());
             if (probeDataList.size() > 0) {
+                Map params = new HashMap();
                 for (Probe probe : probeDataList) {
                     if (Ipv6Utils.isValidIPv6(probe.getIp_addr())) {
                         probe.setIpv6(probe.getIp_addr());
@@ -72,7 +70,22 @@ public class ProbeManagerController {
                             probe.setMac_vendor(arpList.get(0).getMacVendor());
                         }
                     }
-                    // TODO 优化建议：改为批量插入，避免并发导致锁死（尽量在一个事务中解决？为什么多个事务存在隔离吗，插入隔离级别）
+                    List<Terminal> terminals = new ArrayList<>();
+                    if (StrUtil.isNotEmpty(probe.getIp_addr())) {
+                        params.clear();
+                        params.put("v4ip", probe.getIp_addr());
+                        terminals = this.terminalService.selectObjByMap(params);
+                    }else if(StrUtil.isNotEmpty(probe.getIpv6())){
+                        params.clear();
+                        params.put("v6ip", probe.getIpv6());
+                        terminals = this.terminalService.selectObjByMap(params);
+                    }
+                    if(terminals.size() > 0){
+                        Terminal terminal = terminals.get(0);
+                        probe.setUnitId(terminal.getUnitId());
+                    }
+
+                    // TODO 优化建议：改为批量插入，避免并发导致锁死
                     boolean flag = this.probeService.insert(probe);
                     System.out.println("probe 插入状态：" + flag);
 

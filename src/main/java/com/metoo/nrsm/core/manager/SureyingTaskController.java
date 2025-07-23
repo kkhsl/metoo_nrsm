@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.ssh.excutor.ExecutorDto;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.manager.utils.UnitDataUtils;
 import com.metoo.nrsm.core.service.IProbeService;
 import com.metoo.nrsm.core.service.ISurveyingLogService;
 import com.metoo.nrsm.core.utils.Global;
@@ -28,10 +29,12 @@ public class SureyingTaskController {
 
     private final IProbeService probeService;
     private final ISurveyingLogService surveyingLogService;
+    private final UnitDataUtils unitDataUtils;
 
-    public SureyingTaskController(IProbeService probeService, ISurveyingLogService surveyingLogService) {
+    public SureyingTaskController(IProbeService probeService, ISurveyingLogService surveyingLogService, UnitDataUtils unitDataUtils) {
         this.probeService = probeService;
         this.surveyingLogService = surveyingLogService;
+        this.unitDataUtils = unitDataUtils;
     }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -90,6 +93,7 @@ public class SureyingTaskController {
 
             runningTask = executorService.submit(task);
             runningTask.get();
+
             String beginTime = DateTools.getCreateTime();
             surveyingLogService.createSureyingLog("测绘结束", beginTime, 2, null, 4);
 
@@ -104,6 +108,7 @@ public class SureyingTaskController {
      */
     private void gatherData() throws InterruptedException {
         probeService.scanByTerminal();
+        unitDataUtils.getEncryptedDataByUnit();
     }
 
     // 检测扫描设备是否可用

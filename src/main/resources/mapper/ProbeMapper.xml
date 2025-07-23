@@ -14,6 +14,9 @@
             <if test="ipv6 != null and ipv6 != ''">
                 AND ipv6 = #{ipv6}
             </if>
+            <if test="unitId != null">
+                AND unitId = #{unitId}
+            </if>
             <if test="port_num != null and port_num != ''">
                 AND port_num = #{port_num}
             </if>
@@ -232,6 +235,9 @@
             <if test="mac_vendor != null and mac_vendor != ''">
                 mac_vendor,
             </if>
+            <if test="unitId != null">
+                unitId,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="createTime != null">
@@ -314,6 +320,9 @@
             </if>
             <if test="mac_vendor != null and mac_vendor != ''">
                 #{mac_vendor},
+            </if>
+            <if test="unitId != null">
+                #{unitId},
             </if>
         </trim>
     </insert>

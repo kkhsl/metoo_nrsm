@@ -99,4 +99,6 @@ public class Probe {
     private String combined_vendor;
     @ApiModelProperty("application_protocol")
     private String combined_application_protocol;
+
+    private Long unitId;
 }

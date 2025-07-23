@@ -80,12 +80,10 @@ public class ApiUtils {
                 jindustryUnitRequest.setNonce(UUID.randomUUID().toString());
                 DateTools dateTools = new DateTools();
                 jindustryUnitRequest.setTimestamp(dateTools.getTimestamp());
-                log.info("单位信息：" + jindustryUnitRequest.getData());
 
-                apiService.callThirdPartyApiTT(URL,
+                String result = apiService.callThirdPartyApiTT(URL,
                         jindustryUnitRequest);
-//                apiService.callThirdPartyApiTRetries(URL,
-//                        jindustryUnitRequest);
+                log.info("流量监管平台 推送单位：{} 结果：{}", unitVO.getUnitName(), result);
 
             } catch (Exception e) {
                 e.printStackTrace();

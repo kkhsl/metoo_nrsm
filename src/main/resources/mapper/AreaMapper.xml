@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.AreaMapper">
+
+        <resultMap id="areaMap" type="com.metoo.nrsm.entity.Area">
+            <id property="id" column="id" />
+            <result property="name" column="name" />
+            <result property="code" column="code" />
+            <result property="parentCode" column="parent_code" />
+            <result property="level" column="level" />
+        </resultMap>
+
+    <select id="findByCode" resultMap="areaMap">
+        SELECT id, name, code, parent_code, level
+        FROM area
+        WHERE code = #{code}
+    </select>
+
+        <select id="findByLevel" resultMap="areaMap">
+            SELECT id, name, code, parent_code, level
+            FROM area
+            WHERE level = #{level}
+        </select>
+
+        <select id="findByParentCode" resultMap="areaMap">
+            SELECT id, name, code, parent_code, level
+            FROM area
+            WHERE parent_code = #{parentCode}
+        </select>
+
+        <select id="findByParentCodes" resultMap="areaMap">
+            SELECT id, name, code, parent_code, level
+            FROM area
+            WHERE parent_code IN
+            <foreach item="code" collection="parentCodes"
+                     open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </select>
+    </mapper>

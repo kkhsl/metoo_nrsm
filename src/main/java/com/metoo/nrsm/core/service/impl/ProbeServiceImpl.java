@@ -378,6 +378,7 @@ public class ProbeServiceImpl implements IProbeService {
                 probe.setPort_num("2");
                 probe.setMac(terminal.getMac());
                 probe.setMac_vendor(terminal.getMacVendor());
+                probe.setUnitId(terminal.getUnitId());
                 List<Probe> probeList = null;
 
                 if (StringUtil.isNotEmpty(probe.getIp_addr())) {
@@ -389,7 +390,7 @@ public class ProbeServiceImpl implements IProbeService {
                     // 不存在，则插入到probe表
                     this.insert(probe);
                     // 删除
-//                            arpService.delete(arp.getId());
+//                  arpService.delete(arp.getId());
                 }
             }
         }

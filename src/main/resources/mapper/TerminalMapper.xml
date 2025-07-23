@@ -138,6 +138,9 @@
             <if test="deviceTypeId != null">
                 AND deviceTypeId = #{deviceTypeId}
             </if>
+            <if test="unitId != null and unitId != ''">
+                AND unitId = #{unitId}
+            </if>
             <if test="notDeviceTypeId != null">
                 AND deviceTypeId != #{notDeviceTypeId}
             </if>
