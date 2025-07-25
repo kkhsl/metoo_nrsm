@@ -59,6 +59,9 @@
             <if test="name != null and name != ''">
                 name,
             </if>
+            <if test="vendorAlias != null and vendorAlias != ''">
+                vendorAlias,
+            </if>
             <if test="ip != null and ip != ''">
                 ip,
             </if>
@@ -77,6 +80,9 @@
             <if test="vendorId != null and vendorId != ''">
                 vendorId,
             </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                deviceTypeId,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -87,6 +93,9 @@
             </if>
             <if test="name != null and name != ''">
                 #{name},
+            </if>
+            <if test="vendorAlias != null and vendorAlias != ''">
+                #{vendorAlias},
             </if>
             <if test="ip != null and ip != ''">
                 #{ip},
@@ -106,6 +115,9 @@
             <if test="vendorId != null and vendorId != ''">
                 #{vendorId},
             </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                #{deviceTypeId},
+            </if>
         </trim>
     </insert>
 
@@ -117,6 +129,9 @@
             </if>
             <if test="name != null and name != ''">
                 name = #{name},
+            </if>
+            <if test="vendorAlias != null and vendorAlias != ''">
+                vendorAlias = #{vendorAlias},
             </if>
             <if test="ip != null and ip != ''">
                 ip = #{ip},
@@ -135,6 +150,9 @@
             </if>
             <if test="vendorId != null and vendorId != ''">
                 vendorId = #{vendorId},
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                deviceTypeId = #{deviceTypeId},
             </if>
         </set>
         WHERE id = #{id}
