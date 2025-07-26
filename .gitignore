@@ -51,11 +51,10 @@ bin/
 .settings
 .classpath
 .project
+application-dev.properties
 
 # [ MAVEN ]
 target/
 
 # [Jrebel]
 rebel.xml
-
-application-dev.properties
