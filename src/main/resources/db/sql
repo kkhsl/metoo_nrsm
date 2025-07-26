@@ -1,0 +1,5 @@
+INSERT INTO `nrsm`.`area` ( `name`, `code`, `parent_code`, `level`) VALUES ('江西省', '3600000', NULL, 2);
+INSERT INTO `area` VALUES ('113', '省直', '369000', '3600000', '3');
+
+ALTER TABLE metoo_unit
+ADD COLUMN unitLevel TINYINT COMMENT '单位级别：0-总部 1-单位';
