@@ -65,9 +65,9 @@ public class UpgradeController {
             tempZip = saveUploadedFile(file);
 
             // 再次验证 ZIP 文件结构
-            if (!isValidZipStructure(tempZip)) {
-                return ResponseUtil.error("非法的ZIP文件结构");
-            }
+//            if (!isValidZipStructure(tempZip)) {
+//                return ResponseUtil.error("非法的ZIP文件结构");
+//            }
 
             // 清理旧备份
             cleanupOldBackups();

@@ -105,8 +105,10 @@ public class GatewayManagerController {
         params.setOption("test");
         if (executeTestScript(params).contains("true")){
             return ResponseUtil.ok(true);
-        }else {
+        }else if (executeTestScript(params).contains("false")){
             return ResponseUtil.ok(false);
+        }else {
+            return ResponseUtil.ok(executeTestScript(params));
         }
     }
 
