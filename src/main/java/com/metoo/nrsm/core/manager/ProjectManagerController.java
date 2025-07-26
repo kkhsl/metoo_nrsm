@@ -61,7 +61,7 @@ public class ProjectManagerController {
         if (result >= 1) {
             return ResponseUtil.ok();
         } else {
-            return ResponseUtil.error();
+            return ResponseUtil.error("无权限修改！");
         }
     }
 
@@ -70,7 +70,12 @@ public class ProjectManagerController {
         for (String id : ids.split(",")) {
             Project project = this.projectService.selectObjById(Long.parseLong(id));
             if (project != null) {
-                this.projectService.delete(Long.parseLong(id));
+                int delete = this.projectService.delete(Long.parseLong(id));
+                if (delete >= 1) {
+                    return ResponseUtil.ok();
+                } else {
+                    return ResponseUtil.error("无权限删除！");
+                }
             } else {
                 return ResponseUtil.error();
             }

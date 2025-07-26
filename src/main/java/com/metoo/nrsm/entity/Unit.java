@@ -16,4 +16,5 @@ public class Unit extends IdEntity {
     private String countyName;   // 区县级名称
     private String unitName;
     private String unitId;
+    private Integer unitLevel;
 }

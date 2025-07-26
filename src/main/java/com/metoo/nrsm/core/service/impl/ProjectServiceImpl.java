@@ -5,13 +5,17 @@ import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.ProjectDTO;
 import com.metoo.nrsm.core.mapper.ProjectMapper;
+import com.metoo.nrsm.core.mapper.UnitMapper;
+import com.metoo.nrsm.core.mapper.UserMapper;
 import com.metoo.nrsm.core.service.IProjectService;
 import com.metoo.nrsm.entity.Project;
+import com.metoo.nrsm.entity.Unit;
 import com.metoo.nrsm.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +26,13 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Autowired
     private ProjectMapper projectMapper;
+
+    @Resource
+    private UnitMapper unitMapper;
+    @Autowired
+    private UserMapper userMapper;
+
+
 
     @Override
     public Project selectObjById(Long id) {
@@ -64,11 +75,13 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     public int save(Project instance) {
+        User user = ShiroUserHolder.currentUser();
         if (instance.getId() == null) {
             instance.setAddTime(new Date());
         }
         if (instance.getId() == null) {
             try {
+                instance.setUserId(user.getId());
                 return this.projectMapper.save(instance);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -76,7 +89,25 @@ public class ProjectServiceImpl implements IProjectService {
             }
         } else {
             try {
-                return this.projectMapper.update(instance);
+                Project project = projectMapper.selectObjById(instance.getId());
+                Unit unit = unitMapper.selectObjById(userMapper.selectPrimaryKey(project.getUserId()).getUnitId());//项目创建单位
+                Unit loginUnit = unitMapper.selectObjById(user.getUnitId());  //登录的单位
+                if (loginUnit.getUnitLevel()!=null){
+                    if (loginUnit.getUnitLevel()==0){
+                        return this.projectMapper.update(instance);
+                    }else {
+                        if (unit.getId().equals(loginUnit.getId())){
+                            instance.setUserId(user.getId());
+                            return this.projectMapper.update(instance);
+                        }
+                    }
+                }else {
+                    if (unit.getId().equals(loginUnit.getId())){
+                        instance.setUserId(user.getId());
+                        return this.projectMapper.update(instance);
+                    }
+                }
+                return 0;
             } catch (Exception e) {
                 e.printStackTrace();
                 return 0;
@@ -97,8 +128,25 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     public int delete(Long id) {
+        User user = ShiroUserHolder.currentUser();
         try {
-            return this.projectMapper.delete(id);
+            Project project = projectMapper.selectObjById(id);
+            Unit unit = unitMapper.selectObjById(userMapper.selectPrimaryKey(project.getUserId()).getUnitId());//项目创建单位
+            Unit loginUnit = unitMapper.selectObjById(user.getUnitId());  //登录的单位
+            if (loginUnit.getUnitLevel()!=null){
+                if (loginUnit.getUnitLevel()==0){
+                    return this.projectMapper.delete(id);
+                }else {
+                    if (unit.getId().equals(loginUnit.getId())){
+                        return this.projectMapper.delete(id);
+                    }
+                }
+            }else {
+                if (unit.getId().equals(loginUnit.getId())){
+                    return this.projectMapper.delete(id);
+                }
+            }
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
