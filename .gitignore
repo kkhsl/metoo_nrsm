@@ -57,3 +57,5 @@ target/
 
 # [Jrebel]
 rebel.xml
+
+application-dev.properties

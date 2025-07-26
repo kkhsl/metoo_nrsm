@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/netmap/task")
+    @RequestMapping("/admin/netmap/task")
 public class SureyingTaskController {
 
     private final IProbeService probeService;
@@ -53,7 +53,6 @@ public class SureyingTaskController {
             return ResponseUtil.ok(201, "任务已在运行中，请勿重复启动");
         }
 
-        synchronized (taskLock) {
 
             surveyingLogService.deleteTable();
 
@@ -99,7 +98,6 @@ public class SureyingTaskController {
 
             log.info("任务启动成功");
             return ResponseUtil.ok("任务已成功");
-        }
     }
 
 
