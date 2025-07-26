@@ -10,37 +10,25 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.AddressPoolDTO;
 import com.metoo.nrsm.core.service.IAddressPoolService;
 import com.metoo.nrsm.core.service.ISysConfigService;
-import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.query.PageInfo;
+import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.vo.AddressPoolIpv6VO;
 import com.metoo.nrsm.core.vo.AddressPoolVO;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.AddressPool;
 import com.metoo.nrsm.entity.SysConfig;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping({"/admin/address/pool"})
 @RestController
@@ -176,7 +164,11 @@ public class AddressPoolManagerController {
             }
         }
         int i = this.addressPoolService.save(instance);
-        return i >= 1 ? ResponseUtil.ok() : ResponseUtil.error();
+        if(i>=1){
+            return writeDhcpd();
+        }else {
+            return ResponseUtil.error();
+        }
     }
 
     @DeleteMapping({"/delete"})

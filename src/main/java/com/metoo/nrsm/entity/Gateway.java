@@ -17,6 +17,8 @@ public class Gateway extends IdEntity {
     private String ip;
 //    private String vendor;
 
+    private Long deviceTypeId;
+
     @ApiModelProperty("设备品牌Id")
     private Long vendorId;
     private String vendorName;

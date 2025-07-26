@@ -129,11 +129,11 @@ public class AddressPoolServiceImpl implements IAddressPoolService {
             SysConfig sysconfig = this.sysConfigService.select();
             sysconfig.setV4_status(true);
             this.sysConfigService.update(sysconfig);
-//            try {
-//                this.write();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            try {
+                this.write();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return i;
         } catch (Exception e) {
             e.printStackTrace();

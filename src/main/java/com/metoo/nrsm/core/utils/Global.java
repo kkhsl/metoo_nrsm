@@ -42,6 +42,7 @@ public class Global {
     public static String PYPATH;
 
     public static String BKPATH;
+    public static String TESTPATH;
     public static String backupStoragePath;
 
     @Value("${PYPATH}")
@@ -53,6 +54,11 @@ public class Global {
     public void setBKPATH(String BKPATH) {
         Global.BKPATH = BKPATH;
     }
+    @Value("${TESTPATH}")
+    public void setTESTPATH(String TESTPATH) {
+        Global.TESTPATH = TESTPATH;
+    }
+
 
     @Value("${backupStoragePath}")
     public void setBackupStoragePath(String backupStoragePath) {

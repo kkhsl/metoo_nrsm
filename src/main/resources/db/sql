@@ -5,3 +5,4 @@ alter table metoo_probe_bck add column unitId bigint(20);
 alter table metoo_mac add column deviceUuid2 varchar(100);
 alter table metoo_mac_gather add column deviceUuid2 varchar(100);
 alter table metoo_mac_history add column deviceUuid2 varchar(100);
+

@@ -9,7 +9,6 @@ import com.metoo.nrsm.core.dto.NetworkElementDto;
 import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.file.DownLoadFileUtil;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.poi.ExcelUtils;
@@ -69,6 +68,10 @@ public class NetworkElementManagerController {
     public Object list(@RequestBody(required = false) NetworkElementDto dto) {
         if (dto == null) {
             dto = new NetworkElementDto();
+        }else {
+            if (dto.getFilter() != null && dto.getFilter().isEmpty()) {
+                dto.setFilter(null);
+            }
         }
         Page<NetworkElement> page = this.networkElementService.selectConditionQuery(dto);
         if (page.getResult().size() > 0) {

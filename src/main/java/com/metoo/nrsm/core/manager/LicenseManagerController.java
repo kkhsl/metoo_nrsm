@@ -320,6 +320,7 @@ public class LicenseManagerController {
         dto.setEndTime(licenseDto.getEndTime());
         dto.setSystemSN(licenseDto.getSystemSN());
         dto.setType(licenseDto.getType());
+        dto.setUnitName(licenseDto.getUnitName());
         dto.setLicenseAC(true);
         dto.setLicenseProbe(true);
         dto.setLicenseVersion(licenseDto.getLicenseVersion());

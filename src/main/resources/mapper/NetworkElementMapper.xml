@@ -82,7 +82,7 @@
                 AND deleteStatus = #{deleteStatus}
             </if>
             <if test="filter != null and filter != ''">
-                AND ip = #{filter} or device_name = #{filter}
+                 AND (ip LIKE CONCAT('%', #{filter}, '%') OR device_name LIKE CONCAT('%', #{filter}, '%'))
             </if>
             <if test="ip != null and ip != ''">
                 AND ip = #{ip}
