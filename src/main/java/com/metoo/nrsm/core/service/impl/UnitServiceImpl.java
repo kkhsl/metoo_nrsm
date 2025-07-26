@@ -68,6 +68,8 @@ public class UnitServiceImpl implements IUnitService {
 
     @Override
     public Result save(Unit instance) {
+        instance.setCountyName(null);
+        instance.setCityCode(null);
         if (instance.getCityName()==null){
             Area city = areaMapper.findByCode(instance.getCityCode());
             instance.setCityName(city.getName());
