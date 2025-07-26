@@ -71,6 +71,7 @@ public class GatherTaskScheduledUtil {
     @Resource
     private TrafficDataMapper trafficDataMapper;
 
+
     private volatile boolean isRunningDhcp = false;
 
     SseManager sseManager=new SseManager();

@@ -24,6 +24,7 @@ public class NetplanParserService {
     private List<Interface> parseConfig(Map<String, Object> netplanConfig) {
         Map<String, Object> network = (Map<String, Object>) netplanConfig.get("network");
         Map<String, Object> ethernets = (Map<String, Object>) network.get("ethernets");
+        Map<String, Object> bridges = (Map<String, Object>) network.get("bridges");
 
         List<Interface> interfaces = new ArrayList<>();
         Map<String, Interface> interfaceMap = new HashMap<>();
@@ -50,6 +51,22 @@ public class NetplanParserService {
 
         }
 
+        // 2. 解析网桥接口 (处理方式与以太网接口一致)
+        if (bridges != null) {
+            for (Map.Entry<String, Object> entry : bridges.entrySet()) {
+                String bridgeName = entry.getKey();
+                Map<String, Object> config = (Map<String, Object>) entry.getValue();
+
+                // 创建网桥接口
+                Interface bridgeIntf = createInterfaceFromConfig(bridgeName, config);
+                updateInterfaceStatus(bridgeIntf);
+                interfaces.add(bridgeIntf);
+
+                // 处理成员接口
+                handleBridgeMembers(config, bridgeName, interfaces, interfaceMap);
+            }
+        }
+
         // 2. 解析VLAN接口(此时可以引用已解析的主接口)
         // 仅解析主接口，不解析vlan接口
 //        if (network.containsKey("vlans")) {
@@ -68,6 +85,73 @@ public class NetplanParserService {
 
         return interfaces;
     }
+
+    private void handleBridgeMembers(Map<String, Object> bridgeConfig,
+                                     String bridgeName,
+                                     List<Interface> interfaces,
+                                     Map<String, Interface> interfaceMap) {
+        if (bridgeConfig.containsKey("interfaces")) {
+            List<String> memberNames = (List<String>) bridgeConfig.get("interfaces");
+            for (String memberName : memberNames) {
+                Interface member = interfaceMap.get(memberName);
+
+                // 创建新的成员接口（如果尚未解析）
+                if (member == null) {
+                    member = new Interface();
+                    member.setName(memberName);
+                    member.setParentName(bridgeName);
+                    updateInterfaceStatus(member);
+                    interfaces.add(member);
+                    interfaceMap.put(memberName, member);
+                }
+                // 更新已有成员接口
+                else {
+                    member.setParentName(bridgeName);
+                }
+            }
+        }
+    }
+
+    private void updateInterfaceStatus(Interface intf) {
+        try {
+            NetworkInterface netIntf = NetworkInterface.getByName(intf.getName());
+            if (netIntf != null) {
+                intf.setIsup(netIntf.isUp() ? "up" : "down");
+            } else {
+                intf.setIsup("down");
+            }
+        } catch (SocketException e) {
+            intf.setIsup("down");
+        }
+    }
+
+    private Interface createInterfaceFromConfig(String name, Map<String, Object> config) {
+        Interface intf = new Interface();
+        intf.setName(name);
+
+        // 解析IP地址 (保留CIDR格式)
+        if (config.containsKey("addresses")) {
+            List<String> addresses = (List<String>) config.get("addresses");
+            for (String addr : addresses) {
+                if (addr.contains(".")) {
+                    intf.setIpv4Address(addr);
+                } else if (addr.contains(":")) {
+                    intf.setIpv6Address(addr);
+                }
+            }
+        }
+
+        // 解析网关
+        if (config.containsKey("gateway4")) {
+            intf.setGateway4((String) config.get("gateway4"));
+        }
+        if (config.containsKey("gateway6")) {
+            intf.setGateway6((String) config.get("gateway6"));
+        }
+
+        return intf;
+    }
+
 
     private Interface createInterfaceFromConfig(String name,
                                                 Map<String, Object> config,

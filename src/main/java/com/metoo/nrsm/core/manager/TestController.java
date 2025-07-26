@@ -1,5 +1,6 @@
 package com.metoo.nrsm.core.manager;
 
+import com.metoo.nrsm.core.client.traffic.utils.ApiTrafficPushUtils;
 import com.metoo.nrsm.core.thirdparty.api.traffic.TimeUtils;
 import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficPullApi;
 import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
@@ -9,6 +10,7 @@ import com.metoo.nrsm.core.system.conf.network.strategy.NetplanConfigManager;
 import com.metoo.nrsm.core.system.conf.network.sync.LocalNetplanSyncService;
 import com.metoo.nrsm.core.system.conf.network.sync.WindowsSshNetplanSyncService;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
+import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -53,6 +55,24 @@ public class TestController {
     private ITrafficService trafficService;
     @Autowired
     private IProbeService probeService;
+    @Autowired
+    private ApiTrafficPushUtils apiTrafficPushUtils;
+
+
+
+    @GetMapping("/api")
+    public void api(){
+        try {
+            UnitVO flowUnit = new UnitVO();
+            flowUnit.setUnitName("测试单位");
+            flowUnit.setVfourFlow("10");
+            flowUnit.setVsixFlow("10");
+            List<UnitVO> list = new ArrayList();
+            this.apiTrafficPushUtils.trafficApi(list);
+        } catch (Exception e) {
+            log.error("推送鹰潭监管平台失败：{}", e.getMessage());
+        }
+    }
 
     @GetMapping("/waits") // 'wait()' cannot override 'wait()' in 'java.lang.Object'; overridden method is final
     public void waits() throws InterruptedException {

@@ -456,6 +456,10 @@ public class DateTools {
     }
 
 
+    @Test
+    public void getTimestampTest1(){
+        System.out.println(getTimestamp());
+    };
     public String getTimestamp() {
         // 获取当前时间
         Instant now = Instant.now();

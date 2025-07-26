@@ -96,26 +96,4 @@ public class WindowsSshNetplanSyncService {
             }
         }
     }
-
-//    private void saveAllInterfaces(List<Interface> interfaces) {
-//        // 先保存主接口(无parentId的)
-//        Map params = new HashMap();
-//        for (Interface anInterface : interfaces) {
-//            params.clear();
-//            params.put("name", anInterface.getName());
-//            params.put("parentId", "is null");
-//            List<Interface> intf = this.interfaceService.selectObjByMap(params);
-//            if(intf.size() <= 0){
-//                interfaceService.save(anInterface);
-//            }
-//        }
-////        interfaces.stream()
-////                .filter(intf -> intf.getParentId() == null)
-////                .forEach(interfaceService::save);
-//
-////        // 再保存VLAN接口(有parentId的)
-////        interfaces.stream()
-////                .filter(intf -> intf.getParentId() != null)
-////                .forEach(interfaceService::save);
-//    }
 }

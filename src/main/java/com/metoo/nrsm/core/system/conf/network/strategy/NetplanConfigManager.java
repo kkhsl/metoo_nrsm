@@ -26,8 +26,9 @@ public class NetplanConfigManager {
     private static final String CONFIG_PATH = "/etc/netplan/00-installer-config.yaml";
     private static final String BACKUP_DIR = "/etc/netplan/backups/";
 
-//    private static final String CONFIG_PATH = "C:\\Users\\hkk\\Desktop\\interface\\00-installer-config.yaml";
-//    private static final String BACKUP_DIR = "C:\\Users\\hkk\\Desktop\\interface\\backups\\";
+
+//    private static final String CONFIG_PATH = "C:\\Users\\leo\\Desktop\\update\\00-installer-config.yaml";
+//    private static final String BACKUP_DIR = "C:\\Users\\leo\\Desktop\\update";
 
     private static final DateTimeFormatter BACKUP_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -66,14 +67,16 @@ public class NetplanConfigManager {
 
         // 获取网络配置部分
         Map<String, Object> network = (Map<String, Object>) config.get("network");
-
-        // 判断是普通接口还是VLAN接口
-        if (iface.getVlanNum() == null) {
-            // 普通以太网接口
-            updateEthernetConfig(network, iface);
-        } else {
-            // VLAN接口
+        if (iface.getVlanNum() != null) {
             updateVlanConfig(network, iface);
+        } else {
+            String interfaceType = determineInterfaceType(network, iface.getName());
+
+            if ("bridge".equals(interfaceType)) {
+                updateBridgeConfig(network, iface);
+            } else {
+                updateEthernetConfig(network, iface);
+            }
         }
 
         try {
@@ -87,6 +90,111 @@ public class NetplanConfigManager {
             restoreConfig();
         }
     }
+
+    /**
+     * 根据接口名称在配置中的位置判断接口类型
+     */
+    private static String determineInterfaceType(Map<String, Object> network, String interfaceName) {
+        // 检查网桥部分
+        Map<String, Object> bridges = (Map<String, Object>) network.get("bridges");
+        if (bridges != null && bridges.containsKey(interfaceName)) {
+            return "bridge";
+        }
+
+        // 检查VLAN部分
+        Map<String, Object> vlans = (Map<String, Object>) network.get("vlans");
+        if (vlans != null && vlans.containsKey(interfaceName)) {
+            return "vlan";
+        }
+
+        // 默认为以太网接口
+        return "ethernet";
+    }
+
+    private static void updateBridgeConfig(Map<String, Object> network, Interface iface) {
+        Map<String, Object> bridges = getOrCreateSection(network, "bridges");
+
+        Map<String, Object> bridgeConfig;
+        if (bridges.containsKey(iface.getName())) {
+            bridgeConfig = (Map<String, Object>) bridges.get(iface.getName());
+        } else {
+            bridgeConfig = new LinkedHashMap<>();
+        }
+
+        if (!bridgeConfig.containsKey("interfaces") && bridgeConfig.containsKey("interfaces")) {
+
+        }
+
+        if (iface.getIpv4Address() == null && iface.getIpv6Address() == null) {
+            bridgeConfig.put("dhcp4", true);
+            bridgeConfig.put("dhcp6", true);
+        } else {
+            bridgeConfig.put("dhcp4", false);
+            bridgeConfig.put("dhcp6", false);
+        }
+
+        if (iface.getIpv4Address() != null || iface.getIpv6Address() != null) {
+            List<String> addresses = new ArrayList<>();
+            if (iface.getIpv4Address() != null) addresses.add(iface.getIpv4Address());
+            if (iface.getIpv6Address() != null) addresses.add(iface.getIpv6Address());
+            bridgeConfig.put("addresses", addresses);
+        } else {
+            bridgeConfig.remove("addresses");
+        }
+
+        if (iface.getGateway4() != null) {
+            bridgeConfig.put("gateway4", iface.getGateway4());
+        } else {
+            bridgeConfig.remove("gateway4");
+        }
+
+        if (iface.getGateway6() != null) {
+            bridgeConfig.put("gateway6", iface.getGateway6());
+        } else {
+            bridgeConfig.remove("gateway6");
+        }
+
+        if (!bridgeConfig.containsKey("nameservers") && bridgeConfig.containsKey("nameservers")) {
+
+        }
+
+        if (!bridgeConfig.containsKey("parameters") && bridgeConfig.containsKey("parameters")) {
+
+        }
+
+        bridges.put(iface.getName(), bridgeConfig);
+    }
+
+    private static Map<String, Object> getOrCreateSection(Map<String, Object> network, String sectionName) {
+        Map<String, Object> section = (Map<String, Object>) network.get(sectionName);
+        if (section == null) {
+            section = new LinkedHashMap<>();
+            network.put(sectionName, section);
+        }
+        return section;
+    }
+
+    private static Map<String, Object> createBaseInterfaceConfig(Interface iface) {
+        Map<String, Object> config = new LinkedHashMap<>();
+
+        if (iface.getIpv4Address() == null && iface.getIpv6Address() == null) {
+            config.put("dhcp4", true);
+            config.put("dhcp6", true);
+        } else {
+            config.put("dhcp4", false);
+            config.put("dhcp6", false);
+
+            List<String> addresses = new ArrayList<>();
+            if (iface.getIpv4Address() != null) addresses.add(iface.getIpv4Address());
+            if (iface.getIpv6Address() != null) addresses.add(iface.getIpv6Address());
+            config.put("addresses", addresses);
+
+            if (iface.getGateway4() != null) config.put("gateway4", iface.getGateway4());
+            if (iface.getGateway6() != null) config.put("gateway6", iface.getGateway6());
+        }
+        return config;
+    }
+
 
     /**
      * 更新以太网接口配置
@@ -305,4 +413,27 @@ public class NetplanConfigManager {
             throw new RuntimeException("VLAN interface " + vlanInterfaceName + " not found");
         }
     }
+
+    public static void removeBridgeInterface(String bridgeName) throws Exception {
+        backupCurrentConfig();
+        Yaml yaml = new Yaml();
+        Map<String, Object> config;
+        try (FileInputStream fis = new FileInputStream(CONFIG_PATH)) {
+            config = yaml.load(fis);
+        }
+
+        Map<String, Object> network = (Map<String, Object>) config.get("network");
+        Map<String, Object> bridges = (Map<String, Object>) network.get("bridges");
+
+        if (bridges != null && bridges.containsKey(bridgeName)) {
+            bridges.remove(bridgeName);
+            if (bridges.isEmpty()) network.remove("bridges");
+
+            saveConfig(config);
+            applyNetplanConfig();
+        } else {
+            throw new RuntimeException("Bridge interface " + bridgeName + " not found");
+        }
+    }
+
 }
