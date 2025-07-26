@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.GatewayDTO;
+import com.metoo.nrsm.core.manager.utils.AESUtils;
 import com.metoo.nrsm.core.service.IDeviceTypeService;
 import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.IVendorService;
@@ -43,7 +44,7 @@ public class GatewayManagerController {
     }
 
     @PostMapping("/save")
-    private Result save(@RequestBody Gateway instance) {
+    private Result save(@RequestBody Gateway instance) throws Exception {
         Result result = this.gatewayService.save(instance);
         return result;
     }
@@ -70,9 +71,12 @@ public class GatewayManagerController {
     }
 
     @GetMapping("/test")
-    public Result test(@RequestParam String ids) {
-        Gateway gateway = gatewayService.selectObjById(Long.valueOf(ids));
+    public Result test(@RequestParam String id) throws Exception {
+        Gateway gateway = gatewayService.selectObjById(Long.valueOf(id));
         PythonScriptParams params = new PythonScriptParams();
+        if(gateway.getDeviceTypeId()==null || gateway.getDeviceTypeId().equals("")){
+            gateway.setDeviceTypeId(2l);
+        }
 
         // 设置设备类型（英文）
         DeviceType deviceType = deviceTypeService.selectObjById(gateway.getDeviceTypeId());
@@ -101,7 +105,7 @@ public class GatewayManagerController {
 
         // 设置凭证信息
         params.setUsername(gateway.getLoginName());
-        params.setPassword(gateway.getLoginPassword());
+        params.setPassword(AESUtils.decrypt(gateway.getLoginPassword()));
         params.setOption("test");
         if (executeTestScript(params).contains("true")){
             return ResponseUtil.ok(true);

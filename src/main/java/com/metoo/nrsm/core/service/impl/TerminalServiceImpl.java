@@ -7,10 +7,7 @@ import com.metoo.nrsm.core.dto.TerminalDTO;
 import com.metoo.nrsm.core.manager.utils.MacUtils;
 import com.metoo.nrsm.core.manager.utils.TerminalUtils;
 import com.metoo.nrsm.core.manager.utils.VerifyMacVendorUtils;
-import com.metoo.nrsm.core.mapper.MacVendorMapper;
-import com.metoo.nrsm.core.mapper.TerminalMacIpv6Mapper;
-import com.metoo.nrsm.core.mapper.TerminalMacVendorMapper;
-import com.metoo.nrsm.core.mapper.TerminalMapper;
+import com.metoo.nrsm.core.mapper.*;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.ip.Ipv6.IPv6SubnetCheck;
 import com.metoo.nrsm.core.utils.ip.ipv4.IpSubnetMap;
@@ -60,6 +57,9 @@ public class TerminalServiceImpl implements ITerminalService {
     private IMacVendorDeviceTypeService macVendorDeviceTypeService;
     @Autowired
     private IUnitSubnetService unitSubnetService;
+
+    @Autowired
+    private UnitMapper unitMapper;
 
     @Override
     public Terminal selectObjById(Long id) {
@@ -655,6 +655,7 @@ public class TerminalServiceImpl implements ITerminalService {
                                         if (flag) {
                                             try {
                                                 terminal.setUnitId(unitSubnet.getUnitId());
+                                                terminal.setUnitName(unitMapper.selectObjById(unitSubnet.getUnitId()).getUnitName());
                                                 terminalMapper.update(terminal);
                                                 updatedTerminals.add(terminal);
                                                 continue outerLoop; // 跳出外层循环
@@ -676,6 +677,7 @@ public class TerminalServiceImpl implements ITerminalService {
                                     boolean flag = IPv6SubnetCheck.isInSubnet(terminal.getV6ip(), subnet);
                                     if (flag) {
                                         terminal.setUnitId(unitSubnet.getUnitId());
+                                        terminal.setUnitName(unitMapper.selectObjById(unitSubnet.getUnitId()).getUnitName());
                                         terminalMapper.update(terminal);
                                         updatedTerminals.add(terminal);
                                         continue outerLoop; // 跳出外层循环
