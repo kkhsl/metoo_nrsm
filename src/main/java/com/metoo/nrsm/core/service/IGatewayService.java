@@ -17,7 +17,7 @@ public interface IGatewayService {
 
     Result selectObjConditionQuery(GatewayDTO dto);
 
-    Result save(Gateway instance);
+    Result save(Gateway instance) throws Exception;
 
     Result delete(String ids);
 

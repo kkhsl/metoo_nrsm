@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.GatewayDTO;
+import com.metoo.nrsm.core.manager.utils.AESUtils;
 import com.metoo.nrsm.core.mapper.GatewayMapper;
 import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.IVendorService;
@@ -99,11 +100,13 @@ public class GatewayServiceImpl implements IGatewayService {
 
 
     @Override
-    public Result save(Gateway instance) {
+    public Result save(Gateway instance) throws Exception {
         Result result = this.verifyParams(instance);
         if (result != null) {
             return this.verifyParams(instance);
         }
+        instance.setLoginPassword(AESUtils.encrypt(instance.getLoginPassword()));
+
         if (instance.getId() == null || instance.getId().equals("")) {
             instance.setAddTime(new Date());
             UUID uuid = UUID.randomUUID();
