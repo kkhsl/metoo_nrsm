@@ -8,6 +8,7 @@ import java.util.List;
 public interface UnitMapper {
 
     Unit selectObjById(Long id);
+    Unit selectObjByLevel(Long unitLevel);
 
     int update(Unit instance);
 

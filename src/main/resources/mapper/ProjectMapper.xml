@@ -45,19 +45,19 @@
         LEFT JOIN metoo_unit on metoo_project.unitId=metoo_unit.id
         <where>
             <if test="id != null and id != ''">
-                AND id = #{id}
+                AND metoo_project.id = #{id}
             </if>
             <if test="name != null and name != ''">
-                AND `name` = #{name}
+                AND metoo_project.`name` = #{name}
             </if>
             <if test="personLiable != null and personLiable != ''">
-                AND personLiable = #{personLiable}
+                AND metoo_project.personLiable = #{personLiable}
             </if>
             <if test="userId != null and userId != ''">
-                AND user_id = #{userId}
+                AND metoo_project.user_id = #{userId}
             </if>
-            <if test="unitId != null and unitId != ''">
-                AND unitId = #{unitId}
+            <if test="unitId != null and unitId != '' and other != null">
+                AND metoo_project.unitId = #{unitId} or metoo_project.unitId = #{other}
             </if>
         </where>
         <if test="orderBy != null and orderBy != ''">
@@ -76,22 +76,22 @@
         LEFT JOIN metoo_unit on metoo_project.unitId=metoo_unit.id
         <where>
             <if test="id != null and id != ''">
-                AND id = #{id}
+                AND metoo_project.id = #{id}
             </if>
             <if test="name != null and name != ''">
-                AND `name` = #{name}
+                AND metoo_project.`name` = #{name}
             </if>
             <if test="personLiable != null and personLiable != ''">
-                AND personLiable = #{personLiable}
+                AND metoo_project.personLiable = #{personLiable}
             </if>
             <if test="userId != null and userId != ''">
-                AND user_id = #{userId}
+                AND metoo_project.user_id = #{userId}
             </if>
             <if test="projectId != null and projectId != ''">
-                AND id != #{projectId}
+                AND metoo_project.id != #{projectId}
             </if>
             <if test="unitId != null and unitId != ''">
-                AND unitId = #{unitId}
+                AND metoo_project.unitId = #{unitId}
             </if>
         </where>
         <if test="orderBy != null and orderBy != ''">

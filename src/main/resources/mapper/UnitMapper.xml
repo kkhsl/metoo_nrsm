@@ -198,5 +198,10 @@
         FROM metoo_unit
         WHERE unitName = #{unitName}
     </select>
+    <select id="selectObjByLevel" resultType="com.metoo.nrsm.entity.Unit">
+        SELECT *
+        FROM metoo_unit
+        WHERE unitLevel = #{unitLevel}
+    </select>
 
 </mapper>

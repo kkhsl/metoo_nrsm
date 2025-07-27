@@ -34,6 +34,7 @@ public class ProjectManagerController {
     public Object list(@RequestBody(required = false) ProjectDTO dto) {
         User user = ShiroUserHolder.currentUser();
         Unit loginUnit = unitMapper.selectObjById(user.getUnitId());  //登录的单位
+        Unit unit = unitMapper.selectObjByLevel(0l);
         if (loginUnit.getUnitLevel()!=null){
             if (loginUnit.getUnitLevel()==0){
                 Page<Project> page = this.projectService.selectObjConditionQuery(dto);
@@ -41,6 +42,7 @@ public class ProjectManagerController {
                     return ResponseUtil.ok(new PageInfo<Project>(page));
                 }
             }else {
+                dto.setOther(unit.getId());
                 dto.setUnitId(user.getUnitId());
                 Page<Project> page = this.projectService.selectObjConditionQuery(dto);
                 if (page.getResult().size() > 0) {
@@ -48,6 +50,7 @@ public class ProjectManagerController {
                 }
             }
         }else {
+            dto.setOther(unit.getId());
             dto.setUnitId(user.getUnitId());
             Page<Project> page = this.projectService.selectObjConditionQuery(dto);
             if (page.getResult().size() > 0) {

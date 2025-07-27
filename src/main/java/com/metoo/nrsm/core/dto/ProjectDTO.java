@@ -25,4 +25,5 @@ public class ProjectDTO extends PageDto<Project> {
     private Long userId;
     private String userName;
     private Long unitId;
+    private Long other;
 }
