@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.SaltUtils;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.UserDto;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IRoleService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.service.IUserService;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,9 @@ public class UserManagerController {
     private IRoleService roleService;
     @Autowired
     private IUnitService unitService;
+
+    @Resource
+    private UnitMapper unitMapper;
 
     Logger logger = LoggerFactory.getLogger(UserManagerController.class);
 
@@ -280,6 +285,11 @@ public class UserManagerController {
         }
         Unit unit2 = this.unitService.selectObjById(user.getUnitId());
         if (unit2 != null) {
+            if (unit2.getUnitLevel()!=null){
+                user.setUnitLevel(unit2.getUnitLevel());
+            }else {
+                user.setUnitLevel(null);
+            }
             user.setUnitName(unit2.getUnitName());
         }
         return ResponseUtil.ok(user);
