@@ -17,7 +17,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, addTime, deleteStatus, name, start_time, accept_time, person_liable, description, user_id, user_name
+        id, addTime, deleteStatus, name, start_time, accept_time, person_liable, description, user_id, user_name,unitId
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
