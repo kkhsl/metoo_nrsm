@@ -8,10 +8,12 @@ import java.util.List;
 public interface UnitMapper {
 
     Unit selectObjById(Long id);
+    Unit selectObjByLevel(Long unitLevel);
 
     int update(Unit instance);
 
     List<Unit> selectObjConditionQuery(UnitNewDTO dto);
+    List<Unit> selectByUser(UnitNewDTO dto);
 
     List<Unit> selectAllQuery();
 

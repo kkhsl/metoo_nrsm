@@ -13,10 +13,12 @@
         <result column="description" property="description"></result>
         <result column="user_id" property="userId"></result>
         <result column="user_name" property="userName"></result>
+        <result column="unitName" property="unitName"></result>
+        <result column="unitId" property="unitId"></result>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, addTime, deleteStatus, name, start_time, accept_time, person_liable, description, user_id, user_name
+        id, addTime, deleteStatus, name, start_time, accept_time, person_liable, description, user_id, user_name,unitId
     </sql>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="Base_Result_Map">
@@ -37,20 +39,25 @@
 
     <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.ProjectDTO" resultMap="Base_Result_Map">
         SELECT
-        <include refid="Base_Column_List"/>
-        FROM metoo_project
+        metoo_project.*,metoo_unit.unitName as unitName
+        FROM
+        metoo_project
+        LEFT JOIN metoo_unit on metoo_project.unitId=metoo_unit.id
         <where>
             <if test="id != null and id != ''">
-                AND id = #{id}
+                AND metoo_project.id = #{id}
             </if>
             <if test="name != null and name != ''">
-                AND `name` = #{name}
+                AND metoo_project.`name` = #{name}
             </if>
             <if test="personLiable != null and personLiable != ''">
-                AND personLiable = #{personLiable}
+                AND metoo_project.personLiable = #{personLiable}
             </if>
             <if test="userId != null and userId != ''">
-                AND user_id = #{userId}
+                AND metoo_project.user_id = #{userId}
+            </if>
+            <if test="unitId != null and unitId != '' and other != null">
+                AND metoo_project.unitId = #{unitId} or metoo_project.unitId = #{other}
             </if>
         </where>
         <if test="orderBy != null and orderBy != ''">
@@ -63,24 +70,28 @@
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
-        <include refid="Base_Column_List"/>
+        metoo_project.*,metoo_unit.unitName as unitName
         FROM
         metoo_project
+        LEFT JOIN metoo_unit on metoo_project.unitId=metoo_unit.id
         <where>
             <if test="id != null and id != ''">
-                AND id = #{id}
+                AND metoo_project.id = #{id}
             </if>
             <if test="name != null and name != ''">
-                AND `name` = #{name}
+                AND metoo_project.`name` = #{name}
             </if>
             <if test="personLiable != null and personLiable != ''">
-                AND personLiable = #{personLiable}
+                AND metoo_project.personLiable = #{personLiable}
             </if>
             <if test="userId != null and userId != ''">
-                AND user_id = #{userId}
+                AND metoo_project.user_id = #{userId}
             </if>
             <if test="projectId != null and projectId != ''">
-                AND id != #{projectId}
+                AND metoo_project.id != #{projectId}
+            </if>
+            <if test="unitId != null and unitId != ''">
+                AND metoo_project.unitId = #{unitId}
             </if>
         </where>
         <if test="orderBy != null and orderBy != ''">
@@ -121,6 +132,9 @@
             <if test="userName != null">
                 user_name,
             </if>
+            <if test="unitId != null">
+                unitId,
+            </if>
         </trim>
         <trim prefix="VALUE(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -149,6 +163,9 @@
             </if>
             <if test="userName != null">
                 #{userName},
+            </if>
+            <if test="unitId != null">
+                #{unitId},
             </if>
         </trim>
     </insert>
@@ -182,6 +199,9 @@
             </if>
             <if test="userName != null">
                 user_name = #{userName},
+            </if>
+            <if test="unitId != null">
+                unitId = #{unitId},
             </if>
         </set>
         WHERE id = #{id}
