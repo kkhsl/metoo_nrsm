@@ -105,9 +105,8 @@ public class GatewayServiceImpl implements IGatewayService {
         if (result != null) {
             return this.verifyParams(instance);
         }
-        instance.setLoginPassword(AESUtils.encrypt(instance.getLoginPassword()));
-
         if (instance.getId() == null || instance.getId().equals("")) {
+            instance.setLoginPassword(AESUtils.encrypt(instance.getLoginPassword()));
             instance.setAddTime(new Date());
             UUID uuid = UUID.randomUUID();
             instance.setUuid(uuid.toString());
@@ -116,10 +115,19 @@ public class GatewayServiceImpl implements IGatewayService {
                 return ResponseUtil.ok();
             }
         } else {
-            int i = this.gatewayMapper.update(instance);
-            if (i >= 1) {
-                return ResponseUtil.ok();
+            if (instance.getLoginPassword().equals(gatewayMapper.selectObjById(instance.getId()).getLoginPassword())){
+                int i = this.gatewayMapper.update(instance);
+                if (i >= 1) {
+                    return ResponseUtil.ok();
+                }
+            }else {
+                instance.setLoginPassword(AESUtils.encrypt(instance.getLoginPassword()));
+                int i = this.gatewayMapper.update(instance);
+                if (i >= 1) {
+                    return ResponseUtil.ok();
+                }
             }
+
         }
         return ResponseUtil.saveError();
     }

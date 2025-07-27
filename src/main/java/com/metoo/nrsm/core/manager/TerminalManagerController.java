@@ -76,6 +76,8 @@ public class TerminalManagerController {
 
     @PostMapping("/list")
     public Object list(@RequestBody TerminalDTO dto) {
+        User user = ShiroUserHolder.currentUser();
+        Unit loginUnit = unitMapper.selectObjById(user.getUnitId());  //登录的单位
         if (dto.getStart_purchase_time() != null && dto.getEnd_purchase_time() != null) {
             if (dto.getStart_purchase_time().after(dto.getEnd_purchase_time())) {
                 return ResponseUtil.badArgument("起始时间需要小于结束时间");
@@ -86,8 +88,20 @@ public class TerminalManagerController {
                 return ResponseUtil.badArgument("起始时间需要小于结束时间");
             }
         }
+        Page<Terminal> page=null;
 
-        Page<Terminal> page = this.terminalService.selectObjByConditionQuery(dto);
+        if (loginUnit.getUnitLevel()!=null){
+            if (loginUnit.getUnitLevel()==0){
+                 page = this.terminalService.selectObjByConditionQuery(dto);
+            }else {
+                dto.setUnitId(user.getUnitId());
+                 page = this.terminalService.selectObjByConditionQuery(dto);
+            }
+        }else {
+            dto.setUnitId(user.getUnitId());
+            page = this.terminalService.selectObjByConditionQuery(dto);
+        }
+
 
         if (page.size() > 0) {
             page.getResult().stream().forEach(terminal -> {
