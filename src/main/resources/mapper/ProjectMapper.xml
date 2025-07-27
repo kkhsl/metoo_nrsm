@@ -13,6 +13,7 @@
         <result column="description" property="description"></result>
         <result column="user_id" property="userId"></result>
         <result column="user_name" property="userName"></result>
+        <result column="unitName" property="unitName"></result>
         <result column="unitId" property="unitId"></result>
     </resultMap>
 
@@ -38,8 +39,10 @@
 
     <select id="selectConditionQuery" parameterType="com.metoo.nrsm.core.dto.ProjectDTO" resultMap="Base_Result_Map">
         SELECT
-        <include refid="Base_Column_List"/>
-        FROM metoo_project
+        metoo_project.*,metoo_unit.unitName as unitName
+        FROM
+        metoo_project
+        LEFT JOIN metoo_unit on metoo_project.unitId=metoo_unit.id
         <where>
             <if test="id != null and id != ''">
                 AND id = #{id}
@@ -67,9 +70,10 @@
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
         SELECT
-        <include refid="Base_Column_List"/>
+        metoo_project.*,metoo_unit.unitName as unitName
         FROM
         metoo_project
+        LEFT JOIN metoo_unit on metoo_project.unitId=metoo_unit.id
         <where>
             <if test="id != null and id != ''">
                 AND id = #{id}
