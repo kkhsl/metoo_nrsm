@@ -61,9 +61,6 @@ public class TopologyManagerController {
     @Autowired
     private IArpService arpService;
 
-
-
-
     @RequestMapping("/list")
     public Object list(@RequestBody(required = false) TopologyDTO dto) {
         User user = ShiroUserHolder.currentUser();
@@ -126,13 +123,14 @@ public class TopologyManagerController {
 
     @ApiOperation("拓扑复制")
     @GetMapping("/copy")
-    public Object copy(String id, String name, String groupId, Long unitId) {
+    public Object copy(String id, String name, String groupId) {
         Map params = new HashMap();
+        User user = ShiroUserHolder.currentUser();
         if (name != null && !name.equals("")) {
             params.clear();
             params.put("name", name);
             params.put("NotId", id);
-            params.put("unitId", unitId);
+            params.put("unitId", user.getUnitId());
             List<Topology> Topos = this.topologyService.selectObjByMap(params);
             if (Topos.size() > 0) {
                 return ResponseUtil.badArgument("拓扑名称已存在");
@@ -203,10 +201,11 @@ public class TopologyManagerController {
                 return ResponseUtil.badArgument("拓扑名称不能为空");
             }
         }
+        User user = ShiroUserHolder.currentUser();
         if (StringUtils.isNotEmpty(instance.getName())) {
             params.put("topologyId", instance.getId());
             params.put("name", instance.getName());
-            params.put("unitId", instance.getUnitId());
+            params.put("unitId", user.getUnitId());
             List<Topology> topologList = this.topologyService.selectObjByMap(params);
             if (topologList.size() > 0) {
                 return ResponseUtil.badArgument("拓扑名称重复");
