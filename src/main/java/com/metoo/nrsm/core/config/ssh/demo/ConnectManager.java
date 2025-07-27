@@ -19,7 +19,8 @@ public class ConnectManager {
     private String sid = null;
 
     public static void main(String[] args) {
-        connectOnly("metoo@domain", "Metoo@89745000", "192.168.5.191", "show run");// 单次连接操作
+//        connectOnly("metoo@domain", "Metoo@89745000", "192.168.5.191", "show run");// 单次连接操作
+        connectOnly("root", "Metoo89745000!", "192.168.5.13", "ls");// 单次连接操作
     }
 
     public static void connectOnly() {

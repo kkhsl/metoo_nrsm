@@ -14,6 +14,7 @@
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP"/>
         <result column="deleteStatus" property="deleteStatus" jdbcType="INTEGER"/>
         <result column="unitId" property="unitId" jdbcType="VARCHAR"/>
+        <result column="unitLevel" property="unitLevel"/>
     </resultMap>
 
     <select id="selectObjById" parameterType="java.lang.Long" resultMap="UnitResultMap">
