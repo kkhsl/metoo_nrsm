@@ -210,7 +210,7 @@
             <!-- 默认删除状态为0 -->
             metoo_unit.deleteStatus = COALESCE(#{deleteStatus,jdbcType=INTEGER}, 0)
             <!-- 优化IP检查条件 -->
-            or (
+            AND (
             NULLIF(TRIM(terminal.v4ip), '') IS NOT NULL
             OR NULLIF(TRIM(terminal.v6ip), '') IS NOT NULL
             )
@@ -228,8 +228,8 @@
 
     <select id="selectObjAndTerminalHistoryByMap" parameterType="java.util.Map" resultMap="Unit_And_Terminals">
         SELECT
-        unit.id unit_id,
-        unit. NAME unit_name,
+        unit.id unit_id1,
+        unit.unitName unit_name1,
         terminal.*
         FROM
         metoo_unit unit
@@ -252,6 +252,9 @@
                 addTime &lt;= #{time}
                 ORDER BY addTime DESC limit 1
                 )
+            </if>
+            <if test="unitId != null and unitId != ''">
+                terminal.unitId,
             </if>
             <if test="ids != null and ids.size() > 0">
                 AND unit.id in

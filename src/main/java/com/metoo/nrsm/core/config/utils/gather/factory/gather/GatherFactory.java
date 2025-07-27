@@ -30,6 +30,9 @@ public class GatherFactory {
             if (Global.env.equals("guixi")) {// yingtan
                 return new TrafficFactoryImplGuixi();
             }
+            if (Global.env.equals("dev")) {// yingtan
+                return new TrafficFactoryMainImpl();
+            }
         } else if (shapeType.equalsIgnoreCase("fileToProbe")) {
             return new GatherOsScanVersin();
 
