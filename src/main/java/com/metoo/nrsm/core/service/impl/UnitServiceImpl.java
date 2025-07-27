@@ -68,16 +68,13 @@ public class UnitServiceImpl implements IUnitService {
 
     @Override
     public Result save(Unit instance) {
-        instance.setCountyName(null);
-        instance.setCityCode(null);
-        if (instance.getCityName()==null){
+
             Area city = areaMapper.findByCode(instance.getCityCode());
             instance.setCityName(city.getName());
-        }
-        if (instance.getCountyName()==null){
+
             Area county = areaMapper.findByCode(instance.getCountyCode());
             instance.setCountyName(county.getName());
-        }
+
         if (instance.getId() == null || instance.getId().equals("")) {
             // 检查unitName是否为空
             if (instance.getUnitName() == null || instance.getUnitName().isEmpty()) {

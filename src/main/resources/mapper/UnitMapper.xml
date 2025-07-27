@@ -47,6 +47,31 @@
         ORDER BY addTime DESC
     </select>
 
+    <select id="selectByUser" parameterType="com.metoo.nrsm.core.dto.UnitNewDTO"
+            resultMap="UnitResultMap">
+        SELECT id, addTime,updateTime,unitName,deleteStatus,
+        city_code, city_name, county_code, county_name, unitId
+        FROM metoo_unit
+        <where>
+            <choose>
+                <when test="deleteStatus != null">
+                    deleteStatus = #{deleteStatus}
+                </when>
+                <otherwise>
+                    deleteStatus = 0
+                </otherwise>
+            </choose>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+
+            <if test="unitName != null and unitName != ''">
+                AND `unitName` = #{unitName}
+            </if>
+        </where>
+        ORDER BY addTime DESC
+    </select>
+
     <select id="selectAllQuery" resultMap="UnitResultMap">
         SELECT id, unitName, addTime, updateTime, deleteStatus,
         city_code, city_name, county_code, county_name, unitId

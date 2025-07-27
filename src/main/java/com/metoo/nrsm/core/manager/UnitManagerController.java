@@ -2,10 +2,12 @@ package com.metoo.nrsm.core.manager;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.UnitNewDTO;
 import com.metoo.nrsm.core.dto.UserDto;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
 import com.metoo.nrsm.core.mapper.TopologyMapper;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.service.IUserService;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +42,9 @@ public class UnitManagerController {
     @Autowired
     private AreaServiceImpl areaService;
 
+    @Resource
+    private UnitMapper unitMapper;
+
 
 
     @PostMapping("/list")
@@ -51,6 +57,30 @@ public class UnitManagerController {
     public Result selectAll() {
         Result result = this.unitService.selectAllQuery();
         return result;
+    }
+
+    @GetMapping("/selectByUser")
+    public Result selectByUser() {
+        User user = ShiroUserHolder.currentUser();
+        UnitNewDTO unitNewDTO = new UnitNewDTO();
+
+        Unit loginUnit = unitMapper.selectObjById(user.getUnitId());
+        if (loginUnit.getUnitLevel()!=null){
+            if (loginUnit.getUnitLevel()==0){
+                List<Unit> result = unitMapper.selectByUser(unitNewDTO);
+                return ResponseUtil.ok(result);
+            }else {
+                unitNewDTO.setId(user.getUnitId());
+                List<Unit> result = unitMapper.selectByUser(unitNewDTO);
+                return ResponseUtil.ok(result);
+            }
+        }else {
+            unitNewDTO.setId(user.getUnitId());
+            List<Unit> result = unitMapper.selectByUser(unitNewDTO);
+            return ResponseUtil.ok(result);
+        }
+
+
     }
 
     @GetMapping("/select")

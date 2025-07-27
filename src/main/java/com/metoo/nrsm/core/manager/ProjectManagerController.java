@@ -4,14 +4,17 @@ import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.ProjectDTO;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IProjectService;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.entity.Project;
+import com.metoo.nrsm.entity.Unit;
 import com.metoo.nrsm.entity.User;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +27,32 @@ public class ProjectManagerController {
     @Autowired
     private IProjectService projectService;
 
+    @Resource
+    private UnitMapper unitMapper;
+
     @RequestMapping("/list")
     public Object list(@RequestBody(required = false) ProjectDTO dto) {
-        Page<Project> page = this.projectService.selectObjConditionQuery(dto);
-        if (page.getResult().size() > 0) {
-            return ResponseUtil.ok(new PageInfo<Project>(page));
+        User user = ShiroUserHolder.currentUser();
+        Unit loginUnit = unitMapper.selectObjById(user.getUnitId());  //登录的单位
+        if (loginUnit.getUnitLevel()!=null){
+            if (loginUnit.getUnitLevel()==0){
+                Page<Project> page = this.projectService.selectObjConditionQuery(dto);
+                if (page.getResult().size() > 0) {
+                    return ResponseUtil.ok(new PageInfo<Project>(page));
+                }
+            }else {
+                dto.setUnitId(user.getUnitId());
+                Page<Project> page = this.projectService.selectObjConditionQuery(dto);
+                if (page.getResult().size() > 0) {
+                    return ResponseUtil.ok(new PageInfo<Project>(page));
+                }
+            }
+        }else {
+            dto.setUnitId(user.getUnitId());
+            Page<Project> page = this.projectService.selectObjConditionQuery(dto);
+            if (page.getResult().size() > 0) {
+                return ResponseUtil.ok(new PageInfo<Project>(page));
+            }
         }
         return ResponseUtil.ok();
     }

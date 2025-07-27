@@ -12,6 +12,7 @@ public interface UnitMapper {
     int update(Unit instance);
 
     List<Unit> selectObjConditionQuery(UnitNewDTO dto);
+    List<Unit> selectByUser(UnitNewDTO dto);
 
     List<Unit> selectAllQuery();
 

@@ -13,6 +13,7 @@
         <result column="description" property="description"></result>
         <result column="user_id" property="userId"></result>
         <result column="user_name" property="userName"></result>
+        <result column="unitId" property="unitId"></result>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -52,6 +53,9 @@
             <if test="userId != null and userId != ''">
                 AND user_id = #{userId}
             </if>
+            <if test="unitId != null and unitId != ''">
+                AND unitId = #{unitId}
+            </if>
         </where>
         <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
@@ -81,6 +85,9 @@
             </if>
             <if test="projectId != null and projectId != ''">
                 AND id != #{projectId}
+            </if>
+            <if test="unitId != null and unitId != ''">
+                AND unitId = #{unitId}
             </if>
         </where>
         <if test="orderBy != null and orderBy != ''">
@@ -121,6 +128,9 @@
             <if test="userName != null">
                 user_name,
             </if>
+            <if test="unitId != null">
+                unitId,
+            </if>
         </trim>
         <trim prefix="VALUE(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -149,6 +159,9 @@
             </if>
             <if test="userName != null">
                 #{userName},
+            </if>
+            <if test="unitId != null">
+                #{unitId},
             </if>
         </trim>
     </insert>
@@ -182,6 +195,9 @@
             </if>
             <if test="userName != null">
                 user_name = #{userName},
+            </if>
+            <if test="unitId != null">
+                unitId = #{unitId},
             </if>
         </set>
         WHERE id = #{id}

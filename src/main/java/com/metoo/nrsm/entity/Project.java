@@ -26,4 +26,6 @@ public class Project extends IdEntity {
     private String description;
     private Long userId;
     private String userName;
+
+    private Long unitId;
 }
