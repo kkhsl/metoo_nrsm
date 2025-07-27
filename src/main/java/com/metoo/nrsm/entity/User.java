@@ -129,6 +129,7 @@ m
     @ApiModelProperty("单位id")
     private Long unitId;
     private String unitName;
+    private Integer unitLevel;
 
 
     public boolean isLocked() {
