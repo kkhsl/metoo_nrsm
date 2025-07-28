@@ -1,9 +1,12 @@
 package com.metoo.nrsm.core.manager;
 
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
 import com.metoo.nrsm.core.mapper.MacTestMapper;
 import com.metoo.nrsm.core.service.IGatherService;
 import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.service.impl.ProbeServiceImpl;
+import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
@@ -34,6 +37,17 @@ public class TestGatherController {
     @Autowired
     private ITerminalService terminalService;
 
+
+    @GetMapping("/traffic")
+    public void traffic() {
+        try {
+            GatherFactory factory = new GatherFactory();
+            Gather gather = factory.getGather(Global.TRAFFIC);
+            gather.executeMethod();
+        } catch (Exception e) {
+            log.error("流量采集失败：{}", e.getMessage()); // 提供更多的错误信息
+        }
+    }
 
     @GetMapping("/writeTerminalUnitData")
     public void writeTerminalUnitData() {

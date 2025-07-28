@@ -1,2 +1,0 @@
-ALTER TABLE `metoo_project`
-MODIFY COLUMN `unitId` BIGINT UNSIGNED COMMENT '单位id';

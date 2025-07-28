@@ -18,6 +18,8 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.ws.Response;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,10 +94,10 @@ public class TerminalManagerController {
 
         if (loginUnit.getUnitLevel()!=null){
             if (loginUnit.getUnitLevel()==0){
-                 page = this.terminalService.selectObjByConditionQuery(dto);
+                page = this.terminalService.selectObjByConditionQuery(dto);
             }else {
                 dto.setUnitId(user.getUnitId());
-                 page = this.terminalService.selectObjByConditionQuery(dto);
+                page = this.terminalService.selectObjByConditionQuery(dto);
             }
         }else {
             dto.setUnitId(user.getUnitId());
@@ -173,16 +175,19 @@ public class TerminalManagerController {
 //    }
 
     @GetMapping("/unit")
-    public Result unitTerminal(
-            @RequestParam(required = false) String type) {
+    public Result unitTerminal() {
+        User user = ShiroUserHolder.currentUser();
+        if(user.getUnitId() == null || "".equals(user.getUnitId())){
+            return ResponseUtil.badArgument("用户信息错误，未分配单位");
+        }
         List<TerminalUnit> terminalUnitList = null;
-        if ("unit".equals(type)) {
-            User user = ShiroUserHolder.currentUser();
+        Unit unit = unitService.selectObjById(user.getUnitId());
+        if (unit.getUnitLevel() != null && unit.getUnitLevel() == 0) {
+            terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(Collections.emptyMap());
+        } else {
             Map params = new HashMap();
             params.put("unitId", user.getUnitId());
             terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(params);
-        } else {
-            terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(null);
         }
         return ResponseUtil.ok(terminalUnitList);
     }
@@ -206,11 +211,19 @@ public class TerminalManagerController {
 
     @GetMapping("/unit/history")
     public Result unitTerminalHistory() {
+
+        User user = ShiroUserHolder.currentUser();
+
+        Unit unit = unitService.selectObjById(user.getUnitId());
+
         Map params = new HashMap();
+        if(unit.getUnitLevel() == null){
+            params.put("unitId", unit.getId());
+        }
         params.put("time", "2024-09-16 11:31:00");
+
         List<TerminalUnit> terminalUnitList = terminalUnitService.selectObjAndTerminalHistoryByMap(params);
         for (TerminalUnit terminalUnit : terminalUnitList) {
-            macUtils.terminalJoint(terminalUnit.getTerminalList());
             if (terminalUnit.getTerminalList().size() > 0) {
                 for (Terminal terminal : terminalUnit.getTerminalList()) {
                     if (StringUtil.isNotEmpty(terminal.getMac())) {

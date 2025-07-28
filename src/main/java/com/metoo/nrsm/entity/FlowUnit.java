@@ -34,4 +34,8 @@ public class FlowUnit extends IdEntity {
     private String v4Traffic;
     private Long unitId;
 
+
+    private String vfourFlowTotal;
+    private String vsixFlowTotal;
+
 }
