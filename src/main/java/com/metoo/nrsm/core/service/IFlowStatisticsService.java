@@ -23,4 +23,5 @@ public interface IFlowStatisticsService {
     List<FlowStatistics> selectObjByMap(Map params);
 
     boolean save(FlowStatistics instance);
+    boolean save1(FlowStatistics instance);
 }

@@ -3,23 +3,25 @@ package com.metoo.nrsm.core.manager;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.network.snmp4j.param.SNMPV3Params;
+import com.metoo.nrsm.core.network.snmp4j.request.SNMPv3Request;
 import com.metoo.nrsm.core.service.IFlowStatisticsService;
 import com.metoo.nrsm.core.service.IFluxConfigService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
 import com.metoo.nrsm.core.utils.ip.Ipv6Util;
-import com.metoo.nrsm.core.utils.py.ssh.SSHExecutor;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.core.wsapi.utils.Md5Crypt;
 import com.metoo.nrsm.entity.FlowStatistics;
 import com.metoo.nrsm.entity.FluxConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 
@@ -171,7 +173,13 @@ public class FluxConfigManagerController {
 
 
     @GetMapping("/gather")
-    public void gather(){
+    @Scheduled(cron = "0 */5 * * * ?")
+    public Result gather(){
+        Calendar calendar = Calendar.getInstance();
+        Date date = new Date();
+        // 定义计算精度参数
+        final int DECIMAL_SCALE = 10;  // 精确到小数点后10位
+        final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
         List<FluxConfig> fluxConfigs = this.fluxConfigService.selectObjByMap(null);
         if(fluxConfigs.size() > 0){
             BigDecimal ipv4Sum = new BigDecimal(0);
@@ -191,7 +199,7 @@ public class FluxConfigManagerController {
                         if(oid.size() > 0){
                             String in = String.valueOf(oid.get(0));
                             String out = String.valueOf(oid.get(1));
-                            String result = exec_v4(fluxConfig.getIpv4(), in, out);
+                            String result = exec_v4(fluxConfig, in, out);
                             if(StringUtils.isNotEmpty(result)){
                                 Map map = JSONObject.parseObject(result, Map.class);
                                 v4_list.add(map);
@@ -206,7 +214,7 @@ public class FluxConfigManagerController {
                         if(oid.size() > 0){
                             String in = String.valueOf(oid.get(0));
                             String out = String.valueOf(oid.get(1));
-                            String result = exec_v6(fluxConfig.getIpv4(), in, out);
+                            String result = exec_v6(fluxConfig, in, out);
                             if(StringUtils.isNotEmpty(result)){
                                 Map map = JSONObject.parseObject(result, Map.class);
                                 v6_list.add(map);
@@ -233,51 +241,136 @@ public class FluxConfigManagerController {
                 ipv6Sum = in.add(out);
                 System.out.println(ipv6Sum);
             }
+
+
+
+            FlowStatistics flowStatistics = new FlowStatistics();
+            flowStatistics.setAddTime(date);
+            if (ipv4Sum.add(ipv6Sum).compareTo(BigDecimal.ZERO) != 0) {
+                ipv6Rate = ipv6Sum.divide(ipv4Sum.add(ipv6Sum), DECIMAL_SCALE, ROUNDING_MODE);
+            } else {
+                ipv6Rate = BigDecimal.ZERO;  // 没有流量时设率为0
+            }
+            flowStatistics.setIpv4Sum(ipv4Sum.divide(BigDecimal.valueOf(1), DECIMAL_SCALE, ROUNDING_MODE));
+            flowStatistics.setIpv6Sum(ipv6Sum.divide(BigDecimal.valueOf(1), DECIMAL_SCALE, ROUNDING_MODE));
+            flowStatisticsService.save1(flowStatistics);    //采集
+
+
             // ipv6流量占比=ipv6流量/（ipv4流量+ipv6流量）
-            ipv6Rate = ipv6Sum.divide(ipv4Sum.add(ipv6Sum));
+            Map params = new HashMap();
+            calendar.add(Calendar.SECOND, -301);
+            Date startTime = calendar.getTime();
+            calendar.add(Calendar.SECOND, +300);
+            Date endTime = calendar.getTime();
+            params.put("startOfDay", startTime);
+            params.put("endOfDay",endTime);
+            params.put("orderBy","addTime");
+            List<FlowStatistics> flowStatistics1 = flowStatisticsService.selectObjByMap(params);
+
+            if (flowStatistics1.isEmpty()) {
+                if (ipv4Sum.add(ipv6Sum).compareTo(BigDecimal.ZERO) != 0) {
+                    ipv6Rate = ipv6Sum.divide(ipv4Sum.add(ipv6Sum), DECIMAL_SCALE, ROUNDING_MODE);
+                } else {
+                    ipv6Rate = BigDecimal.ZERO;  // 没有流量时设率为0
+                }
+
+                flowStatistics.setIpv4Sum(ipv4Sum.divide(BigDecimal.valueOf(1), DECIMAL_SCALE, ROUNDING_MODE));
+                flowStatistics.setIpv6Sum(ipv6Sum.divide(BigDecimal.valueOf(1), DECIMAL_SCALE, ROUNDING_MODE));
+                flowStatisticsService.save1(flowStatistics);  //采集
+            }
+
+            for (FlowStatistics flowStatistics2 : flowStatistics1) {
+                if (flowStatistics2 != null) {
+                    BigDecimal ipv4Sum1 = flowStatistics2.getIpv4Sum();
+                    BigDecimal ipv6Sum1 = flowStatistics2.getIpv6Sum();
+
+                    // 计算增量
+                    BigDecimal ipv4Delta = ipv4Sum.subtract(ipv4Sum1).setScale(DECIMAL_SCALE, ROUNDING_MODE);
+                    BigDecimal ipv6Delta = ipv6Sum.subtract(ipv6Sum1).setScale(DECIMAL_SCALE, ROUNDING_MODE);
+                    BigDecimal totalDelta = ipv4Delta.add(ipv6Delta);
+
+                    // 安全计算比率
+                    if (totalDelta.compareTo(BigDecimal.ZERO) != 0) {
+                        ipv6Rate = ipv6Delta.divide(totalDelta, DECIMAL_SCALE, ROUNDING_MODE);
+                    } else {
+                        // 当增量极小时保持原值
+                        if (flowStatistics2.getIpv6Rate() != null) {
+                            ipv6Rate = flowStatistics2.getIpv6Rate();
+                        } else {
+                            ipv6Rate = BigDecimal.ZERO;
+                        }
+                    }
+
+                    // 单位转换（保留精度）
+                    flowStatistics2.setIpv4Sum(
+                            ipv4Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE)
+                    );
+                    flowStatistics2.setIpv6Sum(
+                            ipv6Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE)
+                    );
+                    flowStatistics2.setAddTime(date);
+                    flowStatistics2.setIpv6Rate(ipv6Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE).divide(ipv4Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE).add(ipv6Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE))));
+
+                    flowStatisticsService.save(flowStatistics2);
+                } else {
+                    if (ipv4Sum.add(ipv6Sum).compareTo(BigDecimal.ZERO) != 0) {
+                        ipv6Rate = ipv6Sum.divide(ipv4Sum.add(ipv6Sum), DECIMAL_SCALE, ROUNDING_MODE);
+                    } else {
+                        ipv6Rate = BigDecimal.ZERO;
+                    }
+
+                    flowStatistics.setIpv4Sum(ipv4Sum.divide(BigDecimal.valueOf(1), DECIMAL_SCALE, ROUNDING_MODE));
+                    flowStatistics.setIpv6Sum(ipv6Sum.divide(BigDecimal.valueOf(1), DECIMAL_SCALE, ROUNDING_MODE));
+                    flowStatisticsService.save1(flowStatistics);
+                }
+            }
 
         }
+        return ResponseUtil.ok();
     }
 
-    public String exec_v4(String ip, String in, String out) {
-        String path = "/opt/nrsm/py/gettraffic.py";
-        String[] params = {ip, "v2c",
-                "public@123", in, out};
-        SSHExecutor sshExecutor = new SSHExecutor();
-        String result = sshExecutor.exec(path, params);
-        if(StringUtil.isNotEmpty(result)){
-            return result;
+    public String exec_v4(FluxConfig config, String in, String out) {
+//        String path = "/opt/nrsm/py/gettraffic.py";
+//        String[] params = {ip, "v2c",
+//                "public@123", in, out};
+//        SSHExecutor sshExecutor = new SSHExecutor();
+//        String result = sshExecutor.exec(path, params);
+
+        if (config.getIpv4()!=null){
+            SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                    .version(config.getVersion())
+                    .host(config.getIpv4())
+                    .community(config.getCommunity())
+                    .port(config.getPort())
+                    .build();
+            String result = SNMPv3Request.getTraffic(snmpv3Params,in,out);
+            if(StringUtil.isNotEmpty(result)){
+                return result;
+            }
         }
         return null;
     }
 
-    public String exec_v6(String ip, String in, String out) {
-        String path = "/opt/nrsm/py/gettraffic.py";
-        String[] params = {ip, "v2c",
-                "public@123", in, out};
-        SSHExecutor sshExecutor = new SSHExecutor();
-        String result = sshExecutor.exec(path, params);
-        if(StringUtil.isNotEmpty(result)){
-            return result;
+    public String exec_v6(FluxConfig config, String in, String out) {
+//        String path = "/opt/nrsm/py/gettraffic.py";
+//        String[] params = {ip, "v2c",
+//                "public@123", in, out};
+//        SSHExecutor sshExecutor = new SSHExecutor();
+//        String result = sshExecutor.exec(path, params);
+        if (config.getIpv6()!=null){
+            SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                    .version(config.getVersion())
+                    .host(config.getIpv6())
+                    .community(config.getCommunity())
+                    .port(config.getPort())
+                    .build();
+            String result = SNMPv3Request.getTraffic(snmpv3Params,in,out);
+            if(StringUtil.isNotEmpty(result)){
+                return result;
+            }
         }
         return null;
     }
 
-
-
-    @Test
-    public void test(){
-        List<List<String>> list = new ArrayList<>();
-        List<String> stringList = new ArrayList<>();
-        stringList.add("a");
-        stringList.add("");
-        stringList.add("c");
-        list.add(stringList);
-
-        String s = JSONObject.toJSONString(list);
-        System.out.println(s);
-        List<List<String>> list1 =JSONObject.parseObject(s, List.class);
-        System.out.println(list1);
-    }
 }
 

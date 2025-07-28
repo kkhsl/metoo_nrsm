@@ -78,4 +78,15 @@ public class FlowStatisticsServiceImpl implements IFlowStatisticsService {
             return false;
         }
     }
+
+    @Override
+    public boolean save1(FlowStatistics instance) {
+        try {
+            this.flowStatisticsMapper.save1(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

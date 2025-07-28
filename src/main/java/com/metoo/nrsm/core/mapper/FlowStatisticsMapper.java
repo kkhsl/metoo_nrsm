@@ -19,4 +19,5 @@ public interface FlowStatisticsMapper {
     List<FlowStatistics> selectObjByMap(Map params);
 
     int save(FlowStatistics instance);
+    int save1(FlowStatistics instance);
 }
