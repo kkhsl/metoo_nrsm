@@ -21,6 +21,7 @@ public interface IFlowStatisticsService {
     List<FlowSummary> getFlowSummary(Map<String, Object> params);
 
     List<FlowStatistics> selectObjByMap(Map params);
+    List<FlowStatistics> selectObjByMap1(Map params);
 
     boolean save(FlowStatistics instance);
     boolean save1(FlowStatistics instance);
