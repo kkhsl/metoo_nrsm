@@ -309,8 +309,7 @@ public class FluxConfigManagerController {
                             ipv6Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE)
                     );
                     flowStatistics2.setAddTime(date);
-                    flowStatistics2.setIpv6Rate(ipv6Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE).divide(ipv4Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE).add(ipv6Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE))));
-
+                    flowStatistics2.setIpv6Rate(ipv6Rate);
                     flowStatisticsService.save(flowStatistics2);
                 } else {
                     if (ipv4Sum.add(ipv6Sum).compareTo(BigDecimal.ZERO) != 0) {
@@ -347,6 +346,17 @@ public class FluxConfigManagerController {
             if(StringUtil.isNotEmpty(result)){
                 return result;
             }
+        }else {
+            SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                    .version(config.getVersion())
+                    .host(config.getIpv6())
+                    .community(config.getCommunity())
+                    .port(config.getPort())
+                    .build();
+            String result = SNMPv3Request.getTraffic(snmpv3Params,in,out);
+            if(StringUtil.isNotEmpty(result)){
+                return result;
+            }
         }
         return null;
     }
@@ -357,10 +367,21 @@ public class FluxConfigManagerController {
 //                "public@123", in, out};
 //        SSHExecutor sshExecutor = new SSHExecutor();
 //        String result = sshExecutor.exec(path, params);
-        if (config.getIpv6()!=null){
+        if (config.getIpv4()==null){
             SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                     .version(config.getVersion())
                     .host(config.getIpv6())
+                    .community(config.getCommunity())
+                    .port(config.getPort())
+                    .build();
+            String result = SNMPv3Request.getTraffic(snmpv3Params,in,out);
+            if(StringUtil.isNotEmpty(result)){
+                return result;
+            }
+        }else {
+            SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
+                    .version(config.getVersion())
+                    .host(config.getIpv4())
                     .community(config.getCommunity())
                     .port(config.getPort())
                     .build();
