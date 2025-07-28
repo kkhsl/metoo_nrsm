@@ -102,12 +102,12 @@ public class SNMPMainV3 {
     public void testSNMPv3GetTraffic() {
         SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                 .version("v2c")
-                .host("192.168.0.8")
+                .host("192.168.4.1")
                 .community("transfar@123")
                 .port(161)
                 .build();
 
-        String traffic = SNMPv3Request.getTraffic(snmpv3Params, "1.3.6.1.2.1.31.1.1.1.6.31", "1.3.6.1.2.1.31.1.1.1.10.31");
+        String traffic = SNMPv3Request.getTraffic(snmpv3Params, "1.3.6.1.2.1.2.2.1.10.10", "1.3.6.1.2.1.2.2.1.16.10");
         log.info("流量数据", traffic);
 
         String deviceName = SNMPv3Request.getDeviceName(snmpv3Params);

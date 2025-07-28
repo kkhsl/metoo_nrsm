@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.UserDto;
+import com.metoo.nrsm.core.mapper.RoleMapper;
 import com.metoo.nrsm.core.mapper.UserMapper;
 import com.metoo.nrsm.core.service.IRoleService;
 import com.metoo.nrsm.core.service.IUserRoleService;
@@ -30,6 +31,9 @@ public class UserServiceImpl implements IUserService {
     private IUserRoleService userRoleService;
     @Autowired
     private IRoleService roleService;
+    @Autowired
+    private RoleMapper roleMapper;
+
 
     @Override
     public User findByUserName(String username) {
@@ -95,82 +99,114 @@ public class UserServiceImpl implements IUserService {
         // 查询组信息
 
         if (dto.getId() == null) {
-            try {
-                this.userMapper.insert(user);
-
-                String roleName = "";
-                // 批量添加用户角色信息
-                if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
-                    List<Integer> idList = Arrays.asList(dto.getRole_id());
-                    List<Role> roleList = this.roleService.findRoleByIdList(idList);
-                    List<UserRole> userRoles = new ArrayList<UserRole>();
-                    for (Role role : roleList) {
-                        UserRole userRole = new UserRole();
-                        userRole.setUser_id(user.getId());
-                        userRole.setRole_id(role.getId());
-                        userRoles.add(userRole);
-                        roleName += role.getName() + ",";
-                    }
-                    roleName = roleName.substring(0, roleName.lastIndexOf(","));
-                    this.userRoleService.batchAddUserRole(userRoles);
-                }
-                try {
-                    user.setUserRole(roleName);
-                    this.userMapper.update(user);
+            User currentUser = ShiroUserHolder.currentUser();
+            Role roleByName = roleMapper.findRoleByName(currentUser.getUserRole());
+            if (roleByName.getType().equals("1")){
+                if (dto.getRole_id().length!=0){
+                    return false;
+                }else {
                     return true;
+                }
+            }else if(roleByName.getType().equals("2")){
+                return false;
+            }else {
+                try {
+                    this.userMapper.insert(user);
+
+                    String roleName = "";
+                    // 批量添加用户角色信息
+                    if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
+                        List<Integer> idList = Arrays.asList(dto.getRole_id());
+                        List<Role> roleList = this.roleService.findRoleByIdList(idList);
+                        List<UserRole> userRoles = new ArrayList<UserRole>();
+                        for (Role role : roleList) {
+                            UserRole userRole = new UserRole();
+                            userRole.setUser_id(user.getId());
+                            userRole.setRole_id(role.getId());
+                            userRoles.add(userRole);
+                            roleName += role.getName() + ",";
+                        }
+                        roleName = roleName.substring(0, roleName.lastIndexOf(","));
+                        this.userRoleService.batchAddUserRole(userRoles);
+                    }
+                    try {
+                        user.setUserRole(roleName);
+                        this.userMapper.update(user);
+                        return true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return false;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     return false;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
             }
         } else {
-            try {
-                String roleName = "";
-
-                // 批量添加用户角色信息
-                if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
-                    // 清除用户角色信息
-                    this.userRoleService.deleteUserByRoleId(user.getId());
-                    List<Integer> idList = Arrays.asList(dto.getRole_id());
-                    List<Role> roleList = this.roleService.findRoleByIdList(idList);
-                    List<UserRole> userRoles = new ArrayList<UserRole>();
-                    for (Role role : roleList) {
-                        UserRole userRole = new UserRole();
-                        userRole.setUser_id(user.getId());
-                        userRole.setRole_id(role.getId());
-                        userRoles.add(userRole);
-                        roleName += role.getName() + ",";
-                    }
-                    roleName = roleName.substring(0, roleName.lastIndexOf(","));
-                    this.userRoleService.batchAddUserRole(userRoles);
+            User currentUser = ShiroUserHolder.currentUser();
+            Role roleByName = roleMapper.findRoleByName(currentUser.getUserRole());
+            if (roleByName.getType().equals("1")){
+                List<Integer> idList = Arrays.asList(dto.getRole_id());
+                String name = roleMapper.findRoleById(Long.valueOf(idList.get(0))).getName();
+                UserVo userUpdate = userMapper.findUserUpdate(dto.getId());
+                if (name.equals(userUpdate.getUserRole())){
+                    return true;
+                }else {
+                    return false;
                 }
-                user.setUserRole(roleName);
-                this.userMapper.update(user);
-                User currentUser = ShiroUserHolder.currentUser();
+            } else if (roleByName.getType().equals("2")){
+                UserVo userUpdate = userMapper.findUserUpdate(dto.getId());
+                if (dto.getPassword()!=null || !userUpdate.getUsername().equals(dto.getUsername()) || !userUpdate.getUnitId().equals(dto.getUnitId())){
+                    return false;
+                }else {
+                    return true;
+                }
+            } else {
+                try {
+                    String roleName = "";
+
+                    // 批量添加用户角色信息
+                    if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
+                        // 清除用户角色信息
+                        this.userRoleService.deleteUserByRoleId(user.getId());
+                        List<Integer> idList = Arrays.asList(dto.getRole_id());
+                        List<Role> roleList = this.roleService.findRoleByIdList(idList);
+                        List<UserRole> userRoles = new ArrayList<UserRole>();
+                        for (Role role : roleList) {
+                            UserRole userRole = new UserRole();
+                            userRole.setUser_id(user.getId());
+                            userRole.setRole_id(role.getId());
+                            userRoles.add(userRole);
+                            roleName += role.getName() + ",";
+                        }
+                        roleName = roleName.substring(0, roleName.lastIndexOf(","));
+                        this.userRoleService.batchAddUserRole(userRoles);
+                    }
+                    user.setUserRole(roleName);
+                    this.userMapper.update(user);
 
 
-                // 第一种方式 强制退出当前帐号
-                // 如果修改的是当前已登录用户信息则退出当前帐号
-                if (dto.isFlag() && currentUser.getId().equals(user.getId())) {
-                    SecurityUtils.getSubject().logout();
-                    // 修改身份信息后，动态更改Subject的用户属性
+
+                    // 第一种方式 强制退出当前帐号
+                    // 如果修改的是当前已登录用户信息则退出当前帐号
+                    if (dto.isFlag() && currentUser.getId().equals(user.getId())) {
+                        SecurityUtils.getSubject().logout();
+                        // 修改身份信息后，动态更改Subject的用户属性
                    /* Subject subject = SecurityUtils.getSubject();
                     String username = (String) subject.getPrincipal();
                     User userInfo = this.userMapper.findByUserName(username);// 查询指定属性，封装到Subject内
                     PrincipalCollection newPrincipalCollection =
                             new SimplePrincipalCollection(userInfo, userInfo.getUsername());
                     subject.runAs(newPrincipalCollection);*/
+                    }
+
+                    //第二种防止 强制退出被修改用户
+
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
                 }
-
-                //第二种防止 强制退出被修改用户
-
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
             }
         }
     }

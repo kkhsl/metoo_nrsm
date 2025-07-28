@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.SaltUtils;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.UserDto;
+import com.metoo.nrsm.core.mapper.RoleMapper;
 import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IRoleService;
 import com.metoo.nrsm.core.service.IUnitService;
@@ -42,6 +43,9 @@ public class UserManagerController {
     private IRoleService roleService;
     @Autowired
     private IUnitService unitService;
+    @Autowired
+    private RoleMapper roleMapper;
+
 
     @Resource
     private UnitMapper unitMapper;
@@ -160,6 +164,7 @@ public class UserManagerController {
                         return ResponseUtil.badArgument("选择所属单位不存在");
                     }
                 }
+
                 if (this.userService.save(dto)) {
                     return ResponseUtil.ok();
                 }
@@ -256,21 +261,27 @@ public class UserManagerController {
     @RequestMapping("/delete")
     public Object delete(@RequestBody UserDto dto) {
         User user = this.userService.findObjById(dto.getId());
-        if (user != null) {
-            // 判断用户是否为管理员
-            if (user.getType() == 1) {
-                return ResponseUtil.badArgument("删除失败");
+        User currentUser = ShiroUserHolder.currentUser();
+        Role roleByName = roleMapper.findRoleByName(currentUser.getUserRole());
+        if (roleByName.getType().equals("2")){
+            return ResponseUtil.error("无权限删除");
+        }else {
+            if (user != null) {
+                // 判断用户是否为管理员
+                if (user.getType() == 1) {
+                    return ResponseUtil.badArgument("删除失败");
+                }
+                user.setDeleteStatus(-1);
+                this.userService.update(user);
+                // 清空用户直播间
+                Map params = new HashMap();
+                params.put("pageSize", 0);
+                params.put("currentPage", 0);
+                params.put("userId", user.getId());
+
+
+                return ResponseUtil.ok();
             }
-            user.setDeleteStatus(-1);
-            this.userService.update(user);
-            // 清空用户直播间
-            Map params = new HashMap();
-            params.put("pageSize", 0);
-            params.put("currentPage", 0);
-            params.put("userId", user.getId());
-
-
-            return ResponseUtil.ok();
         }
         return ResponseUtil.badArgument();
     }
