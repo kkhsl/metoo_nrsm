@@ -4,18 +4,20 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.service.IFlowStatisticsService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.FlowSummary;
+import com.metoo.nrsm.entity.FlowStatistics;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * @author HKK
+ * @version 1.0
+ * @date 2024-04-02 9:43
+ */
 @RestController
 @RequestMapping("/admin/flux/statistics")
 public class FlowStatisticsManagerController {
@@ -24,138 +26,79 @@ public class FlowStatisticsManagerController {
     private IFlowStatisticsService flowStatisticsService;
 
     @GetMapping
-    public Result flow(
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-            @RequestParam(value = "startOfDay", required = false) Date startOfDay,
-
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-            @RequestParam(value = "endOfDay", required = false) Date endOfDay) {
-
-        try {
-            Map<String, Object> params = new HashMap<>();
-
-            // 处理时间参数，确保正确的时间范围
-            Date startDate = startOfDay == null ? DateTools.getStartOfDay() : startOfDay;
-            Date endDate = endOfDay == null ? DateTools.getEndOfDay() : endOfDay;
-
-            // 确保结束时间不小于开始时间
-            if (endDate.before(startDate)) {
-                Date temp = startDate;
-                startDate = endDate;
-                endDate = temp;
-            }
-
-            params.put("startOfDay", startDate);
-            params.put("endOfDay", endDate);
-
-            // 1. 查询原始统计数据
-            List<FlowSummary> flowSummaryList = flowStatisticsService.getFlowSummary(params);
-
-            // 2. 根据搜索时间范围生成时间槽（从startDate到endDate的5分钟间隔）
-            List<Date> timeSlots = generateTimeSlotsInRange(startDate, endDate);
-
-            // 3. 补全缺失的数据点
-            List<FlowSummary> completeData = completeMissingDataInRange(flowSummaryList, timeSlots);
-
-            return ResponseUtil.ok(completeData);
-        } catch (Exception e) {
-            return ResponseUtil.fail("流量统计查询失败: " + e.getMessage());
+    public Result flow(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+                           @RequestParam(value = "startOfDay", required = false) Date startOfDay,
+                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+                       @RequestParam(value = "endOfDay", required = false) Date endOfDay){
+        Map params = new HashMap();
+        if(startOfDay == null || "".equals(startOfDay)){
+            params.put("startOfDay", DateTools.getStartOfDay());
+        }else{
+            params.put("startOfDay", startOfDay);
         }
+        if(endOfDay == null || "".equals(endOfDay)){
+            params.put("endOfDay", DateTools.getEndOfDay());
+        }else{
+            params.put("endOfDay", endOfDay);
+        }
+        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
+
+        // 2. 生成所有 5 分钟间隔的时间点
+        List<Date> allTimeSlots = generate5MinuteTimeSlots();
+
+        // 3. 补全缺失的数据
+        List<FlowStatistics> completeData = new ArrayList<>();
+        for (Date timeSlot : allTimeSlots) {
+            Optional<FlowStatistics> matchingData = flowStatisticsList.stream()
+                    .filter(data -> DateUtils.truncate(data.getAddTime(), Calendar.MINUTE).equals(DateUtils.truncate(timeSlot, Calendar.MINUTE)))
+                    .findFirst();
+
+            if (matchingData.isPresent()) {
+                completeData.add(matchingData.get());
+            } else {
+                completeData.add(createDefaultFlowStatistics(timeSlot));
+            }
+        }
+
+        return ResponseUtil.ok(completeData);
     }
 
-    /**
-     * 根据搜索时间范围生成5分钟间隔的时间点
-     */
-    private List<Date> generateTimeSlotsInRange(Date startDate, Date endDate) {
+    // 生成当天所有 5 分钟间隔的时间点
+    private List<Date> generate5MinuteTimeSlots() {
         List<Date> timeSlots = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
-
-        // 1. 从起始时间开始（向下取整到最近的5分钟）
-        calendar.setTime(startDate);
-        int minute = calendar.get(Calendar.MINUTE);
-        int mod = minute % 5;
-        calendar.add(Calendar.MINUTE, -mod);
+        calendar.setTime(DateTools.getStartOfDay());
+        // 清除秒和毫秒
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Date normalizedStart = calendar.getTime();
 
-        // 2. 设置结束时间
-        Calendar endCal = Calendar.getInstance();
-        endCal.setTime(endDate);
-
-        // 3. 生成时间槽
-        calendar.setTime(normalizedStart);
-        while (!calendar.getTime().after(endDate)) {
-            // 只添加在查询时间范围内的点
-            Date timePoint = calendar.getTime();
-            if (!timePoint.before(startDate) && !timePoint.after(endDate)) {
-                timeSlots.add(timePoint);
-            }
+        while (calendar.getTime().before(DateTools.getEndOfDay())) {
+            timeSlots.add(calendar.getTime());
             calendar.add(Calendar.MINUTE, 5);
         }
 
         return timeSlots;
     }
 
-    /**
-     * 在指定时间范围内补全缺失数据点
-     */
-    private List<FlowSummary> completeMissingDataInRange(List<FlowSummary> dataList, List<Date> timeSlots) {
-        // 创建时间格式化器，按分钟格式化为"yyyy-MM-dd HH:mm"格式
-        SimpleDateFormat minuteFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        minuteFormat.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-
-        // 将数据列表按分钟格式化后存入映射表
-        Map<String, FlowSummary> dataMap = new HashMap<>();
-        for (FlowSummary data : dataList) {
-            String timeKey = minuteFormat.format(data.getCreateTime());
-            dataMap.put(timeKey, data);
-        }
-
-        List<FlowSummary> completeData = new ArrayList<>();
-
-        // 遍历所有时间槽
-        for (Date timeSlot : timeSlots) {
-            String timeKey = minuteFormat.format(timeSlot);
-            FlowSummary data = dataMap.get(timeKey);
-
-            if (data != null) {
-                completeData.add(data);
-            } else {
-                // 创建默认数据点
-                completeData.add(createDefaultFlowStatistics(timeSlot));
-            }
-        }
-
-        // 按时间排序（确保顺序正确）
-        completeData.sort(Comparator.comparing(FlowSummary::getCreateTime));
-
-        return completeData;
-    }
-
-    // 创建默认的流量数据
-    private FlowSummary createDefaultFlowStatistics(Date time) {
-        FlowSummary defaultData = new FlowSummary();
-        defaultData.setCreateTime(time);
-        defaultData.setIpv4TotalGb(BigDecimal.ZERO);
-        defaultData.setIpv6TotalGb(BigDecimal.ZERO);
-        defaultData.setIpv6Percentage(0.0);
+    // 创建默认的流量数据（IPv4/IPv6 设为 0）
+    private FlowStatistics createDefaultFlowStatistics(Date time) {
+        FlowStatistics defaultData = new FlowStatistics();
+        defaultData.setAddTime(time);
+        defaultData.setIpv4(BigDecimal.ZERO);
+        defaultData.setIpv6(BigDecimal.ZERO);
+        defaultData.setIpv6Rate(BigDecimal.ZERO);
         return defaultData;
     }
 
-/*    @PostMapping("/test")
-    public Result flowTest(@RequestParam Map<String, Object> params) {
-        try {
-            if (params.get("startOfDay") == null) {
-                params.put("startOfDay", DateTools.getStartOfDay());
-            }
-            if (params.get("endOfDay") == null) {
-                params.put("endOfDay", DateTools.getEndOfDay());
-            }
-            List<FlowSummary> flowSummaryList = flowStatisticsService.getFlowSummary(params);
-            return ResponseUtil.ok(mapToFlowStatistics(flowSummaryList));
-        } catch (Exception e) {
-            return ResponseUtil.fail(e.getMessage());
+    @PostMapping("/test")
+    public Result flow1(@RequestParam Map params){
+        if(params.get("startOfDay") == null || "".equals(params.get("startOfDay") == null)){
+            params.put("startOfDay", DateTools.getStartOfDay());
         }
-    }*/
+        if(params.get("endOfDay") == null || "".equals(params.get("endOfDay") == null)){
+            params.put("endOfDay", DateTools.getEndOfDay());
+        }
+        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
+        return ResponseUtil.ok(flowStatisticsList);
+    }
 }

@@ -27,8 +27,8 @@ public class FluxConfig extends IdEntity {
 
     private String name;
 
-    //    private String ipv4;
-//    private String ipv6;
+    private String ipv4;
+    private String ipv6;
     @ApiModelProperty("设备IP列表")
     private String ips;
 

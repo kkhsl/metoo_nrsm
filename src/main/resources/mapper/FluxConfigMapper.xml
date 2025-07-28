@@ -26,9 +26,11 @@
             <if test="name != null and name!= ''">
                 name,
             </if>
-            <!-- 修改 ips 字段的处理：作为普通字符串 -->
-            <if test="ips != null and ips != ''">
-                ips,
+            <if test="ipv4 != null and ipv4!= ''">
+                ipv4,
+            </if>
+            <if test="ipv6 != null and ipv6!= ''">
+                ipv6,
             </if>
             <if test="community != null and community!= ''">
                 community,
@@ -68,9 +70,11 @@
             <if test="name != null and name!= ''">
                 #{name},
             </if>
-            <!-- 修改 ips 字段的处理：作为普通字符串 -->
-            <if test="ips != null and ips != ''">
-                #{ips},
+            <if test="ipv4 != null and ipv4!= ''">
+                #{ipv4},
+            </if>
+            <if test="ipv6 != null and ipv6!= ''">
+                #{ipv6},
             </if>
             <if test="community != null and community!= ''">
                 #{community},
@@ -111,9 +115,11 @@
             <if test="name != null">
                 name = #{name},
             </if>
-            <!-- 修改 ips 字段的处理：作为普通字符串 -->
-            <if test="ips != null">
-                ips = #{ips},
+            <if test="ipv4 != null">
+                ipv4 = #{ipv4},
+            </if>
+            <if test="ipv6 != null">
+                ipv6 = #{ipv6},
             </if>
             <if test="community != null">
                 community = #{community},
