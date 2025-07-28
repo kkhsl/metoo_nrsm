@@ -228,7 +228,7 @@ public class FluxConfigManagerController {
                 BigDecimal in = v4_list.stream().map(x ->
                         new BigDecimal(String.valueOf(x.get("in")))).reduce(BigDecimal.ZERO,BigDecimal::add);
                 BigDecimal out = v4_list.stream().map(x ->
-                        new BigDecimal(String.valueOf(x.get("in")))).reduce(BigDecimal.ZERO,BigDecimal::add);
+                        new BigDecimal(String.valueOf(x.get("out")))).reduce(BigDecimal.ZERO,BigDecimal::add);
                 ipv4Sum = in.add(out);
                 System.out.println(ipv4Sum);
             }
@@ -237,7 +237,7 @@ public class FluxConfigManagerController {
                 BigDecimal in = v6_list.stream().map(x ->
                         new BigDecimal(String.valueOf(x.get("in")))).reduce(BigDecimal.ZERO,BigDecimal::add);
                 BigDecimal out = v6_list.stream().map(x ->
-                        new BigDecimal(String.valueOf(x.get("in")))).reduce(BigDecimal.ZERO,BigDecimal::add);
+                        new BigDecimal(String.valueOf(x.get("out")))).reduce(BigDecimal.ZERO,BigDecimal::add);
                 ipv6Sum = in.add(out);
                 System.out.println(ipv6Sum);
             }
