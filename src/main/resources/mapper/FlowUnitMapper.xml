@@ -5,14 +5,14 @@
 
     <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, unitId
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
         FROM metoo_flow_unit
         WHERE id = #{id}
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, v4Traffic, unitId
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
         FROM metoo_flow_unit
         <where>
             <if test="addTime != null">
@@ -60,7 +60,7 @@
     <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UnitNewDTO"
             resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, unitId
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
         FROM metoo_flow_unit
         <where>
             <if test="id != null">
@@ -77,13 +77,13 @@
     </select>
     <select id="selectAllQuery" resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random,unitId
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
         FROM metoo_flow_unit
         ORDER BY addTime DESC
     </select>
     <select id="selectByUnitId" resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, unitId
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
         FROM metoo_flow_unit
         WHERE unitId = #{unitId}
     </select>
@@ -133,6 +133,12 @@
             <if test="unitId != null and unitId != ''">
                 unitId,
             </if>
+            <if test="vfourFlowTotal != null and vfourFlowTotal != ''">
+                vfourFlowTotal,
+            </if>
+            <if test="vsixFlowTotal != null and vsixFlowTotal != ''">
+                vsixFlowTotal,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -176,6 +182,12 @@
             </if>
             <if test="unitId != null and unitId != ''">
                 #{unitId},
+            </if>
+            <if test="vfourFlowTotal != null and vfourFlowTotal != ''">
+                #{vfourFlowTotal},
+            </if>
+            <if test="vsixFlowTotal != null and vsixFlowTotal != ''">
+                #{vsixFlowTotal},
             </if>
         </trim>
     </insert>
@@ -224,6 +236,12 @@
             </if>
             <if test="unitId != null and unitId != ''">
                 unitId = #{unitId},
+            </if>
+            <if test="vfourFlowTotal != null and vfourFlowTotal != ''">
+                vfourFlowTotal = #{vfourFlowTotal},
+            </if>
+            <if test="vsixFlowTotal != null and vsixFlowTotal != ''">
+                vsixFlowTotal = #{vsixFlowTotal},
             </if>
         </set>
         WHERE id = #{id}

@@ -1,23 +1,28 @@
 package com.metoo.nrsm.core.config.utils.gather.factory.gather.impl;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.application.ApplicationContextUtils;
 import com.metoo.nrsm.core.config.utils.gather.common.PyCommandBuilder3;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.FlowUtils;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.utils.GeneraFlowUtils;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.utils.TrafficAnalyzerUtils;
+import com.metoo.nrsm.core.config.utils.gather.factory.gather.utils.TrafficAnalyzerUtilsBack;
 import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
+import com.metoo.nrsm.core.manager.utils.AESUtils;
 import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Gateway;
+import com.metoo.nrsm.entity.Traffic;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 @Slf4j
@@ -37,7 +42,6 @@ public class TrafficFactoryMainImpl implements Gather {
                 Date date = new Date();
                 try {
                     if (gateway != null) {
-                        String vlanNum = "";
                         String pattern = "";
 
                         Map params = new HashMap();
@@ -48,7 +52,6 @@ public class TrafficFactoryMainImpl implements Gather {
                             return;
                         } else {
                             FlowUnit unit = units.get(0);
-                            vlanNum = unit.getVlanNum();
                             pattern = unit.getPattern();
                         }
 
@@ -57,13 +60,13 @@ public class TrafficFactoryMainImpl implements Gather {
                         pyCommand.setPath(Global.py_path);
                         pyCommand.setPy_prefix("-W ignore");
                         pyCommand.setName("main.py");
-                        pyCommand.setParams(new String[]{
+                        pyCommand.setParams(new String[]{"switch",
                                 gateway.getVendorAlias(),
                                 gateway.getIp(),
                                 gateway.getLoginType(),
                                 gateway.getLoginPort(),
                                 gateway.getLoginName(),
-                                gateway.getLoginPassword(),
+                                AESUtils.decrypt(gateway.getLoginPassword()),
                                 "vlan_policy"});
 
                         String result = pyExecUtils.exec(pyCommand);
@@ -74,12 +77,15 @@ public class TrafficFactoryMainImpl implements Gather {
                             for (FlowUnit unit : units) {
                                 try {
                                     // 根据pattern，判断使用哪种方式获取流量
-                                    if (pattern.equals("1")) {
-                                    } else if (pattern.equals("0")) {
-//                                        insertTraffic(result, unit);
-                                        unit.setAddTime(date);
-                                        flowUnitService.update(unit);
-                                    }
+//                                    if (pattern.equals("1")) {
+//                                    } else if (pattern.equals("0")) {
+////                                        insertTraffic(result, unit);
+//                                        unit.setAddTime(date);
+//                                        flowUnitService.update(unit);
+//                                    }
+                                    processFlowUnit(unit, result);
+                                    unit.setAddTime(date);
+                                    flowUnitService.update(unit);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     unit.setVfourFlow("0");
@@ -104,6 +110,85 @@ public class TrafficFactoryMainImpl implements Gather {
             log.info("Traffic end =========");
         }
     }
+
+
+    /**
+     * 处理单个 FlowUnit，根据当前流量和历史流量计算流量增量
+     * @param unit FlowUnit 对象
+     * @param jsonData 当前采集的流量数据
+     */
+    public static void processFlowUnit(FlowUnit unit, String jsonData) {
+        // 获取当前 VLAN 的流量数据
+        JSONObject currentFlow = TrafficAnalyzerUtilsBack.getVlanTrafficStats(jsonData, unit.getVlanNum());
+        if (currentFlow == null) {
+            // 如果当前流量数据为空，则将流量设置为0，并返回
+            unit.setVsixFlow("0");
+            unit.setVfourFlow("0");
+            unit.setVfourFlowTotal("0");
+            unit.setVsixFlowTotal("0");
+            return;
+        }
+
+        // 获取历史总流量数据（如果存在）
+        String vfourFlowTotal = unit.getVfourFlowTotal(); // 总流量 (IPv4)
+        String vsixFlowTotal = unit.getVsixFlowTotal();   // 总流量 (IPv6)
+
+        // 从当前流量中获取 IPv4 和 IPv6 流量
+        double currentIpv4Traffic = currentFlow.getDouble("IPv4Traffic");
+        double currentIpv6Traffic = currentFlow.getDouble("IPv6Traffic");
+
+        // 初始化差值流量
+        double ipv4TrafficDiff = 0;
+        double ipv6TrafficDiff = 0;
+
+        // 计算增量流量（当前流量 - 上次的总流量）
+        if (vfourFlowTotal != null && !vfourFlowTotal.isEmpty()) {
+            double lastIpv4FlowTotal = Double.parseDouble(vfourFlowTotal);
+            ipv4TrafficDiff = currentIpv4Traffic - lastIpv4FlowTotal;
+        }
+
+        if (vsixFlowTotal != null && !vsixFlowTotal.isEmpty()) {
+            double lastIpv6FlowTotal = Double.parseDouble(vsixFlowTotal);
+            ipv6TrafficDiff = currentIpv6Traffic - lastIpv6FlowTotal;
+        }
+
+        // 创建 DecimalFormat 来保留两位小数
+        DecimalFormat df = new DecimalFormat("#.00");
+
+        // 设置增量流量，保留两位小数
+        unit.setVfourFlow(df.format(ipv4TrafficDiff));  // 设置增量流量
+        unit.setVsixFlow(df.format(ipv6TrafficDiff));   // 设置增量流量
+
+        // 更新总流量为当前流量，保留两位小数
+        unit.setVfourFlowTotal(df.format(currentIpv4Traffic));  // 更新 IPv4 总流量
+        unit.setVsixFlowTotal(df.format(currentIpv6Traffic));   // 更新 IPv6 总流量
+    }
+
+
+    /**
+     * 存储流量数据到数据库
+     * @param flowData 要存储的流量数据
+     */
+    public static void saveTrafficData(JSONObject flowData) {
+        // 在此处实现数据库存储逻辑
+        // 比如通过 JDBC 或 ORM 存储到数据库
+        System.out.println("Saving to database: " + flowData.toString());
+    }
+
+    private static String getTrafficAll(String result) {
+        // 1. 解析新数据
+        String dataAll = TrafficAnalyzerUtils.analyzer(result);
+        return dataAll;
+    }
+
+
+//    // 2. 获取历史数据
+//    String historyFlow = unit.getFlowHistory();
+//
+//    // 3. 计算差值（新数据 - 历史数据）
+//    String flowDifference = TrafficAnalyzerUtils.calculateFlowDifference(newFlow, historyFlow);
+//
+//        log.info("差值：{}", flowDifference);
 
 
 }

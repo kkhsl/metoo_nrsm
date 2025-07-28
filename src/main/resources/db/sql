@@ -1,0 +1,2 @@
+ALTER TABLE metoo_flow_unit ADD COLUMN vfourFlowTotal VARCHAR(255);
+ALTER TABLE metoo_flow_unit ADD COLUMN vsixFlowTotal VARCHAR(255);

@@ -49,4 +49,6 @@ public class Interface extends IdEntity {
         this.vlans.add(child);
     }
 
+
+
 }
