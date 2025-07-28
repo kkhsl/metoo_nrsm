@@ -41,7 +41,7 @@ public class FlowStatisticsManagerController {
         }else{
             params.put("endOfDay", endOfDay);
         }
-        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
+        List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap1(params);
 
         // 2. 生成所有 5 分钟间隔的时间点
         List<Date> allTimeSlots = generate5MinuteTimeSlots();
