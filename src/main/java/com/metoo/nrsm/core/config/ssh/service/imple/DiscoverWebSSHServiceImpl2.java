@@ -16,7 +16,6 @@ import com.metoo.nrsm.core.service.ICredentialService;
 import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.entity.Credential;
 import com.metoo.nrsm.entity.NetworkElement;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +31,10 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.concurrent.Executor;
 
-@Slf4j
-@Service("commentWebSshService")
-public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
+@Service("commentWebSshService2")
+public class DiscoverWebSSHServiceImpl2 extends WebSSHServiceImpl {
+    private static final Logger log = LoggerFactory.getLogger(DiscoverWebSSHServiceImpl2.class);
+    private Logger logger = LoggerFactory.getLogger(DiscoverWebSSHServiceImpl2.class);
     @Autowired
     @Qualifier("discoverSshExecutor")
     private Executor discoverSshExecutor;
@@ -43,7 +43,10 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
     @Autowired
     private ICredentialService credentialService;
 
-    public DiscoverWebSSHServiceImpl() {
+    public static void main(String[] args) {
+        log.info("aa");
+    }
+    public DiscoverWebSSHServiceImpl2() {
     }
 
     public void recvHandle(String buffer, WebSocketSession session) {
@@ -60,11 +63,11 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
 //                        DiscoverWebSSHServiceImpl.this.connectToSSH(sshConnectInfo, webSSHData, session);
 //                        DiscoverWebSSHServiceImpl.this.connectToSSHTest(sshConnectInfo, session, "192.168.5.191",
 //                                "metoo@domain", "Metoo@89745000");
-                            DiscoverWebSSHServiceImpl.this.connectToSSH(sshConnectInfo, webSSHData, session);
+                            DiscoverWebSSHServiceImpl2.this.connectToSSH(sshConnectInfo, webSSHData, session);
                         } catch (IOException | JSchException var2) {
-                            log.error("webssh连接异常");
-                            log.error("异常信息:{}", var2.getMessage());
-                            DiscoverWebSSHServiceImpl.this.close(session);
+                            DiscoverWebSSHServiceImpl2.this.logger.error("webssh连接异常");
+                            DiscoverWebSSHServiceImpl2.this.logger.error("异常信息:{}", var2.getMessage());
+                            DiscoverWebSSHServiceImpl2.this.close(session);
                             // 返回异常信息
                             Map map = new HashMap();
                             map.put("msg", var2.getLocalizedMessage());
@@ -79,15 +82,15 @@ public class DiscoverWebSSHServiceImpl extends WebSSHServiceImpl {
                     try {
                         this.transToSSH(sshConnectInfo.getChannel(), command);
                     } catch (IOException var9) {
-                        log.error("webssh连接异常");
-                        log.error("异常信息:{}", var9.getMessage());
+                        this.logger.error("webssh连接异常");
+                        this.logger.error("异常信息:{}", var9.getMessage());
                         this.close(session);
                     }
                 }
             }
         } catch (IOException var10) {
-            log.error("Json转换异常");
-            log.error("异常信息:{}", var10.getMessage());
+            this.logger.error("Json转换异常");
+            this.logger.error("异常信息:{}", var10.getMessage());
             return;
         }
     }

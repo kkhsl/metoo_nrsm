@@ -74,12 +74,12 @@ public class ApiExecUtils {
             log.error("推送监管平台失败：{}", e.getMessage());
         }
 
-        // 推送数据到鹰潭本地流量监测平台
-        try {
-            this.apiTrafficPushUtils.trafficApi(unitVos);
-        } catch (Exception e) {
-            log.error("推送鹰潭监管平台失败：{}", e.getMessage());
-        }
+//        // 推送数据到鹰潭本地流量监测平台
+//        try {
+//            this.apiTrafficPushUtils.trafficApi(unitVos);
+//        } catch (Exception e) {
+//            log.error("推送鹰潭监管平台失败：{}", e.getMessage());
+//        }
     }
 
 

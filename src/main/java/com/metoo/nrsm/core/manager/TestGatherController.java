@@ -7,6 +7,7 @@ import com.metoo.nrsm.core.service.IGatherService;
 import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.service.impl.ProbeServiceImpl;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.api.ApiExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
@@ -36,7 +37,8 @@ public class TestGatherController {
     private MacTestMapper macTestMapper;
     @Autowired
     private ITerminalService terminalService;
-
+    @Autowired
+    private ApiExecUtils apiExecUtils;
 
     @GetMapping("/traffic")
     public void traffic() {
@@ -46,6 +48,14 @@ public class TestGatherController {
             gather.executeMethod();
         } catch (Exception e) {
             log.error("流量采集失败：{}", e.getMessage()); // 提供更多的错误信息
+        }
+    }
+
+    @GetMapping("/trafficScheduled")
+    public void trafficScheduled() {
+        try {
+            apiExecUtils.exec();
+        } catch (Exception e) {
         }
     }
 

@@ -3,6 +3,7 @@ package com.metoo.nrsm.entity;
 
 import com.metoo.nrsm.core.domain.IdEntity;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class FlowUnit extends IdEntity {
     private String time;
     private Long gatewayId;
     private String gatewayName;
+    @ApiModelProperty("默认：0")
     private String pattern;
     private String rule;
     private String unitName;
@@ -33,7 +35,6 @@ public class FlowUnit extends IdEntity {
     private String random;
     private String v4Traffic;
     private Long unitId;
-
 
     private String vfourFlowTotal;
     private String vsixFlowTotal;

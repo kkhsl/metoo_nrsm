@@ -24,7 +24,7 @@ public class ApiUtils {
 
     // 测试异常
 //    private final static String URL = "http://59.52.34.196:6002/apisix/blade-ipv6/industryUnit";
-//      private final static String URL = "http://127.0.0.1:8930/api/nrsm/traffic/data";
+//    private final static String URL = "http://127.0.0.1:8930/api/nrsm/traffic/data";
 
     @Autowired
     private ApiService apiService;
