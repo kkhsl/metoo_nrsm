@@ -208,7 +208,7 @@ public class FluxConfigManagerController {
                     }
                 }
 
-                List<List<String>> v6_oids =JSONObject.parseObject(fluxConfig.getIpv4Oid(), List.class);
+                List<List<String>> v6_oids =JSONObject.parseObject(fluxConfig.getIpv6Oid(), List.class);
                 if(v6_oids.size() > 0){
                     for (List<String> oid : v6_oids) {
                         if(oid.size() > 0){
