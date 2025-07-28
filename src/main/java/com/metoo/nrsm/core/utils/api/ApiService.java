@@ -33,7 +33,7 @@ public class ApiService {
 
     // 操作日志
 //    private final static String URL = "http://175.6.37.154:10000/api/general/log/data/{data}";
-    private final static String URL = "http://175.6.37.154:10000/api/nrsm/controller/data/{data}";
+    private final static String URL = "http://175.6.37.154:10000/api/nrsm/traffic/data/{data}";
 
     // 测试异常
 //    private final static String URL = "http://127.0.0.1:8930/api/nrsm/traffic/data/{data}";

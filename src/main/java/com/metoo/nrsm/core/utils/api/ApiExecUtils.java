@@ -64,7 +64,7 @@ public class ApiExecUtils {
         try {
             this.apiUtils.monitorApi(unitVos);
         } catch (Exception e) {
-            log.error("推送监控平台失败：{}", e.getMessage());
+            log.error("推送mt监控平台失败：{}", e.getMessage());
         }
 
         // 监管平台（信产）
@@ -85,10 +85,12 @@ public class ApiExecUtils {
 
     public void exec() {
 
+        log.info("设置时间");
         String time = DateUtils.getDateTimeWithZeroSeconds(new Date());
         long currentTime = DateUtils.convertDateStringToTimestamp(time, "yyyy-MM-dd HH:mm:ss");
         String currentTimestamp = String.valueOf(currentTime);
 
+        log.info("获取流量数据，并写入单位");
         executeGather();
 
         List<UnitVO> unitVos = getUnitVos(time, currentTimestamp);
@@ -97,6 +99,8 @@ public class ApiExecUtils {
             log.info("未找到单位数据");
             return;
         }
+
+        log.info("调用api");
         callApi(unitVos);
     }
 

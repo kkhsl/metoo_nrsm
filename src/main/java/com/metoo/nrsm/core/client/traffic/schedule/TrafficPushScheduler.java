@@ -59,7 +59,7 @@ public class TrafficPushScheduler {
     private volatile boolean isRunningTraffic = false;
 
     @Scheduled(cron = "0 */5 * * * ?")
-    public void arp() {
+    public void traffic() {
         if (traffic && !isRunningTraffic) {
             log.info("流量采集任务开始");
             isRunningTraffic = true;
