@@ -70,6 +70,42 @@
             ${orderType}
         </if>
     </select>
+    <select id="selectObjByMap1" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.FlowStatistics">
+        select * from metoo_flux_statistics
+        <where>
+            <if test="oneMinuteAgo != null">
+                AND addTime = (
+                SELECT
+                addTime
+                FROM
+                metoo_flux_statistics
+                WHERE
+                addTime &lt;= #{oneMinuteAgo}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+            <if test="time != null">
+                AND addTime = (
+                SELECT
+                addTime
+                FROM
+                metoo_flux_statistics
+                WHERE
+                addTime = #{time}
+                ORDER BY addTime DESC limit 1
+                )
+            </if>
+            <if test="startOfDay != null and endOfDay != null">
+                AND addTime BETWEEN #{startOfDay} and #{endOfDay}
+            </if>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderType != null and orderType != ''">
+            ${orderType}
+        </if>
+    </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.FlowStatistics">
         INSERT INTO metoo_flux_statistics

@@ -69,6 +69,11 @@ public class FlowStatisticsServiceImpl implements IFlowStatisticsService {
     }
 
     @Override
+    public List<FlowStatistics> selectObjByMap1(Map params) {
+        return this.flowStatisticsMapper.selectObjByMap1(params);
+    }
+
+    @Override
     public boolean save(FlowStatistics instance) {
         try {
             this.flowStatisticsMapper.save(instance);
