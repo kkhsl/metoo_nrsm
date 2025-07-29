@@ -29,6 +29,7 @@ public class IOperationLogServiceImpl implements IOperationLogService {
 
     @Resource
     private OperationLogMapper operationLogMapper;
+
     @Autowired
     private IUserService userService;
 
@@ -89,6 +90,23 @@ public class IOperationLogServiceImpl implements IOperationLogService {
 //                instance.setIp(inetAddress.getHostAddress());
                 instance.setAction("登录");
                 instance.setType(2);
+            }
+            this.operationLogMapper.save(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean saveOperationLog(OperationLog instance) {
+        try {
+            if (instance.getAccount() != null && !instance.getAccount().equals("")) {
+                User user = this.userService.findByUserName(instance.getAccount());
+                instance.setAddTime(new Date());
+                instance.setAction("操作");
+                instance.setType(0);
             }
             this.operationLogMapper.save(instance);
             return true;

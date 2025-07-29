@@ -23,6 +23,7 @@ public interface IOperationLogService {
     boolean save(OperationLog instance);
 
     boolean saveLoginLog(OperationLog operationLog);
+    boolean saveOperationLog(OperationLog operationLog);
 
     boolean update(OperationLog instance);
 
