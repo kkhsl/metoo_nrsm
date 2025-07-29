@@ -6,6 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.manager.utils.MacUtils;
+import com.metoo.nrsm.core.manager.utils.TerminalUtils;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.wsapi.utils.NoticeWebsocketResp;
@@ -47,6 +49,8 @@ public class TerminalManagerControllerApi {
     private ITerminalUnitService terminalUnitService;
     @Autowired
     private ITerminalMacIpv6Service terminalMacIpv6Service;
+    @Autowired
+    private TerminalUtils terminalUtils;
 
     @ApiOperation("设备 Mac (DT))")
     @GetMapping(value = {"/dt"})
@@ -115,7 +119,7 @@ public class TerminalManagerControllerApi {
             for (Terminal obj : nswitchList) {
                 for (Terminal terminal : obj.getTerminalList()) {
                     terminal.setDeviceUuid(obj.getDeviceUuid2());// 恢复实际设备Uuid
-                    completeTerminal(terminal);
+                    terminalUtils.completeTerminal(terminal);
                 }
             }
             terminalList.addAll(nswitchList);
@@ -123,47 +127,12 @@ public class TerminalManagerControllerApi {
 
         // 对所有终端进行补充操作
         for (Terminal terminal : terminalList) {
-            completeTerminal(terminal);
+            terminalUtils.completeTerminal(terminal);
         }
 
         return terminalList;
     }
 
-    public void completeTerminal(Terminal terminal) {
-
-        DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
-        if (deviceType != null) {
-            terminal.setDeviceTypeName(deviceType.getName());
-            terminal.setDeviceTypeUuid(deviceType.getUuid());
-        }
-        if (terminal.getVendorId() != null && !terminal.getVendorId().equals("")) {
-            Vendor vendor = this.vendorService.selectObjById(terminal.getVendorId());
-            if (vendor != null) {
-                terminal.setVendorName(vendor.getName());
-            }
-        }
-        if (StringUtil.isNotEmpty(terminal.getMac())) {
-            TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
-            if (terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1) {
-                terminal.setIsIpv6(1);
-            } else {
-                terminal.setIsIpv6(0);
-            }
-        }
-
-        if (terminal.getV6ip() != null && terminal.getV6ip().toLowerCase().startsWith("fe80")) {
-            terminal.setV6ip(null);
-        }
-        if (terminal.getV6ip1() != null && terminal.getV6ip1().toLowerCase().startsWith("fe80")) {
-            terminal.setV6ip1(null);
-        }
-        if (terminal.getV6ip2() != null && terminal.getV6ip2().toLowerCase().startsWith("fe80")) {
-            terminal.setV6ip2(null);
-        }
-        if (terminal.getV6ip3() != null && terminal.getV6ip3().toLowerCase().startsWith("fe80")) {
-            terminal.setV6ip3(null);
-        }
-    }
 
     /*
     {"noticeType":"102","userId":"1","time":"","params":{"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa":["6e:2e:10:93:cb:18"],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa2":["00:50:79:66:68:56","00:50:79:66:68:57"],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa3":[],"dtGroupDragAddHNFwsjWNtxdRSkiKX7bFFhJaEQHKWa4":[]}}
@@ -297,10 +266,12 @@ public class TerminalManagerControllerApi {
                     for (TerminalUnit terminalUnit : terminalUnitList) {
                         int v6_number = 0;
                         int number = 0;
-                        macUtils.terminalJoint(terminalUnit.getTerminalList());
                         if (terminalUnit.getTerminalList().size() > 0) {
 
                             for (Terminal terminal : terminalUnit.getTerminalList()) {
+
+
+                                terminalUtils.completeTerminal(terminal);
 
                                 if (terminal.getDeviceTypeId() != null && terminal.getDeviceTypeId() != 24 && terminal.getDeviceTypeId() != 10) {
                                     number += 1;
@@ -350,13 +321,13 @@ public class TerminalManagerControllerApi {
                     terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(params);
                     for (TerminalUnit terminalUnit : terminalUnitList) {
 
-
-                        macUtils.terminalJoint(terminalUnit.getTerminalList());
                         int v6_number = 0;
                         int number = terminalUnit.getTerminalList().size();
                         if (terminalUnit.getTerminalList().size() > 0) {
                             // 统计v6终端，后续v6状态改写终端表
                             for (Terminal terminal : terminalUnit.getTerminalList()) {
+
+                                terminalUtils.completeTerminal(terminal);
 
                                 DeviceType deviceType = this.deviceTypeService.selectObjById(terminal.getDeviceTypeId());
                                 if (deviceType != null) {

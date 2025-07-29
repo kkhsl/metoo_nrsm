@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.TerminalDTO;
 import com.metoo.nrsm.core.manager.utils.MacUtils;
+import com.metoo.nrsm.core.manager.utils.TerminalUtils;
 import com.metoo.nrsm.core.mapper.TerminalMacIpv6Mapper;
 import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.*;
@@ -46,9 +47,10 @@ public class TerminalManagerController {
     private TerminalMacIpv6Mapper terminalMacIpv6Mapper;
     @Autowired
     private IUnitService unitService;
-
     @Autowired
     private UnitMapper unitMapper;
+    @Autowired
+    private TerminalUtils terminalUtils;
 
     @GetMapping("/vdt")
     public Result vdt(String ip) {
@@ -188,6 +190,15 @@ public class TerminalManagerController {
             Map params = new HashMap();
             params.put("unitId", user.getUnitId());
             terminalUnitList = terminalUnitService.selectObjAndTerminalByMap(params);
+        }
+        if(terminalUnitList.size() > 0){
+            for (TerminalUnit terminalUnit : terminalUnitList) {
+                if(terminalUnit.getTerminalList().size() > 0){
+                    for (Terminal terminal : terminalUnit.getTerminalList()) {
+                        terminalUtils.completeTerminal(terminal);
+                    }
+                }
+            }
         }
         return ResponseUtil.ok(terminalUnitList);
     }

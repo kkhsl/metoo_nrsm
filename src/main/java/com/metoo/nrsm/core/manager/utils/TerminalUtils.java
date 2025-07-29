@@ -1,12 +1,30 @@
 package com.metoo.nrsm.core.manager.utils;
 
+import com.github.pagehelper.util.StringUtil;
+import com.metoo.nrsm.core.service.*;
+import com.metoo.nrsm.core.wsapi.utils.RedisResponseUtils;
+import com.metoo.nrsm.entity.DeviceType;
 import com.metoo.nrsm.entity.Terminal;
+import com.metoo.nrsm.entity.TerminalMacIpv6;
+import com.metoo.nrsm.entity.Vendor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class TerminalUtils {
+
+
+    @Autowired
+    private IDeviceTypeService deviceTypeService;
+    @Autowired
+    private IVendorService vendorService;
+    @Autowired
+    private ITerminalMacIpv6Service terminalMacIpv6Service;
+
 
     public static List<Terminal> different(List<Terminal> list1, List<Terminal> list2) {
         List<Terminal> differentTerminals1 = list1.stream()
@@ -22,6 +40,43 @@ public class TerminalUtils {
                 .collect(Collectors.toList());
 
         return commonTerminals;
+    }
+
+
+    public void completeTerminal(Terminal terminal) {
+
+        DeviceType deviceType = deviceTypeService.selectObjById(terminal.getDeviceTypeId());
+        if (deviceType != null) {
+            terminal.setDeviceTypeName(deviceType.getName());
+            terminal.setDeviceTypeUuid(deviceType.getUuid());
+        }
+        if (terminal.getVendorId() != null && !terminal.getVendorId().equals("")) {
+            Vendor vendor = this.vendorService.selectObjById(terminal.getVendorId());
+            if (vendor != null) {
+                terminal.setVendorName(vendor.getName());
+            }
+        }
+        if (StringUtil.isNotEmpty(terminal.getMac())) {
+            TerminalMacIpv6 terminalMacIpv6 = this.terminalMacIpv6Service.getMacByMacAddress(terminal.getMac());
+            if (terminalMacIpv6 != null && terminalMacIpv6.getIsIPv6() == 1) {
+                terminal.setIsIpv6(1);
+            } else {
+                terminal.setIsIpv6(0);
+            }
+        }
+
+        if (terminal.getV6ip() != null && terminal.getV6ip().toLowerCase().startsWith("fe80")) {
+            terminal.setV6ip(null);
+        }
+        if (terminal.getV6ip1() != null && terminal.getV6ip1().toLowerCase().startsWith("fe80")) {
+            terminal.setV6ip1(null);
+        }
+        if (terminal.getV6ip2() != null && terminal.getV6ip2().toLowerCase().startsWith("fe80")) {
+            terminal.setV6ip2(null);
+        }
+        if (terminal.getV6ip3() != null && terminal.getV6ip3().toLowerCase().startsWith("fe80")) {
+            terminal.setV6ip3(null);
+        }
     }
 
 

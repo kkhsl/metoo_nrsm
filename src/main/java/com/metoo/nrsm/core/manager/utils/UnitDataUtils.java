@@ -48,7 +48,6 @@ public class UnitDataUtils {
             for (Unit unit : unitList) {
                 // 获取测绘数据
                 String data = getSureyingData(unit);
-                log.info("单位：{} {}", unit.getUnitName(), data);
                 // 推送数据到远程
                 Map map = new HashMap();
                 map.put(unit.getUnitName(), data);
