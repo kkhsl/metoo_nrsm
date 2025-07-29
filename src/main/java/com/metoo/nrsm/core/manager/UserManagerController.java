@@ -248,8 +248,10 @@ public class UserManagerController {
 
                 }*/
                 return ResponseUtil.ok();
+            }else {
+                return ResponseUtil.error("无权限添加/修改!");
             }
-            return ResponseUtil.error();
+
         }
         return ResponseUtil.badArgument();
     }
