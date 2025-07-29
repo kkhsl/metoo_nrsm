@@ -32,6 +32,8 @@ public interface IUserService {
 
     Page<UserVo> query(UserDto dto);
 
+    void operationLog(String username, String roleName, String des);
+
     boolean save(UserDto dto);
 
     boolean update(User user);

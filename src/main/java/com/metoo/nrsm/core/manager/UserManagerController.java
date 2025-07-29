@@ -248,8 +248,10 @@ public class UserManagerController {
 
                 }*/
                 return ResponseUtil.ok();
+            }else {
+                return ResponseUtil.error("无权限添加/修改!");
             }
-            return ResponseUtil.error();
+
         }
         return ResponseUtil.badArgument();
     }
@@ -264,11 +266,13 @@ public class UserManagerController {
         User currentUser = ShiroUserHolder.currentUser();
         Role roleByName = roleMapper.findRoleByName(currentUser.getUserRole());
         if (roleByName.getType().equals("2")){
+            userService.operationLog(currentUser.getUsername(),roleByName.getName(),"无权限删除用户："+dto);
             return ResponseUtil.error("无权限删除");
         }else {
             if (user != null) {
                 // 判断用户是否为管理员
                 if (user.getType() == 1) {
+                    userService.operationLog(currentUser.getUsername(),roleByName.getName(),"删除用户失败："+dto);
                     return ResponseUtil.badArgument("删除失败");
                 }
                 user.setDeleteStatus(-1);
@@ -278,8 +282,7 @@ public class UserManagerController {
                 params.put("pageSize", 0);
                 params.put("currentPage", 0);
                 params.put("userId", user.getId());
-
-
+                userService.operationLog(currentUser.getUsername(),roleByName.getName(),"删除用户成功："+dto);
                 return ResponseUtil.ok();
             }
         }

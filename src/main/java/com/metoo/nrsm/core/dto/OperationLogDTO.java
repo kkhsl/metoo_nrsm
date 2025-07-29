@@ -35,4 +35,6 @@ public class OperationLogDTO extends PageDto<OperationLog> {
     private String DM;
     @ApiModelProperty("部门名称")
     private String MC;
+
+    private String other;
 }

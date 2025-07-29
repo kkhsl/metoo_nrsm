@@ -6,19 +6,25 @@ import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.UserDto;
 import com.metoo.nrsm.core.mapper.RoleMapper;
 import com.metoo.nrsm.core.mapper.UserMapper;
+import com.metoo.nrsm.core.service.IOperationLogService;
 import com.metoo.nrsm.core.service.IRoleService;
 import com.metoo.nrsm.core.service.IUserRoleService;
 import com.metoo.nrsm.core.service.IUserService;
 import com.metoo.nrsm.core.vo.UserVo;
+import com.metoo.nrsm.entity.OperationLog;
 import com.metoo.nrsm.entity.Role;
 import com.metoo.nrsm.entity.User;
 import com.metoo.nrsm.entity.UserRole;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
@@ -33,6 +39,10 @@ public class UserServiceImpl implements IUserService {
     private IRoleService roleService;
     @Autowired
     private RoleMapper roleMapper;
+
+    @Autowired
+    @Lazy
+    private IOperationLogService operationLogService;
 
 
     @Override
@@ -85,6 +95,60 @@ public class UserServiceImpl implements IUserService {
         return page;
     }
 
+    @Override
+    public void operationLog(String username,String roleName,String des) {
+        try {
+            // 获取当前请求的 HttpServletRequest 对象
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+            // 检查是否在 Web 请求上下文中
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+                OperationLog instance = new OperationLog();
+                instance.setAccount(username);
+                instance.setName(roleName);
+                instance.setDesc(des);
+
+                // 从请求对象中获取客户端 IP
+                String clientIP = getClientIP(request);
+                instance.setIp(clientIP); // 假设 setIp 接收 String 参数
+
+                this.operationLogService.saveOperationLog(instance);
+            } else {
+
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 获取客户端真实 IP 的方法（处理代理转发）
+    private String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        // 处理多级代理的情况（取第一个真实 IP）
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
+        }
+        return ip;
+    }
+
 
     @Override
     public boolean save(UserDto dto) {
@@ -101,13 +165,50 @@ public class UserServiceImpl implements IUserService {
         if (dto.getId() == null) {
             User currentUser = ShiroUserHolder.currentUser();
             Role roleByName = roleMapper.findRoleByName(currentUser.getUserRole());
+        if (roleByName.getType()!=null){
             if (roleByName.getType().equals("1")){
                 if (dto.getRole_id().length!=0){
+                    operationLog(currentUser.getUsername(),roleByName.getName(),"无权限新增用户："+dto);
                     return false;
                 }else {
-                    return true;
+                    try {
+                        this.userMapper.insert(user);
+
+                        String roleName = "";
+                        // 批量添加用户角色信息
+                        if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
+                            List<Integer> idList = Arrays.asList(dto.getRole_id());
+                            List<Role> roleList = this.roleService.findRoleByIdList(idList);
+                            List<UserRole> userRoles = new ArrayList<UserRole>();
+                            for (Role role : roleList) {
+                                UserRole userRole = new UserRole();
+                                userRole.setUser_id(user.getId());
+                                userRole.setRole_id(role.getId());
+                                userRoles.add(userRole);
+                                roleName += role.getName() + ",";
+                            }
+                            roleName = roleName.substring(0, roleName.lastIndexOf(","));
+                            this.userRoleService.batchAddUserRole(userRoles);
+                        }
+                        try {
+                            user.setUserRole(roleName);
+                            this.userMapper.update(user);
+
+                            operationLog(currentUser.getUsername(),roleByName.getName(),"成功新增用户："+dto);
+                            return true;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            operationLog(currentUser.getUsername(),roleByName.getName(),"新增用户失败："+dto);
+                            return false;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        operationLog(currentUser.getUsername(),roleByName.getName(),"新增用户失败："+dto);
+                        return false;
+                    }
                 }
             }else if(roleByName.getType().equals("2")){
+                operationLog(currentUser.getUsername(),roleByName.getName(),"无权限新增用户："+dto);
                 return false;
             }else {
                 try {
@@ -132,34 +233,181 @@ public class UserServiceImpl implements IUserService {
                     try {
                         user.setUserRole(roleName);
                         this.userMapper.update(user);
+                        operationLog(currentUser.getUsername(),roleByName.getName(),"成功新增用户："+dto);
+                        return true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        operationLog(currentUser.getUsername(),roleByName.getName(),"新增用户失败："+dto);
+                        return false;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    operationLog(currentUser.getUsername(),roleByName.getName(),"新增用户失败："+dto);
+                    return false;
+                }
+            }
+        }else {
+            try {
+                this.userMapper.insert(user);
+
+                String roleName = "";
+                // 批量添加用户角色信息
+                if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
+                    List<Integer> idList = Arrays.asList(dto.getRole_id());
+                    List<Role> roleList = this.roleService.findRoleByIdList(idList);
+                    List<UserRole> userRoles = new ArrayList<UserRole>();
+                    for (Role role : roleList) {
+                        UserRole userRole = new UserRole();
+                        userRole.setUser_id(user.getId());
+                        userRole.setRole_id(role.getId());
+                        userRoles.add(userRole);
+                        roleName += role.getName() + ",";
+                    }
+                    roleName = roleName.substring(0, roleName.lastIndexOf(","));
+                    this.userRoleService.batchAddUserRole(userRoles);
+                }
+                try {
+                    user.setUserRole(roleName);
+                    this.userMapper.update(user);
+                    operationLog(currentUser.getUsername(),roleByName.getName(),"成功新增用户："+dto);
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    operationLog(currentUser.getUsername(),roleByName.getName(),"新增用户失败："+dto);
+                    return false;
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                operationLog(currentUser.getUsername(),roleByName.getName(),"新增用户失败："+dto);
+                return false;
+            }
+        }
+
+        } else {
+            //修改
+            User currentUser = ShiroUserHolder.currentUser();
+            Role roleByName = roleMapper.findRoleByName(currentUser.getUserRole());
+            if (roleByName.getType().equals("1")){
+                List<Integer> idList1 = Arrays.asList(dto.getRole_id());
+                if (idList1.size()==0 && userMapper.findUserUpdate(dto.getId()).getUserRole()==null){
+                    try {
+                        String roleName = "";
+
+                        // 批量添加用户角色信息
+                        if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
+                            // 清除用户角色信息
+                            this.userRoleService.deleteUserByRoleId(user.getId());
+                            List<Integer> idList = Arrays.asList(dto.getRole_id());
+                            List<Role> roleList = this.roleService.findRoleByIdList(idList);
+                            List<UserRole> userRoles = new ArrayList<UserRole>();
+                            for (Role role : roleList) {
+                                UserRole userRole = new UserRole();
+                                userRole.setUser_id(user.getId());
+                                userRole.setRole_id(role.getId());
+                                userRoles.add(userRole);
+                                roleName += role.getName() + ",";
+                            }
+                            roleName = roleName.substring(0, roleName.lastIndexOf(","));
+                            this.userRoleService.batchAddUserRole(userRoles);
+                        }
+                        user.setUserRole(roleName);
+                        this.userMapper.update(user);
+
+
+                        if (dto.isFlag() && currentUser.getId().equals(user.getId())) {
+                            SecurityUtils.getSubject().logout();
+                        }
+                        operationLog(currentUser.getUsername(),roleByName.getName(),"成功修改用户："+dto);
                         return true;
                     } catch (Exception e) {
                         e.printStackTrace();
                         return false;
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            }
-        } else {
-            User currentUser = ShiroUserHolder.currentUser();
-            Role roleByName = roleMapper.findRoleByName(currentUser.getUserRole());
-            if (roleByName.getType().equals("1")){
-                List<Integer> idList = Arrays.asList(dto.getRole_id());
-                String name = roleMapper.findRoleById(Long.valueOf(idList.get(0))).getName();
-                UserVo userUpdate = userMapper.findUserUpdate(dto.getId());
-                if (name.equals(userUpdate.getUserRole())){
-                    return true;
                 }else {
-                    return false;
+                    String name = roleMapper.findRoleById(Long.valueOf(idList1.get(0))).getName();
+                    UserVo userUpdate = userMapper.findUserUpdate(dto.getId());
+                    if (name.equals(userUpdate.getUserRole())){
+                        try {
+                            String roleName = "";
+
+                            // 批量添加用户角色信息
+                            if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
+                                // 清除用户角色信息
+                                this.userRoleService.deleteUserByRoleId(user.getId());
+                                List<Integer> idList = Arrays.asList(dto.getRole_id());
+                                List<Role> roleList = this.roleService.findRoleByIdList(idList);
+                                List<UserRole> userRoles = new ArrayList<UserRole>();
+                                for (Role role : roleList) {
+                                    UserRole userRole = new UserRole();
+                                    userRole.setUser_id(user.getId());
+                                    userRole.setRole_id(role.getId());
+                                    userRoles.add(userRole);
+                                    roleName += role.getName() + ",";
+                                }
+                                roleName = roleName.substring(0, roleName.lastIndexOf(","));
+                                this.userRoleService.batchAddUserRole(userRoles);
+                            }
+                            user.setUserRole(roleName);
+                            this.userMapper.update(user);
+
+
+                            if (dto.isFlag() && currentUser.getId().equals(user.getId())) {
+                                SecurityUtils.getSubject().logout();
+                            }
+                            operationLog(currentUser.getUsername(),roleByName.getName(),"成功修改用户："+dto);
+
+                            return true;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            operationLog(currentUser.getUsername(),roleByName.getName(),"修改用户失败："+dto);
+                            return false;
+                        }
+                    }else {
+                        operationLog(currentUser.getUsername(),roleByName.getName(),"无权限修改用户："+dto);
+                        return false;
+                    }
                 }
             } else if (roleByName.getType().equals("2")){
                 UserVo userUpdate = userMapper.findUserUpdate(dto.getId());
-                if (dto.getPassword()!=null || !userUpdate.getUsername().equals(dto.getUsername()) || !userUpdate.getUnitId().equals(dto.getUnitId())){
+                if (!dto.getPassword().equals("") || !userUpdate.getUsername().equals(dto.getUsername()) || !userUpdate.getUnitId().equals(dto.getUnitId())){
+                    operationLog(currentUser.getUsername(),roleByName.getName(),"无权限修改用户："+dto);
                     return false;
                 }else {
-                    return true;
+                    try {
+                        String roleName = "";
+
+                        // 批量添加用户角色信息
+                        if (dto.getRole_id() != null && dto.getRole_id().length > 0) {
+                            // 清除用户角色信息
+                            this.userRoleService.deleteUserByRoleId(user.getId());
+                            List<Integer> idList = Arrays.asList(dto.getRole_id());
+                            List<Role> roleList = this.roleService.findRoleByIdList(idList);
+                            List<UserRole> userRoles = new ArrayList<UserRole>();
+                            for (Role role : roleList) {
+                                UserRole userRole = new UserRole();
+                                userRole.setUser_id(user.getId());
+                                userRole.setRole_id(role.getId());
+                                userRoles.add(userRole);
+                                roleName += role.getName() + ",";
+                            }
+                            roleName = roleName.substring(0, roleName.lastIndexOf(","));
+                            this.userRoleService.batchAddUserRole(userRoles);
+                        }
+                        user.setUserRole(roleName);
+                        this.userMapper.update(user);
+
+
+                        if (dto.isFlag() && currentUser.getId().equals(user.getId())) {
+                            SecurityUtils.getSubject().logout();
+                        }
+                        operationLog(currentUser.getUsername(),roleByName.getName(),"成功修改用户："+dto);
+                        return true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        operationLog(currentUser.getUsername(),roleByName.getName(),"修改用户失败："+dto);
+                        return false;
+                    }
                 }
             } else {
                 try {
@@ -186,25 +434,14 @@ public class UserServiceImpl implements IUserService {
                     this.userMapper.update(user);
 
 
-
-                    // 第一种方式 强制退出当前帐号
-                    // 如果修改的是当前已登录用户信息则退出当前帐号
                     if (dto.isFlag() && currentUser.getId().equals(user.getId())) {
                         SecurityUtils.getSubject().logout();
-                        // 修改身份信息后，动态更改Subject的用户属性
-                   /* Subject subject = SecurityUtils.getSubject();
-                    String username = (String) subject.getPrincipal();
-                    User userInfo = this.userMapper.findByUserName(username);// 查询指定属性，封装到Subject内
-                    PrincipalCollection newPrincipalCollection =
-                            new SimplePrincipalCollection(userInfo, userInfo.getUsername());
-                    subject.runAs(newPrincipalCollection);*/
                     }
-
-                    //第二种防止 强制退出被修改用户
-
+                    operationLog(currentUser.getUsername(),roleByName.getName(),"成功修改用户："+dto);
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();
+                    operationLog(currentUser.getUsername(),roleByName.getName(),"修改用户失败："+dto);
                     return false;
                 }
             }

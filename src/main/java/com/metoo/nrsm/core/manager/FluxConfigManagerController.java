@@ -265,9 +265,9 @@ public class FluxConfigManagerController {
             params.put("startOfDay", startTime);
             params.put("endOfDay",endTime);
             params.put("orderBy","addTime");
-            List<FlowStatistics> flowStatistics1 = flowStatisticsService.selectObjByMap(params);
+            FlowStatistics flowStatistics1 = flowStatisticsService.selectObjByMap(params).get(0);
 
-            if (flowStatistics1.isEmpty()) {
+            if (flowStatistics1==null) {
                 if (ipv4Sum.add(ipv6Sum).compareTo(BigDecimal.ZERO) != 0) {
                     ipv6Rate = ipv6Sum.divide(ipv4Sum.add(ipv6Sum), DECIMAL_SCALE, ROUNDING_MODE);
                 } else {
@@ -279,10 +279,9 @@ public class FluxConfigManagerController {
                 flowStatisticsService.save1(flowStatistics);  //采集
             }
 
-            for (FlowStatistics flowStatistics2 : flowStatistics1) {
-                if (flowStatistics2 != null) {
-                    BigDecimal ipv4Sum1 = flowStatistics2.getIpv4Sum();
-                    BigDecimal ipv6Sum1 = flowStatistics2.getIpv6Sum();
+                if (flowStatistics1 != null) {
+                    BigDecimal ipv4Sum1 = flowStatistics1.getIpv4Sum();
+                    BigDecimal ipv6Sum1 = flowStatistics1.getIpv6Sum();
 
                     // 计算增量
                     BigDecimal ipv4Delta = ipv4Sum.subtract(ipv4Sum1).setScale(DECIMAL_SCALE, ROUNDING_MODE);
@@ -294,36 +293,24 @@ public class FluxConfigManagerController {
                         ipv6Rate = ipv6Delta.divide(totalDelta, DECIMAL_SCALE, ROUNDING_MODE);
                     } else {
                         // 当增量极小时保持原值
-                        if (flowStatistics2.getIpv6Rate() != null) {
-                            ipv6Rate = flowStatistics2.getIpv6Rate();
+                        if (flowStatistics1.getIpv6Rate() != null) {
+                            ipv6Rate = flowStatistics1.getIpv6Rate();
                         } else {
                             ipv6Rate = BigDecimal.ZERO;
                         }
                     }
 
                     // 单位转换（保留精度）
-                    flowStatistics2.setIpv4Sum(
+                    flowStatistics1.setIpv4Sum(
                             ipv4Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE)
                     );
-                    flowStatistics2.setIpv6Sum(
+                    flowStatistics1.setIpv6Sum(
                             ipv6Delta.divide(BigDecimal.valueOf(1000000), DECIMAL_SCALE, ROUNDING_MODE)
                     );
-                    flowStatistics2.setAddTime(date);
-                    flowStatistics2.setIpv6Rate(ipv6Rate);
-                    flowStatisticsService.save(flowStatistics2);
-                } else {
-                    if (ipv4Sum.add(ipv6Sum).compareTo(BigDecimal.ZERO) != 0) {
-                        ipv6Rate = ipv6Sum.divide(ipv4Sum.add(ipv6Sum), DECIMAL_SCALE, ROUNDING_MODE);
-                    } else {
-                        ipv6Rate = BigDecimal.ZERO;
-                    }
-
-                    flowStatistics.setIpv4Sum(ipv4Sum.divide(BigDecimal.valueOf(1), DECIMAL_SCALE, ROUNDING_MODE));
-                    flowStatistics.setIpv6Sum(ipv6Sum.divide(BigDecimal.valueOf(1), DECIMAL_SCALE, ROUNDING_MODE));
-                    flowStatisticsService.save1(flowStatistics);
+                    flowStatistics1.setAddTime(date);
+                    flowStatistics1.setIpv6Rate(ipv6Rate);
+                    flowStatisticsService.save(flowStatistics1);
                 }
-            }
-
         }
         return ResponseUtil.ok();
     }

@@ -2,7 +2,6 @@ package com.metoo.nrsm.core.manager;
 
 import com.github.pagehelper.Page;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
-import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.PlantRoomDTO;
 import com.metoo.nrsm.core.service.IPlantRoomService;
 import com.metoo.nrsm.core.service.IRackService;
@@ -14,7 +13,6 @@ import com.metoo.nrsm.core.vo.PlantRoomVO;
 import com.metoo.nrsm.entity.PlantRoom;
 import com.metoo.nrsm.entity.Rack;
 import com.metoo.nrsm.entity.RsmsDevice;
-import com.metoo.nrsm.entity.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Api("机柜")
 @RequestMapping("/admin/rack")
@@ -51,7 +52,7 @@ public class RackManagerController {
         if (uuid != null) {
             RsmsDevice device = this.rsmsDeviceService.getObjByUuid(uuid);
             if (device == null) {
-                return ResponseUtil.badArgument("设备已删除");
+                return ResponseUtil.badArgument("设备未在任何机柜中");
             }
             Object obj = this.rackService.rack(device.getRackId());
             return ResponseUtil.ok(obj);

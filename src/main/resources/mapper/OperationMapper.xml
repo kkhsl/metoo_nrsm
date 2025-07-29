@@ -15,8 +15,8 @@
             <if test="account != null and account != ''">
                 AND `account` = #{account}
             </if>
-            <if test="name != null and name != ''">
-                AND `name` = #{name}
+            <if test="name != null and name != '' and other != null and other != ''">
+                AND `name` = #{name} or `name` = #{other}
             </if>
             <if test="action != null and action != ''">
                 AND `action` = #{action}

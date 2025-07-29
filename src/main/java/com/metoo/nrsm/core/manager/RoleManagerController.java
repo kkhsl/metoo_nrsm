@@ -168,16 +168,21 @@ public class RoleManagerController {
     @RequestMapping("/delete")
     public Object delete(@RequestBody RoleDto dto) {
         Role role = this.roleService.findRoleById(dto.getId());
-        if (role != null) {
-            // 根据角色ID查询权限
-            List<Res> resList = this.resService.findResByRoleId(role.getId());
-            if (resList.size() > 0) {
-                return ResponseUtil.fail("已有用户关联当前角色，禁止删除");
+        if (role.getType().equals("0") || role.getType().equals("1") || role.getType().equals("2") || role.getType().equals("3")){
+            return ResponseUtil.error("系统自带角色不能删除");
+        }else {
+            if (role != null) {
+                // 根据角色ID查询权限
+                List<Res> resList = this.resService.findResByRoleId(role.getId());
+                if (resList.size() > 0) {
+                    return ResponseUtil.fail("已有用户关联当前角色，禁止删除");
+                }
+                if (this.roleService.delete(role.getId())) {
+                    return ResponseUtil.ok();
+                }
             }
-            if (this.roleService.delete(role.getId())) {
-                return ResponseUtil.ok();
-            }
+            return ResponseUtil.delete();
         }
-        return ResponseUtil.delete();
+
     }
 }
