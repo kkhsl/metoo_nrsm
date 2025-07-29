@@ -46,7 +46,7 @@ public class FlowStatisticsManagerControllerApi {
             Map params = new HashMap();
             params.put("startOfDay", DateTools.getStartOfDay());
             params.put("endOfDay", DateTools.getEndOfDay());
-            List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap(params);
+            List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap1(params);
 
             // 补零前端显示
             // 2. 生成所有 5 分钟间隔的时间点
