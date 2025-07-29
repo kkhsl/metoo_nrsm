@@ -10,7 +10,7 @@ import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
 import com.metoo.nrsm.core.mapper.ProbeMapper;
 import com.metoo.nrsm.core.service.*;
-import com.metoo.nrsm.core.utils.api.ApiService;
+import com.metoo.nrsm.core.utils.api.TrafficPushApiService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.enums.LogStatusType;
 import com.metoo.nrsm.core.vo.ProbeRequestVO;
@@ -18,12 +18,10 @@ import com.metoo.nrsm.entity.Probe;
 import com.metoo.nrsm.entity.Terminal;
 import com.metoo.nrsm.entity.ProbeResult;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +44,7 @@ public class ProbeServiceImpl implements IProbeService {
     @Autowired
     private ITerminalService terminalService;
     @Autowired
-    private ApiService apiService;
+    private TrafficPushApiService trafficPushApiService;
     @Autowired
     private IProbeResultService probeResultService;
     @Autowired
@@ -485,7 +483,7 @@ public class ProbeServiceImpl implements IProbeService {
 
             jsonRequest.setIp(ipAddresses);
 
-            String result = apiService.callThirdPartyApi(apUrl, jsonRequest);
+            String result = trafficPushApiService.callThirdPartyApi(apUrl, jsonRequest);
 
             if (result != null) {
                 ProbeResult probeResult = this.probeResultService.selectObjByOne();
@@ -515,7 +513,7 @@ public class ProbeServiceImpl implements IProbeService {
 
             jsonRequest.setIp(ipAddresses);
 
-            String result = apiService.callThirdPartyApi(apUrl, jsonRequest);
+            String result = trafficPushApiService.callThirdPartyApi(apUrl, jsonRequest);
 
             if (result != null) {
                 ProbeResult probeResult = this.probeResultService.selectObjByOne();

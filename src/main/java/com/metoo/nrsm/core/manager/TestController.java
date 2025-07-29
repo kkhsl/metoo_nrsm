@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.client.traffic.utils.ApiTrafficPushUtils;
+import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
 import com.metoo.nrsm.core.thirdparty.api.traffic.TimeUtils;
 import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficPullApi;
 import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
@@ -9,6 +10,8 @@ import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.system.conf.network.strategy.NetplanConfigManager;
 import com.metoo.nrsm.core.system.conf.network.sync.LocalNetplanSyncService;
 import com.metoo.nrsm.core.system.conf.network.sync.WindowsSshNetplanSyncService;
+import com.metoo.nrsm.core.utils.api.EncrypUtils;
+import com.metoo.nrsm.core.utils.api.netmap.NetmapResultPushApiUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.*;
@@ -38,6 +41,8 @@ public class TestController {
     private ISubnetService subnetService;
     @Autowired
     private WindowsSshNetplanSyncService remoteSyncService;
+    @Autowired
+    private NetmapResultPushApiUtils netmapResultPushApiUtils;
 
     /**
      * 注意删除该引用jar，使用了另一个
@@ -58,7 +63,13 @@ public class TestController {
     @Autowired
     private ApiTrafficPushUtils apiTrafficPushUtils;
 
-
+    @GetMapping("/netmap")
+    public void netmap(){
+        Map params = new HashMap();
+        params.put("unitName", "测试单位");
+        params.put("content", EncrypUtils.encrypt("测试"));
+        netmapResultPushApiUtils.send(params);
+    }
 
     @GetMapping("/api")
     public void api(){

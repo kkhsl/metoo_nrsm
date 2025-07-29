@@ -2,7 +2,7 @@ package com.metoo.nrsm.core.client.traffic.schedule;
 
 
 import com.metoo.nrsm.core.manager.utils.SseManager;
-import com.metoo.nrsm.core.utils.api.ApiExecUtils;
+import com.metoo.nrsm.core.utils.api.TrafficPushExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class TrafficPushScheduler {
 
     @Autowired
-    private ApiExecUtils apiExecUtils;
+    private TrafficPushExecUtils trafficPushExecUtils;
 
     @Value("${task.switch.traffic.is-open}")
     private boolean traffic;
@@ -67,7 +67,7 @@ public class TrafficPushScheduler {
             try {
                 sseManager.sendLogToAll(TASK_TYPE, "流量采集任务开始");
                 Long time = System.currentTimeMillis();
-                apiExecUtils.exec();
+                trafficPushExecUtils.pushTraffic();
                 String execTime = "流量采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time);
                 log.info(execTime);
                 sseManager.sendLogToAll(TASK_TYPE, execTime);

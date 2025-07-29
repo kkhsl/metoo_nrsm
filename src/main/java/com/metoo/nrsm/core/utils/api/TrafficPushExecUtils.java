@@ -4,6 +4,7 @@ import com.metoo.nrsm.core.client.traffic.utils.ApiTrafficPushUtils;
 import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
+import com.metoo.nrsm.core.manager.utils.SseManager;
 import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.vo.UnitVO;
@@ -16,12 +17,12 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class ApiExecUtils {
+public class TrafficPushExecUtils {
 
     @Autowired
     private IFlowUnitService flowUnitService;
     @Autowired
-    private ApiUtils apiUtils;
+    private TrafficPushApiUtils trafficPushApiUtils;
     @Autowired
     private ApiTrafficPushUtils apiTrafficPushUtils;
 
@@ -62,14 +63,15 @@ public class ApiExecUtils {
     // 调用API的方法，避免重复代码
     private void callApi(List<UnitVO> unitVos) {
         try {
-            this.apiUtils.monitorApi(unitVos);
+            this.trafficPushApiUtils.monitorApi(unitVos);
         } catch (Exception e) {
             log.error("推送mt监控平台失败：{}", e.getMessage());
         }
 
         // 监管平台（信产）
         try {
-            this.apiUtils.partyApi(unitVos);
+//            this.apiUtils.partyApi(unitVos);
+            pushTrafficManagerPlatform(unitVos);
         } catch (Exception e) {
             log.error("推送监管平台失败：{}", e.getMessage());
         }
@@ -83,7 +85,7 @@ public class ApiExecUtils {
     }
 
 
-    public void exec() {
+    public void pushTraffic() {
 
         log.info("设置时间");
         String time = DateUtils.getDateTimeWithZeroSeconds(new Date());
@@ -103,5 +105,21 @@ public class ApiExecUtils {
         log.info("调用api");
         callApi(unitVos);
     }
+
+
+    // 创建SSE管理器，获取全局会话，指定推送流量调用日志
+    SseManager sseManager = new SseManager();
+
+    // 推送数据到管理平台 manager platform
+    // 增加推送流量日志SSE
+    public void pushTrafficManagerPlatform(List<UnitVO> unitVOList){
+        if(unitVOList.size() > 0){
+            for (UnitVO unitVO : unitVOList) {
+                String log = trafficPushApiUtils.pushTrafficUnit(unitVO);
+                sseManager.sendLogToAll("TRAFFIC-LOG", log);
+            }
+        }
+    }
+        
 
 }

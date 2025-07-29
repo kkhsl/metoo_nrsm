@@ -11,7 +11,7 @@ import com.metoo.nrsm.core.config.utils.gather.utils.PyExecUtils;
 import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.ITrafficService;
 import com.metoo.nrsm.core.service.IFlowUnitService;
-import com.metoo.nrsm.core.utils.api.ApiService;
+import com.metoo.nrsm.core.utils.api.TrafficPushApiService;
 import com.metoo.nrsm.core.utils.date.RandomIntervalGenerator;
 import com.metoo.nrsm.core.utils.date.TimeRangeChecker;
 import com.metoo.nrsm.core.utils.date.WeekendChecker;
@@ -342,8 +342,8 @@ public class TrafficByGatewayFactoryImpl implements Gather {
                     int i = trafficService.save(traffic);
 
                     // 发送数据-netmap-monitor
-                    ApiService apiService = new ApiService(new RestTemplate());
-                    apiService.sendDataToMTO(JSON.toJSONString(traffic));
+                    TrafficPushApiService trafficPushApiService = new TrafficPushApiService(new RestTemplate());
+                    trafficPushApiService.sendDataToMTO(JSON.toJSONString(traffic));
 
                     log.info("controller=================================end" + i + "num");
                 } catch (Exception e) {
@@ -519,8 +519,8 @@ public class TrafficByGatewayFactoryImpl implements Gather {
             traffic.setUnitName(unit.getUnitName());
 
             // 发送数据-netmap-monitor
-            ApiService apiService = new ApiService(new RestTemplate());
-            apiService.sendDataToMTO(JSON.toJSONString(traffic));
+            TrafficPushApiService trafficPushApiService = new TrafficPushApiService(new RestTemplate());
+            trafficPushApiService.sendDataToMTO(JSON.toJSONString(traffic));
 
             log.info("controller=================================end");
 
@@ -696,8 +696,8 @@ public class TrafficByGatewayFactoryImpl implements Gather {
 
 
                     // 发送数据-netmap-monitor
-                    ApiService apiService = new ApiService(new RestTemplate());
-                    apiService.sendDataToMTO(JSON.toJSONString(traffic));
+                    TrafficPushApiService trafficPushApiService = new TrafficPushApiService(new RestTemplate());
+                    trafficPushApiService.sendDataToMTO(JSON.toJSONString(traffic));
 
                     log.info("controller=================================end" + i + "num");
                 } catch (Exception e) {
