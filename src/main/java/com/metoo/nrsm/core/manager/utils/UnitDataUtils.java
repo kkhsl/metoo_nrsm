@@ -39,7 +39,8 @@ public class UnitDataUtils {
         return date;
     }
 
-    public String getEncryptedDataByUnit() {
+    public List<Map<String, String>> getEncryptedDataByUnit() {
+        List list = new ArrayList();
         String encryptedData = "";
         // 查询全部单位
         List<Unit> unitList = unitService.selectUnitAll();
@@ -49,11 +50,13 @@ public class UnitDataUtils {
                 String data = getSureyingData(unit);
                 log.info("单位：{} {}", unit.getUnitName(), data);
                 // 推送数据到远程
-
+                Map map = new HashMap();
+                map.put(unit.getUnitName(), data);
+                list.add(map);
             }
 
         }
-        return encryptedData;
+        return list;
     }
 
     public String getSureyingData(Unit unit){

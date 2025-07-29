@@ -6,10 +6,12 @@ import com.metoo.nrsm.core.manager.utils.UnitDataUtils;
 import com.metoo.nrsm.core.service.IProbeService;
 import com.metoo.nrsm.core.service.ISurveyingLogService;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.utils.api.netmap.NetmapResultPushApiUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.enums.LogStatusType;
 import com.metoo.nrsm.core.vo.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -103,12 +108,33 @@ public class SureyingTaskController {
     }
 
 
+    @Autowired
+    private NetmapResultPushApiUtils netmapResultPushApiUtils;
+
     /**
      * 实际业务方法 - 模拟数据采集
      */
     private void gatherData() throws InterruptedException {
         probeService.scanByTerminal();
-        unitDataUtils.getEncryptedDataByUnit();
+        List<Map<String, String>> unitLists = unitDataUtils.getEncryptedDataByUnit();
+        if(unitLists.size() > 0){
+            for (Map<String, String> objectMap : unitLists) {
+                for (Map.Entry<String, String> stringObjectEntry : objectMap.entrySet()) {
+                    String unitName = stringObjectEntry.getKey();
+                    String content = stringObjectEntry.getValue();
+                    try {
+                        Map params = new HashMap();
+                        params.put("unitName", unitName);
+                        params.put("content", content);
+                        netmapResultPushApiUtils.send(params);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.info("单位：{} 推送测绘数据失败", unitName);
+                    }
+
+                }
+            }
+        }
     }
 
     // 检测扫描设备是否可用

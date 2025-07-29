@@ -153,15 +153,22 @@ public class TrafficFactoryMainImpl implements Gather {
         }
 
         // 创建 DecimalFormat 来保留两位小数
-        DecimalFormat df = new DecimalFormat("#.00");
+        DecimalFormat df = new DecimalFormat("0.00");
 
         // 设置增量流量，保留两位小数
-        unit.setVfourFlow(df.format(ipv4TrafficDiff));  // 设置增量流量
-        unit.setVsixFlow(df.format(ipv6TrafficDiff));   // 设置增量流量
-
+        if(ipv4TrafficDiff != 0){
+            unit.setVfourFlow(df.format(ipv4TrafficDiff));  // 设置增量流量
+        }
+        if(ipv6TrafficDiff != 0){
+            unit.setVsixFlow(df.format(ipv6TrafficDiff));   // 设置增量流量
+        }
         // 更新总流量为当前流量，保留两位小数
-        unit.setVfourFlowTotal(df.format(currentIpv4Traffic));  // 更新 IPv4 总流量
-        unit.setVsixFlowTotal(df.format(currentIpv6Traffic));   // 更新 IPv6 总流量
+        if(currentIpv4Traffic != 0){
+            unit.setVfourFlowTotal(df.format(currentIpv4Traffic));  // 更新 IPv4 总流量
+        }
+        if(currentIpv6Traffic != 0){
+            unit.setVsixFlowTotal(df.format(currentIpv6Traffic));   // 更新 IPv6 总流量
+        }
     }
 
 
@@ -190,5 +197,12 @@ public class TrafficFactoryMainImpl implements Gather {
 //
 //        log.info("差值：{}", flowDifference);
 
+    public static void main(String[] args) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        double ipv4TrafficDiff = 0;
+        String a = df.format(ipv4TrafficDiff);
+        System.out.println(a);
+
+    }
 
 }

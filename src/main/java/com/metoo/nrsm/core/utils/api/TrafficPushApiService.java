@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.utils.api;
 
 
+import com.metoo.nrsm.core.utils.api.netmap.NetmapPushRequestParams;
 import com.metoo.nrsm.core.vo.ProbeRequestVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 @Service
-public class ApiService {
+public class TrafficPushApiService {
 
     // 操作日志
 //    private final static String URL = "http://175.6.37.154:10000/api/general/log/data/{data}";
@@ -42,7 +43,7 @@ public class ApiService {
     private final RestTemplate restTemplate;
 
     @Autowired
-    public ApiService(RestTemplate restTemplate) {
+    public TrafficPushApiService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
@@ -342,6 +343,59 @@ public class ApiService {
             log.error("无法连接到目标主机: {}", e.getMessage());
         }*/ catch (ResourceAccessException e) {
             log.error("网络连接问题: {}", e.getMessage());
+            return "网络连接问题";
+        } catch (HttpServerErrorException | HttpClientErrorException e) {
+            log.error("HTTP 错误响应: 状态码 - {}", e.getStatusCode());
+            log.error("请求失败: {}", e.getMessage());
+            return "HTTP 错误响应";
+        } catch (RestClientException e) {
+            log.error("请求失败: {}", e.getMessage());
+            return "请求失败";
+        } catch (Exception e) {
+            log.info("其他异常： {}", e.getMessage());
+            return "其他异常";
+        }
+    }
+
+
+
+
+    // 超时
+    public String callNetmapApi(String apiUrl, NetmapPushRequestParams netmapPushRequestParams) throws Exception {
+
+        // 设置请求头
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.set("nonce", netmapPushRequestParams.getNonce());
+        headers.set("timestamp", netmapPushRequestParams.getTimestamp());
+        try {
+            String signature = sha1(netmapPushRequestParams.getTimestamp() + netmapPushRequestParams.getNonce());
+            headers.set("signature", signature);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // 设置字符集编码为 UTF-8(必须)
+        headers.set("charset", "UTF-8");
+
+        HttpEntity<String> requestBody = new HttpEntity<>(netmapPushRequestParams.getData(), headers);
+        try {
+            log.info("Api exchange =================================");
+            ResponseEntity<String> response = restTemplate.exchange(
+                    apiUrl,
+                    HttpMethod.POST,
+                    requestBody,
+                    String.class
+            );
+            log.info("Api body=================================" + response.getBody());
+
+            return response.getBody();
+        } /*catch (HttpHostConnectException e) {// 会被spring restTemplate异常封装类拦截
+            log.error("无法连接到目标主机: {}", e.getMessage());
+        }*/ catch (ResourceAccessException e) {
+            log.error("网络连接问题: {}", e.getMessage());
         } catch (HttpServerErrorException | HttpClientErrorException e) {
             log.error("HTTP 错误响应: 状态码 - {}", e.getStatusCode());
             log.error("请求失败: {}", e.getMessage());
@@ -352,6 +406,7 @@ public class ApiService {
         }
         return "";
     }
+
 
     public static String sha1(String input) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");

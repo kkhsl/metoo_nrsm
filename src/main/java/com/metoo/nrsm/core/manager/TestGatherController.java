@@ -7,7 +7,7 @@ import com.metoo.nrsm.core.service.IGatherService;
 import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.service.impl.ProbeServiceImpl;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.api.ApiExecUtils;
+import com.metoo.nrsm.core.utils.api.TrafficPushExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;
@@ -38,7 +38,7 @@ public class TestGatherController {
     @Autowired
     private ITerminalService terminalService;
     @Autowired
-    private ApiExecUtils apiExecUtils;
+    private TrafficPushExecUtils trafficPushExecUtils;
 
     @GetMapping("/traffic")
     public void traffic() {
@@ -54,7 +54,7 @@ public class TestGatherController {
     @GetMapping("/trafficScheduled")
     public void trafficScheduled() {
         try {
-            apiExecUtils.exec();
+            trafficPushExecUtils.pushTraffic();
         } catch (Exception e) {
         }
     }
