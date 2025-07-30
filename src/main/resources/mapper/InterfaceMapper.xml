@@ -308,4 +308,8 @@
         delete from metoo_interface where id = #{id}
     </delete>
 
+    <update id="truncate">
+        TRUNCATE TABLE metoo_interface
+    </update>
+
 </mapper>
