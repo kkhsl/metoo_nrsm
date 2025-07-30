@@ -1,6 +1,5 @@
 package com.metoo.nrsm.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.metoo.nrsm.core.domain.IdEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -36,7 +35,6 @@ public class OperationLog extends IdEntity {
     @ApiModelProperty("部门代码")
     private String DM;
     @ApiModelProperty("部门名称")
-    @JsonProperty("MC")
     private String MC;
 
 }

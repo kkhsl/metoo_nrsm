@@ -30,6 +30,15 @@
             <if test="MC != null and MC != ''">
                 AND `MC` = #{MC}
             </if>
+            <if test="DM != null and DM != ''">
+                AND `DM` = #{DM}
+            </if>
+            <if test="startTime != null">
+                AND addTime >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND addTime <![CDATA[ <= ]]> #{endTime}
+            </if>
         </where>
         <if test="orderBy != null and orderBy != ''">
             ORDER BY ${orderBy}
@@ -73,6 +82,9 @@
             <if test="MC != null and MC != ''">
                 `MC`,
             </if>
+            <if test="DM != null and DM != ''">
+                `DM`,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -101,6 +113,9 @@
             </if>
             <if test="MC != null and MC != ''">
                 #{MC},
+            </if>
+            <if test="DM != null and DM != ''">
+                #{DM},
             </if>
         </trim>
     </insert>
@@ -135,6 +150,9 @@
             </if>
             <if test="MC != null and MC != ''">
                 `MC` = #{MC},
+            </if>
+            <if test="DM != null and DM != ''">
+                `DM` = #{DM},
             </if>
         </set>
         where id = #{id}

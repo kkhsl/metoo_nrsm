@@ -45,6 +45,7 @@ public class OperationLogManagerController {
         if (roleByName.getType().equals("2")){
             dto.setType(0);
             dto.setName(role.getName());
+            dto.setOther(role.getName());
             Page<OperationLog> page = this.operationLogService.selectObjConditionQuery(dto);
             if (page.getResult().size() > 0) {
                 return ResponseUtil.ok(new PageInfo<OperationLog>(page));
