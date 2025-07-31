@@ -50,7 +50,7 @@ public class LogoController {
     @GetMapping("/name")
     public Result list() {
         String name = logoService.getCurrentName();
-        String logoUrl = logoService.getCurrentLogo();
+        String logoUrl = logoService.getCurrentLogo()+"?t="+System.currentTimeMillis();
         Map map=new HashMap();
         map.put("name",name);
         map.put("logoUrl",logoUrl);
