@@ -39,6 +39,12 @@ public class DateTools {
     public static long ONEDAY_TIME = 86400000L;
 
 
+    public static String getCurrentDateTime() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String date = simpleDateFormat.format(new Date());
+        return date;
+    }
+
     public static String getCreateTime() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

@@ -177,8 +177,8 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    private volatile boolean isRunningMAC = true;
-    //@Scheduled(fixedDelay = 180_000)
+    private volatile boolean isRunningMAC = false;
+    @Scheduled(fixedDelay = 180_000)
     public void gatherMac() {
         if (flag && !isRunningMAC) {
             log.info("MAC采集任务开始");
@@ -203,7 +203,6 @@ public class GatherTaskScheduledUtil {
     }
 
     //    @Transactional // 可以结合该注解确调度任务在事务中运行，并在异常时正确回滚事务
-//    @Scheduled(fixedRate = 60000) // 每60秒执行一次
     private volatile boolean isRunningIPV4 = false;
 
     @Scheduled(fixedDelay = 180_000)
