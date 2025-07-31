@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/webSet")
@@ -34,12 +36,6 @@ public class LogoController {
         return ResponseUtil.ok("Logo更新成功");
     }
 
-    @GetMapping
-    public Result getLogo() {
-        String logoUrl = logoService.getCurrentLogo();
-        return ResponseUtil.ok(logoUrl);
-    }
-
     private boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
@@ -54,7 +50,11 @@ public class LogoController {
     @GetMapping("/name")
     public Result list() {
         String name = logoService.getCurrentName();
-        return ResponseUtil.ok(name);
+        String logoUrl = logoService.getCurrentLogo();
+        Map map=new HashMap();
+        map.put("name",name);
+        map.put("logoUrl",logoUrl);
+        return ResponseUtil.ok(map);
     }
 
 

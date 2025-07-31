@@ -25,6 +25,9 @@ public class LogoServiceImpl {
     @Value("${logo.name}")
     private String logoName;
 
+    @Value("${sys.address}")
+    private String ip;
+
 
     @Autowired
     private WebSetMapper webSetMapper;
@@ -45,7 +48,9 @@ public class LogoServiceImpl {
 
         // 3. 获取当前配置
         WebSet currentConfig = getCurrentConfig();
-        String oldLogoPath = currentConfig != null ? currentConfig.getLogoUrl() : null;
+//        String oldLogoPath = currentConfig != null ? currentConfig.getLogoUrl() : null;
+        String fileName = logoName + getFileExtension(file.getOriginalFilename());
+        String oldLogoPath = uploadPath+"/"+fileName;
 
         // 7. 删除旧Logo文件（如果存在）
         if (oldLogoPath != null && !oldLogoPath.isEmpty()) {
@@ -54,8 +59,8 @@ public class LogoServiceImpl {
 
         // 4. 生成唯一文件名
 //        String fileName = "logo_" + System.currentTimeMillis() + getFileExtension(file.getOriginalFilename());
-        String fileName = logoName + getFileExtension(file.getOriginalFilename());
-        String newLogoPath = uploadPath+"/" + fileName;
+        fileName = logoName + getFileExtension(file.getOriginalFilename());
+        String newLogoPath = ip+ fileName;
 
         // 5. 保存新文件
         Path targetPath = uploadDir.resolve(fileName);
