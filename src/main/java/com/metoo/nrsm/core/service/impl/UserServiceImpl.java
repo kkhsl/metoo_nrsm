@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
 import com.metoo.nrsm.core.dto.UserDto;
 import com.metoo.nrsm.core.mapper.RoleMapper;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.mapper.UserMapper;
 import com.metoo.nrsm.core.service.IOperationLogService;
 import com.metoo.nrsm.core.service.IRoleService;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
@@ -39,6 +41,9 @@ public class UserServiceImpl implements IUserService {
     private IRoleService roleService;
     @Autowired
     private RoleMapper roleMapper;
+
+    @Resource
+    private UnitMapper unitMapper;
 
     @Autowired
     @Lazy
@@ -98,6 +103,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void operationLog(String username,String roleName,String des) {
         try {
+            User currentUser = ShiroUserHolder.currentUser();
+
             // 获取当前请求的 HttpServletRequest 对象
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
@@ -108,6 +115,10 @@ public class UserServiceImpl implements IUserService {
                 instance.setAccount(username);
                 instance.setName(roleName);
                 instance.setDesc(des);
+                if (currentUser.getUnitId()!=null){
+                    instance.setDM(String.valueOf(currentUser.getUnitId()));  //unitId
+                    instance.setMC(unitMapper.selectObjById(currentUser.getUnitId()).getUnitName());  //unitName
+                }
 
                 // 从请求对象中获取客户端 IP
                 String clientIP = getClientIP(request);

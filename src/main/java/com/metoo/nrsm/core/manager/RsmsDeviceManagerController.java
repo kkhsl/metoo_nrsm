@@ -239,7 +239,7 @@ public class RsmsDeviceManagerController {
         return ResponseUtil.badArgument("Ip为空");
     }
 
-    @OperationLogAnno(operationType = OperationType.CREATE, name = "device")
+    @OperationLogAnno(operationType = OperationType.SAVE, name = "device",operatePage="设备保存")
     @RequestMapping("/save")
     public Object save(@RequestBody RsmsDevice instance) {
         if (instance == null) {

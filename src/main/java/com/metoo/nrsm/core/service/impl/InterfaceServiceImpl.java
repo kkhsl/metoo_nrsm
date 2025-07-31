@@ -11,9 +11,7 @@ import com.metoo.nrsm.core.mapper.InterfaceMapper;
 import com.metoo.nrsm.core.network.snmp4j.request.SNMPv2Request;
 import com.metoo.nrsm.core.service.IInterfaceService;
 import com.metoo.nrsm.core.system.conf.network.strategy.NetplanConfigManager;
-import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.entity.Interface;
-import com.metoo.nrsm.entity.Vlans;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -296,6 +294,12 @@ public class InterfaceServiceImpl implements IInterfaceService {
             return 0;
         }
     }
+
+    @Override
+    public void truncate() {
+        interfaceMapper.truncate();
+    }
+
 
     @Override
     public boolean modify_ip(Interface instance) {

@@ -7,7 +7,7 @@ public enum OperationType {
      */
     QUERY,
 
-    SAVE,
+    SAVE("保存"),
     /**
      * 创建 CREATE
      */

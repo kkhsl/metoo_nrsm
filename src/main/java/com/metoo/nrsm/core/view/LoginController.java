@@ -1,6 +1,8 @@
 package com.metoo.nrsm.core.view;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.mapper.RoleMapper;
+import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IOperationLogService;
 import com.metoo.nrsm.core.service.IUserService;
 import com.metoo.nrsm.core.utils.CaptchaUtil;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,6 +48,12 @@ public class LoginController {
     private IUserService userService;
     @Autowired
     private IOperationLogService operationLogService;
+
+    @Resource
+    private UnitMapper unitMapper;
+
+    @Autowired
+    private RoleMapper roleMapper;
 
     @ApiOperation("登录")
     @RequestMapping("/login")
@@ -100,6 +109,13 @@ public class LoginController {
                         try {
                             OperationLog instance = new OperationLog();
                             instance.setAccount(username);
+                            if (user.getUnitId()!=null){
+                                instance.setDM(String.valueOf(user.getUnitId()));  //unitId
+                                instance.setMC(unitMapper.selectObjById(user.getUnitId()).getUnitName());  //unitName
+                            }
+                            if(user.getUserRole()!=null){
+                                instance.setName(user.getUserRole());
+                            }
                             instance.setIp(Ipv4Util.getRealIP(request));
                             this.operationLogService.saveLoginLog(instance);
                         } catch (Exception e) {

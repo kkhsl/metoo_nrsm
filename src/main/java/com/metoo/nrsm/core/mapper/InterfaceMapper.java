@@ -30,5 +30,6 @@ public interface InterfaceMapper {
     int update(Interface instance);
 
     int delete(Long id);
+    int truncate();
 
 }

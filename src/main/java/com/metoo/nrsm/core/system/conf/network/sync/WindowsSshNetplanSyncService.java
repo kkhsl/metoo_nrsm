@@ -66,6 +66,9 @@ public class WindowsSshNetplanSyncService {
             InputStream configStream = new ByteArrayInputStream(outputStream.toByteArray());
             List<Interface> interfaces = parserService.parseNetplanConfig(configStream);
 
+            //清空原数据
+            interfaceService.truncate();
+
             // 2. 统一保存到数据库
             saveAllInterfaces(interfaces);
 
