@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.view;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.mapper.RoleMapper;
 import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.IOperationLogService;
 import com.metoo.nrsm.core.service.IUserService;
@@ -50,6 +51,9 @@ public class LoginController {
 
     @Resource
     private UnitMapper unitMapper;
+
+    @Autowired
+    private RoleMapper roleMapper;
 
     @ApiOperation("登录")
     @RequestMapping("/login")
@@ -108,6 +112,9 @@ public class LoginController {
                             if (user.getUnitId()!=null){
                                 instance.setDM(String.valueOf(user.getUnitId()));  //unitId
                                 instance.setMC(unitMapper.selectObjById(user.getUnitId()).getUnitName());  //unitName
+                            }
+                            if(user.getUserRole()!=null){
+                                instance.setName(user.getUserRole());
                             }
                             instance.setIp(Ipv4Util.getRealIP(request));
                             this.operationLogService.saveLoginLog(instance);
