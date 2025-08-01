@@ -22,6 +22,12 @@ public class LogoServiceImpl {
     @Value("${logo.upload.path}")
     private String uploadPath;
 
+    @Value("${ico.upload.path}")
+    private String icoUploadPath;
+
+    @Value("${ico.path}")
+    private String icoPath;
+
     @Value("${logo.name}")
     private String logoName;
 
@@ -83,6 +89,68 @@ public class LogoServiceImpl {
         return newLogoPath;
     }
 
+    public String uploadIco(MultipartFile file) throws IOException {
+        // 1. 验证文件类型
+//        if (!isValidImageFile(file)) {
+//            throw new IllegalArgumentException("仅支持PNG、JPG、JPEG格式的图片");
+//        }
+
+        // 2. 创建上传目录
+        Path icoDir = Paths.get(icoPath);
+        Path icoUploadDir = Paths.get(icoUploadPath);
+
+        if (!Files.exists(icoDir)) {
+            Files.createDirectories(icoDir);
+        }
+
+        if (!Files.exists(icoUploadDir)) {
+            Files.createDirectories(icoUploadDir);
+        }
+
+        // 3. 获取当前配置
+        WebSet currentConfig = getCurrentConfig();
+
+
+        String fileName = "favicon" + getFileExtension(file.getOriginalFilename());
+        String oldIcoPath = icoPath+"/"+fileName;
+        String oldIcoPath2 = icoUploadPath+"/"+fileName;
+
+        // 7. 删除旧ico文件（如果存在）
+        if (oldIcoPath != null && !oldIcoPath.isEmpty()) {
+            deleteOldLogoFile(oldIcoPath);
+        }
+        if (oldIcoPath2 != null && !oldIcoPath2.isEmpty()) {
+            deleteOldLogoFile(oldIcoPath2);
+        }
+
+        // 4. 生成唯一文件名
+//        String fileName = "logo_" + System.currentTimeMillis() + getFileExtension(file.getOriginalFilename());
+        fileName = "favicon" + getFileExtension(file.getOriginalFilename());
+
+        String newIcoPath = ip+"ico/"+ fileName;
+
+        // 5. 保存新文件
+        Path targetPath = icoDir.resolve(fileName);
+        Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+        Path targetPath2 = icoUploadDir.resolve(fileName);
+        Files.copy(file.getInputStream(), targetPath2, StandardCopyOption.REPLACE_EXISTING);
+
+        // 6. 更新数据库
+        if (currentConfig != null) {
+            // 更新现有配置
+            currentConfig.setIcoUrl(newIcoPath);
+            webSetMapper.updateIco(currentConfig.getId(), newIcoPath);
+        } else {
+            // 创建新配置
+            WebSet newConfig = new WebSet();
+            newConfig.setIcoUrl(newIcoPath);
+            webSetMapper.insertIco(newConfig);
+        }
+
+        return fileName;
+    }
+
     public Result save(WebSet instance) throws IOException {
         WebSet currentConfig = getCurrentConfig();
         int i=0;
@@ -113,6 +181,11 @@ public class LogoServiceImpl {
     public String getCurrentLogo() {
         WebSet currentConfig = getCurrentConfig();
         return currentConfig != null ? currentConfig.getLogoUrl() : null;
+    }
+
+    public String getCurrentIco() {
+        WebSet currentConfig = getCurrentConfig();
+        return currentConfig != null ? currentConfig.getIcoUrl() : null;
     }
 
     private WebSet getCurrentConfig() {
