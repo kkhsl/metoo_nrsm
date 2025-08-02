@@ -1,2 +1,6 @@
-ALTER TABLE metoo_web_set
-ADD COLUMN ico_url VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '网站图标路径' AFTER logo_url;
+ALTER TABLE metoo_sysconfig
+ADD COLUMN httpsDomain VARCHAR(255) DEFAULT NULL COMMENT 'HTTPS协议域名地址' after title;
+ALTER TABLE metoo_sysconfig
+ADD COLUMN httpsDomain VARCHAR(255) DEFAULT NULL COMMENT 'HTTPS协议域名地址' after title;
+
+UPDATE `nrsm`.`metoo_sysconfig` SET `addTime` = '2021-04-02 13:00:08', `deleteStatus` = 0, `title` = '', `Ip` = '192.168.7.102', `httpsDomain` = 'https://', `path` = '', `videoFilePath` = '', `photoFilePath` = '', `uploadFilePath` = '', `domain` = '', `videoAudit` = 0, `nspmUrl` = '', `nspmToken` = '', `testToken` = '', `v4_status` = b'0', `v6_status` = b'0' WHERE `id` = 1;
