@@ -1,14 +1,18 @@
 package com.metoo.nrsm.core.service.impl;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
+import com.metoo.nrsm.core.mapper.SysConfigMapper;
 import com.metoo.nrsm.core.mapper.WebSetMapper;
 import com.metoo.nrsm.core.vo.Result;
+import com.metoo.nrsm.entity.SysConfig;
 import com.metoo.nrsm.entity.WebSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,12 +35,36 @@ public class LogoServiceImpl {
     @Value("${logo.name}")
     private String logoName;
 
-    @Value("${sys.address}")
     private String ip;
+
+
 
 
     @Autowired
     private WebSetMapper webSetMapper;
+
+    @Resource
+    private SysConfigMapper sysConfigMapper;
+
+    {
+        SysConfig config = sysConfigMapper.select();
+
+    }
+
+    @PostConstruct
+    public void init() {
+        SysConfig config = sysConfigMapper.select();
+        if (config != null) {
+            if (config.getDomain()!=null && config.getIp()!=null){
+                ip= config.getDomain()+config.getIp()+"/logos/";
+            }else {
+                ip="未设置";
+            }
+        }
+    }
+
+
+
 
     public String uploadLogo(MultipartFile file) throws IOException {
         // 1. 验证文件类型
