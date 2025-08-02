@@ -1641,6 +1641,87 @@
         </foreach>
     </insert>
 
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO metoo_terminal (addTime,uuid,mac,port,deviceIp,deviceName,deviceUuid,tag,type,hostname,
+        remoteDevice,remotePort,v4ip,v4ip1,v4ip2,v4ip3,v6ip,v6ip1,v6ip2,v6ip3,macVendor,online,
+        client_hostname,name,interfaceName,`index`,interfaceIndex,interfaceStatus,remoteInterface,remoteUuid,vendor,vlan,duty,location,purchase_time,
+        warranty_time,price,serial_number,asset_number,description,changeReasons,`from`,
+        projectId,vendorId,model,deviceTypeId,unitId,unitName,deviceUuid2,deviceName2,deviceIp2,devicePort2,scan_port_number,
+        scan_vendor,scan_os_famify,scan_os_gen,scan_application_protocol,combined_port_protocol,combined_vendor_gen_family,
+        os,deviceType,portName,portSubne,portAddress,portIpv6Subnet
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.addTime},
+            #{item.uuid},
+            #{item.mac},
+            #{item.port},
+            #{item.deviceIp},
+            #{item.deviceName},
+            #{item.deviceUuid},
+            #{item.tag},
+            #{item.type},
+            #{item.hostname},
+            #{item.remoteDevice},
+            #{item.remotePort},
+            #{item.v4ip},
+            #{item.v4ip1},
+            #{item.v4ip2},
+            #{item.v4ip3},
+            #{item.v6ip},
+            #{item.v6ip1},
+            #{item.v6ip2},
+            #{item.v6ip3},
+            #{item.macVendor},
+            #{item.online},
+            #{item.client_hostname},
+            #{item.name},
+            #{item.interfaceName},
+            #{item.index},
+            #{item.interfaceIndex},
+            #{item.interfaceStatus},
+            #{item.remoteInterface},
+            #{item.remoteUuid},
+            #{item.vendor},
+            #{item.vlan},
+            #{item.duty},
+            #{item.location},
+            #{item.purchase_time},
+            #{item.warranty_time},
+            #{item.price},
+            #{item.serial_number},
+            #{item.asset_number},
+            #{item.description},
+            #{item.changeReasons},
+            #{item.from},
+            #{item.projectId},
+            #{item.vendorId},
+            #{item.model},
+            #{item.deviceTypeId},
+            #{item.unitId},
+            #{item.unitName},
+            #{item.deviceUuid2},
+            #{item.deviceName2},
+            #{item.deviceIp2},
+            #{item.devicePort2},
+            #{item.scan_port_number},
+            #{item.scan_vendor},
+            #{item.scan_os_famify},
+            #{item.scan_os_gen},
+            #{item.scan_application_protocol},
+            #{item.combined_port_protocol},
+            #{item.combined_vendor_gen_family},
+            #{item.os},
+            #{item.deviceType},
+            #{item.portName},
+            #{item.portSubne},
+            #{item.portAddress},
+            #{item.portIpv6Subnet}
+            )
+        </foreach>
+    </insert>
+
     <update id="batchUpdate" parameterType="java.util.List">
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             UPDATE metoo_terminal
