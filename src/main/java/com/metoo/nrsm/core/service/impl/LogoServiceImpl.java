@@ -46,10 +46,6 @@ public class LogoServiceImpl {
     @Resource
     private SysConfigMapper sysConfigMapper;
 
-    {
-        SysConfig config = sysConfigMapper.select();
-
-    }
 
     @PostConstruct
     public void init() {
