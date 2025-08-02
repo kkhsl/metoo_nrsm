@@ -46,17 +46,13 @@ public class LogoServiceImpl {
     @Resource
     private SysConfigMapper sysConfigMapper;
 
-    {
-        SysConfig config = sysConfigMapper.select();
-
-    }
 
     @PostConstruct
     public void init() {
         SysConfig config = sysConfigMapper.select();
         if (config != null) {
-            if (config.getDomain()!=null && config.getIp()!=null){
-                ip= config.getDomain()+config.getIp()+"/logos/";
+            if (config.getHttpsDomain()!=null && config.getIp()!=null){
+                ip= config.getHttpsDomain()+config.getIp()+"/logos/";
             }else {
                 ip="未设置";
             }
