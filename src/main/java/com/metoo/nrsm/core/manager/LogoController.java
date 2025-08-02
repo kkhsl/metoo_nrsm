@@ -23,6 +23,7 @@ public class LogoController {
     @Autowired
     private LogoServiceImpl logoService;
 
+
     @PostMapping("/upload")
     public Result uploadLogo(@RequestParam("file") MultipartFile file) throws IOException {
         if (file.isEmpty()) {

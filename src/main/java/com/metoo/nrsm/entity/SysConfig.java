@@ -78,4 +78,6 @@ public class SysConfig extends IdEntity {
     private boolean v4_status;
     private boolean v6_status;
 
+    private String httpsDomain;
+
 }
