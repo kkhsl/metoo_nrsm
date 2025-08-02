@@ -10,20 +10,25 @@ import com.metoo.nrsm.core.manager.utils.TerminalUtils;
 import com.metoo.nrsm.core.mapper.TerminalMacIpv6Mapper;
 import com.metoo.nrsm.core.mapper.UnitMapper;
 import com.metoo.nrsm.core.service.*;
+import com.metoo.nrsm.core.utils.date.DateTools;
+import com.metoo.nrsm.core.utils.file.DownLoadFileUtil;
 import com.metoo.nrsm.core.utils.ip.Ipv4Util;
+import com.metoo.nrsm.core.utils.poi.ExcelUtils;
 import com.metoo.nrsm.core.utils.query.PageInfo;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.*;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.ws.Response;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin/terminal")
@@ -489,6 +494,239 @@ public class TerminalManagerController {
         }
         return ResponseUtil.error();
     }
+
+    @Value("${batchImportTerminalFileName}")
+    private String batchImportDeviceFileName;
+    @Value("${batchImportFilePath}")
+    private String batchImportFilePath;
+
+    @ApiOperation("下载终端批量上传模板")
+    @GetMapping("/downTemp")
+    public Object downTemplate(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+        boolean flag = DownLoadFileUtil.downloadTemplate(this.batchImportFilePath, this.batchImportDeviceFileName, response);
+        if (flag) {
+            return ResponseUtil.ok();
+        } else {
+            return ResponseUtil.error();
+        }
+    }
+
+
+    @ApiOperation("设备批量导入")
+    @PostMapping("/import")
+    public Object importExcel(@RequestPart("file") MultipartFile file) throws Exception {
+        if (!file.isEmpty()) {
+            String fileName = file.getOriginalFilename().toLowerCase();
+            String suffix = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+            if (suffix.equals("xlsx") || suffix.equals("xls")) {
+                List<Terminal> terminals = ExcelUtils.readMultipartFile(file, Terminal.class);
+                // 校验表格数据是否符号要求
+                String tips = "";
+                for (Terminal terminal : terminals) {
+                    if (!terminal.getRowTips().isEmpty()) {
+                        tips = terminal.getRowTips();
+                        break;
+                    }
+                }
+                if (!tips.isEmpty()) {
+                    return ResponseUtil.badArgument(tips);
+                }
+                if (terminals.size() > 0) {
+                    String msg = "";
+                    Map params = new HashMap();
+                    List<Terminal> terminalList = new ArrayList<>();
+                    for (int i = 0; i < terminals.size(); i++) {
+                        Terminal terminal = terminals.get(i);
+                        if (terminal.getName() == null || terminal.getName().equals("")) {
+                            msg = "第" + (i + 2) + "行,终端名称不能为空";
+                            break;
+                        }
+                        /*else {
+                            params.clear();
+                            params.put("name", terminal.getName());
+                            List<Terminal> terminals1 = this.terminalService.selectObjByMap(params);
+                            if (terminals1.size() > 0) {
+                                msg = "第" + (i + 2) + "行, 设备已存在";
+                                break;
+                            }
+                        }*/
+                        User user = ShiroUserHolder.currentUser();
+                        // 验证资产编号唯一性
+                        if (terminal.getAsset_number() != null && !terminal.getAsset_number().isEmpty()) {
+                            params.clear();
+                            params.put("asset_number", terminal.getAsset_number());
+                            params.put("deviceId", terminal.getId());
+                            List<Terminal> terminalList1 = this.terminalService.selectObjByMap(params);
+                            if (terminalList1.size() > 0) {
+                                Terminal terminal1 = terminalList1.get(0);
+                                return ResponseUtil.badArgument("资产编号与(" + terminal1.getName() + ")设备重复");
+                            }
+                        }
+                        // 验证主机名是否重复
+                        /*if (terminal.getClient_hostname() != null && !terminal.getClient_hostname().isEmpty()) {
+                            params.clear();
+                            params.put("host_name", terminal.getClient_hostname());
+                            params.put("deviceId", terminal.getId());
+                            List<Terminal> terminals1 = this.terminalService.selectObjByMap(params);
+                            if (terminals1.size() > 0) {
+                                Terminal rsmsDevice = terminals1.get(0);
+                                return ResponseUtil.badArgument("主机名与(" + rsmsDevice.getName() + ")设备重复");
+                            }
+                        }*/
+                        if (terminal.getV4ip() == null || terminal.getV4ip().equals("")) {
+                            msg = "第" + (i + 2) + "行,v4IP地址不能为空";
+                            break;
+                        }
+
+                        if (terminal.getV4ip() != null && !terminal.getV4ip().equals("")) {
+                            boolean flag = Ipv4Util.verifyIp(terminal.getV4ip());
+                            if (flag) {
+                                params.clear();
+                                params.put("ip", terminal.getV4ip());
+                                List<Terminal> terminals1 = this.terminalService.selectObjByMap(params);
+                                if (terminals1.size() > 0) {
+                                    msg = "第" + (i + 2) + "行, IP已存在";
+                                    break;
+                                }
+                            } else {
+                                msg = "第" + (i + 2) + "行, IP格式错误";
+                                break;
+                            }
+                        }
+
+                        //状态
+                        if (terminal.getOnline() == null || terminal.getOnline().equals("")) {
+                            msg = "第" + (i + 2) + "行, 状态不能为空";
+                            break;
+                        }
+
+                        //资产
+                        if (terminal.getType() == null || terminal.getType().equals("")) {
+                            terminal.setType(0);
+                        }
+
+                        if (terminal.getType() != null || !terminal.getType().equals("")) {
+                            if (terminal.getType().equals("1")){
+                                terminal.setType(1);
+                            }else {
+                                terminal.setType(0);
+                            }
+                        }
+
+                        //单位
+                        if (terminal.getUnitName() == null || terminal.getUnitName().equals("")) {
+                            msg = "第" + (i + 2) + "行,所属部门/单位不能为空";
+                            break;
+                        }
+
+                        if (terminal.getUnitName() != null && !terminal.getUnitName().equals("")) {
+                            List<Unit> units = unitMapper.selectByUnitName(terminal.getUnitName());
+                            if (units.size() == 0) {
+                                msg = "第" + (i + 2) + "行,所属部门/单位不存在";
+                                break;
+                            } else {
+                                terminal.setUnitId(units.get(0).getId());
+                            }
+                        }
+
+                        // 设备类型
+                        if (terminal.getDeviceTypeName() != null && !terminal.getDeviceTypeName().equals("")) {
+                            params.clear();
+                            params.put("name", terminal.getDeviceTypeName());
+                            List<DeviceType> deviceType = this.deviceTypeService.selectObjByMap(params);
+                            if (deviceType == null) {
+                                msg = "第" + (i + 2) + "行,设备类型不存在";
+                                break;
+                            } else {
+                                terminal.setDeviceTypeId(deviceType.get(0).getId());
+                            }
+                        }
+
+                        // 品牌
+                        if (terminal.getVendorName() != null && terminal.getVendorName().equals("")) {
+                            Vendor vendor = this.vendorService.selectObjByName(terminal.getVendorName());
+                            if (vendor == null) {
+                                msg = "第" + (i + 2) + "行,品牌不存在";
+                                break;
+                            } else {
+                                terminal.setVendorId(vendor.getId());
+                            }
+                        }
+                        // 项目
+                        if (terminal.getProjectName() != null && !terminal.getProjectName().equals("")) {
+                            params.clear();
+                            params.put("name", terminal.getProjectName());
+                            List<Project> projects = this.projectService.selectObjByMap(params);
+                            if (projects.size() <= 0) {
+                                msg = "第" + (i + 2) + "行,项目不存在";
+                                break;
+                            } else {
+                                Project project = projects.get(0);
+                                terminal.setProjectId(project.getId());
+                            }
+                        }
+                        // 验证日期
+                        if (terminal.getWarranty_time() != null && terminal.getPurchase_time() != null) {
+                            if (terminal.getWarranty_time().before(terminal.getPurchase_time())) {
+                                return ResponseUtil.badArgument("过保时间必须大于采购时间");
+                            }
+                        }
+                        terminalList.add(terminal);
+                    }
+                    if (msg.isEmpty()) {
+                        int i = this.terminalService.batchInsert(terminalList);
+                        if (i > 0) {
+                            return ResponseUtil.ok();
+                        } else {
+                            return ResponseUtil.error();
+                        }
+                    } else {
+                        return ResponseUtil.badArgument(msg);
+                    }
+                } else {
+                    return ResponseUtil.badArgument("文件无数据");
+                }
+            } else {
+                return ResponseUtil.badArgument("文件格式错误，请使用标准模板上传");
+            }
+        }
+        return ResponseUtil.badArgument("文件不存在");
+    }
+
+    @ApiOperation("设备导出")
+    @GetMapping(value = "/export")
+    public Object export(HttpServletResponse response, Terminal terminal) {
+
+        if (StringUtils.isBlank(terminal.getExcelName())) {
+            terminal.setExcelName("终端设备台账" + DateTools.getCurrentDate(new Date()));//  +".xls"
+        }
+        Map params = new HashMap();
+        params.put("ids", terminal.getIds());
+        List<Terminal> devices = this.terminalService.selectObjByMap(params);
+        if (devices.size() > 0) {
+            for (Terminal device : devices) {
+                if (device.getDeviceTypeId() != null && !device.getDeviceTypeId().equals("")) {
+                    DeviceType instance = this.deviceTypeService.selectObjById(device.getDeviceTypeId());
+                    device.setDeviceTypeName(instance.getName());
+                }
+                if (device.getVendorId() != null && !device.getVendorId().equals("")) {
+                    Vendor instance = this.vendorService.selectObjById(device.getVendorId());
+                    device.setVendorName(instance.getName());
+                }
+
+                if (device.getProjectId() != null && !device.getProjectId().equals("")) {
+                    Project instance = this.projectService.selectObjById(device.getProjectId());
+                    device.setProjectName(instance.getName());
+                }
+
+            }
+            List<List<Object>> sheetDataList = ExcelUtils.getSheetData(devices);
+            ExcelUtils.export(response, terminal.getExcelName(), sheetDataList);
+        }
+        return ResponseUtil.ok();
+    }
+
+
 
 
 }

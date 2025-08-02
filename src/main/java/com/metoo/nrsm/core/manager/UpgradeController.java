@@ -41,6 +41,9 @@ public class UpgradeController {
     private String BACKEND_JAR;
     //private static final String BACKEND_JAR = "C:\\Users\\leo\\Desktop\\update\\opt\\nrsm\\nrsm\\nrsm.jar";
 
+    @Value("${ico.upload.path}")
+    private String icoUploadPath;
+
 
     // 备份目录
     private static final String BACKUP_DIR = "backup";
@@ -283,6 +286,8 @@ public class UpgradeController {
                     // 执行升级
                     unzipTo(zipFile, FRONTEND_DIR);
 
+                    syncLogoToFrontend();
+
                     // 清理更新包
                     zipFile.delete();
 
@@ -322,7 +327,7 @@ public class UpgradeController {
                         // 分别升级前后端
                         upgradeFrontendFromDir(tempDir);
                         upgradeBackendFromDir(tempDir);
-
+                        syncLogoToFrontend();
 
                         // 异步重启服务
                         asyncRestartService();
@@ -340,6 +345,31 @@ public class UpgradeController {
             throw e;
         }
     }
+
+    private void syncLogoToFrontend() throws IOException {
+        File sourceLogo = new File(icoUploadPath, "favicon.ico");
+        File targetDir = new File(FRONTEND_DIR, "www");
+        File targetLogo = new File(targetDir, "favicon.ico");
+
+        // 验证源文件存在
+        if (!sourceLogo.exists()) {
+            throw new IOException("ico源文件不存在: " + sourceLogo.getAbsolutePath());
+        }
+
+        // 确保目标目录存在
+        if (!targetDir.exists() && !targetDir.mkdirs()) {
+            throw new IOException("无法创建目标目录: " + targetDir.getAbsolutePath());
+        }
+
+        // 复制文件（NIO原子操作）
+        Files.copy(
+                sourceLogo.toPath(),
+                targetLogo.toPath(),
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES
+        );
+    }
+
     private void backupBackend() throws IOException {
         File backupFile = new File(BACKEND_JAR + ".bak");
         File sourceFile = new File(BACKEND_JAR);

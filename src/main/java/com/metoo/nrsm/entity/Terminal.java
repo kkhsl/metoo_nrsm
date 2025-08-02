@@ -2,6 +2,8 @@ package com.metoo.nrsm.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.metoo.nrsm.core.config.annotation.excel.ExcelExport;
+import com.metoo.nrsm.core.config.annotation.excel.ExcelImport;
 import com.metoo.nrsm.core.domain.IdEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,13 +25,20 @@ public class Terminal extends IdEntity {
     @ApiModelProperty("采集时间")
     private Date time;
 
+    @ExcelExport(value = "终端名称", sort = 1)
+    @ExcelImport(value = "终端名称", required = true, unique = true)
     private String name;
+
+    @ExcelExport(value = "Mac地址", sort = 5)
+    @ExcelImport(value = "Mac地址")
     private String mac;
     private String port;
 
     //    @ApiModelProperty("类型 0: 采集终端 1：资产终端 3 从外部学习到的mac")
 //    private String type;
 //
+    @ExcelExport(value = "是否加入资产(0: 普通终端 1：资产终端)", sort = 12)
+    @ExcelImport(value = "是否加入资产(0: 普通终端 1：资产终端)")
     @ApiModelProperty("类型 0: 普通终端 1：资产终端")
     private Integer type;
 
@@ -41,6 +50,8 @@ public class Terminal extends IdEntity {
 
     private String macVendor;
 
+    @ExcelExport(value = "v4IP地址", sort = 2)
+    @ExcelImport(value = "v4IP地址", required = true, unique = true)
     private String v4ip;
     private String v4ip1;
     private String v4ip2;
@@ -51,6 +62,8 @@ public class Terminal extends IdEntity {
     private String v4ip2Dynamic;
     private String v4ip3Dynamic;
 
+    @ExcelExport(value = "v6IP地址", sort = 3)
+    @ExcelImport(value = "v6IP地址")
     private String v6ip;
     private String v6ip1;
     private String v6ip2;
@@ -65,6 +78,7 @@ public class Terminal extends IdEntity {
 
     @ApiModelProperty("设备名称")
     private String deviceIp;
+
     @ApiModelProperty("设备名称")
     private String deviceName;
 
@@ -75,9 +89,14 @@ public class Terminal extends IdEntity {
     private String deviceIp2;
     private String devicePort2;
 
+
     @ApiModelProperty("设备类型")
     private Long deviceTypeId;
+
+    @ExcelExport(value = "终端类型", sort = 7)
+    @ExcelImport(value = "终端类型")
     private String deviceTypeName;
+
     private String deviceTypeUuid;
 
     @ApiModelProperty("标记")
@@ -97,8 +116,12 @@ public class Terminal extends IdEntity {
     private String remoteDeviceType;
 
 
+    @ExcelExport(value = "主机名", sort = 4)
+    @ExcelImport(value = "主机名")
     private String client_hostname;
 
+    @ExcelExport(value = "状态(0：离线 1：在线)", sort = 8)
+    @ExcelImport(value = "状态(0：离线 1：在线)")
     @ApiModelProperty("是否在线 默认0：离线 1：在线\"")
     private Boolean online;
 
@@ -129,33 +152,50 @@ public class Terminal extends IdEntity {
     private String departmentName;
 
     @ApiModelProperty("责任人")
+    @ExcelExport(value = "责任人", sort = 20)
+    @ExcelImport(value = "责任人", required = true, unique = true)
     private String duty;
+
+    @ExcelExport(value = "位置", sort = 10)
+    @ExcelImport(value = "位置")
     @ApiModelProperty("设备位置：摄像头等")
     private String location;
 
 
     @ApiModelProperty("采购时间")
+    @ExcelExport(value = "采购时间", sort = 16)
+    @ExcelImport(value = "采购时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchase_time;
 
     @ApiModelProperty("过保时间")
+    @ExcelExport(value = "过保时间", sort = 17)
+    @ExcelImport(value = "过保时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date warranty_time;
 
     //@JSONField(name = "price", serializeUsing = NumberSerializers.DoubleSerializer.class)
+    @ExcelExport(value = "价格", sort = 18)
+    @ExcelImport(value = "价格")
     @JSONField(name = "price")
     @ApiModelProperty("价格")
     private Double price;
 
     @ApiModelProperty("序列号")
+    @ExcelExport(value = "序列号", sort = 19)
+    @ExcelImport(value = "序列号")
     private String serial_number;
 
+    @ExcelExport(value = "资产编号", sort = 13)
+    @ExcelImport(value = "资产编号")
     @ApiModelProperty("资产编号")
     private String asset_number;
 
-    @ApiModelProperty("描述")
+    @ApiModelProperty("备注")
+    @ExcelExport(value = "备注", sort = 21)
+    @ExcelImport(value = "备注")
     private String description;
 
     @ApiModelProperty(value = "变更原因")
@@ -164,14 +204,28 @@ public class Terminal extends IdEntity {
     @ApiModelProperty("来源 0：采集 1：手动录入 2:  3:HUB-terminal（已手动修改终端，采集不在更新设备）")
     private Integer from;
 
+
     @ApiModelProperty("项目Id")
     private Long projectId;
+
+    @ExcelExport(value = "所属项目", sort = 11)
+    @ExcelImport(value = "所属项目")
     @ApiModelProperty("项目名")
     private String projectName;
+
+
     @ApiModelProperty("厂商ID")
     private Long vendorId;
+
+    @ExcelExport(value = "品牌", sort = 14)
+    @ExcelImport(value = "品牌")
     @ApiModelProperty("厂商名称")
+
     private String vendorName;
+
+
+    @ExcelExport(value = "型号", sort = 15)
+    @ExcelImport(value = "型号")
     @ApiModelProperty("型号")
     private String model;
 
@@ -181,8 +235,13 @@ public class Terminal extends IdEntity {
     private Integer v6ip_count;
     private Integer v4ip_v6ip_count;
 
+    @ExcelExport(value = "所属部门", sort = 9)
+    @ExcelImport(value = "所属部门", required = true, unique = true)
     private String unitName;
+
+
     private Long unitId;
+
     private Integer isIpv6;
 
     private String scan_port_number;
@@ -209,4 +268,13 @@ public class Terminal extends IdEntity {
     private String portAddress;
 
 
+
+    private List<Long> ids;
+    private String excelPath;
+    private String excelName;
+
+
+    private Integer rowNum;
+    private String rowData;
+    private String rowTips;
 }

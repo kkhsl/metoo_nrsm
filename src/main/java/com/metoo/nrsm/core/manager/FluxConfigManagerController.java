@@ -36,7 +36,7 @@ public class FluxConfigManagerController {
 
 
     @GetMapping("/flow2")
-    public void flow2(){
+    public void flow2() {
         Map params = new HashMap();
         params.put("startOfDay", DateTools.getStartOfDay());
         params.put("endOfDay", DateTools.getEndOfDay());
@@ -89,9 +89,9 @@ public class FluxConfigManagerController {
     }
 
     @GetMapping
-    public Result all(){
+    public Result all() {
         List<FluxConfig> fluxConfigList = this.fluxConfigService.selectObjByMap(null);
-        if(fluxConfigList.size() > 0){
+        if (fluxConfigList.size() > 0) {
             for (FluxConfig fluxConfig : fluxConfigList) {
                 List<List<String>> v4_oids = JSONObject.parseObject(fluxConfig.getIpv4Oid(), List.class);
                 List<List<String>> v6_oids = JSONObject.parseObject(fluxConfig.getIpv6Oid(), List.class);
@@ -103,57 +103,57 @@ public class FluxConfigManagerController {
     }
 
     @PostMapping
-    public Object save(@RequestBody FluxConfig fluxConfig){
-        if(fluxConfig == null){
+    public Object save(@RequestBody FluxConfig fluxConfig) {
+        if (fluxConfig == null) {
             return ResponseUtil.badArgument("参数错误");
         }
-        if(StringUtils.isNotEmpty(fluxConfig.getIpv4())){
+        if (StringUtils.isNotEmpty(fluxConfig.getIpv4())) {
             boolean flag = Ipv4Util.verifyIp(fluxConfig.getIpv4());
-            if(!flag){
+            if (!flag) {
                 return ResponseUtil.badArgument("ipv4格式错误");
             }
         }
-        if(StringUtils.isNotEmpty(fluxConfig.getIpv6())){
+        if (StringUtils.isNotEmpty(fluxConfig.getIpv6())) {
             boolean flag = Ipv6Util.verifyIpv6(fluxConfig.getIpv6());
-            if(!flag){
+            if (!flag) {
                 return ResponseUtil.badArgument("ipv6格式错误");
             }
         }
 
-        if(fluxConfig.getIpv4Oids() != null){
+        if (fluxConfig.getIpv4Oids() != null) {
             String ipv4oid = JSONObject.toJSONString(fluxConfig.getIpv4Oids());
             fluxConfig.setIpv4Oid(ipv4oid);
         }
 
-        if(fluxConfig.getIpv6Oids() != null){
+        if (fluxConfig.getIpv6Oids() != null) {
             String ipv6oid = JSONObject.toJSONString(fluxConfig.getIpv6Oids());
             fluxConfig.setIpv6Oid(ipv6oid);
         }
 
-        if(fluxConfig.getId() != null){
+        if (fluxConfig.getId() != null) {
             FluxConfig obj = this.fluxConfigService.selectObjById(fluxConfig.getId());
             fluxConfig.getIpv4Oids().clear();
             fluxConfig.getIpv6Oids().clear();
             boolean flag = Md5Crypt.getDiffrent(obj, fluxConfig);
-            if(!flag){
+            if (!flag) {
                 fluxConfig.setUpdate(1);
             }
         }
         boolean flag = this.fluxConfigService.save(fluxConfig);
-        if(flag){
+        if (flag) {
             return ResponseUtil.ok();
         }
         return ResponseUtil.error();
     }
 
     @DeleteMapping
-    public Object delete(String ids){
-        if(ids != null && !ids.equals("")){
-            for (String id : ids.split(",")){
+    public Object delete(String ids) {
+        if (ids != null && !ids.equals("")) {
+            for (String id : ids.split(",")) {
                 Map params = new HashMap();
                 params.put("id", Long.parseLong(id));
                 List<FluxConfig> fluxConfigs = this.fluxConfigService.selectObjByMap(params);
-                if(fluxConfigs.size() > 0){
+                if (fluxConfigs.size() > 0) {
                     FluxConfig fluxConfig = fluxConfigs.get(0);
                     try {
                         boolean i = this.fluxConfigService.delete(Long.parseLong(id));
@@ -161,7 +161,7 @@ public class FluxConfigManagerController {
                         e.printStackTrace();
                         return ResponseUtil.badArgument(fluxConfig.getName() + "删除失败");
                     }
-                }else{
+                } else {
                     return ResponseUtil.badArgument();
                 }
             }
@@ -171,17 +171,16 @@ public class FluxConfigManagerController {
     }
 
 
-
     @GetMapping("/gather")
     @Scheduled(cron = "0 */5 * * * ?")
-    public Result gather(){
+    public Result gather() {
         Calendar calendar = Calendar.getInstance();
         Date date = new Date();
         // 定义计算精度参数
         final int DECIMAL_SCALE = 10;  // 精确到小数点后10位
         final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
         List<FluxConfig> fluxConfigs = this.fluxConfigService.selectObjByMap(null);
-        if(fluxConfigs.size() > 0){
+        if (fluxConfigs.size() > 0) {
             BigDecimal ipv4Sum = new BigDecimal(0);
             BigDecimal ipv6Sum = new BigDecimal(0);
 
@@ -193,14 +192,14 @@ public class FluxConfigManagerController {
             for (FluxConfig fluxConfig : fluxConfigs) {
                 // 获取ipv4流量
                 // 1. 遍历oid
-                List<List<String>> v4_oids =JSONObject.parseObject(fluxConfig.getIpv4Oid(), List.class);
-                if(v4_oids.size() > 0){
+                List<List<String>> v4_oids = JSONObject.parseObject(fluxConfig.getIpv4Oid(), List.class);
+                if (v4_oids.size() > 0) {
                     for (List<String> oid : v4_oids) {
-                        if(oid.size() > 0){
+                        if (oid.size() > 0) {
                             String in = String.valueOf(oid.get(0));
                             String out = String.valueOf(oid.get(1));
                             String result = exec_v4(fluxConfig, in, out);
-                            if(StringUtils.isNotEmpty(result)){
+                            if (StringUtils.isNotEmpty(result)) {
                                 Map map = JSONObject.parseObject(result, Map.class);
                                 v4_list.add(map);
                             }
@@ -208,14 +207,14 @@ public class FluxConfigManagerController {
                     }
                 }
 
-                List<List<String>> v6_oids =JSONObject.parseObject(fluxConfig.getIpv6Oid(), List.class);
-                if(v6_oids.size() > 0){
+                List<List<String>> v6_oids = JSONObject.parseObject(fluxConfig.getIpv6Oid(), List.class);
+                if (v6_oids.size() > 0) {
                     for (List<String> oid : v6_oids) {
-                        if(oid.size() > 0){
+                        if (oid.size() > 0) {
                             String in = String.valueOf(oid.get(0));
                             String out = String.valueOf(oid.get(1));
                             String result = exec_v6(fluxConfig, in, out);
-                            if(StringUtils.isNotEmpty(result)){
+                            if (StringUtils.isNotEmpty(result)) {
                                 Map map = JSONObject.parseObject(result, Map.class);
                                 v6_list.add(map);
                             }
@@ -224,24 +223,23 @@ public class FluxConfigManagerController {
                 }
             }
 
-            if(v4_list.size() > 0){
+            if (v4_list.size() > 0) {
                 BigDecimal in = v4_list.stream().map(x ->
-                        new BigDecimal(String.valueOf(x.get("in")))).reduce(BigDecimal.ZERO,BigDecimal::add);
+                        new BigDecimal(String.valueOf(x.get("in")))).reduce(BigDecimal.ZERO, BigDecimal::add);
                 BigDecimal out = v4_list.stream().map(x ->
-                        new BigDecimal(String.valueOf(x.get("out")))).reduce(BigDecimal.ZERO,BigDecimal::add);
+                        new BigDecimal(String.valueOf(x.get("out")))).reduce(BigDecimal.ZERO, BigDecimal::add);
                 ipv4Sum = in.add(out);
                 System.out.println(ipv4Sum);
             }
 
-            if(v6_list.size() > 0){
+            if (v6_list.size() > 0) {
                 BigDecimal in = v6_list.stream().map(x ->
-                        new BigDecimal(String.valueOf(x.get("in")))).reduce(BigDecimal.ZERO,BigDecimal::add);
+                        new BigDecimal(String.valueOf(x.get("in")))).reduce(BigDecimal.ZERO, BigDecimal::add);
                 BigDecimal out = v6_list.stream().map(x ->
-                        new BigDecimal(String.valueOf(x.get("out")))).reduce(BigDecimal.ZERO,BigDecimal::add);
+                        new BigDecimal(String.valueOf(x.get("out")))).reduce(BigDecimal.ZERO, BigDecimal::add);
                 ipv6Sum = in.add(out);
                 System.out.println(ipv6Sum);
             }
-
 
 
             FlowStatistics flowStatistics = new FlowStatistics();
@@ -263,11 +261,11 @@ public class FluxConfigManagerController {
             calendar.add(Calendar.SECOND, +300);
             Date endTime = calendar.getTime();
             params.put("startOfDay", startTime);
-            params.put("endOfDay",endTime);
-            params.put("orderBy","addTime");
+            params.put("endOfDay", endTime);
+            params.put("orderBy", "addTime");
             FlowStatistics flowStatistics1 = flowStatisticsService.selectObjByMap(params).get(0);
 
-            if (flowStatistics1==null) {
+            if (flowStatistics1 == null) {
                 if (ipv4Sum.add(ipv6Sum).compareTo(BigDecimal.ZERO) != 0) {
                     ipv6Rate = ipv6Sum.divide(ipv4Sum.add(ipv6Sum), DECIMAL_SCALE, ROUNDING_MODE);
                 } else {
@@ -279,13 +277,20 @@ public class FluxConfigManagerController {
                 flowStatisticsService.save1(flowStatistics);  //采集
             }
 
-                if (flowStatistics1 != null) {
-                    BigDecimal ipv4Sum1 = flowStatistics1.getIpv4Sum();
-                    BigDecimal ipv6Sum1 = flowStatistics1.getIpv6Sum();
+            if (flowStatistics1 != null) {
+                BigDecimal ipv4Sum1 = flowStatistics1.getIpv4Sum();
+                BigDecimal ipv6Sum1 = flowStatistics1.getIpv6Sum();
 
-                    // 计算增量
-                    BigDecimal ipv4Delta = ipv4Sum.subtract(ipv4Sum1).setScale(DECIMAL_SCALE, ROUNDING_MODE);
-                    BigDecimal ipv6Delta = ipv6Sum.subtract(ipv6Sum1).setScale(DECIMAL_SCALE, ROUNDING_MODE);
+                // 计算增量
+                BigDecimal ipv4Delta = ipv4Sum.subtract(ipv4Sum1).setScale(DECIMAL_SCALE, ROUNDING_MODE);
+                BigDecimal ipv6Delta = ipv6Sum.subtract(ipv6Sum1).setScale(DECIMAL_SCALE, ROUNDING_MODE);
+
+                //处理负值
+                if (ipv4Delta.compareTo(BigDecimal.ZERO) < 0 || ipv6Delta.compareTo(BigDecimal.ZERO)<0){
+                    FlowStatistics flowStatistics2 = flowStatisticsService.selectObjByMap1(params).get(0);
+                    flowStatistics2.setAddTime(date);
+                    flowStatisticsService.save(flowStatistics2);
+                }else {
                     BigDecimal totalDelta = ipv4Delta.add(ipv6Delta);
 
                     // 安全计算比率
@@ -311,6 +316,8 @@ public class FluxConfigManagerController {
                     flowStatistics1.setIpv6Rate(ipv6Rate);
                     flowStatisticsService.save(flowStatistics1);
                 }
+
+            }
         }
         return ResponseUtil.ok();
     }
@@ -322,26 +329,26 @@ public class FluxConfigManagerController {
 //        SSHExecutor sshExecutor = new SSHExecutor();
 //        String result = sshExecutor.exec(path, params);
 
-        if (config.getIpv4()!=null){
+        if (config.getIpv4() != null) {
             SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                     .version(config.getVersion())
                     .host(config.getIpv4())
                     .community(config.getCommunity())
                     .port(config.getPort())
                     .build();
-            String result = SNMPv3Request.getTraffic(snmpv3Params,in,out);
-            if(StringUtil.isNotEmpty(result)){
+            String result = SNMPv3Request.getTraffic(snmpv3Params, in, out);
+            if (StringUtil.isNotEmpty(result)) {
                 return result;
             }
-        }else {
+        } else {
             SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                     .version(config.getVersion())
                     .host(config.getIpv6())
                     .community(config.getCommunity())
                     .port(config.getPort())
                     .build();
-            String result = SNMPv3Request.getTraffic(snmpv3Params,in,out);
-            if(StringUtil.isNotEmpty(result)){
+            String result = SNMPv3Request.getTraffic(snmpv3Params, in, out);
+            if (StringUtil.isNotEmpty(result)) {
                 return result;
             }
         }
@@ -354,26 +361,26 @@ public class FluxConfigManagerController {
 //                "public@123", in, out};
 //        SSHExecutor sshExecutor = new SSHExecutor();
 //        String result = sshExecutor.exec(path, params);
-        if (config.getIpv4()==null){
+        if (config.getIpv4() == null) {
             SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                     .version(config.getVersion())
                     .host(config.getIpv6())
                     .community(config.getCommunity())
                     .port(config.getPort())
                     .build();
-            String result = SNMPv3Request.getTraffic(snmpv3Params,in,out);
-            if(StringUtil.isNotEmpty(result)){
+            String result = SNMPv3Request.getTraffic(snmpv3Params, in, out);
+            if (StringUtil.isNotEmpty(result)) {
                 return result;
             }
-        }else {
+        } else {
             SNMPV3Params snmpv3Params = new SNMPV3Params.Builder()
                     .version(config.getVersion())
                     .host(config.getIpv4())
                     .community(config.getCommunity())
                     .port(config.getPort())
                     .build();
-            String result = SNMPv3Request.getTraffic(snmpv3Params,in,out);
-            if(StringUtil.isNotEmpty(result)){
+            String result = SNMPv3Request.getTraffic(snmpv3Params, in, out);
+            if (StringUtil.isNotEmpty(result)) {
                 return result;
             }
         }

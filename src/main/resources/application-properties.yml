@@ -1,5 +1,5 @@
 batchImportNeFileName: 设备信息导入模板.xlsx
 batchImportDeviceFileName: 资产设备导入模板.xlsx
 batchImportRackFileName: 资产机柜导入模板.xlsx
-batchImportTerminalFileName: 资产终端导入模板.xlsx
+batchImportTerminalFileName: 终端设备导入模板.xlsx
 batchImportFilePath: /static/excel

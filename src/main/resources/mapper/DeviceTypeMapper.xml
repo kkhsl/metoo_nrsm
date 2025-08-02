@@ -73,7 +73,7 @@
     </select>
 
     <select id="selectObjByName" parameterType="java.lang.String" resultType="com.metoo.nrsm.entity.DeviceType">
-        SELECT * FROM metoo_device_type
+       SELECT *  FROM metoo_device_type
         where `name` = #{name}
     </select>
 

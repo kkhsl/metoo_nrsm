@@ -20,6 +20,10 @@ public interface WebSetMapper {
     @Update("UPDATE metoo_web_set SET logo_url = #{logoUrl}, updated_at = NOW() WHERE id = #{id}")
     int updateLogo(@Param("id") Long id, @Param("logoUrl") String logoUrl);
 
+    @Update("UPDATE metoo_web_set SET ico_url = #{icoUrl}, updated_at = NOW() WHERE id = #{id}")
+    int updateIco(@Param("id") Long id, @Param("icoUrl") String icoUlr);
+
+
     @Update("UPDATE metoo_web_set SET name = #{name}, updated_at = NOW() WHERE id = #{id}")
     int updateName(WebSet webSet);
 
@@ -35,11 +39,16 @@ public interface WebSetMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insertName(WebSet webSet);
 
+    @Insert("INSERT INTO metoo_web_set (ico_url) VALUES (#{icoUrl})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    int insertIco(WebSet webSet);
+
+
 
     /**
      * 获取所有历史配置（按时间倒序）
      */
-    @Select("SELECT id,name,logo_url as logoUrl FROM metoo_web_set ORDER BY updated_at DESC")
+    @Select("SELECT id,name,logo_url as logoUrl,ico_url as icoUrl FROM metoo_web_set ORDER BY updated_at DESC")
     List<WebSet> getAllConfigs();
 
 }
