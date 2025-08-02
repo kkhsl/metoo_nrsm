@@ -32,26 +32,6 @@ public class SystemInfoUtils {
     }
 
 
-    public static String getBiosUuid() {
-        String cpuId = null;
-        // 获取当前操作系统名称
-        String os = System.getProperty("os.name");
-        os = os.toUpperCase();
-        if ("LINUX".equals(os)) {
-            try {
-                cpuId = getLinuxDmidecodeInfo("dmidecode -t system | grep 'UUID'", "UUID", ":");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                cpuId = getWindowsBiosUUID();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return cpuId.toUpperCase().replace(" ", "");
-    }
 
     /**
      * 获取linux系统
@@ -109,4 +89,10 @@ public class SystemInfoUtils {
         String serial = sc.next();
         return serial;
     }
+
+
+
+
+    //////////////////////////////////////////////////
+
 }

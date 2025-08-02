@@ -40,6 +40,8 @@ public interface ResMapper {
 
     List<Res> findResByResIds(List<Integer> ids);
 
+    List<Res> selectObjByMap(Map params);
+
     Collection<String> findPermissionByUserId(Long id);
 
     /**

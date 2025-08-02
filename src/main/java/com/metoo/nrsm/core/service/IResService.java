@@ -40,9 +40,14 @@ public interface IResService {
 
     List<Res> findResByResIds(List<Integer> ids);
 
+    List<Res> selectObjByMap(Map params);
+
     Collection<String> findPermissionByUserId(Long id);
 
     boolean save(ResDto instance);
+
+    boolean update(Res instance);
+
 
     boolean delete(Long id);
 

@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Licens验证方式
  * 第一种方式：系统文件
@@ -86,5 +89,10 @@ public class License extends IdEntity {
 
     @ApiModelProperty("单位名称")
     private String unitName;
+
+    @ApiModelProperty("默认：0 政务外网普通版本：1 政务外网测绘版本：2 通用版本：3 通用测绘版本：4")
+    private Integer versionType;
+
+    private List<String> permissionCodeList = new ArrayList();
 
 }

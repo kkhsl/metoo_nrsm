@@ -117,40 +117,42 @@
     </sql>
 
     <select id="findPermissionByJoin" parameterType="map" resultMap="Level_Linkage_Result">
-        SELECT
-        <include refid="Level_Linkage_Column"/>
-        FROM (
-        SELECT *
-        FROM metoo_res mp
-        WHERE mp.level = 0
-        LIMIT #{currentPage}, #{pageSize}
-        ) mp1
-        LEFT JOIN (
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM metoo_res mp
-        WHERE mp.level = 1
-        ) mp2
-        ON mp2.parentId = mp1.id
-        LEFT JOIN
-        (
-        SELECT id, name, value, url, component,
-        sequence, parentId, level, componentName, icon
-        FROM metoo_res mp
-        WHERE mp.level = 2
-        ) mp3
-        ON mp3.parentId = mp2.id
-        <where>
-            <if test="parentId != null">
-                AND mp1.parentId = #{parentId, jdbcType=BIGINT}
-            </if>
-            <if test="level != null">
-                AND mp1.level = #{level}
-            </if>
-            AND mp1.deleteStatus = 0
-            OR mp2.deleteStatus = 0
-        </where>
-        ORDER BY mp1.sequence,mp2.sequence ASC
+          SELECT
+            <include refid="Level_Linkage_Column"/>
+            FROM (
+            SELECT *
+            FROM metoo_res mp
+            WHERE mp.level = 0
+            AND mp.licenseGranted = 0
+            LIMIT #{currentPage}, #{pageSize}
+            ) mp1
+            LEFT JOIN (
+            SELECT
+            <include refid="Base_Column_List"/>
+            WHERE mp.level = 1
+            AND mp.licenseGranted = 0
+            ) mp2
+            ON mp2.parentId = mp1.id
+            LEFT JOIN
+            (
+            SELECT id, name, value, url, component,
+            sequence, parentId, level, componentName, icon
+            FROM metoo_res mp
+            WHERE mp.level = 2
+            AND mp.licenseGranted = 0
+            ) mp3
+            ON mp3.parentId = mp2.id
+            <where>
+        <if test="parentId != null">
+            AND mp1.parentId = #{parentId, jdbcType=BIGINT}
+        </if>
+        <if test="level != null">
+            AND mp1.level = #{level}
+        </if>
+        AND mp1.deleteStatus = 0
+        OR mp2.deleteStatus = 0
+    </where>
+    ORDER BY mp1.sequence,mp2.sequence ASC
     </select>
 
     <select id="selectPrimaryById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.Res">
@@ -210,6 +212,21 @@
         LEFT JOIN metoo_user user ON user.id = user_role.user_id
         WHERE
         user.id = #{id}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.Res">
+        SELECT * FROM metoo_res
+        <where>
+            <if test="permissionCodeList != null and permissionCodeList.size() > 0">
+                AND permissionCode in
+                <foreach collection="permissionCodeList" item="permissionCode" open="(" close=")" separator=",">
+                    #{permissionCode}
+                </foreach>
+            </if>
+            <if test="licenseGranted != null">
+                licenseGranted = #{licenseGranted}
+            </if>
+        </where>
     </select>
 
     <insert id="save" parameterType="com.metoo.nrsm.entity.Res" keyProperty="id" useGeneratedKeys="true">
@@ -349,9 +366,14 @@
             <if test="level != null">
                 level = #{level},
             </if>
-
             <if test="hidden != null">
                 hidden = #{hidden},
+            </if>
+            <if test="licenseGranted != null">
+                licenseGranted = #{licenseGranted},
+            </if>
+            <if test="permissionCode != null and permissionCode != ''">
+                permissionCode = #{permissionCode},
             </if>
         </set>
         <where>

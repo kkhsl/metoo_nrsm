@@ -72,24 +72,6 @@
       </select>-->
 
     <select id="findMenu" parameterType="java.lang.Long" resultMap="Base_Nav_Map">
-        <!--SELECT-->
-        <!--<include refid="Base_Column_List"/>-->
-        <!--FROM metoo_res res-->
-        <!--JOIN (-->
-        <!--SELECT res.*-->
-        <!--FROM metoo_res res-->
-        <!--LEFT JOIN metoo_role_res role_res ON role_res.res_id = res.id-->
-        <!--LEFT JOIN metoo_role role ON role.id = role_res.role_id-->
-        <!--LEFT JOIN metoo_user_role user_role ON user_role.role_id = role.id-->
-        <!--LEFT JOIN metoo_user user ON user.id = user_role.user_id-->
-        <!--WHERE-->
-        <!--user.id = #{id}-->
-        <!--AND-->
-        <!--res.level = 1-->
-        <!--) res2	ON res2.parentId = res.id-->
-        <!--WHERE-->
-        <!--res.level = 0-->
-        <!--ORDER BY res.sequence ASC,res2.sequence ASC-->
         SELECT
         res.id, res.name, res.value, res.sequence, res.componentName, res.icon,
         res.url, res.component, res.hidden, res.level,
@@ -99,32 +81,41 @@
         FROM
         metoo_res res
         LEFT JOIN (
-        -- 用户有权限的子菜单(level=1)
-        SELECT res.*
-        FROM metoo_res res
-        JOIN metoo_role_res role_res ON role_res.res_id = res.id
-        JOIN metoo_role role ON role.id = role_res.role_id
-        JOIN metoo_user_role user_role ON user_role.role_id = role.id
-        JOIN metoo_user user ON user.id = user_role.user_id
-        WHERE
-        user.id = #{userId}
-        AND
-        res.level = 1
+					-- 用户有权限的子菜单(level=1)
+					SELECT res.*
+					FROM metoo_res res
+					JOIN metoo_role_res role_res ON role_res.res_id = res.id
+					JOIN metoo_role role ON role.id = role_res.role_id
+					JOIN metoo_user_role user_role ON user_role.role_id = role.id
+					JOIN metoo_user user ON user.id = user_role.user_id
+					WHERE
+					user.id = #{userId}
+					AND
+						res.level = 1
+					AND
+						res.licenseGranted = 0
+
         ) res2 ON res2.parentId = res.id
         WHERE
+				(
+					-- 情况1：用户有该顶级菜单的直接权限
+					EXISTS (
+						SELECT 1
+						FROM metoo_role_res rr
+						JOIN metoo_role r ON r.id = rr.role_id
+						JOIN metoo_user_role ur ON ur.role_id = r.id
+						WHERE ur.user_id = #{userId}
+						AND rr.res_id = res.id
+						AND
+							res.licenseGranted = 0
+					)
+					-- 情况2：或者用户有该菜单的子菜单权限
+					OR res2.id IS NOT NULL
+        )
+				AND
+					res.licenseGranted = 0
+			AND
         res.level = 0
-        AND (
-        -- 情况1：用户有该顶级菜单的直接权限
-        EXISTS (
-        SELECT 1
-        FROM metoo_role_res rr
-        JOIN metoo_role r ON r.id = rr.role_id
-        JOIN metoo_user_role ur ON ur.role_id = r.id
-        WHERE ur.user_id = #{userId} AND rr.res_id = res.id
-        )
-        -- 情况2：或者用户有该菜单的子菜单权限
-        OR res2.id IS NOT NULL
-        )
         ORDER BY
         res.sequence ASC, res2.sequence ASC
     </select>

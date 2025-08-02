@@ -5,11 +5,12 @@ import com.metoo.nrsm.core.service.ILicenseService;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.License;
 import org.apache.shiro.web.filter.PathMatchingFilter;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-// @Component 仅作用于shiro过滤器链
+//仅作用于shiro过滤器链
 public class LicenseFilter extends PathMatchingFilter {
 
     private ILicenseService licenseService;
@@ -20,9 +21,6 @@ public class LicenseFilter extends PathMatchingFilter {
 
     @Override
     protected boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
-        if (true) {
-            return true;
-        }
         License license = licenseService.detection();
         if (license != null && license.getStatus() == 0 && license.getFrom() == 0) {
             return true;

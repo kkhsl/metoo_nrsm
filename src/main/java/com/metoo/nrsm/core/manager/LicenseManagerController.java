@@ -17,6 +17,7 @@ import com.metoo.nrsm.core.vo.LicenseVo;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.License;
 import com.metoo.nrsm.entity.PingIpConfig;
+import com.metoo.nrsm.entity.Res;
 import com.metoo.nrsm.entity.SystemUsage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,34 +31,44 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import java.util.*;
 
+import static com.metoo.nrsm.core.utils.license.AesEncryptUtils.decrypt;
 import static com.metoo.nrsm.core.utils.license.AesEncryptUtils.encrypt;
 
-@RequestMapping("/license")
-@RestController
 @Slf4j
+@RestController
+@RequestMapping("/license")
 public class LicenseManagerController {
 
-    @Autowired
     private ILicenseService licenseService;
-    @Autowired
     private AesEncryptUtils aesEncryptUtils;
-    @Autowired
     private LicenseTools licenseTools;
-    @Autowired
     private IDiskService diskService;
-    @Autowired
     private ISystemUsageService systemUsageService;
-    @Autowired
     private IUnboundService unboundService;
-    @Autowired
     private IPingIpConfigService pingIpConfigService;
-    @Resource
-    private NetworkElementMapper networkElementMapper;
+    private IResService resService;
+
+    @Autowired
+    public LicenseManagerController(ILicenseService licenseService,
+                                    AesEncryptUtils aesEncryptUtils,
+                                    LicenseTools licenseTools,
+                                    IDiskService diskService,
+                                    ISystemUsageService systemUsageService,
+                                    IUnboundService unboundService,
+                                    IPingIpConfigService pingIpConfigService,
+                                    IResService resService) {
+        this.licenseService = licenseService;
+        this.aesEncryptUtils = aesEncryptUtils;
+        this.licenseTools = licenseTools;
+        this.diskService = diskService;
+        this.systemUsageService = systemUsageService;
+        this.unboundService = unboundService;
+        this.pingIpConfigService = pingIpConfigService;
+        this.resService = resService;
+    }
 
     @Value("${api.url}")
     private String apiUrl;
-
-
 
     @RequestMapping("/all")
     @Scheduled(cron = "0 0 * * * ?")
@@ -227,9 +238,6 @@ public class LicenseManagerController {
     }
 
 
-
-
-
     @RequestMapping("/systemInfo")
     public Object systemInfo() {
         try {
@@ -286,23 +294,16 @@ public class LicenseManagerController {
      * @return
      */
     @PutMapping("update")
-    public Object license(@RequestBody Map<String, Object> license) throws Exception {
+    public Object license(@RequestBody Map<String, Object> license) {
 
         String uuid = SystemInfoUtils.getSerialNumber();
+
         String code = license.get("license").toString();
 
-        // 验证许可证合法性
-        System.out.println("***license: " + code);
         boolean isValid = this.licenseTools.verifySN(uuid, code);
 
-        String decrypt = this.aesEncryptUtils.decrypt(code);
-        License parsed = JSONObject.parseObject(decrypt, License.class);
-        int licenseUe = parsed.getLicenseDevice();
-        int num = networkElementMapper.selectObjAll(null).size();
-//        if (licenseUe<num){
-//            return ResponseUtil.error("授权网元数不够");
-//        }
         if (isValid) {
+
             List<License> existingLicenses = this.licenseService.query();
             if (!existingLicenses.isEmpty()) {
                 return updateExistingLicense(existingLicenses.get(0), code, uuid);
@@ -311,6 +312,29 @@ public class LicenseManagerController {
             }
         }
         return ResponseUtil.error("非法授权码");
+    }
+
+    // 解析授权中PermissionCode
+    public void updatePermission(List<String> permissionList){
+        if(permissionList.size() > 0){
+            Map<String, Object> params = new HashMap();
+            params.clear();
+            params.put("licenseGranted", true);
+            List<Res> licenseGrantedList = resService.selectObjByMap(params);
+            licenseGrantedList.forEach(licenseGranted -> {
+                licenseGranted.setLicenseGranted(false);
+                resService.update(licenseGranted);
+            });
+            params.clear();
+            params.put("permissionCodeList", permissionList);
+            List<Res> resList = resService.selectObjByMap(params);
+            if(resList.size() > 0){
+                resList.forEach(res -> {
+                    res.setLicenseGranted(true);
+                    resService.update(res);
+                });
+            }
+        }
     }
 
     @PutMapping("sq")
@@ -342,6 +366,7 @@ public class LicenseManagerController {
 
     private Object updateExistingLicense(License existingLicense, String code, String uuid) {
         if (!code.equals(existingLicense.getLicense())) {
+
             existingLicense.setLicense(code);
             existingLicense.setFrom(0);
             existingLicense.setSystemSN(uuid);
@@ -349,7 +374,12 @@ public class LicenseManagerController {
             if (!this.licenseTools.verifyExpiration(code)) {
                 existingLicense.setStatus(2);
             }
-            this.licenseService.update(existingLicense);
+            int flag = this.licenseService.update(existingLicense);
+            if(flag > 0){
+                String licenseInfo = aesEncryptUtils.decrypt(code);
+                LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+                updatePermission(licenseVo.getPermissionCodeList());
+            }
             return ResponseUtil.ok("授权成功");
         }
         return ResponseUtil.badArgument("重复授权");
@@ -364,7 +394,12 @@ public class LicenseManagerController {
         if (!this.licenseTools.verifyExpiration(code)) {
             newLicense.setStatus(2);
         }
-        this.licenseService.save(newLicense);
+        int flag = this.licenseService.save(newLicense);
+        if(flag > 0){
+            String licenseInfo = aesEncryptUtils.decrypt(code);
+            LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+            updatePermission(licenseVo.getPermissionCodeList());
+        }
         return ResponseUtil.ok("授权成功");
     }
 

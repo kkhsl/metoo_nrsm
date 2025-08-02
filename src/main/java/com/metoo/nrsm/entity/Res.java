@@ -1,6 +1,7 @@
 package com.metoo.nrsm.entity;
 
 import com.metoo.nrsm.core.domain.IdEntity;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -74,4 +75,11 @@ public class Res extends IdEntity {
     private boolean hidden;
     /*@ApiModelProperty("角色集合")
     private List<Role> roles = new ArrayList<Role>();*/
+
+    @ApiModelProperty("授权状态标识（true表示已授权可见，false表示未授权需隐藏）")
+    private boolean licenseGranted;
+
+    @ApiModelProperty("权限唯一编码（用于license授权匹配）")
+    private String permissionCode;
+
 }

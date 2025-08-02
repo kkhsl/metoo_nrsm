@@ -1,10 +1,10 @@
 package com.metoo.nrsm.core.manager;
 
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.ResDto;
 import com.metoo.nrsm.core.service.IResService;
 import com.metoo.nrsm.entity.Res;
-import com.github.pagehelper.util.StringUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,30 +24,12 @@ import java.util.Map;
 @RequestMapping("/admin/permission")
 public class ResManagerController {
 
+    private final IResService resService;
+
     @Autowired
-    private IResService resService;
-
-
- /*   public Object list(@RequestBody ResDto dto){
-        Map data = new HashMap();
-        if(dto.getCurrentPage() == null || dto.getCurrentPage().equals("")){
-            dto.setCurrentPage(1);
-        }
-        if(dto.getPageSize() == null || dto.getPageSize().equals("")){
-            dto.setPageSize(15);
-        }
-        Map params = new HashMap();
-        params.put("currentPage", (dto.getCurrentPage()));
-        params.put("pageSize", dto.getPageSize());
-        Page<Res> page = this.resService.query(params);
-        data.put("obj", page.getResult());
-        data.put("total", page.getTotal());
-        data.put("currentPage", page.getPageNum());
-        data.put("pageSize", page.getPageSize());
-        data.put("pages", page.getPages());
-
-        return ResponseUtil.ok(data);
-    }*/
+    public ResManagerController(IResService resService) {
+        this.resService = resService;
+    }
 
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @ApiOperation("权限列表")
@@ -68,58 +51,35 @@ public class ResManagerController {
         data.put("pageSize", ResList.size());
         return ResponseUtil.ok(data);
     }
-    /*public Object list(@RequestBody ResDto dto){
-        if(dto.getCurrentPage() == null || dto.getCurrentPage().equals("")){
-            dto.setCurrentPage(1);
-        }
-        if(dto.getPageSize() == null || dto.getPageSize().equals("")){
-            dto.setPageSize(15);
-        }
-        Map params = new HashMap();
-        params.put("startRow", (dto.getCurrentPage()) * dto.getPageSize());
-        params.put("pageSize", dto.getPageSize());
-        return ResponseUtil.ok(this.resService.query(params));
-    }*/
 
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @ApiOperation("权限添加")
     @PostMapping("/add")
     public Object add() {
         Map data = new HashMap();
-        // 查询所有父级
-        Map params = new HashMap();
-        params.put("level", 0);
+        Map<String, Integer> params = Collections.singletonMap("level", 0);
         List<Res> parentList = this.resService.findPermissionByMap(params);
         data.put("parentList", parentList);
         return ResponseUtil.ok(data);
     }
 
-    /*public Object add(){
-        List<Role> roles = this.roleService.findRoleByType("ADMIN");
-        return ResponseUtil.ok(roles);
-    }*/
-
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @ApiOperation("权限更新")
     @PostMapping("/update")
     public Object update(@RequestBody ResDto dto) {
-        Map data = new HashMap();
-        Res res = this.resService.findResUnitRoleByResId(dto.getId());
-        if (res != null) {
-            data.put("obj", res);
-            // 查询所有父级
-            Map params = new HashMap();
-            params.put("level", 0);
-            List<Res> parentList = this.resService.findPermissionByMap(params);
-            data.put("parentList", parentList);
-           /* List<Role> roles = this.roleService.findRoleByType("ADMIN");
-            data.put("roles", roles);*/
-            return ResponseUtil.ok(data);
+        Map existingResource = new HashMap();
+        Res topLevelPermissions = this.resService.findResUnitRoleByResId(dto.getId());
+        if (topLevelPermissions == null) {
+            return ResponseUtil.badArgument("指定的权限资源不存在");
         }
-        return ResponseUtil.badArgument();
+        existingResource .put("obj", topLevelPermissions );
+        Map<String, Integer> params = Collections.singletonMap("level", 0);
+        List<Res> parentList = this.resService.findPermissionByMap(params);
+        existingResource .put("parentList", parentList);
+        return ResponseUtil.ok(existingResource);
     }
 
-    //    @ApiOperation("权限信息查询")
+    @ApiOperation("权限信息查询")
     @RequiresPermissions("LK:PERMISSION:MANAGER")
     @RequestMapping("/query")
     public Object query(@RequestBody ResDto dto) {
@@ -159,7 +119,6 @@ public class ResManagerController {
             Map map = new HashMap();
             map.put("name", dto.getName());
             if (dto.getParentId() != null) {
-//                Res parent = this.resService.findObjById(dto.getParentId());
                 map.put("level", 1);
             } else {
                 map.put("level", 0);
@@ -197,7 +156,6 @@ public class ResManagerController {
     @ApiOperation("权限删除")
     @PostMapping("/delete")
     public Object delete(@RequestBody ResDto dto) {
-        // 递归删除
         Res res = this.resService.findObjById(dto.getId());
         if (res != null) {
             Map params = new HashMap();

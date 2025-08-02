@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.manager;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
+import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
@@ -139,21 +140,30 @@ public class IndexManagerController {
     public Object nav() {
         Map map = new HashMap();
         User user = ShiroUserHolder.currentUser();
+//        map.put("obj", new ArrayList<>());
+//        if(user != null){
+//            map.put("obj", this.indexService.findMenu(user.getId()));
+//        }
         map.put("obj", this.indexService.findMenu(user.getId()));
 
         SysConfig configs = this.configService.select();
         map.put("domain", configs.getDomain());
-        List<License> licenses = this.licenseService.query();
-//        map.put("licenseAC", false);
-//        if (licenses.size() > 0) {
-//            try {
-//                String licenseInfo = this.aesEncryptUtils.decrypt(licenses.get(0).getLicense());
-//                LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
-//                map.put("licenseAC", license.isLicenseAC());
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+
+        map.put("versionType", getLicenseType());
+
         return ResponseUtil.ok(map);
+    }
+
+    public boolean getLicenseType(){
+        License obj = licenseService.query().get(0);
+        String uuid = SystemInfoUtils.getSerialNumber();
+        if (uuid.equals(obj.getSystemSN()) && obj.getStatus() == 0 && (obj.getLicense() != null && !"".equals(obj.getLicense()))) {
+            String licenseInfo = aesEncryptUtils.decrypt(obj.getLicense());
+            LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+            if(licenseVo.getVersionType() == 2 || licenseVo.getVersionType() == 4){
+                return true;
+            }
+        }
+        return false;
     }
 }
