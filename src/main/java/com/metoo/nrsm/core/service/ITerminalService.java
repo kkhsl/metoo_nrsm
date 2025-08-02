@@ -77,5 +77,7 @@ public interface ITerminalService {
     void syncTerminalToTerminalHistory();
 
     Map<String, Integer> terminalCount();
+    int batchInsert(List<Terminal> terminals);
+
 
 }

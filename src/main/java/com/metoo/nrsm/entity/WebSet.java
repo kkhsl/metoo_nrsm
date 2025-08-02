@@ -13,6 +13,8 @@ public class WebSet {
 
     private String logoUrl;
 
+    private String icoUrl;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

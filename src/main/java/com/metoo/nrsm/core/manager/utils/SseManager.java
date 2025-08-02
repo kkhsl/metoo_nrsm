@@ -51,11 +51,14 @@ public class SseManager {
         // 使用本地化日期时间格式
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
 
-        // 构建带时间信息的JSON
+        String escapedMessage = logMessage
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n");  // 转义换行符
+
         String json = String.format(
                 "{\"type\":\"%s\",\"time\":\"%s\",\"message\":\"%s\"}",
-                taskType, timestamp, logMessage.replace("\"", "\\\"")
-        );
+                taskType, timestamp, escapedMessage);
 
         // 构建SSE事件
         return "\n" +

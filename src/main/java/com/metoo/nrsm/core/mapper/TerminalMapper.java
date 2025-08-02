@@ -69,4 +69,6 @@ public interface TerminalMapper {
     int copyTerminalToTerminalHistory();
 
     Map<String, Integer> terminalCount();
+
+    int batchInsert(List<Terminal> terminals);
 }

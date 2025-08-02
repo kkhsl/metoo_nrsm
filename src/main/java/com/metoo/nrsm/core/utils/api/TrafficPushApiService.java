@@ -5,7 +5,7 @@ import com.metoo.nrsm.core.utils.api.netmap.NetmapPushRequestParams;
 import com.metoo.nrsm.core.vo.ProbeRequestVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.retry.annotation.Backoff;
@@ -13,10 +13,8 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
-import org.apache.http.conn.ConnectTimeoutException;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -343,17 +341,17 @@ public class TrafficPushApiService {
             log.error("无法连接到目标主机: {}", e.getMessage());
         }*/ catch (ResourceAccessException e) {
             log.error("网络连接问题: {}", e.getMessage());
-            return "网络连接问题";
+            return "网络连接问题："+e.getMessage();
         } catch (HttpServerErrorException | HttpClientErrorException e) {
             log.error("HTTP 错误响应: 状态码 - {}", e.getStatusCode());
             log.error("请求失败: {}", e.getMessage());
-            return "HTTP 错误响应";
+            return "HTTP 错误响应："+e.getMessage();
         } catch (RestClientException e) {
             log.error("请求失败: {}", e.getMessage());
-            return "请求失败";
+            return "请求失败："+e.getMessage();
         } catch (Exception e) {
             log.info("其他异常： {}", e.getMessage());
-            return "其他异常";
+            return "其他异常："+e.getMessage();
         }
     }
 

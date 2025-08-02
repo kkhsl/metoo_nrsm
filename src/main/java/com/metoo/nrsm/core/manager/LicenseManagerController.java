@@ -60,7 +60,8 @@ public class LicenseManagerController {
 
 
     @RequestMapping("/all")
-    @Scheduled(cron = "0 0 * * * ?")
+//    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
     public Result hourlyReport() throws Exception {
         Map<String, Object> reportData = collectSystemInfo();
         String result = sendToPlatform(reportData);

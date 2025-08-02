@@ -48,6 +48,32 @@ public class FlowStatisticsManagerControllerApi {
             params.put("endOfDay", DateTools.getEndOfDay());
             List<FlowStatistics> flowStatisticsList = this.flowStatisticsService.selectObjByMap1(params);
 
+            // 1. 处理数据库查询结果中的负数
+            // 初始化上一个有效记录（第一次循环时使用默认值0）
+            BigDecimal lastValidIPv4Sum = BigDecimal.ZERO;
+            BigDecimal lastValidIPv6Sum = BigDecimal.ZERO;
+
+            for (FlowStatistics current : flowStatisticsList) {
+                // 确保字段不为null
+                if (current.getIpv4Sum() == null) current.setIpv4Sum(BigDecimal.ZERO);
+                if (current.getIpv6Sum() == null) current.setIpv6Sum(BigDecimal.ZERO);
+
+                // 处理IPv4Sum负数
+                if (current.getIpv4Sum().compareTo(BigDecimal.ZERO) < 0) {
+                    current.setIpv4Sum(lastValidIPv4Sum);
+                } else {
+                    lastValidIPv4Sum = current.getIpv4Sum(); // 更新有效值
+                }
+
+                // 处理IPv6Sum负数
+                if (current.getIpv6Sum().compareTo(BigDecimal.ZERO) < 0) {
+                    current.setIpv6Sum(lastValidIPv6Sum);
+                } else {
+                    lastValidIPv6Sum = current.getIpv6Sum(); // 更新有效值
+                }
+            }
+
+
             // 补零前端显示
             // 2. 生成所有 5 分钟间隔的时间点
             List<Date> allTimeSlots = generate5MinuteTimeSlots();
@@ -101,6 +127,9 @@ public class FlowStatisticsManagerControllerApi {
         defaultData.setIpv4(BigDecimal.ZERO);
         defaultData.setIpv6(BigDecimal.ZERO);
         defaultData.setIpv6Rate(BigDecimal.ZERO);
+        defaultData.setIpv4Sum(BigDecimal.ZERO);
+        defaultData.setIpv6Sum(BigDecimal.ZERO);
+
         return defaultData;
     }
 

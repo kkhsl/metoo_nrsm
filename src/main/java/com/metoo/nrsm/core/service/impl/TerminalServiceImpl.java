@@ -1049,5 +1049,20 @@ public class TerminalServiceImpl implements ITerminalService {
         return terminalMapper.terminalCount();
     }
 
+    @Override
+    public int batchInsert(List<Terminal> terminals) {
+        for (Terminal instance : terminals) {
+            instance.setAddTime(new Date());
+            instance.setUuid(UUID.randomUUID().toString());
+        }
+        try {
+            int i = this.terminalMapper.batchInsert(terminals);
+            return i;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
 }
 
