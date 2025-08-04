@@ -17,7 +17,7 @@ public class SchedulingConfiguration {
     @Bean
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-        taskScheduler.setPoolSize(15);// 配置线程池大小，根据需要调整
+        taskScheduler.setPoolSize(20);// 配置线程池大小，根据需要调整
         taskScheduler.initialize();
         taskScheduler.setThreadNamePrefix("scheduled-gather-");
         return taskScheduler;
