@@ -61,8 +61,6 @@ public class GatherTaskScheduledUtil {
     @Autowired
     private ILicenseService licenseService;
     @Autowired
-    private AesEncryptUtils aesEncryptUtils;
-    @Autowired
     private DeviceManager deviceManager;
     @Autowired
     private GatherSingleThreadingMacSNMPUtils gatherSingleThreadingMacSNMPUtils;
@@ -464,7 +462,7 @@ public class GatherTaskScheduledUtil {
         if (!uuid.equals(obj.getSystemSN())) {
             return false;
         }
-        String licenseInfo = this.aesEncryptUtils.decrypt(obj.getLicense());
+        String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
         LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
         return licenseVo.isLicenseProbe();
 

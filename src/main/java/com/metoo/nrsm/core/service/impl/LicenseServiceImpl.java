@@ -18,8 +18,6 @@ public class LicenseServiceImpl implements ILicenseService {
 
     @Autowired
     private LicenseMapper licenseMapper;
-    @Autowired
-    private AesEncryptUtils aesEncryptUtils;
 
     @Override
     public License detection() {
@@ -64,7 +62,7 @@ public class LicenseServiceImpl implements ILicenseService {
                 String licenseInfo = license.getLicense();
                 Map map = null;
                 try {
-                    map = JSONObject.parseObject(this.aesEncryptUtils.decrypt(licenseInfo), Map.class);
+                    map = JSONObject.parseObject(AesEncryptUtils.decrypt(licenseInfo), Map.class);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

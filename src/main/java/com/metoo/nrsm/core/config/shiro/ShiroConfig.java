@@ -73,10 +73,6 @@ public class ShiroConfig {
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
 
 
-//        filterChainDefinitionMap.put("/admin/dhcp/**", "anon");
-//        filterChainDefinitionMap.put("/admin/address/pool/**", "anon");
-
-
         filterChainDefinitionMap.put("/notice/**", "anon");
         filterChainDefinitionMap.put("/ws/**", "anon");
         filterChainDefinitionMap.put("/file/**", "anon");
@@ -87,9 +83,6 @@ public class ShiroConfig {
 
         filterChainDefinitionMap.put("/admin/test/**", "anon");
 
-        filterChainDefinitionMap.put("/user/login", "anon");// 设置所有资源都受限；避免登录资源受限，设置登录为公共资源
-
-        filterChainDefinitionMap.put("/user/register", "anon");
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");
         filterChainDefinitionMap.put("/web/**", "anon");
 
@@ -112,6 +105,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/monitor/**", "anon");
 
         filterChainDefinitionMap.put("/admin/index/nav", "anon");
+        filterChainDefinitionMap.put("/admin/user/personal", "anon");
+
         filterChainDefinitionMap.put("/admin/**", "rmb, licenseFilter");
         filterChainDefinitionMap.put("/nspm/**", "rmb, licenseFilter");
 

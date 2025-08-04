@@ -9,9 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class LicenseTools {
 
-    @Autowired
-    private AesEncryptUtils aesEncryptUtils;
-
     /**
      * 验证License合法性
      *
@@ -19,7 +16,7 @@ public class LicenseTools {
      */
     public boolean verifySN(String systemSN, String code) {
         try {
-            String decrypt = this.aesEncryptUtils.decrypt(code);
+            String decrypt = AesEncryptUtils.decrypt(code);
             System.out.println("&&&decrypt" + decrypt);
 
             License license = JSONObject.parseObject(decrypt, License.class);
@@ -37,12 +34,12 @@ public class LicenseTools {
         return false;
     }
 
-    public boolean verifyExpiration(String code) {
+    public static boolean verifyExpiration(String code) {
         // 检测授权码是否已过期
         if (code != null) {
             License license = null;
             try {
-                license = JSONObject.parseObject(this.aesEncryptUtils.decrypt(code), License.class);
+                license = JSONObject.parseObject(AesEncryptUtils.decrypt(code), License.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }

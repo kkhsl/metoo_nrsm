@@ -10,7 +10,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-@Component
 public class AesEncryptUtils {
 
     //可配置到Constant中，并读取配置文件注入,16位,自己定义
@@ -48,16 +47,6 @@ public class AesEncryptUtils {
      * @return
      * @throws Exception
      */
-//    public static String decrypt(String encryptStr, String decryptKey) throws Exception {
-//        KeyGenerator kgen = KeyGenerator.getInstance("AES");
-//        kgen.init(128);
-//        Cipher cipher = Cipher.getInstance(ALGORITHMSTR);
-//        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(decryptKey.getBytes(), "AES"));
-//        // 采用base64算法进行转码,避免出现中文乱码
-//        byte[] encryptBytes = Base64.decodeBase64(encryptStr.getBytes("UTF-8"));
-//        byte[] decryptBytes = cipher.doFinal(encryptBytes);
-//        return new String(decryptBytes);
-//    }
     public static String decrypt(String encryptStr, String decryptKey) {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
@@ -81,11 +70,11 @@ public class AesEncryptUtils {
     }
 
 
-    public String encrypt(String content) throws Exception {
+    public static String encrypt(String content) throws Exception {
         return encrypt(content, Global.AES_KEY);
     }
 
-    public String decrypt(String encryptStr) {
+    public static String decrypt(String encryptStr) {
         return decrypt(encryptStr, Global.AES_KEY);
     }
 
@@ -128,7 +117,7 @@ public class AesEncryptUtils {
 //        System.out.println("加密后：" + encrypt);
 
         String decrypt = decrypt("" +
-                        "YtLMTsIwlqMy/88FyrjQsCgQjeulHg7a0XvQ64+9d1748J1Nq9jMhMabyGsS5jfdbh0w+72mCTnCn9xzDYlwIAwS3qnYUYJTgwzhPSJM96oQmY1jEZs7GgbA9W0kzWWO1fRLJvJbPiu72s/63TzJvL2/eKPZjvehJrT9fHXfe6dCqqJtFw4a9cMRxRJFmfdSKzH/Q1oexHy5BMQn9Xf1QBAppQb359fZua4cXxEADpaE2Fuv0RGdWclhBQboX9EZ/WATHuh0gBUG9hR880qCu0WLIXUt86phKkuTupxDkxxwzC8t3Qkiv7n7V6kCVh+o7hj/OIRjbTAy5+ll5KoevfPJAFoK3xKEaqD8Qjn2+wFuNQK1yvVrDa9AlfTv9oS1oaPDC+Qt5RXiKWtUw9u8Rm4+FUVj/chbk+HquNes/XR21DLlJmU3w9wQLWW1vtuTpy6PlNqqWKSnyOv30BVA0A=="
+                        "8OT9bi9Wj5v+np4MJIiEM6J4k5esZEcOWSQa+LQuWF7e8KrWS/tFbzrBaaEq4dFbnhDzlHa9GO9AMiI3LCUAk3FDf7et4q0NwlqKXNVuxTPRCYUUKKbq71EnEYZ8ZKt4QqqibRcOGvXDEcUSRZn3UgG2lPT481T5CL5H02w3qTwVpF9BUAovXQRQWID5HwzHEMjvKfnHmf/90f8ZiV9d7NuRx+FBNsUSsgC/VMbhrduiwr8DV8PCmJMoUBAyDeniLTw0UmPiwX0fVW7G78FJv+tbTMRc8V8k+87N2eAsIZiMHqC3UHUEjm2zzFTa6Whwf3w4SOIYhMfemjEs7yEGxV5ShOhxPOdy9RVRWr3UwCF/vXbdVzW9sJRRTqWAPJ90Ks+I/EoREigb3S6mvINRVlMWLGXe8mpQJvWhzXQPtkHwUIOCgWwtAJhm6VgHTl2coaPDC+Qt5RXiKWtUw9u8Rm4+FUVj/chbk+HquNes/XR21DLlJmU3w9wQLWW1vtuTecxy79aJbT7WzslB1zeblBRaDWcGLnY/N+OwxwBzYAQ="
                 , Global.AES_KEY);
         System.out.println("解密后：" + decrypt);
 

@@ -7,6 +7,7 @@ import com.metoo.nrsm.core.service.INetworkElementService;
 import com.metoo.nrsm.core.utils.license.AesEncryptUtils;
 import com.metoo.nrsm.core.vo.LicenseVo;
 import com.metoo.nrsm.entity.License;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -24,6 +25,7 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 
+@Slf4j
 @Aspect
 @Component
 public class LicenseDeviceAop {
@@ -31,32 +33,31 @@ public class LicenseDeviceAop {
     @Autowired
     private ILicenseService licenseServicer;
     @Autowired
-    private AesEncryptUtils aesEncryptUtils;
-    @Autowired
     private INetworkElementService networkElementService;
 
-    // bug
-    // execution(修饰符模式? 返回类型模式 声明类型模式? 方法名称模式(参数模式) 异常模式?)
-    // 这个切入点匹配 com.example.service 包中任意类的任意方法（*），方法名称任意（*），以及任意参数（..）。它不指定修饰符或返回类型，使其更通用。
-    @Around("execution(* com.metoo.nrsm.core.manager.NetworkElementManagerController.*(..)) && args(file)")
-    public Object around(ProceedingJoinPoint pjp, MultipartFile file) throws Throwable {
+    @Around("execution(* com.metoo.nrsm.core.manager.NetworkElementManagerController.*(..))")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
         try {
-            // 获取License详细信息
+            // 检查是否有 MultipartFile 参数
+            MultipartFile file = null;
+            for (Object arg : pjp.getArgs()) {
+                if (arg instanceof MultipartFile) {
+                    file = (MultipartFile) arg;
+                    break;
+                }
+            }
+
             License obj = this.licenseServicer.query().get(0);
-            // 设备授权信息
-            String code = this.aesEncryptUtils.decrypt(obj.getLicense());
+            String code = AesEncryptUtils.decrypt(obj.getLicense());
             LicenseVo license = JSONObject.parseObject(code, LicenseVo.class);
 
             Signature signature = pjp.getSignature();
             String methodName = signature.getName();
 
-            Object[] arguments = pjp.getArgs();
             List list = this.networkElementService.selectObjAll();
             switch (methodName) {
                 case "save":
-                    String node = JSONObject.toJSONString(arguments[0]);
-                    JSONObject json = JSONObject.parseObject(node);
-                    if (/*json.get("id") == null && */list.size() > license.getLicenseDevice()) {
+                    if (list.size() > license.getLicenseDevice()) {
                         return ResponseUtil.error("授权设备数量已达到最大授权数，禁止上传");
                     }
                     break;
@@ -64,7 +65,8 @@ public class LicenseDeviceAop {
                     // Excel 条数默认为第一个参数
                     // 获取 Excel 文件的数据条目数
                     int excelRowCount = getExcelRowCount(file);
-                    System.out.println("导入的 Excel 条数：" + excelRowCount);
+                    log.info("导入的 Excel 条数：{}", excelRowCount);
+
                     // 这里可以进行进一步的处理，比如记录日志等
                     if (list.size() + excelRowCount > license.getLicenseDevice()) {
                         return ResponseUtil.error("授权设备数量已达到最大授权数，禁止上传");

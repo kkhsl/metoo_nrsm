@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.LicenseDto;
+import com.metoo.nrsm.core.manager.utils.LicenseUtils;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
-import com.metoo.nrsm.core.mapper.NetworkElementMapper;
 import com.metoo.nrsm.core.network.networkconfig.test.checkProcessStatus;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.Global;
@@ -28,11 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
 import java.util.*;
-
-import static com.metoo.nrsm.core.utils.license.AesEncryptUtils.decrypt;
-import static com.metoo.nrsm.core.utils.license.AesEncryptUtils.encrypt;
 
 @Slf4j
 @RestController
@@ -40,7 +36,6 @@ import static com.metoo.nrsm.core.utils.license.AesEncryptUtils.encrypt;
 public class LicenseManagerController {
 
     private ILicenseService licenseService;
-    private AesEncryptUtils aesEncryptUtils;
     private LicenseTools licenseTools;
     private IDiskService diskService;
     private ISystemUsageService systemUsageService;
@@ -50,7 +45,6 @@ public class LicenseManagerController {
 
     @Autowired
     public LicenseManagerController(ILicenseService licenseService,
-                                    AesEncryptUtils aesEncryptUtils,
                                     LicenseTools licenseTools,
                                     IDiskService diskService,
                                     ISystemUsageService systemUsageService,
@@ -58,7 +52,6 @@ public class LicenseManagerController {
                                     IPingIpConfigService pingIpConfigService,
                                     IResService resService) {
         this.licenseService = licenseService;
-        this.aesEncryptUtils = aesEncryptUtils;
         this.licenseTools = licenseTools;
         this.diskService = diskService;
         this.systemUsageService = systemUsageService;
@@ -71,7 +64,6 @@ public class LicenseManagerController {
     private String apiUrl;
 
     @RequestMapping("/all")
-//    @Scheduled(cron = "0 0 * * * ?")
     @Scheduled(cron = "0 */10 * * * ?")
     public Result hourlyReport() throws Exception {
         Map<String, Object> reportData = collectSystemInfo();
@@ -86,9 +78,9 @@ public class LicenseManagerController {
         Map<String, Object> baseInfo = new LinkedHashMap<>();
         License obj = licenseService.query().get(0);
         String sn = SystemInfoUtils.getSerialNumber();
-        String licenseInfo = aesEncryptUtils.decrypt(obj.getLicense());
+        String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
         LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
-        calculateLicenseDays(license);
+        LicenseUtils.calculateLicenseDays(license);
         Map<String, Object> licensesInfo = new LinkedHashMap<>();
         licensesInfo.put("probe",license.isLicenseProbe());
 
@@ -151,50 +143,6 @@ public class LicenseManagerController {
         return reportData;
     }
 
-    /**
-     * 计算磁盘利用率（基于格式化的字符串）
-     * @param totalStr 总空间（如"56.88 GB"）
-     * @param usedStr 已用空间（如"26.62 GB"）
-     * @return 利用率百分比（如46.8）
-     */
-    private double calculateDiskUtilization(String totalStr, String usedStr) {
-        try {
-            // 解析空间值（转换为GB单位）
-            double totalGB = parseSpaceValue(totalStr);
-            double usedGB = parseSpaceValue(usedStr);
-
-            if (totalGB > 0) {
-                return (usedGB / totalGB) * 100;
-            }
-            return 0.0;
-        } catch (Exception e) {
-            return -1.0; // 计算失败标记
-        }
-    }
-    /**
-     * 将格式化的空间字符串转换为GB单位的数字
-     * 支持GB/MB/KB/B等单位
-     */
-    private double parseSpaceValue(String spaceStr) {
-        // 分割数值和单位（如["56.88", "GB"]）
-        String[] parts = spaceStr.split(" ");
-        if (parts.length < 2) return 0.0;
-
-        double value = Double.parseDouble(parts[0]);
-        String unit = parts[1].toUpperCase();
-
-        // 转换为GB单位
-        switch (unit) {
-            case "TB": return value * 1024;
-            case "GB": return value;
-            case "MB": return value / 1024;
-            case "KB": return value / (1024 * 1024);
-            case "B": return value / (1024 * 1024 * 1024);
-            default: return value; // 默认为GB
-        }
-    }
-
-
     private boolean checkProcessStatus(String processName) {
         String status = checkProcessStatus.checkProcessStatus(processName);
         return (status != null && status.equalsIgnoreCase("true"));
@@ -223,7 +171,6 @@ public class LicenseManagerController {
                     requestEntity,
                     String.class
             );
-
             return response.getBody();
         } catch (Exception e) {
             log.error("平台接口上报失败: {}", e.getMessage());
@@ -235,15 +182,55 @@ public class LicenseManagerController {
             }
             return null;
         }
-
     }
 
+    /**
+     * 计算磁盘利用率（基于格式化的字符串）
+     * @param totalStr 总空间（如"56.88 GB"）
+     * @param usedStr 已用空间（如"26.62 GB"）
+     * @return 利用率百分比（如46.8）
+     */
+    private double calculateDiskUtilization(String totalStr, String usedStr) {
+        try {
+            // 解析空间值（转换为GB单位）
+            double totalGB = parseSpaceValue(totalStr);
+            double usedGB = parseSpaceValue(usedStr);
+
+            if (totalGB > 0) {
+                return (usedGB / totalGB) * 100;
+            }
+            return 0.0;
+        } catch (Exception e) {
+            return -1.0; // 计算失败标记
+        }
+    }
+
+    /**
+     * 将格式化的空间字符串转换为GB单位的数字
+     * 支持GB/MB/KB/B等单位
+     */
+    private double parseSpaceValue(String spaceStr) {
+        // 分割数值和单位（如["56.88", "GB"]）
+        String[] parts = spaceStr.split(" ");
+        if (parts.length < 2) return 0.0;
+
+        double value = Double.parseDouble(parts[0]);
+        String unit = parts[1].toUpperCase();
+
+        // 转换为GB单位
+        switch (unit) {
+            case "TB": return value * 1024;
+            case "GB": return value;
+            case "MB": return value / 1024;
+            case "KB": return value / (1024 * 1024);
+            case "B": return value / (1024 * 1024 * 1024);
+            default: return value; // 默认为GB
+        }
+    }
 
     @RequestMapping("/systemInfo")
     public Object systemInfo() {
         try {
-//            String sn = this.aesEncryptUtils.encrypt(this.systemInfoUtils.getBiosUuid());
-//            String sn = SystemInfoUtils.getBiosUuid();
             String sn = SystemInfoUtils.getSerialNumber();
             return ResponseUtil.ok(sn);
         } catch (Exception e) {
@@ -256,40 +243,25 @@ public class LicenseManagerController {
     public Object query() {
         License obj = this.licenseService.query().get(0);
         String uuid = SystemInfoUtils.getSerialNumber();
-
         if (!uuid.equals(obj.getSystemSN())) {
             return ResponseUtil.error(413, "未授权设备");
         }
         try {
-            String licenseInfo = this.aesEncryptUtils.decrypt(obj.getLicense());
-            LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
-
-            // 计算使用天数和剩余天数计算授权天数
-            calculateLicenseDays(license);
-
-            return ResponseUtil.ok(license);
+            String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
+            LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+            LicenseUtils.calculateLicenseDays(licenseVo);
+            if(licenseVo.getVersionType() == 2 || licenseVo.getVersionType() == 4){
+                licenseVo.setLicenseProbe(true);
+            }
+            return ResponseUtil.ok(licenseVo);
         } catch (Exception e) {
             // 使用日志记录异常信息
             return ResponseUtil.error("查询失败: " + e.getMessage());
         }
     }
 
-    private void calculateLicenseDays(LicenseVo license) {
-        long currentTime = DateTools.currentTimeMillis();
-        license.setUseDay(DateTools.compare(currentTime, license.getStartTime()));
-
-        long remainingMillis = license.getEndTime() - currentTime;
-        int surplusDay = (int) Math.ceil((double) remainingMillis / DateTools.ONEDAY_TIME);
-        surplusDay = Math.max(surplusDay, 1); // 确保最小值为1
-        license.setSurplusDay(surplusDay);
-
-//        license.setSurplusDay(DateTools.compare(license.getEndTime(), currentTime));
-
-        license.setLicenseDay(DateTools.compare(license.getEndTime(), license.getStartTime()));
-    }
-
     /**
-     * 授权
+     * 更新系统授权码
      *
      * @param license
      * @return
@@ -338,33 +310,6 @@ public class LicenseManagerController {
         }
     }
 
-    @PutMapping("sq")
-    public Object sq(@RequestBody License licenseDto) throws Exception {
-        License dto = new License();
-        dto.setStartTime(licenseDto.getStartTime());
-        dto.setEndTime(licenseDto.getEndTime());
-        dto.setSystemSN(licenseDto.getSystemSN());
-        dto.setType(licenseDto.getType());
-        dto.setUnitName(licenseDto.getUnitName());
-        dto.setLicenseAC(true);
-        dto.setLicenseProbe(true);
-        dto.setLicenseVersion(licenseDto.getLicenseVersion());
-        dto.setLicenseFireWall(licenseDto.getLicenseFireWall());
-        dto.setLicenseRouter(licenseDto.getLicenseRouter());
-        dto.setLicenseHost(licenseDto.getLicenseHost());
-        dto.setLicenseUe(licenseDto.getLicenseUe());
-        dto.setLicenseDevice(licenseDto.getLicenseDevice());
-        dto.setCustomerInfo(licenseDto.getCustomerInfo());
-        dto.setInsertTime(licenseDto.getInsertTime());
-        String content = JSONObject.toJSONString(dto);
-        System.out.println("加密前：" + content);
-
-        String encrypt = encrypt(content, Global.AES_KEY);
-        System.out.println("加密后：" + encrypt);
-        return ResponseUtil.ok(encrypt);
-    }
-
-
     private Object updateExistingLicense(License existingLicense, String code, String uuid) {
         if (!code.equals(existingLicense.getLicense())) {
 
@@ -377,7 +322,7 @@ public class LicenseManagerController {
             }
             int flag = this.licenseService.update(existingLicense);
             if(flag > 0){
-                String licenseInfo = aesEncryptUtils.decrypt(code);
+                String licenseInfo = AesEncryptUtils.decrypt(code);
                 LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
                 updatePermission(licenseVo.getPermissionCodeList());
             }
@@ -397,45 +342,13 @@ public class LicenseManagerController {
         }
         int flag = this.licenseService.save(newLicense);
         if(flag > 0){
-            String licenseInfo = aesEncryptUtils.decrypt(code);
+            String licenseInfo = AesEncryptUtils.decrypt(code);
             LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
             updatePermission(licenseVo.getPermissionCodeList());
         }
         return ResponseUtil.ok("授权成功");
     }
 
-    /**
-     * 授权
-     *
-     * @param //license
-     * @return
-     */
-   /* @PutMapping("update")
-    public Object license(@RequestBody Map license){
-        String uuid = this.systemInfoUtils.getBiosUuid();
-        // 验证license合法性
-        String code = license.get("license").toString();
-        boolean flag = this.licenseTools.verify(uuid, code);
-        if(flag){
-            License obj = this.licenseService.query().get(0);
-            if(!obj.getLicense().equals(license)){
-                obj.setLicense(code);
-                obj.setFrom(0);
-                obj.setSystemSN(uuid);
-                obj.setStatus(0);
-                // 格式化时间
-                String startTime = obj.getStartTime();
-
-                if(!this.verify(code)){
-                    obj.setStatus(2);
-                }
-                this.licenseService.update(obj);
-                return ResponseUtil.ok("授权成功");
-            }
-            return ResponseUtil.badArgument("重复授权");
-        }
-        return ResponseUtil.error("非法授权码");
-    }*/
     @RequestMapping("/license")
     public void license() {
         // 1. 获取设备唯一申请码
@@ -479,7 +392,7 @@ public class LicenseManagerController {
         Map<String, Object> licenseData = null;
 
         try {
-            licenseData = JSONObject.parseObject(aesEncryptUtils.decrypt(licenseInfo), Map.class);
+            licenseData = JSONObject.parseObject(AesEncryptUtils.decrypt(licenseInfo), Map.class);
         } catch (Exception e) {
             return; // 如果解密失败，直接返回
         }
@@ -495,28 +408,6 @@ public class LicenseManagerController {
         } else {
             license.setStatus(1); // 未授权
         }
-    }
-
-
-    @PostMapping("/generate")
-    public Object license(@RequestBody(required = false) LicenseDto dto) {
-        if (dto != null && dto.getSystemSN() != null) {
-            try {
-                // 解密系统序列号（如需要）
-                // String sn = this.aesEncryptUtils.decrypt(dto.getSystemSN());
-                // dto.setSystemSN(sn);
-
-                // 处理过期时间（如需要）
-                // long currentTime = processExpireTime(dto.getExpireTime());
-
-                // 返回加密的许可证信息
-                String encryptedLicense = this.aesEncryptUtils.encrypt(JSONObject.toJSONString(dto));
-                return ResponseUtil.ok(encryptedLicense);
-            } catch (Exception e) {
-                return ResponseUtil.error("申请码错误");
-            }
-        }
-        return ResponseUtil.error("请求体中缺少有效的系统序列号");
     }
 
 }

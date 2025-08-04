@@ -42,8 +42,6 @@ public class IndexManagerController {
     @Autowired
     private ILicenseService licenseService;
     @Autowired
-    private AesEncryptUtils aesEncryptUtils;
-    @Autowired
     private SnmpStatusUtils snmpStatusUtils;
 
     @GetMapping("/flux/device")
@@ -158,7 +156,7 @@ public class IndexManagerController {
         License obj = licenseService.query().get(0);
         String uuid = SystemInfoUtils.getSerialNumber();
         if (uuid.equals(obj.getSystemSN()) && obj.getStatus() == 0 && (obj.getLicense() != null && !"".equals(obj.getLicense()))) {
-            String licenseInfo = aesEncryptUtils.decrypt(obj.getLicense());
+            String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
             LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
             if(licenseVo.getVersionType() == 2 || licenseVo.getVersionType() == 4){
                 return true;
