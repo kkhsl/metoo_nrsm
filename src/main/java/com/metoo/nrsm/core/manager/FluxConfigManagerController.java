@@ -25,8 +25,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 @RestController
@@ -39,7 +37,7 @@ public class FluxConfigManagerController {
     @Autowired
     private IFlowStatisticsService flowStatisticsService;
 
-    private static final ExecutorService SNMP_EXECUTOR = Executors.newFixedThreadPool(20);
+    //private static final ExecutorService SNMP_EXECUTOR = Executors.newFixedThreadPool(20);
 
 
     @GetMapping("/flow2")
@@ -201,8 +199,7 @@ public class FluxConfigManagerController {
                 for (List<String> oid : v4Oids) {
                     if (oid.size() >= 2) {
                         v4Futures.add(CompletableFuture.supplyAsync(() ->
-                                        execSNMP(config, oid.get(0), oid.get(1), false),
-                                SNMP_EXECUTOR
+                                        execSNMP(config, oid.get(0), oid.get(1), false)
                         ));
                     }
                 }
@@ -214,8 +211,7 @@ public class FluxConfigManagerController {
                 for (List<String> oid : v6Oids) {
                     if (oid.size() >= 2) {
                         v6Futures.add(CompletableFuture.supplyAsync(() ->
-                                        execSNMP(config, oid.get(0), oid.get(1), true),
-                                SNMP_EXECUTOR
+                                        execSNMP(config, oid.get(0), oid.get(1), true)
                         ));
                     }
                 }
