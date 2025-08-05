@@ -141,9 +141,12 @@ public class UnitManagerController {
                 continue;
             }
 
-            if (unit.getUnitLevel() == 0) {
-                errors.add(id+"为系统默认总部不能删除" );
-                continue;
+
+            if(unit.getUnitLevel()!=null){
+                if (unit.getUnitLevel() == 0) {
+                    errors.add("单位ID " +id+"为系统默认总部不能删除" );
+                    continue;
+                }
             }
 
             //检查关联拓扑

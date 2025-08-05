@@ -45,7 +45,7 @@
                 AND `unitName` = #{unitName}
             </if>
         </where>
-        ORDER BY addTime DESC
+        ORDER BY id
     </select>
 
     <select id="selectByUser" parameterType="com.metoo.nrsm.core.dto.UnitNewDTO"
