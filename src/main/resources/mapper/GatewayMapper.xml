@@ -13,6 +13,9 @@
         SELECT *
         FROM metoo_gateway
         <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
             <if test="addTime != null">
                 AND `addTime` = #{addTime}
             </if>

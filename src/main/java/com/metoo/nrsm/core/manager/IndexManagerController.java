@@ -153,15 +153,20 @@ public class IndexManagerController {
     }
 
     public boolean getLicenseType(){
-        License obj = licenseService.query().get(0);
-        String uuid = SystemInfoUtils.getSerialNumber();
-        if (uuid.equals(obj.getSystemSN()) && obj.getStatus() == 0 && (obj.getLicense() != null && !"".equals(obj.getLicense()))) {
-            String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
-            LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
-            if(licenseVo.getVersionType() == 2 || licenseVo.getVersionType() == 4){
-                return true;
+
+        List<License> licenses = licenseService.query();
+        if(licenses.size() > 0){
+            License obj = licenseService.query().get(0);
+            String uuid = SystemInfoUtils.getSerialNumber();
+            if (uuid.equals(obj.getSystemSN()) && obj.getStatus() == 0 && (obj.getLicense() != null && !"".equals(obj.getLicense()))) {
+                String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
+                LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+                if(licenseVo.getVersionType() == 2 || licenseVo.getVersionType() == 4){
+                    return true;
+                }
             }
         }
+
         return false;
     }
 }

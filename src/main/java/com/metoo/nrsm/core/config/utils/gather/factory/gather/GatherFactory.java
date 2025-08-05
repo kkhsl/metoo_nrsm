@@ -20,7 +20,8 @@ public class GatherFactory {
         if (shapeType.equalsIgnoreCase(Global.TRAFFIC)) {
             if (Global.env.equals("prod")) {
 //                return new TrafficFactoryImpl();
-                return new TrafficFactoryMainImpl();
+//                return new TrafficFactoryMainImpl();//
+                return new TrafficFactoryGanzhouImpl();
             }
             if (Global.env.equals("yuehu")) {// yuehu
                 return new TrafficFactoryImplYuehu();
