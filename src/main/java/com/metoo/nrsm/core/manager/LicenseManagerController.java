@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.dto.LicenseDto;
+import com.metoo.nrsm.core.enums.license.FeatureModule;
 import com.metoo.nrsm.core.manager.utils.LicenseUtils;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.network.networkconfig.test.checkProcessStatus;
@@ -250,9 +251,7 @@ public class LicenseManagerController {
             String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
             LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
             LicenseUtils.calculateLicenseDays(licenseVo);
-            if(licenseVo.getVersionType() == 2 || licenseVo.getVersionType() == 4){
-                licenseVo.setLicenseProbe(true);
-            }
+            licenseVo.setPermissionCodeList(new ArrayList<>());
             return ResponseUtil.ok(licenseVo);
         } catch (Exception e) {
             // 使用日志记录异常信息

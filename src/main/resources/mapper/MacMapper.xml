@@ -87,14 +87,14 @@
         FROM metoo_mac d1
         WHERE tag = 'DE' AND (remoteDevice IS NULL OR remoteDevice NOT LIKE 'NSwitch%')
         AND NOT EXISTS (
-        SELECT
-        1
-        FROM
-        metoo_terminal d2
-        WHERE
-        d2.deviceUuid2 = d1.deviceUuid
-        AND d2.deviceTypeId = 34
-        AND d1.remoteDevice = d2.deviceName
+            SELECT
+            1
+            FROM
+            metoo_terminal d2
+            WHERE
+            d2.deviceUuid2 = d1.deviceUuid
+            AND d2.deviceTypeId = 34
+            AND d1.remoteDevice = d2.deviceName
         )
     </select>
 

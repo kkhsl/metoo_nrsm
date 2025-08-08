@@ -208,7 +208,7 @@
           *
         FROM metoo_ne
         <where>
-            deleteStatus = 0
+            deleteStatus = 0 and device_name not like 'NSwitch%'
             <if test="groupIds != null and groupIds != ''">
                 AND group_id in
                 <foreach collection="groupIds" index="index" item="item" separator="," open="(" close=")">

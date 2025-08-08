@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.manager;
 import com.alibaba.fastjson.JSONObject;
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.config.utils.ShiroUserHolder;
+import com.metoo.nrsm.core.enums.license.FeatureModule;
 import com.metoo.nrsm.core.manager.utils.SystemInfoUtils;
 import com.metoo.nrsm.core.service.*;
 import com.metoo.nrsm.core.utils.date.DateTools;
@@ -147,7 +148,7 @@ public class IndexManagerController {
         SysConfig configs = this.configService.select();
         map.put("domain", configs.getDomain());
 
-        map.put("versionType", getLicenseType());
+        map.put("versionType", getLicenseType());// 改用probe
 
         return ResponseUtil.ok(map);
     }
@@ -161,12 +162,11 @@ public class IndexManagerController {
             if (uuid.equals(obj.getSystemSN()) && obj.getStatus() == 0 && (obj.getLicense() != null && !"".equals(obj.getLicense()))) {
                 String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
                 LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
-                if(licenseVo.getVersionType() == 2 || licenseVo.getVersionType() == 4){
+                if(licenseVo.getFeatureModules().contains(FeatureModule.ASSET_SCAN)){
                     return true;
                 }
             }
         }
-
         return false;
     }
 }

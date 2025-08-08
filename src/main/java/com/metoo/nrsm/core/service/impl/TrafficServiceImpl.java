@@ -40,6 +40,5 @@ public class TrafficServiceImpl implements ITrafficService {
             e.printStackTrace();
             return 0;
         }
-
     }
 }

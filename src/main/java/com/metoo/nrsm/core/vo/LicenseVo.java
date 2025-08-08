@@ -1,5 +1,7 @@
 package com.metoo.nrsm.core.vo;
 
+import com.metoo.nrsm.core.enums.license.BaseVersionType;
+import com.metoo.nrsm.core.enums.license.FeatureModule;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Licens验证方式
@@ -72,10 +76,29 @@ public class LicenseVo {
     @ApiModelProperty("单位名称")
     private String unitName;
 
-
-    @ApiModelProperty("默认：0 政务外网普通版本：1 政务外网测绘版本：2 通用版本：3 通用测绘版本：4")
-    private Integer versionType;
+    @ApiModelProperty("通用版本：0 政务外网 1 教体版：2 ")
+    private BaseVersionType baseVersionType;
+    @ApiModelProperty("资产测绘：1 流量分析：2 漏洞扫描：3 ")
+    private List<FeatureModule> featureModules = new ArrayList<>();
 
     private List<String> permissionCodeList = new ArrayList();
+
+    // 返回中文名称列表
+    public List<String> getFeatureModuleNames() {
+        if (featureModules == null) {
+            return Collections.emptyList();
+        }
+        return featureModules.stream()
+                .map(FeatureModule::getDesc) // 调用 getDescription() 获取中文名
+                .collect(Collectors.toList());
+    }
+
+    // 返回中文名称列表
+    public String getBaseVersionTypes() {
+        if (baseVersionType == null) {
+            return "";
+        }
+        return baseVersionType.getDesc();
+    }
 
 }

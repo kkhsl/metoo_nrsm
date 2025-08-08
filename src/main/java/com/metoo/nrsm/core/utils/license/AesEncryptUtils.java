@@ -1,6 +1,9 @@
 package com.metoo.nrsm.core.utils.license;
 
+import com.alibaba.fastjson.JSONObject;
+import com.metoo.nrsm.core.enums.license.FeatureModule;
 import com.metoo.nrsm.core.utils.Global;
+import com.metoo.nrsm.core.vo.LicenseVo;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 public class AesEncryptUtils {
 
@@ -95,31 +99,22 @@ public class AesEncryptUtils {
 //    }
 //
 
-    public static void main(String[] args) throws Exception {
-//        Map map=new HashMap<String,String>();
-////        map.put("expireTime","1964053510");
-//        map.put("systemSN","SYSTEM");
-//        LicenseDto dto = new LicenseDto();
-//        dto.setStartTime(1704791990000L);
-//        dto.setEndTime(1707470390000L);
-//        dto.setSystemSN("Y3HaRlRtspphK9W8v/4VUr1l4728jYrkAURR5cGpUTWVwy+8fD5741NkqLnZKEXJ");
-////        dto.setType(0);
-//        dto.setLicenseVersion("1.0");
-//        dto.setType("0");
-//        dto.setLicenseFireWall(0);
-//        dto.setLicenseRouter(0);
-//        dto.setLicenseHost(0);
-//        dto.setLicenseUe(0);
-//        String content = JSONObject.toJSONString(dto);
-//        System.out.println("加密前：" + content);
-//
-//        String encrypt = encrypt(content, Global.AES_KEY);
-//        System.out.println("加密后：" + encrypt);
+    public static void main(String[] args)  {
+        String data = ""+
+                "Nh5IJp7B6JBo2vG2S6q5gkvCxmRKCDkxiDS7W7RM80igkZsUnJ715siYVX7Dt0J+kUyVGxVEOm/SxdrKVm604T2Dn0OJn6cNYssSD0LbMjrwiGvxEzZeGIBJDvBfdT1pGT14A72fMvQQCQR40FAZIzXve+YJR4xeHwIGb26+GiZlEN62++SJJdWnjFSW1spmn5uING3g80OAtvXA9vG7i9EJhRQopurvUScRhnxkq3hCqqJtFw4a9cMRxRJFmfdSAbaU9PjzVPkIvkfTbDepPBWkX0FQCi9dBFBYgPkfDMcQyO8p+ceZ//3R/xmJX13s25HH4UE2xRKyAL9UxuGt26LCvwNXw8KYkyhQEDIN6eItPDRSY+LBfR9VbsbvwUm/0HzzDPhIxGQGXFmUnMbjc+/IxI1mV/PXJDg4WiDmQ+JurggjerQRS3CWpxKzwtTvSdAySgjGlYk7Jhb5vOLc4UnnRhFSOm2tM3OsSePMMQQWzXUlvRbOjXcBuY+EGIBwAMfHBxLHRTpaRGb9lbi7JPjYR5M8kL4l84r8sU7qhOvnzJpHHNaXGCdAcTdZ0Ym/JZxSg3fbO8grr5+s+H40B1bK/hMINCQuEIyPprU4GKVrt6lANYFKXnmmX+ekyiRvr83lsVbSTT97P7sdVdqg7Q=="
+                ;
+        String licenseInfo = AesEncryptUtils.decrypt(data);
 
-        String decrypt = decrypt("" +
-                        "8OT9bi9Wj5v+np4MJIiEM6J4k5esZEcOWSQa+LQuWF7e8KrWS/tFbzrBaaEq4dFbnhDzlHa9GO9AMiI3LCUAk3FDf7et4q0NwlqKXNVuxTPRCYUUKKbq71EnEYZ8ZKt4QqqibRcOGvXDEcUSRZn3UgG2lPT481T5CL5H02w3qTwVpF9BUAovXQRQWID5HwzHEMjvKfnHmf/90f8ZiV9d7NuRx+FBNsUSsgC/VMbhrduiwr8DV8PCmJMoUBAyDeniLTw0UmPiwX0fVW7G78FJv+tbTMRc8V8k+87N2eAsIZiMHqC3UHUEjm2zzFTa6Whwf3w4SOIYhMfemjEs7yEGxV5ShOhxPOdy9RVRWr3UwCF/vXbdVzW9sJRRTqWAPJ90Ks+I/EoREigb3S6mvINRVlMWLGXe8mpQJvWhzXQPtkHwUIOCgWwtAJhm6VgHTl2coaPDC+Qt5RXiKWtUw9u8Rm4+FUVj/chbk+HquNes/XR21DLlJmU3w9wQLWW1vtuTecxy79aJbT7WzslB1zeblBRaDWcGLnY/N+OwxwBzYAQ="
-                , Global.AES_KEY);
-        System.out.println("解密后：" + decrypt);
+        System.out.println("解密后：" + licenseInfo);
 
+
+        LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+        List<FeatureModule> featureModule = licenseVo.getFeatureModules();
+        System.out.println("a" + FeatureModule.ASSET_SCAN.getDesc());
+        if (featureModule != null && featureModule.contains(FeatureModule.ASSET_SCAN) ) {
+            System.out.println("包含流量分析或高级扫描功能");
+        } else {
+            System.out.println("不包含目标功能");
+        }
     }
 }

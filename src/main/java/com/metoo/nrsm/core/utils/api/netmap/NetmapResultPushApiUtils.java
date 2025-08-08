@@ -1,7 +1,7 @@
 package com.metoo.nrsm.core.utils.api.netmap;
 
 import com.alibaba.fastjson.JSONObject;
-import com.metoo.nrsm.core.utils.api.TrafficPushApiService;
+import com.metoo.nrsm.core.traffic.push.utils.TrafficPushApiService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

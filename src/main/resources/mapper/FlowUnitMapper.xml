@@ -5,14 +5,14 @@
 
     <select id="selectObjById" parameterType="java.lang.Long" resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal, v4Traffic
         FROM metoo_flow_unit
         WHERE id = #{id}
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal, v4Traffic
         FROM metoo_flow_unit
         <where>
             <if test="addTime != null">
@@ -60,7 +60,7 @@
     <select id="selectObjConditionQuery" parameterType="com.metoo.nrsm.core.dto.UnitNewDTO"
             resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal, v4Traffic
         FROM metoo_flow_unit
         <where>
             <if test="id != null">
@@ -77,13 +77,13 @@
     </select>
     <select id="selectAllQuery" resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal, v4Traffic
         FROM metoo_flow_unit
         ORDER BY addTime DESC
     </select>
     <select id="selectByUnitId" resultType="com.metoo.nrsm.entity.FlowUnit">
         SELECT id, addTime, unitName, department, area, city, gatewayId, pattern, rule, vlanNum, broadband_Account,
-        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal
+        hidden, random, unitId, vfourFlowTotal, vsixFlowTotal, v4Traffic
         FROM metoo_flow_unit
         WHERE unitId = #{unitId}
     </select>
@@ -139,6 +139,9 @@
             <if test="vsixFlowTotal != null and vsixFlowTotal != ''">
                 vsixFlowTotal,
             </if>
+            <if test="v4Traffic != null and v4Traffic != ''">
+                v4Traffic,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="addTime != null">
@@ -188,6 +191,9 @@
             </if>
             <if test="vsixFlowTotal != null and vsixFlowTotal != ''">
                 #{vsixFlowTotal},
+            </if>
+            <if test="v4Traffic != null and v4Traffic != ''">
+                #{v4Traffic},
             </if>
         </trim>
     </insert>
@@ -242,6 +248,9 @@
             </if>
             <if test="vsixFlowTotal != null and vsixFlowTotal != ''">
                 vsixFlowTotal = #{vsixFlowTotal},
+            </if>
+            <if test="v4Traffic != null and v4Traffic != ''">
+                v4Traffic = #{v4Traffic},
             </if>
         </set>
         WHERE id = #{id}

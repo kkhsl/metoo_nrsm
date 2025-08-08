@@ -37,7 +37,7 @@
         <!--<File name="nrsm" fileName="/opt/nmap/service/nmap/logs/nmap.log" append="true">-->
 
         <!--     <File name="nrsm" fileName="./nmap.log" append="true">
-                 <patternLayout pattern="%d{yyyy-MM-dd HH:mm}[%t]%-5level %logger{36} - %msg%n" />
+                 <patternLayout gather="%d{yyyy-MM-dd HH:mm}[%t]%-5level %logger{36} - %msg%n" />
              </File>-->
 
         <!--根据指定规则拆分日志

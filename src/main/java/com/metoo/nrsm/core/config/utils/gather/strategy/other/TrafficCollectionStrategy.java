@@ -12,7 +12,7 @@ import com.metoo.nrsm.core.service.IGatewayService;
 import com.metoo.nrsm.core.service.ITrafficService;
 import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.api.TrafficPushApiService;
+import com.metoo.nrsm.core.traffic.push.utils.TrafficPushApiService;
 import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Gateway;
 import com.metoo.nrsm.entity.Traffic;
@@ -82,7 +82,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
                                     this.insertTraffic2(result, unit, date);
 
                                 } else if (unit.getPattern().equals("0")) {
-                                    log.info("controller ============== pattern 0 =============== ");
+                                    log.info("controller ============== gather 0 =============== ");
 //                                    unit.setHidden(true);
 //                                    this.insertTraffic(result, unit, date);
 
@@ -355,7 +355,7 @@ public class TrafficCollectionStrategy implements DataCollectionStrategy {
 
                     // 发送数据-netmap-monitor
                     TrafficPushApiService trafficPushApiService = new TrafficPushApiService(new RestTemplate());
-                    trafficPushApiService.sendDataToMTO(JSON.toJSONString(traffic));
+                    trafficPushApiService.callSelf(JSON.toJSONString(traffic));
 
                     log.info("controller=================================end" + i + "num");
                 } catch (Exception e) {

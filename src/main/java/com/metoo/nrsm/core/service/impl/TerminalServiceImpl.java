@@ -677,7 +677,10 @@ public class TerminalServiceImpl implements ITerminalService {
                                     boolean flag = IPv6SubnetCheck.isInSubnet(terminal.getV6ip(), subnet);
                                     if (flag) {
                                         terminal.setUnitId(unitSubnet.getUnitId());
-                                        terminal.setUnitName(unitMapper.selectObjById(unitSubnet.getUnitId()).getUnitName());
+                                        Unit unit = unitMapper.selectObjById(unitSubnet.getUnitId());
+                                        if(unit != null){
+                                            terminal.setUnitName(unit.getUnitName());
+                                        }
                                         terminalMapper.update(terminal);
                                         updatedTerminals.add(terminal);
                                         continue outerLoop; // 跳出外层循环

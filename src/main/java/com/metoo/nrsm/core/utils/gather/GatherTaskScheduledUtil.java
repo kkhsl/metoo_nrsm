@@ -42,8 +42,6 @@ import java.util.stream.Collectors;
 @Configuration
 public class GatherTaskScheduledUtil {
 
-    @Value("${task.switch.is-open}")
-    private boolean flag;
     @Autowired
     private IDhcpService dhcpService;
     @Autowired
@@ -69,10 +67,12 @@ public class GatherTaskScheduledUtil {
     @Resource
     private TrafficDataMapper trafficDataMapper;
 
-
     private volatile boolean isRunningDhcp = false;
 
-    SseManager sseManager=new SseManager();
+    @Value("${task.switch.is-open}")
+    private boolean flag;
+
+    SseManager sseManager = new SseManager();
 
     @Scheduled(fixedDelay = 180_000)
     public void dhcp() {
@@ -124,13 +124,12 @@ public class GatherTaskScheduledUtil {
     }
 
     private volatile boolean isRunningARP = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void arp() {
         if (flag && !isRunningARP) {
             log.info("ARP采集任务开始");
             isRunningARP = true;
-            final String TASK_TYPE = "ARP"; // 任务类型标识
+            final String TASK_TYPE = "ARP";
             try {
                 sseManager.sendLogToAll(TASK_TYPE, "ARP采集任务开始");
                 Long time = System.currentTimeMillis();
@@ -150,7 +149,6 @@ public class GatherTaskScheduledUtil {
     }
 
     private volatile boolean isRunningTerminal = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void gatherTerminal() {
         if (flag && !isRunningTerminal) {
@@ -200,9 +198,7 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    //    @Transactional // 可以结合该注解确调度任务在事务中运行，并在异常时正确回滚事务
     private volatile boolean isRunningIPV4 = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void ipv4() {
         if (flag && !isRunningIPV4) {
@@ -228,7 +224,6 @@ public class GatherTaskScheduledUtil {
     }
 
     private volatile boolean isRunningIPV4Detail = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void ipv4Detail() {
         if (flag && !isRunningIPV4Detail) {
@@ -254,7 +249,6 @@ public class GatherTaskScheduledUtil {
     }
 
     private volatile boolean isRunningPort = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void port() {
         if (flag && !isRunningPort) {
@@ -281,7 +275,6 @@ public class GatherTaskScheduledUtil {
 
 
     private volatile boolean isRunningIPV6 = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void ipv6() {
         if (flag && !isRunningIPV6) {
@@ -307,7 +300,6 @@ public class GatherTaskScheduledUtil {
     }
 
     private volatile boolean isRunningIPV6Port = false;
-
     @Scheduled(fixedDelay = 180_000)
     public void portIpv6() {
         if (flag && !isRunningIPV6Port) {
@@ -331,7 +323,6 @@ public class GatherTaskScheduledUtil {
             }
         }
     }
-
     private volatile boolean isRunningIsIPV6 = false;
 
     @Scheduled(fixedDelay = 180_000)
@@ -358,9 +349,8 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-    // 采集流量,整点
+    // 别修改这个表达式，必须整点执行
     private volatile boolean isRunningFlux = false;
-
     @Scheduled(cron = "0 */5 * * * ?")
     public void flux() {
         if (flag && !isRunningFlux) {
@@ -378,7 +368,6 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-
     /**
      * 任务开始时间：T=0
      * <p>
@@ -389,7 +378,6 @@ public class GatherTaskScheduledUtil {
      * 更新arp缓存
      */
     private volatile boolean isRunningPing = false;
-
     @Scheduled(fixedDelay = 300 * 1000) // 30秒间隔，严格串行
     public void pingSubnet() {
         if (flag && !isRunningPing) {
@@ -411,10 +399,8 @@ public class GatherTaskScheduledUtil {
         }
     }
 
-
     // TODO 已同步|待增加并发采集
     private volatile boolean isRunningSnmpStataus = false;
-
     @Scheduled(fixedDelay = 300 * 1000) // 30秒间隔，严格串行
     public void snmpStatus() {
         if (flag && !isRunningSnmpStataus) {
@@ -431,41 +417,6 @@ public class GatherTaskScheduledUtil {
                 isRunningSnmpStataus = false;
             }
         }
-    }
-
-
-//    private volatile boolean isRunningProbe = false;
-//    @Scheduled(fixedDelay = 180_000)
-//    public void probe() {
-//        if(flag && !isRunningProbe){
-//            log.info("Probe采集开始");
-//            isRunningProbe = true;
-//            try {
-//                Long time = System.currentTimeMillis();
-//                if(getLicenseProbe()){
-//                    probeService.scanByTerminal();
-//                }
-//                log.info("Probe 网段采集时间:{}", DateTools.measureExecutionTime(System.currentTimeMillis() - time));
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                log.error("Probe 网段采集异常: {}", e.getMessage());
-//            } finally {
-//                isRunningProbe = false;
-//            }
-//        }
-//    }
-
-    public boolean getLicenseProbe() {
-        License obj = this.licenseService.query().get(0);
-        String uuid = SystemInfoUtils.getSerialNumber();
-
-        if (!uuid.equals(obj.getSystemSN())) {
-            return false;
-        }
-        String licenseInfo = AesEncryptUtils.decrypt(obj.getLicense());
-        LicenseVo licenseVo = JSONObject.parseObject(licenseInfo, LicenseVo.class);
-        return licenseVo.isLicenseProbe();
-
     }
 
     @Scheduled(cron = "59 59 23 * * ?")
@@ -504,7 +455,6 @@ public class GatherTaskScheduledUtil {
         this.fluxDailyRateService.save(fluxDailyRate);
     }
 
-    //    @Scheduled(cron = "0 0/5 * * * ?")
     @Scheduled(fixedDelay = 60_000)
     public Result getTraffic() {
         List<String> trafficResults = new ArrayList<>();

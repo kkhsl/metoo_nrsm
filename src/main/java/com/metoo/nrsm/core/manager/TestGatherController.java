@@ -1,13 +1,13 @@
 package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
-import com.metoo.nrsm.core.config.utils.gather.factory.gather.GatherFactory;
+import com.metoo.nrsm.core.traffic.factory.GatherFactory;
 import com.metoo.nrsm.core.mapper.MacTestMapper;
 import com.metoo.nrsm.core.service.IGatherService;
 import com.metoo.nrsm.core.service.ITerminalService;
 import com.metoo.nrsm.core.service.impl.ProbeServiceImpl;
 import com.metoo.nrsm.core.utils.Global;
-import com.metoo.nrsm.core.utils.api.TrafficPushExecUtils;
+import com.metoo.nrsm.core.traffic.push.utils.TrafficPushExecUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherMacUtils;
 import com.metoo.nrsm.core.utils.gather.gathermac.GatherSingleThreadingMacSNMPUtils;

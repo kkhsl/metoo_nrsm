@@ -75,7 +75,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                 pyCommand.setVersion(Global.py_name);
                 pyCommand.setPath(Global.py_path);
                 pyCommand.setPy_prefix("-W ignore");
-                pyCommand.setName("controller.py");
+                pyCommand.setName("traffic.py");
                 pyCommand.setParams(new String[]{
                         gateway.getVendorAlias(),
                         gateway.getIp(),
@@ -95,7 +95,7 @@ public class TrafficByGatewayCollectionStrategy implements DataCollectionStrateg
                                 this.insertTraffic2(result, unit, date);
 
                             } else if (pattern.equals("0")) {
-                                log.info("controller ============== pattern 0 =============== ");
+                                log.info("controller ============== gather 0 =============== ");
 
                                 log.info("controller - data " + result);
 

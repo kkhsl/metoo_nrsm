@@ -1,9 +1,8 @@
 package com.metoo.nrsm.core.manager;
 
-import com.metoo.nrsm.core.client.traffic.utils.ApiTrafficPushUtils;
-import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
-import com.metoo.nrsm.core.thirdparty.api.traffic.TimeUtils;
-import com.metoo.nrsm.core.thirdparty.api.traffic.TrafficPullApi;
+import com.metoo.nrsm.core.traffic.push.utils.ApiTrafficPushYingTanUtils;
+import com.metoo.nrsm.core.traffic.pull.TimeUtils;
+import com.metoo.nrsm.core.traffic.pull.TrafficPullApi;
 import com.metoo.nrsm.core.network.concurrent.PingThreadPool;
 import com.metoo.nrsm.core.network.networkconfig.other.ipscanner.PingCFScanner;
 import com.metoo.nrsm.core.service.*;
@@ -11,6 +10,7 @@ import com.metoo.nrsm.core.system.conf.network.strategy.NetplanConfigManager;
 import com.metoo.nrsm.core.system.conf.network.sync.LocalNetplanSyncService;
 import com.metoo.nrsm.core.system.conf.network.sync.WindowsSshNetplanSyncService;
 import com.metoo.nrsm.core.utils.api.EncrypUtils;
+import com.metoo.nrsm.core.traffic.push.utils.TrafficPushExecUtils;
 import com.metoo.nrsm.core.utils.api.netmap.NetmapResultPushApiUtils;
 import com.metoo.nrsm.core.utils.string.MyStringUtils;
 import com.metoo.nrsm.core.vo.UnitVO;
@@ -61,7 +61,16 @@ public class TestController {
     @Autowired
     private IProbeService probeService;
     @Autowired
-    private ApiTrafficPushUtils apiTrafficPushUtils;
+    private ApiTrafficPushYingTanUtils apiTrafficPushYingTanUtils;
+    @Autowired
+    private TrafficPushExecUtils trafficPushExecUtils;
+
+    @GetMapping("/pushTraffic")
+    public void pushTraffic(){
+        trafficPushExecUtils.pushTraffic();
+
+    }
+
 
     @GetMapping("/netmap")
     public void netmap(){
@@ -72,14 +81,14 @@ public class TestController {
     }
 
     @GetMapping("/api")
-    public void api(){
+    public void trafficPushApi(){
         try {
             UnitVO flowUnit = new UnitVO();
             flowUnit.setUnitName("测试单位");
             flowUnit.setVfourFlow("10");
             flowUnit.setVsixFlow("10");
             List<UnitVO> list = new ArrayList();
-            this.apiTrafficPushUtils.trafficApi(list);
+            this.apiTrafficPushYingTanUtils.trafficPushApi(list);
         } catch (Exception e) {
             log.error("推送鹰潭监管平台失败：{}", e.getMessage());
         }
@@ -90,12 +99,10 @@ public class TestController {
         this.probeService.wart();
     }
 
-
     @GetMapping("/insert")
     public void insert() throws InterruptedException {
         this.probeService.insertProbe();
     }
-
 
     @GetMapping("/traffic/api")
     public void trafficAPI(){
@@ -219,6 +226,9 @@ public class TestController {
         }
         log.info("====================================解析dns日志并保存汇总数据定时任务结束==========================");
     }
+
+    // 同步单位
+
 
 }
 

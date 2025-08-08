@@ -1,6 +1,8 @@
 package com.metoo.nrsm.entity;
 
 import com.metoo.nrsm.core.domain.IdEntity;
+import com.metoo.nrsm.core.enums.license.BaseVersionType;
+import com.metoo.nrsm.core.enums.license.FeatureModule;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -90,8 +92,10 @@ public class License extends IdEntity {
     @ApiModelProperty("单位名称")
     private String unitName;
 
-    @ApiModelProperty("默认：0 政务外网普通版本：1 政务外网测绘版本：2 通用版本：3 通用测绘版本：4")
-    private Integer versionType;
+    @ApiModelProperty("通用版本：0 政务外网 1 教体版：2 ")
+    private BaseVersionType baseVersionType;
+    @ApiModelProperty("资产测绘：1 流量分析：2 漏洞扫描：3 ")
+    private List<FeatureModule> featureModules = new ArrayList<>();
 
     private List<String> permissionCodeList = new ArrayList();
 
