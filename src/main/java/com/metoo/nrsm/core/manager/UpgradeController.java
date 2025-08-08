@@ -351,23 +351,23 @@ public class UpgradeController {
         File targetDir = new File(FRONTEND_DIR, "www");
         File targetLogo = new File(targetDir, "favicon.ico");
 
-        // 验证源文件存在
-        if (!sourceLogo.exists()) {
-            throw new IOException("ico源文件不存在: " + sourceLogo.getAbsolutePath());
-        }
-
         // 确保目标目录存在
         if (!targetDir.exists() && !targetDir.mkdirs()) {
-            throw new IOException("无法创建目标目录: " + targetDir.getAbsolutePath());
+            //throw new IOException("无法创建目标目录: " + targetDir.getAbsolutePath());
         }
 
-        // 复制文件（NIO原子操作）
-        Files.copy(
-                sourceLogo.toPath(),
-                targetLogo.toPath(),
-                StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.COPY_ATTRIBUTES
-        );
+        // 验证源文件存在
+        if (!sourceLogo.exists()) {
+            //throw new IOException("ico源文件不存在: " + sourceLogo.getAbsolutePath());
+        }else {
+            // 复制文件（NIO原子操作）
+            Files.copy(
+                    sourceLogo.toPath(),
+                    targetLogo.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.COPY_ATTRIBUTES
+            );
+        }
     }
 
     private void backupBackend() throws IOException {
