@@ -5,6 +5,7 @@ import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.service.ITrafficService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.traffic.push.utils.TrafficPushApiUtils;
+import com.metoo.nrsm.core.traffic.utils.TrafficUtils;
 import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Traffic;
@@ -37,6 +38,9 @@ public class TrafficPullScheduler {
     private boolean trafficApi;
 
     private final ReentrantLock trafficApiLock = new ReentrantLock();
+
+    @Autowired
+    private TrafficUtils trafficUtils;
 
     @Scheduled(cron = "0 */5 * * * ?")
     public void trafficAPI(){
@@ -91,9 +95,8 @@ public class TrafficPullScheduler {
                         return;
                     }
 
-                    log.info("调用api");
-                    callApi(unitVos);
-
+                    log.info("流量分析API");
+                    trafficUtils.callApi(unitVos);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -110,9 +113,7 @@ public class TrafficPullScheduler {
     private List<UnitVO> getUnitVos(String time, String currentTimestamp, List<FlowUnit> unitList) {
         Map<String, Object> params = new HashMap<>();
         params.put("hidden", false);
-
         List<UnitVO> unitVos = new ArrayList<>();
-
         if (!unitList.isEmpty()) {
             for (FlowUnit unit : unitList) {
                 String unitName = unit.getUnitName();
@@ -130,32 +131,7 @@ public class TrafficPullScheduler {
                 unitVos.add(unitVO);
             }
         }
-
         return unitVos;
-    }
-
-    // 调用API的方法，避免重复代码
-    private void callApi(List<UnitVO> unitVos) {
-        // 监管平台（信产）
-        try {
-            trafficPushApiUtils.pushTrafficManagerPlatform(unitVos);
-        } catch (Exception e) {
-            log.error("推送监管平台失败：{}", e.getMessage());
-        }
-
-        // 推送数据到鹰潭本地流量监测平台、非鹰潭推流量注释
-//        try {
-//            apiTrafficPushUtils.trafficPushApi(unitVos);
-//        } catch (Exception e) {
-//            log.error("推送鹰潭监管平台失败：{}", e.getMessage());
-//        }
-
-        try {
-            trafficPushApiUtils.monitorApi(unitVos);
-        } catch (Exception e) {
-            log.error("推送mt监控平台失败：{}", e.getMessage());
-        }
-
     }
 
 

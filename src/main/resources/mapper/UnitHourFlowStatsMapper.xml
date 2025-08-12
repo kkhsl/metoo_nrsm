@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.entity.UnitHourFlowStats.UnitHourFlowStatsMapper">
+
+    <insert id="save" parameterType="UnitHourFlowStats">
+        INSERT INTO unit_hour_flow_stats
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="unitName != null">unit_name,</if>
+            <if test="ipv4 != null">ipv4,</if>
+            <if test="ipv6 != null">ipv6,</if>
+            <if test="hourTime != null">hour_time,</if>
+            <if test="day != null">day,</if>
+            <if test="statsTime != null">stats_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="unitName != null">#{unitName},</if>
+            <if test="ipv4 != null">#{ipv4},</if>
+            <if test="ipv6 != null">#{ipv6},</if>
+            <if test="hourTime != null">#{hourTime},</if>
+            <if test="day != null">#{day},</if>
+            <if test="statsTime != null">#{statsTime},</if>
+        </trim>
+    </insert>
+
+</mapper>
