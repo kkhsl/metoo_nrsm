@@ -20,7 +20,7 @@ import java.util.List;
 import static java.util.Comparator.comparing;
 
 
-@RequestMapping("/unitFlowStatis")
+@RequestMapping("/admin/unitFlowStatis")
 @Api(value = "流量分析",tags = {"流量分析"})
 @RestController
 public class UnitFlowStatisController {

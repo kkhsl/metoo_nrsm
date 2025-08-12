@@ -5,8 +5,8 @@
 
     <select id="allOrgDayStats" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData">
         select * from (
-        select a.unit_id as id,b.unitName as title, SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_flow_stats  a
-        inner join metoo_unit b
+        select b.id as id,b.unitName as title, SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from metoo_unit b
+        left join unit_flow_stats  a
         on a.unit_id=b.id
         where 1=1
         and a.STATS_DIMENSION=#{statsDimension}
