@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.service.ITrafficService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.traffic.push.utils.TrafficPushApiUtils;
 import com.metoo.nrsm.core.traffic.utils.TrafficUtils;
+import com.metoo.nrsm.core.traffic.utils.UnitFlowUtils;
 import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Traffic;
@@ -33,6 +34,8 @@ public class TrafficPullScheduler {
     private IUnitService unitService;
     @Autowired
     private TrafficPushApiUtils trafficPushApiUtils;
+    @Autowired
+    private UnitFlowUtils unitFlowUtils;
 
     @Value("${task.switch.traffic.api.is-open}")
     private boolean trafficApi;
@@ -43,7 +46,7 @@ public class TrafficPullScheduler {
     private TrafficUtils trafficUtils;
 
     @Scheduled(cron = "0 */5 * * * ?")
-    public void trafficAPI(){
+    public void pullTraffic(){
         if (trafficApi) {
             if (trafficApiLock.tryLock()) {
                 try {
@@ -80,9 +83,17 @@ public class TrafficPullScheduler {
                             log.warn("NetFlow API 返回空数据，单位: {}", unitName);
                             continue;
                         }
+//
+                        String ipv4Flow = String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0"));
+                        String ipv6Flow = String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0"));
+//
+//                        Random rand = new Random();
+//                        String ipv4Flow = String.valueOf(rand.nextInt(5) + 0.1);
+//                        String ipv6Flow = String.valueOf(rand.nextInt(2) + 0.1);
+//
 
-                        flowUnit.setVfourFlow(String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0")));
-                        flowUnit.setVsixFlow(String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0")));
+                        flowUnit.setVfourFlow(ipv4Flow);
+                        flowUnit.setVsixFlow(ipv6Flow);
 
                         log.info("成功保存流量数据: 单位: {}, IPv4: {}, IPv6: {}", flowUnit.getUnitName(),
                                 flowUnit.getVfourFlow(), flowUnit.getVsixFlow());
@@ -95,7 +106,10 @@ public class TrafficPullScheduler {
                         return;
                     }
 
-                    log.info("流量分析API");
+                    // 入库单位流量
+                    unitFlowUtils.saveFlow(flowUnits, baseTime);
+
+                    log.info("流量分析 API");
                     trafficUtils.callApi(unitVos);
 
                 } catch (Exception e) {

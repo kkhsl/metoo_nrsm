@@ -6,6 +6,8 @@ import com.metoo.nrsm.entity.UnitHourFlowStats;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class UnitHourFlowStatsServiceImpl implements IUnitHourFlowStatsService {
@@ -24,4 +26,16 @@ public class UnitHourFlowStatsServiceImpl implements IUnitHourFlowStatsService {
             return false;
         }
     }
+
+    @Override
+    public boolean batchSave(List<UnitHourFlowStats> unitHourFlowStatsList) {
+        try {
+            return unitHourFlowStatsMapper.batchInsert(unitHourFlowStatsList) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 }

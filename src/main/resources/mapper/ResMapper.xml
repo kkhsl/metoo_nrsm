@@ -129,6 +129,7 @@
             LEFT JOIN (
             SELECT
             <include refid="Base_Column_List"/>
+            FROM metoo_res mp
             WHERE mp.level = 1
             AND mp.licenseGranted = 0
             ) mp2
