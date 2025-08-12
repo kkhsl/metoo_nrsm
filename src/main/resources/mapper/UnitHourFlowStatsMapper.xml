@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.metoo.nrsm.entity.UnitHourFlowStats.UnitHourFlowStatsMapper">
+<mapper namespace="com.metoo.nrsm.core.mapper.UnitHourFlowStatsMapper">
 
-    <insert id="save" parameterType="UnitHourFlowStats">
+    <insert id="save" parameterType="com.metoo.nrsm.entity.UnitHourFlowStats">
         INSERT INTO unit_hour_flow_stats
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
@@ -27,4 +27,14 @@
         </trim>
     </insert>
 
+    <select id="orgHour" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData">
+        select a.hour_time as title,SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_hour_flow_stats  a
+        where 1=1
+        <if test="id != null and id !=''">
+            and a.unit_id=#{id}
+        </if>
+          and a.day =#{day}
+        group by a.hour_time
+        ORDER BY a.hour_time  asc
+    </select>
 </mapper>

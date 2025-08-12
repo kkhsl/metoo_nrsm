@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.UnitFlowStatsMapper">
+
+    <select id="allOrgDayStats" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData">
+        select * from (
+        select a.unit_id as id,b.unitName as title, SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_flow_stats  a
+        inner join metoo_unit b
+        on a.unit_id=b.id
+        where 1=1
+        and a.STATS_DIMENSION=#{statsDimension}
+        <if test="statsDimension != null and statsDimension !='' ">
+            <if test='statsDimension == "1"'>
+                and a.day=#{filter}
+            </if>
+            <if test='statsDimension == "2"'>
+                and a.month=#{filter}
+            </if>
+            <if test='statsDimension == "3"'>
+                and a.year=#{filter}
+            </if>
+        </if>
+        group by a.unit_id,b.unitName) bb
+        ORDER BY bb.ipv6Radio  DESC
+    </select>
+    <select id="busiDay" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData"
+            parameterType="java.lang.Integer">
+        select a.day as title,SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_flow_stats  a
+        where 1=1
+        and a.stats_dimension=1
+        and a.month=#{filter}
+        group by a.day
+        order by a.day asc
+    </select>
+    <select id="busiMonth" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData"
+            parameterType="java.lang.Integer">
+        select a.month as title,SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_flow_stats  a
+        where 1=1
+        and a.stats_dimension=2
+        and a.year=#{filter}
+        group by a.month
+        order by a.month asc
+    </select>
+    <select id="queryList" resultType="com.metoo.nrsm.entity.UnitFlowStats">
+        select * from unit_flow_stats a
+        where 1=1
+        <if test="id != null and id !=''">
+            and a.unit_id=#{id}
+        </if>
+        <if test="statsDimension != null and statsDimension !=''">
+            and a.stats_dimension=#{statsDimension}
+        </if>
+        <if test="month != null and month !=''">
+            and a.month=#{month}
+            order by a.day asc
+        </if>
+        <if test="year != null and year !=''">
+            and a.year=#{year}
+            order by a.month asc
+        </if>
+    </select>
+</mapper>
