@@ -155,16 +155,6 @@ public class TrafficFactoryMainImpl implements Gather {
     }
 
 
-    /**
-     * 存储流量数据到数据库
-     * @param flowData 要存储的流量数据
-     */
-    public static void saveTrafficData(JSONObject flowData) {
-        // 在此处实现数据库存储逻辑
-        // 比如通过 JDBC 或 ORM 存储到数据库
-        System.out.println("Saving to database: " + flowData.toString());
-    }
-
     private static String getTrafficAll(String result) {
         // 1. 解析新数据
         String dataAll = TrafficAnalyzerUtils.analyzer(result);

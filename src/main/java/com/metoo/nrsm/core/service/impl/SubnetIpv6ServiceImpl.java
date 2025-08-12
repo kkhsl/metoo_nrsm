@@ -10,8 +10,10 @@ import com.metoo.nrsm.core.service.ISubnetIpv6Service;
 import com.metoo.nrsm.core.utils.py.ssh.PythonExecUtils;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.SubnetIpv6;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -22,6 +24,7 @@ import java.util.*;
  * @version 1.0
  * @date 2024-04-24 14:42
  */
+@Slf4j
 @Service
 //@Transactional
 public class SubnetIpv6ServiceImpl implements ISubnetIpv6Service {
@@ -92,14 +95,18 @@ public class SubnetIpv6ServiceImpl implements ISubnetIpv6Service {
 
     // IPv6 工具类
     public static class IPv6Utils {
+
         public static String calculateNetwork(String address, int prefix) {
             try {
+                log.info("ip地址：{}， 前缀：{}", address, prefix);
                 Inet6Address ip = (Inet6Address) InetAddress.getByName(address.split("/")[0]);
                 byte[] bytes = ip.getAddress();
                 applyPrefixMask(bytes, prefix);
                 return formatIPv6(bytes) + "/" + prefix;
             } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid IPv6: " + address);
+//                throw new IllegalArgumentException("Invalid IPv6: " + address);
+                log.warn("Invalid IPv6: " + address);
+                return null;
             }
         }
 
@@ -138,9 +145,19 @@ public class SubnetIpv6ServiceImpl implements ISubnetIpv6Service {
 
         // 生成去重网络列表
         Set<String> networks = new LinkedHashSet<>();
-        for (String ip : ipv6List) {
-            String[] parts = ip.split("/");
-            networks.add(IPv6Utils.calculateNetwork(parts[0], Integer.parseInt(parts[1])));
+        for (String ipv6 : ipv6List) {
+            String[] parts = ipv6.split("/");
+            if(parts.length >= 0){
+                String ip = parts[0];
+                String mask = parts[0];
+                if(ip.toLowerCase().contains("fe80")){
+                    continue;
+                }
+                String networkAddress = IPv6Utils.calculateNetwork(ip, Integer.parseInt(mask));
+                if (networkAddress != null) {
+                    networks.add(networkAddress);
+                }
+            }
         }
 
         // 构建64位子网结构

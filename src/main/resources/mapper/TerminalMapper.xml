@@ -573,42 +573,48 @@
 
     <select id="terminalCount" resultMap="Count_Result_Map">
        SELECT DISTINCT
-        interfaceIndex,
-        (
-            SELECT COUNT(*)
-            FROM metoo_terminal
-            WHERE
-                (v4ip IS NOT NULL AND v6ip IS NULL)
-                AND deviceTypeId NOT IN (10, 24)
-        ) AS v4ip_count,
-        (
-            SELECT COUNT(*)
-            FROM metoo_terminal
-            WHERE
-                v4ip IS NULL
-                AND (
-                    (v6ip IS NOT NULL AND v6ip NOT LIKE 'FE80%') OR
-                    (v6ip1 IS NOT NULL AND v6ip1 NOT LIKE 'FE80%') OR
-                    (v6ip2 IS NOT NULL AND v6ip2 NOT LIKE 'FE80%') OR
-                    (v6ip3 IS NOT NULL AND v6ip3 NOT LIKE 'FE80%')
-                )
-                AND deviceTypeId NOT IN (10, 24)
-        ) AS v6ip_count,
-        (
-            SELECT COUNT(*)
-            FROM metoo_terminal
-            WHERE
-                v4ip IS NOT NULL
-                AND (
-                    (v6ip IS NOT NULL AND v6ip NOT LIKE 'FE80%') OR
-                    (v6ip1 IS NOT NULL AND v6ip1 NOT LIKE 'FE80%') OR
-                    (v6ip2 IS NOT NULL AND v6ip2 NOT LIKE 'FE80%') OR
-                    (v6ip3 IS NOT NULL AND v6ip3 NOT LIKE 'FE80%')
-                )
-                AND deviceTypeId NOT IN (10, 24)
-        ) AS v4ip_v6ip_count
-    FROM
-        metoo_terminal
+            interfaceIndex,
+            (
+                SELECT COUNT(*)
+                FROM metoo_terminal
+                WHERE
+                    v4ip IS NOT NULL
+                                        AND (
+                                                    (v6ip IS NULL OR v6ip LIKE 'FE80%') AND
+                                                    (v6ip1 IS NULL OR v6ip1 LIKE 'FE80%') AND
+                                                    (v6ip2 IS NULL OR v6ip2 LIKE 'FE80%') AND
+                                                    (v6ip3 IS NULL OR v6ip3 LIKE 'FE80%')
+                                            )
+                    AND deviceTypeId NOT IN (10, 24)
+            ) AS v4ip_count,
+            (
+                SELECT COUNT(*)
+                FROM metoo_terminal
+                WHERE
+                    v4ip IS NULL
+                    AND (
+                        (v6ip IS NOT NULL AND v6ip NOT LIKE 'FE80%') OR
+                        (v6ip1 IS NOT NULL AND v6ip1 NOT LIKE 'FE80%') OR
+                        (v6ip2 IS NOT NULL AND v6ip2 NOT LIKE 'FE80%') OR
+                        (v6ip3 IS NOT NULL AND v6ip3 NOT LIKE 'FE80%')
+                    )
+                    AND deviceTypeId NOT IN (10, 24)
+            ) AS v6ip_count,
+            (
+                SELECT COUNT(*)
+                FROM metoo_terminal
+                WHERE
+                    v4ip IS NOT NULL
+                    AND (
+                        (v6ip IS NOT NULL AND v6ip NOT LIKE 'FE80%') OR
+                        (v6ip1 IS NOT NULL AND v6ip1 NOT LIKE 'FE80%') OR
+                        (v6ip2 IS NOT NULL AND v6ip2 NOT LIKE 'FE80%') OR
+                        (v6ip3 IS NOT NULL AND v6ip3 NOT LIKE 'FE80%')
+                    )
+                    AND deviceTypeId NOT IN (10, 24)
+            ) AS v4ip_v6ip_count
+        FROM
+            metoo_terminal
     </select>
 
     <select id="selectDeviceIpByNSwitch" resultType="com.metoo.nrsm.entity.Terminal">
