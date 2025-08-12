@@ -20,7 +20,7 @@ import java.util.List;
 import static java.util.Comparator.comparing;
 
 
-@RequestMapping("/admin/unitFlowStatis")
+@RequestMapping("/unitFlowStatis")
 @Api(value = "流量分析",tags = {"流量分析"})
 @RestController
 public class UnitFlowStatisController {
@@ -42,7 +42,7 @@ public class UnitFlowStatisController {
         return ResponseUtil.ok(result);
     }
     @GetMapping("/stats")
-    @ApiOperation("查询所有部门流量统计出图-日、月、年")
+    @ApiOperation("查询所有部门流量统计出图-日、月、周、年")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "statsDimension", value = "统计维度", required = true, example = "日：1，月：2，年：3,周：4"),
             @ApiImplicitParam(name = "filter", value = "日期条件", required = true, example = "日：2024-11-23,月：2024-11,年：2024,周：2024-11-23")
@@ -53,7 +53,7 @@ public class UnitFlowStatisController {
     }
 
     @GetMapping("/orgFlowStatsById")
-    @ApiOperation("根据部门编码获取单位日、月度、年流量统计出图")
+    @ApiOperation("根据部门编码获取单位日、周、月度、年流量统计出图")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "编号", required = true, example = "1024"),
             @ApiImplicitParam(name = "statsDimension", value = "统计维度", required = true, example = "日：1，月：2，年：3,周：4"),

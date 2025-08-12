@@ -23,4 +23,7 @@ public interface UnitFlowStatsMapper {
     List<FlowRadioData> busiMonth(Integer year);
 
     List<UnitFlowStats> queryList(@Param("id") Long id,@Param("month") Integer month,@Param("year") Integer year,@Param("statsDimension") String statsDimension);
+    List<FlowRadioData> busiWeek(@Param("startDay") Integer startDay,@Param("endDay") Integer endDay);
+
+    List<UnitFlowStats> queryListByWeek(@Param("id") Long id,@Param("startDay") Integer startDay,@Param("endDay") Integer endDay);
 }

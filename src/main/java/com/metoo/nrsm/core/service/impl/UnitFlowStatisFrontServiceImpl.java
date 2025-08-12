@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,8 +48,19 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
                 return busiDayById(filter);
             case STATS_DIMENSION_YEAR:
                 return busiMonthById(filter);
+            case STATS_DIMENSION_WEEK:
+                return busiWeekById(filter);
             default:
                 break;
+        }
+        return EchartLineData.builder().build();
+    }
+
+    private EchartLineData busiWeekById(String filter) {
+        String[]  filterDay=NumUtils.getWeekStartEndDates(filter);
+        List<FlowRadioData> dataList = flowStatsMapper.busiWeek(Integer.valueOf(filterDay[0]),Integer.valueOf(filterDay[1]));
+        if (CollUtil.isNotEmpty(dataList)) {
+            return constructData(dataList, STATS_DIMENSION_WEEK, filter);
         }
         return EchartLineData.builder().build();
     }
@@ -61,10 +73,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
     public EchartLineData busiHourById(String day) {
         //  实时
         List<FlowRadioData> dataList = hourFlowStatsMapper.orgHour(null,Long.valueOf(day.replace(StrUtil.DASHED, "")));
-        if (CollUtil.isNotEmpty(dataList)) {
-            return constructData(dataList, STATS_DIMENSION_DAY, day);
-        }
-        return EchartLineData.builder().build();
+        return constructData(dataList, STATS_DIMENSION_DAY, day);
     }
 
     /**
@@ -73,7 +82,6 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
      * @return
      */
     public EchartLineData busiDayById(String month) {
-        // 查询具体行业
         List<FlowRadioData> dataList = flowStatsMapper.busiDay(Integer.valueOf(month.replace(StrUtil.DASHED, "")));
         if (CollUtil.isNotEmpty(dataList)) {
             return constructData(dataList, STATS_DIMENSION_MONTH, month);
@@ -106,7 +114,21 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
                 return orgDayById(id,filter);
             case STATS_DIMENSION_YEAR:
                 return orgMonthById(id,filter);
+            case STATS_DIMENSION_WEEK:
+                return orgWeekById(id,filter);
             default:break;
+        }
+        return EchartLineData.builder().build();
+    }
+
+    private EchartLineData orgWeekById(Long id, String filter) {
+        // 查询具体单位
+        String[]  filterDay=NumUtils.getWeekStartEndDates(filter);
+        List<UnitFlowStats> dataList=flowStatsMapper.queryListByWeek(id,Integer.valueOf(filterDay[0]), Integer.valueOf(filterDay[1]));
+        if(CollUtil.isNotEmpty(dataList)){
+            // 获取最大值数据
+            Map<String,List<UnitFlowStats>> dayData=dataList.stream().collect(Collectors.groupingBy(UnitFlowStats -> UnitFlowStats.getDay().toString()));
+            return constructData(dayData,STATS_DIMENSION_WEEK,filter);
         }
         return EchartLineData.builder().build();
     }
@@ -120,10 +142,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
     public EchartLineData orgHourById(Long id,String day) {
         //  实时的需补充
         List<FlowRadioData> hourData=hourFlowStatsMapper.orgHour(id,Long.parseLong(day.replaceAll(StrUtil.DASHED,"")));
-        if (CollUtil.isNotEmpty(hourData)) {
-            return constructData(hourData,day);
-        }
-        return EchartLineData.builder().build();
+        return constructData(hourData,day);
     }
 
     /**
@@ -134,7 +153,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
      */
     public EchartLineData orgDayById(Long id,String month) {
         // 查询具体单位
-        List<UnitFlowStats> dataList=flowStatsMapper.queryList(id,Integer.valueOf(month.replaceAll(StrUtil.DASHED,"")), null,STATS_DIMENSION_MONTH);
+        List<UnitFlowStats> dataList=flowStatsMapper.queryList(id,Integer.valueOf(month.replaceAll(StrUtil.DASHED,"")), null,STATS_DIMENSION_DAY);
         if(CollUtil.isNotEmpty(dataList)){
             // 获取最大值数据
             Map<String,List<UnitFlowStats>> dayData=dataList.stream().collect(Collectors.groupingBy(UnitFlowStats -> UnitFlowStats.getDay().toString()));
@@ -239,6 +258,35 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
                 allTitle=NumUtils.getAllMonth(filter);
                 result.setTitle(allTitle.stream().map(o -> DateUtil.format(DateUtil.parse(o+"", "yyyyMM"), "yyyy-MM")).collect(Collectors.toList()));
                 break;
+            case STATS_DIMENSION_WEEK:
+                // 获取周的数据
+                Map<String, String> allTitleMap = NumUtils.getWeekDatesWithDays(filter);
+                result.setTitle(new ArrayList<>(allTitleMap.values()));
+                allTitleMap.forEach((k,v)->{
+                    List<UnitFlowStats> tempData = statsData.get(k+"");
+                    if (CollUtil.isNotEmpty(tempData)) {
+                        Double ipv4=tempData.get(0).getIpv4();
+                        Double ipv6=tempData.get(0).getIpv4();
+                        Double ipv6Radio = NumUtils.divUtil(NumberUtil.mul(ipv6, Double.valueOf(100d)), (ipv4 + ipv6));
+                        ipv4ydata.add(ipv4);
+                        ipV6yData.add(ipv6);
+                        ipv6RadioYData.add(ipv6Radio);
+                    }else{
+                        ipv4ydata.add(0D);
+                        ipV6yData.add(0D);
+                        ipv6RadioYData.add(0D);
+                    }
+                });
+                ipv4Data.setData(ipv4ydata);
+                value.add(ipv4Data);
+                // ipv6数据
+                ipv6Data.setData(ipV6yData);
+                value.add(ipv6Data);
+                // ipv6Radio数据
+                ipv6RadioData.setData(ipv6RadioYData);
+                value.add(ipv6RadioData);
+                result.setValue(value);
+                return result;
             default:
                 break;
         }
@@ -306,6 +354,32 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
                 allTitle = NumUtils.getAllMonth(filter);
                 result.setTitle(allTitle.stream().map(o -> DateUtil.format(DateUtil.parse(o+"", "yyyyMM"), "yyyy-MM")).collect(Collectors.toList()));
                 break;
+            case STATS_DIMENSION_WEEK:
+                // 获取周的数据
+                Map<String, String> allTitleMap = NumUtils.getWeekDatesWithDays(filter);
+                result.setTitle(new ArrayList<>(allTitleMap.values()));
+                allTitleMap.forEach((k,v)->{
+                    List<FlowRadioData> tempData = mapDataGroup.get(k);
+                    if (CollUtil.isNotEmpty(tempData)) {
+                        ipv4ydata.add(tempData.get(0).getIpv4());
+                        ipV6RadioData.add(tempData.get(0).getIpv6Radio());
+                        ipV6yData.add(tempData.get(0).getIpv6());
+                    } else {
+                        ipv4ydata.add(0D);
+                        ipV6yData.add(0D);
+                        ipV6RadioData.add(0D);
+                    }
+                });
+                ipv4Data.setData(ipv4ydata);
+                value.add(ipv4Data);
+                // ipv6数据
+                ipv6Data.setData(ipV6yData);
+                value.add(ipv6Data);
+                // ipv6数据
+                ipv6RadioData.setData(ipV6RadioData);
+                value.add(ipv6RadioData);
+                result.setValue(value);
+                return result;
             default:
                 break;
         }

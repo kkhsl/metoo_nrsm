@@ -60,4 +60,23 @@
             order by a.month asc
         </if>
     </select>
+    <select id="busiWeek" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData"
+            parameterType="java.lang.Integer">
+        select a.day as title,SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_flow_stats  a
+        where 1=1
+        and a.stats_dimension=1
+        and a.day between #{startDay} and #{endDay}
+        group by a.day
+        order by a.day asc
+    </select>
+
+    <select id="queryListByWeek" resultType="com.metoo.nrsm.entity.UnitFlowStats">
+        select * from unit_flow_stats a
+        where 1=1
+        <if test="id != null and id !=''">
+            and a.unit_id=#{id}
+        </if>
+        and a.day between #{startDay} and #{endDay}
+       order by a.day asc
+    </select>
 </mapper>
