@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,8 +34,6 @@ public class LogoServiceImpl {
     @Value("${logo.name}")
     private String logoName;
 
-    private String ip;
-
 
 
 
@@ -47,8 +44,8 @@ public class LogoServiceImpl {
     private SysConfigMapper sysConfigMapper;
 
 
-    @PostConstruct
-    public void init() {
+    public String getIp(){
+        String ip=null;
         SysConfig config = sysConfigMapper.select();
         if (config != null) {
             if (config.getHttpsDomain()!=null && config.getIp()!=null){
@@ -57,9 +54,8 @@ public class LogoServiceImpl {
                 ip="未设置";
             }
         }
+        return ip;
     }
-
-
 
 
     public String uploadLogo(MultipartFile file) throws IOException {
@@ -90,7 +86,9 @@ public class LogoServiceImpl {
         // 4. 生成唯一文件名
 //        String fileName = "logo_" + System.currentTimeMillis() + getFileExtension(file.getOriginalFilename());
         fileName = logoName + getFileExtension(file.getOriginalFilename());
-        String newLogoPath = ip+ fileName;
+
+
+        String newLogoPath = getIp()+ fileName;
 
         // 5. 保存新文件
         Path targetPath = uploadDir.resolve(fileName);
@@ -151,7 +149,7 @@ public class LogoServiceImpl {
 //        String fileName = "logo_" + System.currentTimeMillis() + getFileExtension(file.getOriginalFilename());
         fileName = "favicon" + getFileExtension(file.getOriginalFilename());
 
-        String newIcoPath = ip+"ico/"+ fileName;
+        String newIcoPath = getIp()+"ico/"+ fileName;
 
         // 5. 保存新文件
         Path targetPath = icoDir.resolve(fileName);

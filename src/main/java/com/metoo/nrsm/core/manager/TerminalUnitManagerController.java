@@ -2,8 +2,6 @@ package com.metoo.nrsm.core.manager;
 
 import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.mapper.TerminalUnitMapper;
-import com.metoo.nrsm.core.mapper.UnitMapper;
-
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.vo.Result;
 import com.metoo.nrsm.entity.Unit;
@@ -12,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -51,7 +51,6 @@ public class TerminalUnitManagerController {
                     return ResponseUtil.badArgument(unit2.getUnitName() + " 网段名称重复");
                 }
                 map.put(unitSubnet.getUnitId(), unitSubnet.getUnitId());
-
             }
         }
 
