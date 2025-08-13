@@ -41,7 +41,7 @@ public class TrafficPullStatisScheduler {
     @Value("${task.switch.traffic.api.is-open}")
     private boolean trafficApi;
 
-    private final ReentrantLock trafficApiLock = new ReentrantLock();
+    private final ReentrantLock trafficLock = new ReentrantLock();
 
     // 每天在 23:59:59 执行任务
     @Scheduled(cron = "59 59 23 * * ?")
@@ -50,7 +50,7 @@ public class TrafficPullStatisScheduler {
             return;
         }
 
-        if (!trafficApiLock.tryLock()) {
+        if (!trafficLock.tryLock()) {
             log.info("月流量统计任务正在执行中，跳过本次调度");
             return;
         }
@@ -111,7 +111,7 @@ public class TrafficPullStatisScheduler {
         } catch (Exception e) {
             log.error("月流量统计任务执行异常", e);
         } finally {
-            trafficApiLock.unlock();
+            trafficLock.unlock();
         }
     }
 

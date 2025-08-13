@@ -1,6 +1,52 @@
-ALTER TABLE metoo_sysconfig
-ADD COLUMN httpsDomain VARCHAR(255) DEFAULT NULL COMMENT 'HTTPS协议域名地址' after title;
+
+UPDATE `nrsm`.`metoo_sysconfig` SET `addTime` = '2021-04-02 13:00:08', `deleteStatus` = 0, `title` = '', `Ip` = '192.168.7.102', `httpsDomain` = 'https://', `path` = '', `videoFilePath` = '', `photoFilePath` = '', `uploadFilePath` = '', `domain` = '', `videoAudit` = 0, `nspmUrl` = '', `nspmToken` = '', `testToken` = '', `v4_status` = b'0', `v6_status` = b'0' WHERE `id` = 1;
+
+
 ALTER TABLE metoo_sysconfig
 ADD COLUMN httpsDomain VARCHAR(255) DEFAULT NULL COMMENT 'HTTPS协议域名地址' after title;
 
-UPDATE `nrsm`.`metoo_sysconfig` SET `addTime` = '2021-04-02 13:00:08', `deleteStatus` = 0, `title` = '', `Ip` = '192.168.7.102', `httpsDomain` = 'https://', `path` = '', `videoFilePath` = '', `photoFilePath` = '', `uploadFilePath` = '', `domain` = '', `videoAudit` = 0, `nspmUrl` = '', `nspmToken` = '', `testToken` = '', `v4_status` = b'0', `v6_status` = b'0' WHERE `id` = 1;
+alter table metoo_res add column licenseGranted TINYINT(1) DEFAULT 0 COMMENT '授权状态标识（true表示已授权可见，false表示未授权需隐藏）';
+alter table metoo_res add column permissionCode VARCHAR(200) COMMENT '权限唯一编码（用于license授权匹配）';
+
+alter table metoo_flow_unit ADD COLUMN v4Traffic varchar(255);
+
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS `unit_flow_stats`;
+CREATE TABLE `unit_flow_stats`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键 ID，自增',
+  `unit_id` bigint NOT NULL COMMENT '单位 ID，对应 metoo_unit 表 ID',
+  `unit_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '单位名称',
+  `ipv4` double NULL DEFAULT NULL COMMENT 'IPV4 总流量',
+  `ipv6` double NULL DEFAULT NULL COMMENT 'IPV6总流量',
+  `stats_dimension` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '统计维度：日、月、年，对应 system_dict_data 表 value',
+  `day` int NULL DEFAULT NULL COMMENT '日，如：20241117，表示 2024 年 11 月 17 日',
+  `month` int NULL DEFAULT NULL COMMENT '月，如：202411，表示 2024 年11月',
+  `year` int NULL DEFAULT NULL COMMENT '年，如：2024，表示 2024 年',
+  `stats_time` datetime NULL DEFAULT NULL COMMENT '统计时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '单位流量统计表' ROW_FORMAT = DYNAMIC;
+
+
+DROP TABLE IF EXISTS `unit_hour_flow_stats`;
+CREATE TABLE `unit_hour_flow_stats`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键 ID，自增',
+  `unit_id` bigint NOT NULL COMMENT '单位 ID，对应metoo_unit 表 ID',
+   `unit_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '单位名称',
+  `ipv4` double NULL DEFAULT NULL COMMENT 'IPV4 总流量',
+  `ipv6` double NULL DEFAULT NULL COMMENT 'IPV6总流量',
+  `hour_time` int NULL DEFAULT NULL COMMENT '小时时间，如：2024112310,表示 2024年11月23日10点',
+  `month` int NULL DEFAULT NULL COMMENT '月，如：202411，表示 2024 年11月',
+  `year` int NULL DEFAULT NULL COMMENT '年，如：2024，表示 2024 年',
+  `stats_time` datetime NULL DEFAULT NULL COMMENT '统计时间',
+  `day` int NULL DEFAULT NULL COMMENT '所属天yyyyMMdd',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `IDX_ORGHOURFLOWSTATS_ORGIDNAME`(`unit_id` ASC) USING BTREE,
+  INDEX `IDX_ORGHOURFLOWSTATS_HOURTIME`(`hour_time` ASC) USING BTREE,
+  INDEX `IDX_ORGHOURFLOWSTATS_MONTH`(`month` ASC) USING BTREE,
+  INDEX `IDX_ORGHOURFLOWSTATS_YEAR`(`year` ASC) USING BTREE,
+  INDEX `org_hour_flow_stats_DAY_IDX`(`day` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '单位小时流量统计表' ROW_FORMAT = DYNAMIC;
+
+SET FOREIGN_KEY_CHECKS = 1;
