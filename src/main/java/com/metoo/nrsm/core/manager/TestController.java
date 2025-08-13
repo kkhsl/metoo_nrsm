@@ -1,5 +1,7 @@
 package com.metoo.nrsm.core.manager;
 
+import com.metoo.nrsm.core.traffic.pull.TrafficPullScheduler;
+import com.metoo.nrsm.core.traffic.pull.TrafficPullStatisScheduler;
 import com.metoo.nrsm.core.traffic.push.utils.ApiTrafficPushYingTanUtils;
 import com.metoo.nrsm.core.traffic.pull.TimeUtils;
 import com.metoo.nrsm.core.traffic.pull.TrafficPullApi;
@@ -64,12 +66,29 @@ public class TestController {
     private ApiTrafficPushYingTanUtils apiTrafficPushYingTanUtils;
     @Autowired
     private TrafficPushExecUtils trafficPushExecUtils;
+    @Autowired
+    private TrafficPullScheduler TrafficPullScheduler;
+    @Autowired
+    private TrafficPullStatisScheduler trafficPullStatisScheduler;
+
+    @GetMapping("/flowStateByMonth")
+    public void flowStateByMonth(){
+        trafficPullStatisScheduler.flowStateByMonth();
+
+    }
+
+    @GetMapping("/pullTraffic")
+    public void pullTraffic(){
+        TrafficPullScheduler.pullTraffic();
+
+    }
 
     @GetMapping("/pushTraffic")
     public void pushTraffic(){
         trafficPushExecUtils.pushTraffic();
 
     }
+
 
 
     @GetMapping("/netmap")

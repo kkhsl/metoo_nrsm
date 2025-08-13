@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.nrsm.core.mapper.UnitFlowStatsMapper">
+
+    <select id="allOrgDayStats" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData">
+        select * from (
+        select b.id as id,b.unitName as title, SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from metoo_unit b
+        left join unit_flow_stats  a
+        on a.unit_id=b.id
+        where 1=1
+        and a.STATS_DIMENSION=#{statsDimension}
+        <if test="statsDimension != null and statsDimension !='' ">
+            <if test='statsDimension == "1"'>
+                and a.day=#{filter}
+            </if>
+            <if test='statsDimension == "2"'>
+                and a.month=#{filter}
+            </if>
+            <if test='statsDimension == "3"'>
+                and a.year=#{filter}
+            </if>
+        </if>
+        group by a.unit_id,b.unitName) bb
+        ORDER BY bb.ipv6Radio  DESC
+    </select>
+    <select id="busiDay" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData"
+            parameterType="java.lang.Integer">
+        select a.day as title,SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_flow_stats  a
+        where 1=1
+        and a.stats_dimension=1
+        and a.month=#{filter}
+        group by a.day
+        order by a.day asc
+    </select>
+    <select id="busiMonth" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData"
+            parameterType="java.lang.Integer">
+        select a.month as title,SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_flow_stats  a
+        where 1=1
+        and a.stats_dimension=2
+        and a.year=#{filter}
+        group by a.month
+        order by a.month asc
+    </select>
+    <select id="queryList" resultType="com.metoo.nrsm.entity.UnitFlowStats">
+        select * from unit_flow_stats a
+        where 1=1
+        <if test="id != null and id !=''">
+            and a.unit_id=#{id}
+        </if>
+        <if test="statsDimension != null and statsDimension !=''">
+            and a.stats_dimension=#{statsDimension}
+        </if>
+        <if test="month != null and month !=''">
+            and a.month=#{month}
+            order by a.day asc
+        </if>
+        <if test="year != null and year !=''">
+            and a.year=#{year}
+            order by a.month asc
+        </if>
+    </select>
+    <select id="busiWeek" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData"
+            parameterType="java.lang.Integer">
+        select a.day as title,SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from unit_flow_stats  a
+        where 1=1
+        and a.stats_dimension=1
+        and a.day between #{startDay} and #{endDay}
+        group by a.day
+        order by a.day asc
+    </select>
+
+    <select id="queryListByWeek" resultType="com.metoo.nrsm.entity.UnitFlowStats">
+        select * from unit_flow_stats a
+        where 1=1
+        <if test="id != null and id !=''">
+            and a.unit_id=#{id}
+        </if>
+        and a.day between #{startDay} and #{endDay}
+       order by a.day asc
+    </select>
+    <select id="queryStatsByTime" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData">
+        select * from (
+        select b.id as id,b.unitName as title, SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from metoo_unit b
+        left join unit_flow_stats  a
+        on a.unit_id=b.id
+        where 1=1
+        and a.STATS_DIMENSION=1
+          and a.day between #{startDay} and #{endDay}
+        group by a.unit_id,b.unitName) bb
+        ORDER BY bb.ipv6Radio  DESC
+    </select>
+
+    <!-- 查询某一维度的统计记录 -->
+    <select id="selectStatsByDimension" resultType="com.metoo.nrsm.entity.UnitFlowStats">
+        SELECT *
+        FROM unit_flow_stats
+        WHERE unit_id = #{unit_id}
+        AND stats_dimension = #{stats_dimension}
+        AND (`day` = #{day} OR `month` = #{month} OR `year` = #{year})
+        LIMIT 1
+    </select>
+
+
+    <!-- 动态更新流量数据 -->
+    <update id="update" parameterType="com.metoo.nrsm.entity.UnitFlowStats">
+        UPDATE unit_flow_stats
+        <set>
+            <if test="ipv4 != null">
+                ipv4 = #{ipv4},
+            </if>
+            <if test="ipv6 != null">
+                ipv6 = #{ipv6},
+            </if>
+            <if test="stats_time != null">
+                stats_time = #{stats_time},
+            </if>
+        </set>
+        WHERE unit_id = #{unit_id}
+        AND stats_dimension = #{stats_dimension}
+        <choose>
+            <when test="stats_dimension == '1'">
+                AND day = #{day}
+            </when>
+            <when test="stats_dimension == '2'">
+                AND month = #{month}
+            </when>
+            <when test="stats_dimension == '3'">
+                AND year = #{year}
+            </when>
+        </choose>
+    </update>
+
+    <insert id="insert" parameterType="com.metoo.nrsm.entity.UnitFlowStats" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO unit_flow_stats
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="unit_id != null">unit_id,</if>
+            <if test="unit_name != null">unit_name,</if>
+            <if test="ipv4 != null">ipv4,</if>
+            <if test="ipv6 != null">ipv6,</if>
+            <if test="stats_dimension != null">stats_dimension,</if>
+            <if test="day != null">day,</if>
+            <if test="month != null">month,</if>
+            <if test="year != null">year,</if>
+            <if test="stats_time != null">stats_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="unit_id != null">#{unit_id},</if>
+            <if test="unit_name != null">#{unit_name},</if>
+            <if test="ipv4 != null">#{ipv4},</if>
+            <if test="ipv6 != null">#{ipv6},</if>
+            <if test="stats_dimension != null">#{stats_dimension},</if>
+            <if test="day != null">#{day},</if>
+            <if test="month != null">#{month},</if>
+            <if test="year != null">#{year},</if>
+            <if test="stats_time != null">#{stats_time},</if>
+        </trim>
+    </insert>
+</mapper>

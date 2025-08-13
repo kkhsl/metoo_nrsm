@@ -1,11 +1,12 @@
-package com.metoo.nrsm.core.traffic.push.utils;
+package com.metoo.nrsm.core.traffic.utils;
 
 import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
 import com.metoo.nrsm.core.config.utils.gather.factory.gather.Gather;
-import com.metoo.nrsm.core.traffic.factory.GatherFactory;
-import com.metoo.nrsm.core.manager.utils.SseManager;
 import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.service.IUnitService;
+import com.metoo.nrsm.core.traffic.factory.GatherFactory;
+import com.metoo.nrsm.core.traffic.push.utils.ApiTrafficPushYingTanUtils;
+import com.metoo.nrsm.core.traffic.push.utils.TrafficPushApiUtils;
 import com.metoo.nrsm.core.utils.Global;
 import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.FlowUnit;
@@ -18,7 +19,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class TrafficPushExecUtils {
+public class TrafficUtils {
 
     @Autowired
     private IUnitService unitService;
@@ -28,6 +29,28 @@ public class TrafficPushExecUtils {
     private TrafficPushApiUtils trafficPushApiUtils;
     @Autowired
     private ApiTrafficPushYingTanUtils apiTrafficPushYingTanUtils;
+
+
+    public void pushTraffic() {
+
+        log.info("设置时间");
+        String time = DateUtils.getDateTimeWithZeroSeconds(new Date());
+        long currentTime = DateUtils.convertDateStringToTimestamp(time, "yyyy-MM-dd HH:mm:ss");
+        String currentTimestamp = String.valueOf(currentTime);
+
+        log.info("获取流量数据，并写入单位");
+        executeGather();
+
+        List<UnitVO> unitVos = getUnitVos(time, currentTimestamp);
+
+        if (unitVos.isEmpty()) {
+            log.info("未找到单位数据");
+            return;
+        }
+
+        log.info("调用api");
+        callApi(unitVos);
+    }
 
 
     // 执行Gather任务的方法
@@ -66,30 +89,10 @@ public class TrafficPushExecUtils {
                 unitVos.add(unitVO);
             }
         }
-
         return unitVos;
     }
 
-    public void pushTraffic() {
 
-        log.info("设置时间");
-        String time = DateUtils.getDateTimeWithZeroSeconds(new Date());
-        long currentTime = DateUtils.convertDateStringToTimestamp(time, "yyyy-MM-dd HH:mm:ss");
-        String currentTimestamp = String.valueOf(currentTime);
-
-        log.info("获取流量数据，并写入单位");
-        executeGather();
-
-        List<UnitVO> unitVos = getUnitVos(time, currentTimestamp);
-
-        if (unitVos.isEmpty()) {
-            log.info("未找到单位数据");
-            return;
-        }
-
-        log.info("调用api");
-        callApi(unitVos);
-    }
     // 调用API的方法，避免重复代码
     public void callApi(List<UnitVO> unitVos) {
         // 监管平台（信产）
@@ -124,4 +127,6 @@ public class TrafficPushExecUtils {
             log.error("推送mt监控平台失败：{}", e.getMessage());
         }
     }
+
+
 }

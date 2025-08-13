@@ -5,6 +5,8 @@ import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.service.ITrafficService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.traffic.push.utils.TrafficPushApiUtils;
+import com.metoo.nrsm.core.traffic.utils.TrafficUtils;
+import com.metoo.nrsm.core.traffic.utils.UnitFlowUtils;
 import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Traffic;
@@ -32,14 +34,19 @@ public class TrafficPullScheduler {
     private IUnitService unitService;
     @Autowired
     private TrafficPushApiUtils trafficPushApiUtils;
+    @Autowired
+    private UnitFlowUtils unitFlowUtils;
 
     @Value("${task.switch.traffic.api.is-open}")
     private boolean trafficApi;
 
     private final ReentrantLock trafficApiLock = new ReentrantLock();
 
+    @Autowired
+    private TrafficUtils trafficUtils;
+
     @Scheduled(cron = "0 */5 * * * ?")
-    public void trafficAPI(){
+    public void pullTraffic(){
         if (trafficApi) {
             if (trafficApiLock.tryLock()) {
                 try {
@@ -49,7 +56,9 @@ public class TrafficPullScheduler {
                     String currentTimestamp = String.valueOf(currentTime);
 
                     String fiveMinutesBefore = TimeUtils.format(TimeUtils.getFiveMinutesBefore(baseTime));
-                    List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(Collections.emptyMap());
+                    Map params = new HashMap();
+                    params.put("hidden", false);
+                    List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(params);
                     if (flowUnits == null || flowUnits.isEmpty()) {
                         log.info("未获取到任何单位，跳过调用 NetFlow API。");
                         return;
@@ -76,9 +85,17 @@ public class TrafficPullScheduler {
                             log.warn("NetFlow API 返回空数据，单位: {}", unitName);
                             continue;
                         }
+//
+                        String ipv4Flow = String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0"));
+                        String ipv6Flow = String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0"));
+//
+//                        Random rand = new Random();
+//                        String ipv4Flow = String.valueOf(rand.nextInt(5) + 0.1);
+//                        String ipv6Flow = String.valueOf(rand.nextInt(2) + 0.1);
+//
 
-                        flowUnit.setVfourFlow(String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0")));
-                        flowUnit.setVsixFlow(String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0")));
+                        flowUnit.setVfourFlow(ipv4Flow);
+                        flowUnit.setVsixFlow(ipv6Flow);
 
                         log.info("成功保存流量数据: 单位: {}, IPv4: {}, IPv6: {}", flowUnit.getUnitName(),
                                 flowUnit.getVfourFlow(), flowUnit.getVsixFlow());
@@ -91,9 +108,11 @@ public class TrafficPullScheduler {
                         return;
                     }
 
-                    log.info("调用api");
-                    callApi(unitVos);
+                    // 入库单位流量
+                    unitFlowUtils.saveUnitHourFlowStats(flowUnits, baseTime);
 
+                    log.info("流量分析 API");
+                    trafficUtils.callApi(unitVos);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -110,9 +129,7 @@ public class TrafficPullScheduler {
     private List<UnitVO> getUnitVos(String time, String currentTimestamp, List<FlowUnit> unitList) {
         Map<String, Object> params = new HashMap<>();
         params.put("hidden", false);
-
         List<UnitVO> unitVos = new ArrayList<>();
-
         if (!unitList.isEmpty()) {
             for (FlowUnit unit : unitList) {
                 String unitName = unit.getUnitName();
@@ -130,32 +147,7 @@ public class TrafficPullScheduler {
                 unitVos.add(unitVO);
             }
         }
-
         return unitVos;
-    }
-
-    // 调用API的方法，避免重复代码
-    private void callApi(List<UnitVO> unitVos) {
-        // 监管平台（信产）
-        try {
-            trafficPushApiUtils.pushTrafficManagerPlatform(unitVos);
-        } catch (Exception e) {
-            log.error("推送监管平台失败：{}", e.getMessage());
-        }
-
-        // 推送数据到鹰潭本地流量监测平台、非鹰潭推流量注释
-//        try {
-//            apiTrafficPushUtils.trafficPushApi(unitVos);
-//        } catch (Exception e) {
-//            log.error("推送鹰潭监管平台失败：{}", e.getMessage());
-//        }
-
-        try {
-            trafficPushApiUtils.monitorApi(unitVos);
-        } catch (Exception e) {
-            log.error("推送mt监控平台失败：{}", e.getMessage());
-        }
-
     }
 
 
