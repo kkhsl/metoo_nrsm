@@ -26,4 +26,6 @@ public interface IUnitFlowStatisFrontService {
      * 根据部门编码获取单位日、月度、年流量统计
      */
     EchartLineData orgFlowStatsById(Long id, String statsDimension, String filter);
+
+    List<FlowRadioData> queryStatsByTime(String startTime,String endTime);
 }

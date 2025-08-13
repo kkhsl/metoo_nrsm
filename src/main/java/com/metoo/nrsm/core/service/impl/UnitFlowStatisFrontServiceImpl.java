@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.metoo.nrsm.core.common.FlowConstants.*;
@@ -146,6 +143,41 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
             default:break;
         }
         return EchartLineData.builder().build();
+    }
+
+    @Override
+    public List<FlowRadioData> queryStatsByTime(String startTime, String endTime) {
+        List<FlowRadioData> result=new ArrayList<>();
+        // 首先获取所有的单位
+        List<Unit> alUnits= unitService.selectUnitAll();
+        List<FlowRadioData> dataList=flowStatsMapper.queryStatsByTime(Integer.valueOf(startTime.replaceAll(StrUtil.DASHED, "")),Integer.valueOf(endTime.replaceAll(StrUtil.DASHED, "")));
+        if(CollUtil.isNotEmpty(dataList)){
+            Map<String,List<FlowRadioData>> dayData=dataList.stream().collect(Collectors.groupingBy(flowRadioData -> flowRadioData.getId()));
+            alUnits.forEach(unit->{
+                FlowRadioData tempData=new FlowRadioData();
+                if(dayData.get(unit.getId()+"")==null){
+                    tempData.setId(unit.getId()+"");
+                    tempData.setTitle(unit.getUnitName());
+                    tempData.setIpv4(0D);
+                    tempData.setIpv6(0D);
+                    tempData.setIpv6Radio(0D);
+                }else{
+                    tempData=dayData.get(unit.getId()+"").get(0);
+                }
+                result.add(tempData);
+            });
+        }else{
+            alUnits.forEach(unit->{
+                FlowRadioData tempData=new FlowRadioData();
+                tempData.setId(unit.getId()+"");
+                tempData.setTitle(unit.getUnitName());
+                tempData.setIpv4(0D);
+                tempData.setIpv6(0D);
+                tempData.setIpv6Radio(0D);
+                result.add(tempData);
+            });
+        }
+        return result;
     }
 
     private EchartLineData orgWeekById(Long id, String filter) {
