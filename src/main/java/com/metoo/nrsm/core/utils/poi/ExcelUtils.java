@@ -1041,4 +1041,63 @@ public class ExcelUtils {
         }
         return s.trim();
     }
+
+    public static void exportDynamicHeaderExcel(HttpServletResponse response, List<String> headers, List<Map<String, Object>> data, String fileName) {
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Sheet1");
+            // 创建表头行
+            Row headerRow = sheet.createRow(0);
+            CellStyle borderedCenterStyle = workbook.createCellStyle();
+            borderedCenterStyle.setAlignment(HorizontalAlignment.CENTER);
+            borderedCenterStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            borderedCenterStyle.setBorderTop(BorderStyle.THIN);
+            borderedCenterStyle.setBorderBottom(BorderStyle.THIN);
+            borderedCenterStyle.setBorderLeft(BorderStyle.THIN);
+            borderedCenterStyle.setBorderRight(BorderStyle.THIN);
+            for (int i = 0; i < headers.size(); i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers.get(i));
+                // 设置表头样式（加粗/居中/边框）
+                CellStyle style = workbook.createCellStyle();
+                style.setAlignment(HorizontalAlignment.CENTER);
+                style.setVerticalAlignment(VerticalAlignment.CENTER);
+                style.setBorderTop(BorderStyle.THIN);
+                style.setBorderBottom(BorderStyle.THIN);
+                style.setBorderLeft(BorderStyle.THIN);
+                style.setBorderRight(BorderStyle.THIN);
+                Font font = workbook.createFont();
+                font.setBold(true);
+                style.setFont(font);
+                cell.setCellStyle(style);
+                int contentLength = cell.getStringCellValue().length();
+                // 设置单元格宽度
+                sheet.setColumnWidth(cell.getColumnIndex(), contentLength * 500);
+            }
+
+            // 填充数据
+            int rowNum = 1;
+            for (Map<String, Object> rowData : data) {
+                Row row = sheet.createRow(rowNum++);
+                for (int i = 0; i < headers.size(); i++) {
+                    Object value = rowData.get(headers.get(i));
+                    Cell cell = row.createCell(i);
+                    if (value instanceof Number) {
+                        cell.setCellValue(((Number)value).doubleValue());
+                        cell.setCellStyle(borderedCenterStyle); // 数值右对齐样式
+                    } else {
+                        cell.setCellValue(value != null ? value.toString() : "");
+                        cell.setCellStyle(borderedCenterStyle); // 文本居中样式
+                    }
+
+                }
+            }
+            try {
+                write(response, workbook, fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

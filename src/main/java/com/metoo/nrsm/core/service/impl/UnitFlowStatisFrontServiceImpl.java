@@ -2,6 +2,7 @@ package com.metoo.nrsm.core.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.metoo.nrsm.core.manager.statis.vo.EchartData;
@@ -11,14 +12,15 @@ import com.metoo.nrsm.core.manager.statis.vo.FlowRadioData;
 import com.metoo.nrsm.core.mapper.UnitFlowStatsMapper;
 import com.metoo.nrsm.core.mapper.UnitHourFlowStatsMapper;
 import com.metoo.nrsm.core.service.IUnitFlowStatisFrontService;
+import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.utils.statis.NumUtils;
+import com.metoo.nrsm.entity.Unit;
 import com.metoo.nrsm.entity.UnitFlowStats;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.metoo.nrsm.core.common.FlowConstants.*;
@@ -29,9 +31,41 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
     private UnitFlowStatsMapper flowStatsMapper;
     @Resource
     private UnitHourFlowStatsMapper hourFlowStatsMapper;
+    @Resource
+    private IUnitService unitService;
     @Override
     public List<FlowRadioData> allOrgDayStats(String statsDimension, String filter) {
-        return flowStatsMapper.allOrgDayStats(statsDimension,Long.parseLong(filter.replaceAll(StrUtil.DASHED, "")));
+        List<FlowRadioData> result=new ArrayList<>();
+        // 首先获取所有的单位
+        List<Unit> alUnits= unitService.selectUnitAll();
+        List<FlowRadioData> dataList=flowStatsMapper.allOrgDayStats(statsDimension,Long.parseLong(filter.replaceAll(StrUtil.DASHED, "")));
+        if(CollUtil.isNotEmpty(dataList)){
+            Map<String,List<FlowRadioData>> dayData=dataList.stream().collect(Collectors.groupingBy(flowRadioData -> flowRadioData.getId()));
+            alUnits.forEach(unit->{
+                FlowRadioData tempData=new FlowRadioData();
+                if(dayData.get(unit.getId()+"")==null){
+                    tempData.setId(unit.getId()+"");
+                    tempData.setTitle(unit.getUnitName());
+                    tempData.setIpv4(0D);
+                    tempData.setIpv6(0D);
+                    tempData.setIpv6Radio(0D);
+                }else{
+                    tempData=dayData.get(unit.getId()+"").get(0);
+                }
+                result.add(tempData);
+            });
+        }else{
+            alUnits.forEach(unit->{
+                FlowRadioData tempData=new FlowRadioData();
+                tempData.setId(unit.getId()+"");
+                tempData.setTitle(unit.getUnitName());
+                tempData.setIpv4(0D);
+                tempData.setIpv6(0D);
+                tempData.setIpv6Radio(0D);
+                result.add(tempData);
+            });
+        }
+        return result;
     }
 
     @Override
@@ -47,10 +81,18 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
                 return busiDayById(filter);
             case STATS_DIMENSION_YEAR:
                 return busiMonthById(filter);
+            case STATS_DIMENSION_WEEK:
+                return busiWeekById(filter);
             default:
                 break;
         }
         return EchartLineData.builder().build();
+    }
+
+    private EchartLineData busiWeekById(String filter) {
+        String[]  filterDay=NumUtils.getWeekStartEndDates(filter);
+        List<FlowRadioData> dataList = flowStatsMapper.busiWeek(Integer.valueOf(filterDay[0]),Integer.valueOf(filterDay[1]));
+        return constructDataByStatsList(dataList, STATS_DIMENSION_WEEK, filter);
     }
 
     /**
@@ -61,10 +103,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
     public EchartLineData busiHourById(String day) {
         //  实时
         List<FlowRadioData> dataList = hourFlowStatsMapper.orgHour(null,Long.valueOf(day.replace(StrUtil.DASHED, "")));
-        if (CollUtil.isNotEmpty(dataList)) {
-            return constructData(dataList, STATS_DIMENSION_DAY, day);
-        }
-        return EchartLineData.builder().build();
+        return constructDataByStatsList(dataList, STATS_DIMENSION_DAY, day);
     }
 
     /**
@@ -73,12 +112,8 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
      * @return
      */
     public EchartLineData busiDayById(String month) {
-        // 查询具体行业
         List<FlowRadioData> dataList = flowStatsMapper.busiDay(Integer.valueOf(month.replace(StrUtil.DASHED, "")));
-        if (CollUtil.isNotEmpty(dataList)) {
-            return constructData(dataList, STATS_DIMENSION_MONTH, month);
-        }
-        return EchartLineData.builder().build();
+        return constructDataByStatsList(dataList, STATS_DIMENSION_MONTH, month);
     }
 
     /**
@@ -89,10 +124,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
     public EchartLineData busiMonthById( String year) {
         // 查询具体行业
         List<FlowRadioData> dataList = flowStatsMapper.busiMonth(Integer.valueOf(year));
-        if (CollUtil.isNotEmpty(dataList)) {
-            return constructData(dataList, STATS_DIMENSION_YEAR, year);
-        }
-        return EchartLineData.builder().build();
+        return constructDataByStatsList(dataList, STATS_DIMENSION_YEAR, year);
     }
     /**
      * 根据部门编码获取单位日、月度、年流量统计
@@ -106,9 +138,59 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
                 return orgDayById(id,filter);
             case STATS_DIMENSION_YEAR:
                 return orgMonthById(id,filter);
+            case STATS_DIMENSION_WEEK:
+                return orgWeekById(id,filter);
             default:break;
         }
         return EchartLineData.builder().build();
+    }
+
+    @Override
+    public List<FlowRadioData> queryStatsByTime(String startTime, String endTime) {
+        List<FlowRadioData> result=new ArrayList<>();
+        // 首先获取所有的单位
+        List<Unit> alUnits= unitService.selectUnitAll();
+        List<FlowRadioData> dataList=flowStatsMapper.queryStatsByTime(Integer.valueOf(startTime.replaceAll(StrUtil.DASHED, "")),Integer.valueOf(endTime.replaceAll(StrUtil.DASHED, "")));
+        if(CollUtil.isNotEmpty(dataList)){
+            Map<String,List<FlowRadioData>> dayData=dataList.stream().collect(Collectors.groupingBy(flowRadioData -> flowRadioData.getId()));
+            alUnits.forEach(unit->{
+                FlowRadioData tempData=new FlowRadioData();
+                if(dayData.get(unit.getId()+"")==null){
+                    tempData.setId(unit.getId()+"");
+                    tempData.setTitle(unit.getUnitName());
+                    tempData.setIpv4(0D);
+                    tempData.setIpv6(0D);
+                    tempData.setIpv6Radio(0D);
+                }else{
+                    tempData=dayData.get(unit.getId()+"").get(0);
+                }
+                result.add(tempData);
+            });
+        }else{
+            alUnits.forEach(unit->{
+                FlowRadioData tempData=new FlowRadioData();
+                tempData.setId(unit.getId()+"");
+                tempData.setTitle(unit.getUnitName());
+                tempData.setIpv4(0D);
+                tempData.setIpv6(0D);
+                tempData.setIpv6Radio(0D);
+                result.add(tempData);
+            });
+        }
+        return result;
+    }
+
+    private EchartLineData orgWeekById(Long id, String filter) {
+        // 查询具体单位
+        String[]  filterDay=NumUtils.getWeekStartEndDates(filter);
+        List<UnitFlowStats> dataList=flowStatsMapper.queryListByWeek(id,Integer.valueOf(filterDay[0]), Integer.valueOf(filterDay[1]));
+        if(CollUtil.isNotEmpty(dataList)){
+            // 获取最大值数据
+            Map<String,List<UnitFlowStats>> dayData=dataList.stream().collect(Collectors.groupingBy(UnitFlowStats -> UnitFlowStats.getDay().toString()));
+            return constructDataByMap(dayData,STATS_DIMENSION_WEEK,filter);
+        }else{
+            return constructDataByMap(null,STATS_DIMENSION_WEEK,filter);
+        }
     }
 
     @Override
@@ -130,10 +212,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
     public EchartLineData orgHourById(Long id,String day) {
         //  实时的需补充
         List<FlowRadioData> hourData=hourFlowStatsMapper.orgHour(id,Long.parseLong(day.replaceAll(StrUtil.DASHED,"")));
-        if (CollUtil.isNotEmpty(hourData)) {
-            return constructData(hourData,day);
-        }
-        return EchartLineData.builder().build();
+        return constructDataByList(hourData,day);
     }
 
     /**
@@ -144,13 +223,15 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
      */
     public EchartLineData orgDayById(Long id,String month) {
         // 查询具体单位
-        List<UnitFlowStats> dataList=flowStatsMapper.queryList(id,Integer.valueOf(month.replaceAll(StrUtil.DASHED,"")), null,STATS_DIMENSION_MONTH);
+        List<UnitFlowStats> dataList=flowStatsMapper.queryList(id,Integer.valueOf(month.replaceAll(StrUtil.DASHED,"")), null,STATS_DIMENSION_DAY);
         if(CollUtil.isNotEmpty(dataList)){
             // 获取最大值数据
             Map<String,List<UnitFlowStats>> dayData=dataList.stream().collect(Collectors.groupingBy(UnitFlowStats -> UnitFlowStats.getDay().toString()));
-            return constructData(dayData,STATS_DIMENSION_MONTH,month);
+            return constructDataByMap(dayData,STATS_DIMENSION_MONTH,month);
+        }else{
+            // 查不到数据
+            return constructDataByMap(null,STATS_DIMENSION_MONTH,month);
         }
-        return EchartLineData.builder().build();
     }
 
     /**
@@ -165,9 +246,10 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
         if(CollUtil.isNotEmpty(dataList)){
             // 获取最大值数据
             Map<String,List<UnitFlowStats>> monthData=dataList.stream().collect(Collectors.groupingBy(UnitFlowStats -> UnitFlowStats.getMonth().toString()));
-            return constructData(monthData,STATS_DIMENSION_YEAR,year);
+            return constructDataByMap(monthData,STATS_DIMENSION_YEAR,year);
+        }else{
+            return constructDataByMap(null,STATS_DIMENSION_YEAR,year);
         }
-        return EchartLineData.builder().build();
     }
 
     /**
@@ -176,7 +258,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
      * @param statsData
      * @return
      */
-    public EchartLineData constructData( List<FlowRadioData> statsData,String filter) {
+    public EchartLineData constructDataByList( List<FlowRadioData> statsData,String filter) {
         EchartLineData result = EchartLineData.builder().build();
         List<EchartData> value = CollUtil.newArrayList();
         List<Integer> allTitle= NumUtils.getHoursOfDayArray(filter);
@@ -190,14 +272,20 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
         // ipv6数据
         EchartData ipv6RadioData = EchartData.builder().name(IPV6RADIO).build();
         List<Double> ipv6RadioYData = CollUtil.newArrayList();
-        Map<String,List<FlowRadioData>> mapDataGroup=statsData.stream().collect(Collectors.groupingBy(temp -> temp.getTitle()));
         for (Integer integer : allTitle) {
-            List<FlowRadioData> tempData = mapDataGroup.get(integer+"");
-            if (CollUtil.isNotEmpty(tempData)) {
-                ipv4ydata.add(tempData.get(0).getIpv4());
-                ipV6yData.add(tempData.get(0).getIpv6());
-                ipv6RadioYData.add(tempData.get(0).getIpv6Radio());
-            }else{
+            if(CollUtil.isNotEmpty(statsData)) {
+                Map<String, List<FlowRadioData>> mapDataGroup = statsData.stream().collect(Collectors.groupingBy(temp -> temp.getTitle()));
+                List<FlowRadioData> tempData = mapDataGroup.get(integer + "");
+                if (CollUtil.isNotEmpty(tempData)) {
+                    ipv4ydata.add(tempData.get(0).getIpv4());
+                    ipV6yData.add(tempData.get(0).getIpv6());
+                    ipv6RadioYData.add(tempData.get(0).getIpv6Radio());
+                } else {
+                    ipv4ydata.add(0D);
+                    ipV6yData.add(0D);
+                    ipv6RadioYData.add(0D);
+                }
+            }else {
                 ipv4ydata.add(0D);
                 ipV6yData.add(0D);
                 ipv6RadioYData.add(0D);
@@ -220,7 +308,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
      * @param statsData
      * @return
      */
-    public EchartLineData constructData(Map<String,List<UnitFlowStats>> statsData,String statsDimension,String filter){
+    public EchartLineData constructDataByMap(Map<String,List<UnitFlowStats>> statsData,String statsDimension,String filter){
         EchartLineData result= EchartLineData.builder().build();
         List<EchartData> value =CollUtil.newArrayList();
         // ipv4数据
@@ -249,18 +337,59 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
                 allTitle=NumUtils.getAllMonth(filter);
                 result.setTitle(allTitle.stream().map(o -> DateUtil.format(DateUtil.parse(o+"", "yyyyMM"), "yyyy-MM")).collect(Collectors.toList()));
                 break;
+            case STATS_DIMENSION_WEEK:
+                // 获取周的数据
+                Map<String, String> allTitleMap = NumUtils.getWeekDatesWithDays(filter);
+                result.setTitle(new ArrayList<>(allTitleMap.values()));
+                allTitleMap.forEach((k,v)->{
+                    if(null!=statsData) {
+                        List<UnitFlowStats> tempData = statsData.get(k + "");
+                        if (CollUtil.isNotEmpty(tempData)) {
+                            Double ipv4 = tempData.get(0).getIpv4();
+                            Double ipv6 = tempData.get(0).getIpv4();
+                            Double ipv6Radio = NumUtils.divUtil(NumberUtil.mul(ipv6, Double.valueOf(100d)), (ipv4 + ipv6));
+                            ipv4ydata.add(ipv4);
+                            ipV6yData.add(ipv6);
+                            ipv6RadioYData.add(ipv6Radio);
+                        } else {
+                            ipv4ydata.add(0D);
+                            ipV6yData.add(0D);
+                            ipv6RadioYData.add(0D);
+                        }
+                    }else{
+                        ipv4ydata.add(0D);
+                        ipV6yData.add(0D);
+                        ipv6RadioYData.add(0D);
+                    }
+                });
+                ipv4Data.setData(ipv4ydata);
+                value.add(ipv4Data);
+                // ipv6数据
+                ipv6Data.setData(ipV6yData);
+                value.add(ipv6Data);
+                // ipv6Radio数据
+                ipv6RadioData.setData(ipv6RadioYData);
+                value.add(ipv6RadioData);
+                result.setValue(value);
+                return result;
             default:
                 break;
         }
         for (Integer one : allTitle) {
-            List<UnitFlowStats> tempData = statsData.get(one+"");
-            if (CollUtil.isNotEmpty(tempData)) {
-                Double ipv4=tempData.get(0).getIpv4();
-                Double ipv6=tempData.get(0).getIpv4();
-                Double ipv6Radio = NumUtils.divUtil(NumberUtil.mul(ipv6, Double.valueOf(100d)), (ipv4 + ipv6));
-                ipv4ydata.add(ipv4);
-                ipV6yData.add(ipv6);
-                ipv6RadioYData.add(ipv6Radio);
+            if(null!=statsData) {
+                List<UnitFlowStats> tempData = statsData.get(one + "");
+                if (CollUtil.isNotEmpty(tempData)) {
+                    Double ipv4 = tempData.get(0).getIpv4();
+                    Double ipv6 = tempData.get(0).getIpv4();
+                    Double ipv6Radio = NumUtils.divUtil(NumberUtil.mul(ipv6, Double.valueOf(100d)), (ipv4 + ipv6));
+                    ipv4ydata.add(ipv4);
+                    ipV6yData.add(ipv6);
+                    ipv6RadioYData.add(ipv6Radio);
+                } else {
+                    ipv4ydata.add(0D);
+                    ipV6yData.add(0D);
+                    ipv6RadioYData.add(0D);
+                }
             }else{
                 ipv4ydata.add(0D);
                 ipV6yData.add(0D);
@@ -285,7 +414,7 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
      * @param statsData
      * @return
      */
-    public EchartLineData constructData(List<FlowRadioData> statsData, String statsDimension, String filter) {
+    public EchartLineData constructDataByStatsList(List<FlowRadioData> statsData, String statsDimension, String filter) {
         EchartLineData result = EchartLineData.builder().build();
         List<EchartData> value = CollUtil.newArrayList();
         // ipv4数据
@@ -298,7 +427,10 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
         EchartData ipv6Data = EchartData.builder().name(IPV6).build();
         // ipv6radio数据
         EchartData ipv6RadioData = EchartData.builder().name(IPV6RADIO).build();
-        Map<String, List<FlowRadioData>> mapDataGroup = statsData.stream().collect(Collectors.groupingBy(FlowRadioData::getTitle));
+        Map<String, List<FlowRadioData>> mapDataGroup =new HashMap<>();
+        if(CollUtil.isNotEmpty(statsData)) {
+            mapDataGroup = statsData.stream().collect(Collectors.groupingBy(FlowRadioData::getTitle));
+        }
         switch (statsDimension) {
             case STATS_DIMENSION_DAY:
                 // 到小时维度
@@ -316,16 +448,55 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
                 allTitle = NumUtils.getAllMonth(filter);
                 result.setTitle(allTitle.stream().map(o -> DateUtil.format(DateUtil.parse(o+"", "yyyyMM"), "yyyy-MM")).collect(Collectors.toList()));
                 break;
+            case STATS_DIMENSION_WEEK:
+                // 获取周的数据
+                Map<String, String> allTitleMap = NumUtils.getWeekDatesWithDays(filter);
+                result.setTitle(new ArrayList<>(allTitleMap.values()));
+                for (Map.Entry<String, String> entry : allTitleMap.entrySet()) {
+                    String k = entry.getKey();
+                    if (MapUtil.isNotEmpty(mapDataGroup)) {
+                        List<FlowRadioData> tempData = mapDataGroup.get(k);
+                        if (CollUtil.isNotEmpty(tempData)) {
+                            ipv4ydata.add(tempData.get(0).getIpv4());
+                            ipV6RadioData.add(tempData.get(0).getIpv6Radio());
+                            ipV6yData.add(tempData.get(0).getIpv6());
+                        } else {
+                            ipv4ydata.add(0D);
+                            ipV6yData.add(0D);
+                            ipV6RadioData.add(0D);
+                        }
+                    } else {
+                        ipv4ydata.add(0D);
+                        ipV6yData.add(0D);
+                        ipV6RadioData.add(0D);
+                    }
+                }
+                ipv4Data.setData(ipv4ydata);
+                value.add(ipv4Data);
+                // ipv6数据
+                ipv6Data.setData(ipV6yData);
+                value.add(ipv6Data);
+                // ipv6数据
+                ipv6RadioData.setData(ipV6RadioData);
+                value.add(ipv6RadioData);
+                result.setValue(value);
+                return result;
             default:
                 break;
         }
         for (Integer one : allTitle) {
-            List<FlowRadioData> tempData = mapDataGroup.get(one + "");
-            if (CollUtil.isNotEmpty(tempData)) {
-                ipv4ydata.add(tempData.get(0).getIpv4());
-                ipV6RadioData.add(tempData.get(0).getIpv6Radio());
-                ipV6yData.add(tempData.get(0).getIpv6());
-            } else {
+            if (MapUtil.isNotEmpty(mapDataGroup)) {
+                List<FlowRadioData> tempData = mapDataGroup.get(one + "");
+                if (CollUtil.isNotEmpty(tempData)) {
+                    ipv4ydata.add(tempData.get(0).getIpv4());
+                    ipV6RadioData.add(tempData.get(0).getIpv6Radio());
+                    ipV6yData.add(tempData.get(0).getIpv6());
+                } else {
+                    ipv4ydata.add(0D);
+                    ipV6yData.add(0D);
+                    ipV6RadioData.add(0D);
+                }
+            }else{
                 ipv4ydata.add(0D);
                 ipV6yData.add(0D);
                 ipV6RadioData.add(0D);

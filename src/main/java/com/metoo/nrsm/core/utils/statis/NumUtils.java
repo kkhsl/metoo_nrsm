@@ -11,9 +11,7 @@ import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +24,7 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class NumUtils {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMATTER_DASH = DateTimeFormatter.ofPattern("yyyyMMdd");
     public Double doubleAdd(Double v1,Double v2){
         return NumberUtil.add(v1==null?0d:v1,v2==null?0d:v2);
     }
@@ -118,50 +117,78 @@ public class NumUtils {
         }
         return months;
     }
+    public static List<String> getAllWeek(){
+        List<String> weeks = new ArrayList<>();
+        weeks.add("周一");
+        weeks.add("周二");
+        weeks.add("周三");
+        weeks.add("周一");
+        weeks.add("周一");
+        weeks.add("周一");
+
+        return weeks;
+    }
 
 
     /**
-     * 获取指定日期所在周的周一到周日日期
+     * 获取指定日期所在周的周一和周日日期
      * @param dateStr 输入的日期字符串（格式：yyyy-MM-dd）
-     * @return 字符串数组，按顺序包含周一到周日的日期
+     * @return 字符串数组，[0]=周一日期，[1]=周日日期
      */
-    public static String[] getWeekDates(String dateStr) {
+    public static String[] getWeekStartEndDates(String dateStr) {
         LocalDate inputDate = LocalDate.parse(dateStr, DATE_FORMATTER);
 
         // 计算周一和周日
-        LocalDate monday = inputDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate sunday = inputDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        LocalDate monday = inputDate.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+        LocalDate sunday = inputDate.with(TemporalAdjusters.nextOrSame(java.time.DayOfWeek.SUNDAY));
 
-        // 生成周一到周日的日期数组
-        String[] weekDates = new String[7];
-        for (int i = 0; i < 7; i++) {
-            weekDates[i] = monday.plusDays(i).format(DATE_FORMATTER);
-        }
-
-        return weekDates;
+        return new String[]{
+                monday.format(DATE_FORMATTER_DASH),
+                sunday.format(DATE_FORMATTER_DASH)
+        };
     }
+
+    public static Map<String, String> getWeekDatesWithDays(String dateStr) {
+        LocalDate inputDate = LocalDate.parse(dateStr, DATE_FORMATTER);
+        LocalDate monday = inputDate.with(DayOfWeek.MONDAY); // 定位本周一
+
+        Map<String, String> dateMap = new LinkedHashMap<>();
+        String[] weekDays = {"周一", "周二", "周三", "周四", "周五", "周六", "周日"};
+
+        // 生成周一到周日的日期及星期映射
+        for (int i = 0; i < 7; i++) {
+            LocalDate currentDate = monday.plusDays(i);
+            String dateKey = currentDate.format(DATE_FORMATTER_DASH);
+            dateMap.put(dateKey, weekDays[i]);
+        }
+        return dateMap;
+    }
+
     public static void main(String[] args) {
-        // 输入的日期字符串
-        String input = "2024-11-01";
-
-        // 调用方法来获取小时字符串数组，并输出结果
-        List<Integer> hoursArray = getHoursOfDayArray(input);
-        System.out.println("小时字符串数组: ");
-        for (Integer hourStr : hoursArray) {
-            System.out.println(hourStr);
-        }
-
-        // 输入的年月字符串
-        String inputStr = "2024-11";
-
-        // 调用方法来获取日期字符串数组，并输出结果
-        List<Integer> daysArray = getDaysOfMonthArray(inputStr);
-        System.out.println("日期字符串数组: ");
-        for (Integer dayStr : daysArray) {
-            System.out.println(dayStr);
-        }
-        List<Integer> all=getAllMonth("2025");
-        for (Integer dayStr : all) {
+        Map<String, String> weekMap = getWeekDatesWithDays("2025-08-12");
+        System.out.println("日期\t\t星期");
+        weekMap.forEach((date, day) -> System.out.println(date + "\t" + day));
+//        // 输入的日期字符串
+//        String input = "2024-11-01";
+//
+//        // 调用方法来获取小时字符串数组，并输出结果
+//        List<Integer> hoursArray = getHoursOfDayArray(input);
+//        System.out.println("小时字符串数组: ");
+//        for (Integer hourStr : hoursArray) {
+//            System.out.println(hourStr);
+//        }
+//
+//        // 输入的年月字符串
+//        String inputStr = "2024-11";
+//
+//        // 调用方法来获取日期字符串数组，并输出结果
+//        List<Integer> daysArray = getDaysOfMonthArray(inputStr);
+//        System.out.println("日期字符串数组: ");
+//        for (Integer dayStr : daysArray) {
+//            System.out.println(dayStr);
+//        }
+        String[] dates=getWeekStartEndDates("2025-08-12");
+        for (String dayStr : dates) {
             System.out.println(dayStr);
         }
     }

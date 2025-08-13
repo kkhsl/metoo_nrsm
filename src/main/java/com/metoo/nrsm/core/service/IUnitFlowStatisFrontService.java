@@ -31,4 +31,6 @@ public interface IUnitFlowStatisFrontService {
     boolean save(UnitFlowStats stats);
 
 
+
+    List<FlowRadioData> queryStatsByTime(String startTime,String endTime);
 }
