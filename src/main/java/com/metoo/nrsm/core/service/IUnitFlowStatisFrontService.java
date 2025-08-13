@@ -3,6 +3,7 @@ package com.metoo.nrsm.core.service;
 import com.metoo.nrsm.core.manager.statis.vo.EchartLineData;
 import com.metoo.nrsm.core.manager.statis.vo.EchartLineMonitorData;
 import com.metoo.nrsm.core.manager.statis.vo.FlowRadioData;
+import com.metoo.nrsm.entity.UnitFlowStats;
 
 import java.util.List;
 
@@ -26,4 +27,8 @@ public interface IUnitFlowStatisFrontService {
      * 根据部门编码获取单位日、月度、年流量统计
      */
     EchartLineData orgFlowStatsById(Long id, String statsDimension, String filter);
+
+    boolean save(UnitFlowStats stats);
+
+
 }

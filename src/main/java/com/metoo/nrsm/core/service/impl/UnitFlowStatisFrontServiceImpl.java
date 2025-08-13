@@ -111,6 +111,16 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
         return EchartLineData.builder().build();
     }
 
+    @Override
+    public boolean save(UnitFlowStats stats) {
+        try {
+            return flowStatsMapper.insert(stats) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /**
      * 小时统计
      * @param id

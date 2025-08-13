@@ -27,7 +27,7 @@ public class TrafficPushExecUtils {
     @Autowired
     private TrafficPushApiUtils trafficPushApiUtils;
     @Autowired
-    private ApiTrafficPushYingTanUtils apiTrafficPushUtils;
+    private ApiTrafficPushYingTanUtils apiTrafficPushYingTanUtils;
 
 
     // 执行Gather任务的方法
@@ -90,29 +90,38 @@ public class TrafficPushExecUtils {
         log.info("调用api");
         callApi(unitVos);
     }
-
     // 调用API的方法，避免重复代码
-    private void callApi(List<UnitVO> unitVos) {
+    public void callApi(List<UnitVO> unitVos) {
         // 监管平台（信产）
+        sendManagerPlatform(unitVos);
+        // 鹰潭监管平台
+//        sendYingTanLocal(unitVos);
+        // 监控平台
+        sendMonitor(unitVos);
+    }
+
+    private void sendManagerPlatform(List<UnitVO> unitVos){
         try {
             trafficPushApiUtils.pushTrafficManagerPlatform(unitVos);
         } catch (Exception e) {
             log.error("推送监管平台失败：{}", e.getMessage());
         }
+    }
 
-        // 推送数据到鹰潭本地流量监测平台、非鹰潭推流量注释
-//        try {
-//            apiTrafficPushUtils.trafficPushApi(unitVos);
-//        } catch (Exception e) {
-//            log.error("推送鹰潭监管平台失败：{}", e.getMessage());
-//        }
+    // 推送数据到鹰潭本地流量监测平台、非鹰潭推流量注释
+    private void sendYingTanLocal(List<UnitVO> unitVos){
+        try {
+            apiTrafficPushYingTanUtils.trafficPushApi(unitVos);
+        } catch (Exception e) {
+            log.error("推送鹰潭监管平台失败：{}", e.getMessage());
+        }
+    }
 
+    private void sendMonitor(List<UnitVO> unitVos){
         try {
             trafficPushApiUtils.monitorApi(unitVos);
         } catch (Exception e) {
             log.error("推送mt监控平台失败：{}", e.getMessage());
         }
-
     }
-
 }

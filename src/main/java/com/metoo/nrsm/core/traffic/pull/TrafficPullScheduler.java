@@ -56,7 +56,9 @@ public class TrafficPullScheduler {
                     String currentTimestamp = String.valueOf(currentTime);
 
                     String fiveMinutesBefore = TimeUtils.format(TimeUtils.getFiveMinutesBefore(baseTime));
-                    List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(Collections.emptyMap());
+                    Map params = new HashMap();
+                    params.put("hidden", false);
+                    List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(params);
                     if (flowUnits == null || flowUnits.isEmpty()) {
                         log.info("未获取到任何单位，跳过调用 NetFlow API。");
                         return;
@@ -107,7 +109,7 @@ public class TrafficPullScheduler {
                     }
 
                     // 入库单位流量
-                    unitFlowUtils.saveFlow(flowUnits, baseTime);
+                    unitFlowUtils.saveUnitHourFlowStats(flowUnits, baseTime);
 
                     log.info("流量分析 API");
                     trafficUtils.callApi(unitVos);

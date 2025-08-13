@@ -98,7 +98,7 @@ public class TrafficUtils {
         // 监管平台（信产）
         sendManagerPlatform(unitVos);
         // 鹰潭监管平台
-        sendYingTanLocal(unitVos);
+//        sendYingTanLocal(unitVos);
         // 监控平台
         sendMonitor(unitVos);
     }

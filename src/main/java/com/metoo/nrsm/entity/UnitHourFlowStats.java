@@ -18,5 +18,7 @@ public class UnitHourFlowStats {
     private Double ipv6;
     private Integer hour_time;
     private Integer day;
+    private Integer month;
+    private Integer year;
     private Date stats_time;
 }

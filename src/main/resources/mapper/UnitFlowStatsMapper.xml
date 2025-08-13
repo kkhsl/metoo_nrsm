@@ -60,4 +60,70 @@
             order by a.month asc
         </if>
     </select>
+
+    <!-- 查询某一维度的统计记录 -->
+    <select id="selectStatsByDimension" resultType="com.metoo.nrsm.entity.UnitFlowStats">
+        SELECT *
+        FROM unit_flow_stats
+        WHERE unit_id = #{unit_id}
+        AND stats_dimension = #{stats_dimension}
+        AND (`day` = #{day} OR `month` = #{month} OR `year` = #{year})
+        LIMIT 1
+    </select>
+
+
+    <!-- 动态更新流量数据 -->
+    <update id="update" parameterType="com.metoo.nrsm.entity.UnitFlowStats">
+        UPDATE unit_flow_stats
+        <set>
+            <if test="ipv4 != null">
+                ipv4 = #{ipv4},
+            </if>
+            <if test="ipv6 != null">
+                ipv6 = #{ipv6},
+            </if>
+            <if test="stats_time != null">
+                stats_time = #{stats_time},
+            </if>
+        </set>
+        WHERE unit_id = #{unit_id}
+        AND stats_dimension = #{stats_dimension}
+        <choose>
+            <when test="stats_dimension == '1'">
+                AND day = #{day}
+            </when>
+            <when test="stats_dimension == '2'">
+                AND month = #{month}
+            </when>
+            <when test="stats_dimension == '3'">
+                AND year = #{year}
+            </when>
+        </choose>
+    </update>
+
+    <insert id="insert" parameterType="com.metoo.nrsm.entity.UnitFlowStats" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO unit_flow_stats
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="unit_id != null">unit_id,</if>
+            <if test="unit_name != null">unit_name,</if>
+            <if test="ipv4 != null">ipv4,</if>
+            <if test="ipv6 != null">ipv6,</if>
+            <if test="stats_dimension != null">stats_dimension,</if>
+            <if test="day != null">day,</if>
+            <if test="month != null">month,</if>
+            <if test="year != null">year,</if>
+            <if test="stats_time != null">stats_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="unit_id != null">#{unit_id},</if>
+            <if test="unit_name != null">#{unit_name},</if>
+            <if test="ipv4 != null">#{ipv4},</if>
+            <if test="ipv6 != null">#{ipv6},</if>
+            <if test="stats_dimension != null">#{stats_dimension},</if>
+            <if test="day != null">#{day},</if>
+            <if test="month != null">#{month},</if>
+            <if test="year != null">#{year},</if>
+            <if test="stats_time != null">#{stats_time},</if>
+        </trim>
+    </insert>
 </mapper>

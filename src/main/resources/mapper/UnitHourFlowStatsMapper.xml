@@ -3,6 +3,73 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.nrsm.core.mapper.UnitHourFlowStatsMapper">
 
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.nrsm.entity.UnitHourFlowStats">
+        SELECT
+            id, unit_id, unit_name, ipv4, ipv6,
+            hour_time, day, month, year, stats_time
+        FROM unit_hour_flow_stats
+        <where>
+            <if test="unitId != null">
+                AND unit_id = #{unitId}
+            </if>
+            <if test="day != null">
+                AND day = #{day}
+            </if>
+            <if test="month != null">
+                AND month = #{month}
+            </if>
+            <if test="year != null">
+                AND year = #{year}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDailyTotalFlow" parameterType="map" resultType="map">
+        SELECT
+            SUM(ipv4) AS totalIPv4,
+            SUM(ipv6) AS totalIPv6
+        FROM unit_hour_flow_stats
+        WHERE unit_id = #{unitId}
+        AND day = #{day}
+    </select>
+
+    <!-- 月流量统计查询 -->
+    <select id="selectMonthlyTotalFlow" parameterType="map" resultType="map">
+        SELECT
+            SUM(ipv4) AS totalIPv4,
+            SUM(ipv6) AS totalIPv6
+        FROM unit_hour_flow_stats
+        WHERE unit_id = #{unitId}
+        AND year = #{year}
+        AND month = #{month}
+  </select>
+
+    <select id="selectByUnitIdAndTime" resultType="com.metoo.nrsm.entity.UnitHourFlowStats">
+        SELECT * FROM unit_hour_flow_stats
+        WHERE unit_id = #{unit_id}
+          AND year = #{year}
+          AND month = #{month}
+          AND day = #{day}
+          AND hour_time = #{hour_time}
+        LIMIT 1
+    </select>
+
+    <!-- 动态更新记录 -->
+    <update id="update" parameterType="com.metoo.nrsm.entity.UnitHourFlowStats">
+        UPDATE unit_hour_flow_stats
+        <set>
+            <if test="ipv4 != null">ipv4 = #{ipv4},</if>
+            <if test="ipv6 != null">ipv6 = #{ipv6},</if>
+            <if test="stats_time != null">stats_time = #{stats_time},</if>
+        </set>
+        WHERE unit_id = #{unit_id}
+        AND year = #{year}
+        AND month = #{month}
+        AND day = #{day}
+        AND hour_time = #{hour_time}
+    </update>
+
     <insert id="save" parameterType="com.metoo.nrsm.entity.UnitHourFlowStats">
         INSERT INTO unit_hour_flow_stats
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -13,6 +80,8 @@
             <if test="ipv6 != null">ipv6,</if>
             <if test="hourTime != null">hour_time,</if>
             <if test="day != null">day,</if>
+            <if test="day != null">month,</if>
+            <if test="day != null">year,</if>
             <if test="statsTime != null">stats_time,</if>
         </trim>
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
@@ -23,18 +92,20 @@
             <if test="ipv6 != null">#{ipv6},</if>
             <if test="hourTime != null">#{hourTime},</if>
             <if test="day != null">#{day},</if>
+            <if test="day != null">#{month},</if>
+            <if test="day != null">#{year},</if>
             <if test="statsTime != null">#{statsTime},</if>
         </trim>
     </insert>
 
     <insert id="batchInsert" parameterType="java.util.List">
         INSERT INTO unit_hour_flow_stats (
-        unit_id, ipv4, ipv6, hour_time, day, stats_time
+        unit_id, ipv4, ipv6, hour_time, day, month, year, stats_time
         ) VALUES
         <foreach collection="list" item="item" separator=",">
             (
                 #{item.unit_id}, #{item.ipv4}, #{item.ipv6},
-                #{item.hour_time}, #{item.day}, #{item.stats_time}
+                #{item.hour_time}, #{item.day}, #{item.month},#{item.year}, #{item.stats_time}
             )
         </foreach>
     </insert>

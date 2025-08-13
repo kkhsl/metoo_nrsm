@@ -18,8 +18,29 @@ public class UnitFlowStatsServiceImpl implements IUnitFlowStatsService {
     }
 
     @Override
-    public int save(UnitFlowStats instance) {
-        return unitFlowStatsMapper.save(instance);
+    public UnitFlowStats selectStatsByDimension(Long unitId, String statsDimension, Integer day, Integer month, Integer year) {
+        // 查询具体维度的统计记录
+        return unitFlowStatsMapper.selectStatsByDimension(unitId, statsDimension, day, month, year);
+    }
+
+    @Override
+    public boolean update(UnitFlowStats instance) {
+        try {
+            return unitFlowStatsMapper.update(instance) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean save(UnitFlowStats instance) {
+        try {
+            return unitFlowStatsMapper.insert(instance) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }
