@@ -71,10 +71,14 @@ public class TestController {
     @Autowired
     private TrafficPullStatisScheduler trafficPullStatisScheduler;
 
+    @GetMapping("/flowStateByDay")
+    public void flowStateByDay(){
+        trafficPullStatisScheduler.flowStateByDay();
+    }
+
     @GetMapping("/flowStateByMonth")
     public void flowStateByMonth(){
         trafficPullStatisScheduler.flowStateByMonth();
-
     }
 
     @GetMapping("/pullTraffic")

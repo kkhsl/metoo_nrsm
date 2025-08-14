@@ -51,7 +51,7 @@ public class TrafficPullStatisScheduler {
         }
 
         if (!trafficLock.tryLock()) {
-            log.info("月流量统计任务正在执行中，跳过本次调度");
+            log.info("年/月流量统计任务正在执行中，跳过本次调度");
             return;
         }
 
@@ -61,7 +61,7 @@ public class TrafficPullStatisScheduler {
             List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(params);
 
             if (CollectionUtils.isEmpty(flowUnits)) {
-                log.info("未获取到任何单位，跳过月流量统计");
+                log.info("未获取到任何单位，跳过年/月流量统计");
                 return;
             }
 
@@ -70,7 +70,7 @@ public class TrafficPullStatisScheduler {
                 Long unitId = flowUnit.getUnitId();
 
                 if (StringUtils.isBlank(unitName)) {
-                    log.warn("单位ID[{}]名称为空，跳过月统计", unitId);
+                    log.warn("单位ID[{}]名称为空，跳过年/月统计", unitId);
                     continue;
                 }
 
@@ -95,13 +95,10 @@ public class TrafficPullStatisScheduler {
                     Double totalIPv4 = dailyTotal.get("totalIPv4");
                     Double totalIPv6 = dailyTotal.get("totalIPv6");
 
-                    // 1. 日记录处理
-                    handleFlowStats(unitId, unitName, totalIPv4, totalIPv6, "1", currentDay, currentMonth, currentYear, baseTime);
-
-                    // 2. 月记录处理
+                    // 1. 月记录处理
                     handleFlowStats(unitId, unitName, totalIPv4, totalIPv6, "2", currentDay, currentMonth, currentYear, baseTime);
 
-                    // 3. 年记录处理
+                    // 2. 年记录处理
                     handleFlowStats(unitId, unitName, totalIPv4, totalIPv6, "3", currentDay, currentMonth, currentYear, baseTime);
 
                     log.info("单位[{}](ID:{})当日({})统计结果 - IPv4: {}, IPv6: {}",
@@ -109,7 +106,7 @@ public class TrafficPullStatisScheduler {
                 }
             }
         } catch (Exception e) {
-            log.error("月流量统计任务执行异常", e);
+            log.error("年/月流量统计任务执行异常", e);
         } finally {
             trafficLock.unlock();
         }
@@ -143,6 +140,74 @@ public class TrafficPullStatisScheduler {
             unitFlowStatsService.update(existingStats);
         }
     }
+
+    private final ReentrantLock trafficLockDay = new ReentrantLock();
+
+    @Scheduled(cron = "0 30 * * * ?")
+    public void flowStateByDay() {
+        if (!trafficApi) {
+            return;
+        }
+
+        if (!trafficLockDay.tryLock()) {
+            log.info("日流量统计任务正在执行中，跳过本次调度");
+            return;
+        }
+
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("hidden", false);
+            List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(params);
+
+            if (CollectionUtils.isEmpty(flowUnits)) {
+                log.info("未获取到任何单位，跳过日流量统计");
+                return;
+            }
+
+            for (FlowUnit flowUnit : flowUnits) {
+                String unitName = flowUnit.getUnitName();
+                Long unitId = flowUnit.getUnitId();
+
+                if (StringUtils.isBlank(unitName)) {
+                    log.warn("单位ID[{}]名称为空，跳过日统计", unitId);
+                    continue;
+                }
+
+                // 获取当前日期（yyyyMMdd格式）
+                // 统计当天流量
+                LocalDateTime baseTime = TimeUtils.getNow();
+                int currentDay = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
+                int currentMonth = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM")));
+                int currentYear = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy")));
+
+                // 获取当日总流量
+                Map<String, Object> queryParams = new HashMap<>();
+                queryParams.put("unitId", unitId);
+                queryParams.put("day", currentDay);
+
+                Map<String, Double> dailyTotal = unitHourFlowStatsService.selectDailyTotalFlow(queryParams);
+
+                // 处理统计结果
+                if (dailyTotal == null || dailyTotal.isEmpty()) {
+                    log.info("单位[{}](ID:{})当日({})无流量数据", unitName, unitId, currentDay);
+                } else {
+                    Double totalIPv4 = dailyTotal.get("totalIPv4");
+                    Double totalIPv6 = dailyTotal.get("totalIPv6");
+
+                    // 1. 日记录处理
+                    handleFlowStats(unitId, unitName, totalIPv4, totalIPv6, "1", currentDay, currentMonth, currentYear, baseTime);
+
+                    log.info("单位[{}](ID:{})当日({})统计结果 - IPv4: {}, IPv6: {}",
+                            unitName, unitId, currentDay, totalIPv4, totalIPv6);
+                }
+            }
+        } catch (Exception e) {
+            log.error("日流量统计任务执行异常", e);
+        } finally {
+            trafficLockDay.unlock();
+        }
+    }
+
 
 
 //    // 每日凌晨1点执行

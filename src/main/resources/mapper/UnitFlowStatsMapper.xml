@@ -96,9 +96,14 @@
         SELECT *
         FROM unit_flow_stats
         WHERE unit_id = #{unit_id}
-        AND stats_dimension = #{stats_dimension}
-        AND (`day` = #{day} OR `month` = #{month} OR `year` = #{year})
-        LIMIT 1
+          AND stats_dimension = #{stats_dimension}
+          AND (
+            (#{stats_dimension} = 1 AND `day` = #{day} AND `month` = #{month} AND `year` = #{year})
+            OR (#{stats_dimension} = 2 AND `month` = #{month} AND `year` = #{year})
+            OR (#{stats_dimension} = 3 AND `year` = #{year})
+          )
+        LIMIT 1;
+
     </select>
 
 
