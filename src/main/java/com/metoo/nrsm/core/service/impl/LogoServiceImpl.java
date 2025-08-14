@@ -4,7 +4,6 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.mapper.SysConfigMapper;
 import com.metoo.nrsm.core.mapper.WebSetMapper;
 import com.metoo.nrsm.core.vo.Result;
-import com.metoo.nrsm.entity.SysConfig;
 import com.metoo.nrsm.entity.WebSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +43,7 @@ public class LogoServiceImpl {
     private SysConfigMapper sysConfigMapper;
 
 
-    public String getIp(){
+    /*public String getIp(){
         String ip=null;
         SysConfig config = sysConfigMapper.select();
         if (config != null) {
@@ -55,7 +54,7 @@ public class LogoServiceImpl {
             }
         }
         return ip;
-    }
+    }*/
 
 
     public String uploadLogo(MultipartFile file) throws IOException {
@@ -88,7 +87,7 @@ public class LogoServiceImpl {
         fileName = logoName + getFileExtension(file.getOriginalFilename());
 
 
-        String newLogoPath = getIp()+ fileName;
+        String newLogoPath = "/logos/"+fileName;  //getIp()
 
         // 5. 保存新文件
         Path targetPath = uploadDir.resolve(fileName);
@@ -149,7 +148,7 @@ public class LogoServiceImpl {
 //        String fileName = "logo_" + System.currentTimeMillis() + getFileExtension(file.getOriginalFilename());
         fileName = "favicon" + getFileExtension(file.getOriginalFilename());
 
-        String newIcoPath = getIp()+"ico/"+ fileName;
+        String newIcoPath = "/logos/ico/"+ fileName; //getIp()+
 
         // 5. 保存新文件
         Path targetPath = icoDir.resolve(fileName);
