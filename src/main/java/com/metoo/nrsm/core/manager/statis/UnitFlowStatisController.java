@@ -6,6 +6,7 @@ import com.metoo.nrsm.core.config.utils.ResponseUtil;
 import com.metoo.nrsm.core.manager.statis.vo.EchartLineData;
 import com.metoo.nrsm.core.manager.statis.vo.EchartLineMonitorData;
 import com.metoo.nrsm.core.manager.statis.vo.FlowRadioData;
+import com.metoo.nrsm.core.manager.statis.vo.FlowRadioDataExport;
 import com.metoo.nrsm.core.service.IUnitFlowStatisFrontService;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.utils.poi.ExcelUtils;
@@ -93,21 +94,22 @@ public class UnitFlowStatisController {
             titleHead=chineseStartDate+"-"+chineseEndDate;
         }
         // 动态表头
-        List<String> headers = Arrays.asList(titleHead, "ipv4流量", "ipv6流量","ipv6占比");
-        List<FlowRadioData> dataList = this.flowStatsService.queryStatsByTime(startTime,endTime);
+        List<String> headers = Arrays.asList("单位/部门", "IPv4流量(G)", "IPv6流量(G)","总流量(G)","IPv6流量占比(%)");
+        List<FlowRadioDataExport> dataList = this.flowStatsService.queryStatsByTime(startTime,endTime);
         List<Map<String, Object>> data = new ArrayList<>();
         if(CollUtil.isNotEmpty(dataList)){
-            dataList.sort(comparing(FlowRadioData::getIpv6Radio).reversed());
-            for (FlowRadioData item : dataList) {
+            dataList.sort(comparing(FlowRadioDataExport::getIpv6Radio).reversed());
+            for (FlowRadioDataExport item : dataList) {
                 Map<String, Object> row1 = new HashMap<>();
-                row1.put(titleHead, item.getTitle());
-                row1.put("ipv4流量", item.getIpv4());
-                row1.put("ipv6流量", item.getIpv6());
-                row1.put("ipv6占比", item.getIpv6Radio());
+                row1.put("单位/部门", item.getTitle());
+                row1.put("IPv4流量(G)", item.getIpv4());
+                row1.put("IPv6流量(G)", item.getIpv6());
+                row1.put("总流量(G)", item.getTotal());
+                row1.put("IPv6流量占比(%)", item.getIpv6Radio());
                 data.add(row1);
             }
         }
-        ExcelUtils.exportDynamicHeaderExcel(response,headers,data,"部门流量分析" + DateTools.getCurrentDate(new Date()));
+        ExcelUtils.exportDynamicHeaderExcel(response,headers,data,"部门流量分析" + DateTools.getCurrentDate(new Date()),titleHead);
         return ResponseUtil.ok();
     }
 }

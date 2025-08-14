@@ -1,12 +1,14 @@
 package com.metoo.nrsm.core.traffic.pull;
 
 import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
+import com.metoo.nrsm.core.manager.utils.SseManager;
 import com.metoo.nrsm.core.service.IFlowUnitService;
 import com.metoo.nrsm.core.service.ITrafficService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.traffic.push.utils.TrafficPushApiUtils;
 import com.metoo.nrsm.core.traffic.utils.TrafficUtils;
 import com.metoo.nrsm.core.traffic.utils.UnitFlowUtils;
+import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.FlowUnit;
 import com.metoo.nrsm.entity.Traffic;
@@ -45,11 +47,20 @@ public class TrafficPullScheduler {
     @Autowired
     private TrafficUtils trafficUtils;
 
+    SseManager sseManager=new SseManager();
+
     @Scheduled(cron = "0 */5 * * * ?")
     public void pullTraffic(){
         if (trafficApi) {
             if (trafficApiLock.tryLock()) {
+
+                log.info("流量采集任务开始");
                 try {
+                    final String TASK_TYPE = "TRAFFIC"; // 任务类型标识
+                    Long time1 = System.currentTimeMillis();
+
+                    sseManager.sendLogToAll(TASK_TYPE, "流量采集任务开始");
+
                     String time = DateUtils.getDateTimeWithZeroSeconds(new Date());
                     LocalDateTime baseTime = TimeUtils.getNow();
                     String currentTime = TimeUtils.format(TimeUtils.clearSecondAndNano(baseTime));
@@ -92,8 +103,8 @@ public class TrafficPullScheduler {
 //                        Random rand = new Random();
 //                        String ipv4Flow = String.valueOf(rand.nextInt(5) + 0.1);
 //                        String ipv6Flow = String.valueOf(rand.nextInt(2) + 0.1);
-//
 
+//
                         flowUnit.setVfourFlow(ipv4Flow);
                         flowUnit.setVsixFlow(ipv6Flow);
 
@@ -111,14 +122,21 @@ public class TrafficPullScheduler {
                     // 入库单位流量
                     unitFlowUtils.saveUnitHourFlowStats(flowUnits, baseTime);
 
-                    log.info("流量分析 API");
-                    trafficUtils.callApi(unitVos);
+//                    log.info("流量分析 API");
+//                    trafficUtils.callApi(unitVos);
+
+                    String execTime = "流量采集时间:" + DateTools.measureExecutionTime(System.currentTimeMillis() - time1);
+                    log.info(execTime);
+                    sseManager.sendLogToAll(TASK_TYPE, execTime);
+                    sseManager.sendLogToAll(TASK_TYPE, "流量采集任务完成");
 
                 } catch (Exception e) {
                     e.printStackTrace();
+                    log.error("流量采集任务异常: {}", e.getMessage());
                 }finally {
                     if(trafficApiLock != null){
                         trafficApiLock.unlock();
+                        log.info("流量采集任务结束");
                     }
                 }
             }

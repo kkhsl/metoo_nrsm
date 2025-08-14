@@ -5,10 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import com.metoo.nrsm.core.manager.statis.vo.EchartData;
-import com.metoo.nrsm.core.manager.statis.vo.EchartLineData;
-import com.metoo.nrsm.core.manager.statis.vo.EchartLineMonitorData;
-import com.metoo.nrsm.core.manager.statis.vo.FlowRadioData;
+import com.metoo.nrsm.core.manager.statis.vo.*;
 import com.metoo.nrsm.core.mapper.UnitFlowStatsMapper;
 import com.metoo.nrsm.core.mapper.UnitHourFlowStatsMapper;
 import com.metoo.nrsm.core.service.IUnitFlowStatisFrontService;
@@ -146,20 +143,21 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
     }
 
     @Override
-    public List<FlowRadioData> queryStatsByTime(String startTime, String endTime) {
-        List<FlowRadioData> result=new ArrayList<>();
+    public List<FlowRadioDataExport> queryStatsByTime(String startTime, String endTime) {
+        List<FlowRadioDataExport> result=new ArrayList<>();
         // 首先获取所有的单位
         List<Unit> alUnits= unitService.selectUnitAll();
-        List<FlowRadioData> dataList=flowStatsMapper.queryStatsByTime(Integer.valueOf(startTime.replaceAll(StrUtil.DASHED, "")),Integer.valueOf(endTime.replaceAll(StrUtil.DASHED, "")));
+        List<FlowRadioDataExport> dataList=flowStatsMapper.queryStatsByTime(Integer.valueOf(startTime.replaceAll(StrUtil.DASHED, "")),Integer.valueOf(endTime.replaceAll(StrUtil.DASHED, "")));
         if(CollUtil.isNotEmpty(dataList)){
-            Map<String,List<FlowRadioData>> dayData=dataList.stream().collect(Collectors.groupingBy(flowRadioData -> flowRadioData.getId()));
+            Map<String,List<FlowRadioDataExport>> dayData=dataList.stream().collect(Collectors.groupingBy(flowRadioData -> flowRadioData.getId()));
             alUnits.forEach(unit->{
-                FlowRadioData tempData=new FlowRadioData();
+                FlowRadioDataExport tempData=new FlowRadioDataExport();
                 if(dayData.get(unit.getId()+"")==null){
                     tempData.setId(unit.getId()+"");
                     tempData.setTitle(unit.getUnitName());
                     tempData.setIpv4(0D);
                     tempData.setIpv6(0D);
+                    tempData.setTotal(0D);
                     tempData.setIpv6Radio(0D);
                 }else{
                     tempData=dayData.get(unit.getId()+"").get(0);
@@ -168,12 +166,13 @@ public class UnitFlowStatisFrontServiceImpl implements IUnitFlowStatisFrontServi
             });
         }else{
             alUnits.forEach(unit->{
-                FlowRadioData tempData=new FlowRadioData();
+                FlowRadioDataExport tempData=new FlowRadioDataExport();
                 tempData.setId(unit.getId()+"");
                 tempData.setTitle(unit.getUnitName());
                 tempData.setIpv4(0D);
                 tempData.setIpv6(0D);
                 tempData.setIpv6Radio(0D);
+                tempData.setTotal(0D);
                 result.add(tempData);
             });
         }
