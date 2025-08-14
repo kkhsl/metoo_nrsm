@@ -1,6 +1,7 @@
 package com.metoo.nrsm.core.mapper;
 
 import com.metoo.nrsm.core.manager.statis.vo.FlowRadioData;
+import com.metoo.nrsm.core.manager.statis.vo.FlowRadioDataExport;
 import com.metoo.nrsm.entity.UnitFlowStats;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,7 +25,7 @@ public interface UnitFlowStatsMapper {
 
     List<UnitFlowStats> queryListByWeek(@Param("id") Long id,@Param("startDay") Integer startDay,@Param("endDay") Integer endDay);
 
-    List<FlowRadioData> queryStatsByTime(@Param("startDay")Integer startDay,@Param("endDay") Integer endDay);
+    List<FlowRadioDataExport> queryStatsByTime(@Param("startDay")Integer startDay, @Param("endDay") Integer endDay);
 
     UnitFlowStats selectStatsByDimension(
             @Param("unit_id") Long unitId,

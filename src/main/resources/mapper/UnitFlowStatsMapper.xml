@@ -79,9 +79,9 @@
         and a.day between #{startDay} and #{endDay}
        order by a.day asc
     </select>
-    <select id="queryStatsByTime" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioData">
+    <select id="queryStatsByTime" resultType="com.metoo.nrsm.core.manager.statis.vo.FlowRadioDataExport">
         select * from (
-        select b.id as id,b.unitName as title, SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio from metoo_unit b
+        select b.id as id,b.unitName as title, SUM(COALESCE(a.ipv4,0)) as ipv4,SUM(COALESCE(a.ipv6,0)) as ipv6,COALESCE(Round((SUM(COALESCE(a.ipv6,0)))*100/(SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as ipv6Radio,COALESCE(Round((SUM(COALESCE(a.ipv4,0))+SUM(COALESCE(a.ipv6,0)))),0) as total from metoo_unit b
         left join unit_flow_stats  a
         on a.unit_id=b.id
         where 1=1

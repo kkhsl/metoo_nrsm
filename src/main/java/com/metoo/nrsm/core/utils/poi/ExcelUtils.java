@@ -1041,12 +1041,35 @@ public class ExcelUtils {
         }
         return s.trim();
     }
+    private static void createDynamicHeader(Sheet sheet, CellStyle style,String title) {
+        // 创建合并单元格的表头
+        Row headerRow = sheet.createRow(0);
+        Cell headerCell = headerRow.createCell(0);
+        headerCell.setCellValue(title);
+        headerCell.setCellStyle(style);
 
-    public static void exportDynamicHeaderExcel(HttpServletResponse response, List<String> headers, List<Map<String, Object>> data, String fileName) {
+        // 合并单元格 (跨5列)
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
+    }
+    private static CellStyle createHeaderStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        return style;
+    }
+    public static void exportDynamicHeaderExcel(HttpServletResponse response, List<String> headers, List<Map<String, Object>> data, String fileName,String title) {
         try (SXSSFWorkbook workbook = new SXSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Sheet1");
+            createDynamicHeader(sheet,createHeaderStyle(workbook),title);
             // 创建表头行
-            Row headerRow = sheet.createRow(0);
+            Row headerRow = sheet.createRow(1);
             CellStyle borderedCenterStyle = workbook.createCellStyle();
             borderedCenterStyle.setAlignment(HorizontalAlignment.CENTER);
             borderedCenterStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -1075,7 +1098,7 @@ public class ExcelUtils {
             }
 
             // 填充数据
-            int rowNum = 1;
+            int rowNum = 2;
             for (Map<String, Object> rowData : data) {
                 Row row = sheet.createRow(rowNum++);
                 for (int i = 0; i < headers.size(); i++) {
