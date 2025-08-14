@@ -12,6 +12,7 @@ import java.util.Date;
 public class UnitSubnet {
     private Long id;
     private Long unitId;
+    private String unitName;
     private Date addTime;
     private String name;
     private String ipv4;
