@@ -175,6 +175,12 @@ public class TrafficPullStatisScheduler {
         int currentMonth = Integer.parseInt(statDate.format(DateTimeFormatter.ofPattern("yyyyMM")));
         int currentYear = Integer.parseInt(statDate.format(DateTimeFormatter.ofPattern("yyyy")));
 
+// 如果需要包含时间部分(23:59:59)，可以使用LocalDateTime
+        LocalDateTime statDateTime = statDate.atTime(23, 59, 55);
+//        LocalDateTime statDateTime = LocalDateTime.of(
+//                statDate,
+//                LocalTime.of(now.getHour(), now.getMinute()));
+
         try {
             Map<String, Object> params = new HashMap<>();
             params.put("hidden", false);
@@ -217,7 +223,7 @@ public class TrafficPullStatisScheduler {
                     Double totalIPv6 = dailyTotal.get("totalIPv6");
 
                     // 1. 日记录处理
-                    handleFlowStats(unitId, unitName, totalIPv4, totalIPv6, "1", currentDay, currentMonth, currentYear, statDate.atStartOfDay());
+                    handleFlowStats(unitId, unitName, totalIPv4, totalIPv6, "1", currentDay, currentMonth, currentYear, statDateTime);
 
                     log.info("单位[{}](ID:{})当日({})统计结果 - IPv4: {}, IPv6: {}",
                             unitName, unitId, currentDay, totalIPv4, totalIPv6);

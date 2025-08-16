@@ -83,27 +83,27 @@ public class TrafficPullScheduler {
                             continue;
                         }
 
-                        TrafficPullApi.ApiResponse response = trafficApiService.queryNetFlow(unitName, fiveMinutesBefore, currentTime);
-
-                        if (!response.isSuccess()) {
-                            log.error("调用 NetFlow API 失败，单位: {}, 错误信息: {}", unitName, response.getError());
-                            continue;
-                        }
-                        Map<String, Object> dataMap = Optional.ofNullable(response.getData())
-                                .map(d -> (Map<String, Object>) d.get("data"))
-                                .orElse(null);
-
-                        if (dataMap == null) {
-                            log.warn("NetFlow API 返回空数据，单位: {}", unitName);
-                            continue;
-                        }
+//                        TrafficPullApi.ApiResponse response = trafficApiService.queryNetFlow(unitName, fiveMinutesBefore, currentTime);
 //
-                        String ipv4Flow = String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0"));
-                        String ipv6Flow = String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0"));
+//                        if (!response.isSuccess()) {
+//                            log.error("调用 NetFlow API 失败，单位: {}, 错误信息: {}", unitName, response.getError());
+//                            continue;
+//                        }
+//                        Map<String, Object> dataMap = Optional.ofNullable(response.getData())
+//                                .map(d -> (Map<String, Object>) d.get("data"))
+//                                .orElse(null);
 //
-//                        Random rand = new Random();
-//                        String ipv4Flow = String.valueOf(rand.nextInt(5) + 0.1);
-//                        String ipv6Flow = String.valueOf(rand.nextInt(2) + 0.1);
+//                        if (dataMap == null) {
+//                            log.warn("NetFlow API 返回空数据，单位: {}", unitName);
+//                            continue;
+//                        }
+
+//                        String ipv4Flow = String.valueOf(dataMap.getOrDefault("ipv4Flow", "0.0"));
+//                        String ipv6Flow = String.valueOf(dataMap.getOrDefault("ipv6Flow", "0.0"));
+
+                        Random rand = new Random();
+                        String ipv4Flow = String.valueOf(rand.nextInt(5) + 0.1);
+                        String ipv6Flow = String.valueOf(rand.nextInt(2) + 0.1);
 
 
                         flowUnit.setVfourFlow(ipv4Flow);

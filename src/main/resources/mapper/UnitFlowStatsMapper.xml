@@ -103,20 +103,14 @@
             OR (#{stats_dimension} = 3 AND `year` = #{year})
           )
         LIMIT 1;
-
     </select>
-
 
     <!-- 动态更新流量数据 -->
     <update id="update" parameterType="com.metoo.nrsm.entity.UnitFlowStats">
         UPDATE unit_flow_stats
         <set>
-            <if test="ipv4 != null">
-                ipv4 = #{ipv4},
-            </if>
-            <if test="ipv6 != null">
-                ipv6 = #{ipv6},
-            </if>
+            <if test="ipv4 != null">ipv4 = #{ipv4},</if>
+            <if test="ipv6 != null">ipv6 = #{ipv6},</if>
             <if test="stats_time != null">
                 stats_time = #{stats_time},
             </if>
@@ -124,13 +118,16 @@
         WHERE unit_id = #{unit_id}
         AND stats_dimension = #{stats_dimension}
         <choose>
-            <when test="stats_dimension == '1'">
+            <when test="stats_dimension != null and stats_dimension.toString() == '1'.toString()">
+                AND year = #{year}
+                AND month = #{month}
                 AND day = #{day}
             </when>
-            <when test="stats_dimension == '2'">
+            <when test="stats_dimension != null and stats_dimension.toString() == '2'.toString()">
+                AND year = #{year}
                 AND month = #{month}
             </when>
-            <when test="stats_dimension == '3'">
+            <when test="stats_dimension != null and stats_dimension.toString() == '3'.toString()">
                 AND year = #{year}
             </when>
         </choose>
