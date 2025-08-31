@@ -43,8 +43,7 @@ public class TrafficPullStatisScheduler {
 
     private final ReentrantLock trafficLock = new ReentrantLock();
 
-    // 每天在 23:59:59 执行任务
-    @Scheduled(cron = "59 59 23 * * ?")
+    @Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Shanghai")
     public void flowStateByMonth() {
         if (!trafficApi) {
             return;
@@ -76,10 +75,20 @@ public class TrafficPullStatisScheduler {
 
                 // 获取当前日期（yyyyMMdd格式）
                 // 统计当天流量
-                LocalDateTime baseTime = TimeUtils.getNow();
-                int currentDay = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
-                int currentMonth = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM")));
-                int currentYear = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy")));
+//                LocalDateTime baseTime = TimeUtils.getNow();
+//                int currentDay = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
+//                int currentMonth = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM")));
+//                int currentYear = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy")));
+
+                // 获取前一天日期
+                LocalDate baseDate = LocalDate.now().minusDays(1);
+                LocalDateTime baseTime = baseDate.atStartOfDay();
+
+                // 用 baseDate 去查询前一天的流量
+                int currentDay = Integer.parseInt(baseDate.format(DateTimeFormatter.BASIC_ISO_DATE));
+                int currentMonth = Integer.parseInt(baseDate.format(DateTimeFormatter.ofPattern("yyyyMM")));
+                int currentYear = Integer.parseInt(baseDate.format(DateTimeFormatter.ofPattern("yyyy")));
+
 
                 // 获取当日总流量
                 Map<String, Object> queryParams = new HashMap<>();
@@ -154,6 +163,18 @@ public class TrafficPullStatisScheduler {
             return;
         }
 
+        LocalDateTime now = TimeUtils.getNow();
+        LocalDate statDate;
+        // 如果当前任务是 00:00（跨天第一条任务），统计前一天
+        if (now.getHour() == 0 && now.getMinute() == 0) {
+            statDate = now.toLocalDate().minusDays(1); // 昨天
+        } else {
+            statDate = now.toLocalDate(); // 当天
+        }
+        int currentDay = Integer.parseInt(statDate.format(DateTimeFormatter.BASIC_ISO_DATE));
+        int currentMonth = Integer.parseInt(statDate.format(DateTimeFormatter.ofPattern("yyyyMM")));
+        int currentYear = Integer.parseInt(statDate.format(DateTimeFormatter.ofPattern("yyyy")));
+
         try {
             Map<String, Object> params = new HashMap<>();
             params.put("hidden", false);
@@ -175,10 +196,11 @@ public class TrafficPullStatisScheduler {
 
                 // 获取当前日期（yyyyMMdd格式）
                 // 统计当天流量
-                LocalDateTime baseTime = TimeUtils.getNow();
-                int currentDay = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
-                int currentMonth = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM")));
-                int currentYear = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy")));
+//                LocalDateTime baseTime = TimeUtils.getNow();
+//                int currentDay = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE));
+//                int currentMonth = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM")));
+//                int currentYear = Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy")));
+
 
                 // 获取当日总流量
                 Map<String, Object> queryParams = new HashMap<>();
@@ -195,7 +217,7 @@ public class TrafficPullStatisScheduler {
                     Double totalIPv6 = dailyTotal.get("totalIPv6");
 
                     // 1. 日记录处理
-                    handleFlowStats(unitId, unitName, totalIPv4, totalIPv6, "1", currentDay, currentMonth, currentYear, baseTime);
+                    handleFlowStats(unitId, unitName, totalIPv4, totalIPv6, "1", currentDay, currentMonth, currentYear, statDate.atStartOfDay());
 
                     log.info("单位[{}](ID:{})当日({})统计结果 - IPv4: {}, IPv6: {}",
                             unitName, unitId, currentDay, totalIPv4, totalIPv6);

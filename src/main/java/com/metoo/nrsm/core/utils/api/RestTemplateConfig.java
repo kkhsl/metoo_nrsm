@@ -25,9 +25,9 @@ public class RestTemplateConfig {
     public RestTemplate restTemplate() {
         // 配置请求超时
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(5000)  // 设置连接超时为10秒
-                .setConnectionRequestTimeout(5000)  // 设置请求超时为10秒
-                .setSocketTimeout(5000)  // 设置读取超时为10秒
+                .setConnectTimeout(15000)  // 设置连接超时为5秒
+                .setConnectionRequestTimeout(15000)  // 设置请求超时为5秒
+                .setSocketTimeout(15000)  // 设置读取超时为5秒
                 .build();
 
         // 默认 HttpURLConnection

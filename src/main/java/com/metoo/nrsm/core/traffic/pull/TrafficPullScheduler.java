@@ -3,7 +3,6 @@ package com.metoo.nrsm.core.traffic.pull;
 import com.metoo.nrsm.core.config.ssh.utils.DateUtils;
 import com.metoo.nrsm.core.manager.utils.SseManager;
 import com.metoo.nrsm.core.service.IFlowUnitService;
-import com.metoo.nrsm.core.service.ITrafficService;
 import com.metoo.nrsm.core.service.IUnitService;
 import com.metoo.nrsm.core.traffic.push.utils.TrafficPushApiUtils;
 import com.metoo.nrsm.core.traffic.utils.TrafficUtils;
@@ -11,7 +10,6 @@ import com.metoo.nrsm.core.traffic.utils.UnitFlowUtils;
 import com.metoo.nrsm.core.utils.date.DateTools;
 import com.metoo.nrsm.core.vo.UnitVO;
 import com.metoo.nrsm.entity.FlowUnit;
-import com.metoo.nrsm.entity.Traffic;
 import com.metoo.nrsm.entity.Unit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -62,11 +60,14 @@ public class TrafficPullScheduler {
                     sseManager.sendLogToAll(TASK_TYPE, "流量采集任务开始");
 
                     String time = DateUtils.getDateTimeWithZeroSeconds(new Date());
+
                     LocalDateTime baseTime = TimeUtils.getNow();
+
                     String currentTime = TimeUtils.format(TimeUtils.clearSecondAndNano(baseTime));
                     String currentTimestamp = String.valueOf(currentTime);
 
                     String fiveMinutesBefore = TimeUtils.format(TimeUtils.getFiveMinutesBefore(baseTime));
+
                     Map params = new HashMap();
                     params.put("hidden", false);
                     List<FlowUnit> flowUnits = flowUnitService.selectObjByMap(params);
@@ -104,7 +105,7 @@ public class TrafficPullScheduler {
 //                        String ipv4Flow = String.valueOf(rand.nextInt(5) + 0.1);
 //                        String ipv6Flow = String.valueOf(rand.nextInt(2) + 0.1);
 
-//
+
                         flowUnit.setVfourFlow(ipv4Flow);
                         flowUnit.setVsixFlow(ipv6Flow);
 
@@ -112,7 +113,13 @@ public class TrafficPullScheduler {
                                 flowUnit.getVfourFlow(), flowUnit.getVsixFlow());
                     }
 
-                    List<UnitVO> unitVos = getUnitVos(time, currentTimestamp, flowUnits);
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime statsBaseTime = LocalDateTime.parse(fiveMinutesBefore, formatter);
+
+                    // 原来
+//                    List<UnitVO> unitVos = getUnitVos(time, currentTimestamp, flowUnits);
+                    List<UnitVO> unitVos = getUnitVos(time, String.valueOf(statsBaseTime), flowUnits);
 
                     if (unitVos.isEmpty()) {
                         log.info("未找到单位数据");
@@ -120,7 +127,8 @@ public class TrafficPullScheduler {
                     }
 
                     // 入库单位流量
-                    unitFlowUtils.saveUnitHourFlowStats(flowUnits, baseTime);
+                    // unitFlowUtils.saveUnitHourFlowStats(flowUnits, baseTime);
+                    unitFlowUtils.saveUnitHourFlowStats(flowUnits, statsBaseTime);
 
 //                    log.info("流量分析 API");
 //                    trafficUtils.callApi(unitVos);

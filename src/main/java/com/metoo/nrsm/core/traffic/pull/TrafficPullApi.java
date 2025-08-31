@@ -52,7 +52,6 @@ public class TrafficPullApi {
      * @param department 部门名称(如"综合部")
      * @param startTime 开始时间(格式: "yyyy-MM-dd HH:mm:ss")
      * @param endTime 结束时间(格式: "yyyy-MM-dd HH:mm:ss")
-     * @param additionalParams 额外查询参数
      * @return API响应结果
      */
     public ApiResponse queryNetFlow(String department,
