@@ -62,21 +62,21 @@ public class FlowRadioDataExport {
 
     public Double getIpv4() {
         if(ObjectUtil.isNotEmpty(ipv4)){
-            BigDecimal roundTemp= NumberUtil.div(new BigDecimal(ipv4),1000,3);
+            BigDecimal roundTemp= NumberUtil.div(new BigDecimal(ipv4),1024,3);
             return roundTemp.doubleValue();
         }
         return ipv4;
     }
     public Double getTotal() {
         if(ObjectUtil.isNotEmpty(total)){
-            BigDecimal roundTemp= NumberUtil.div(new BigDecimal(total),1000,3);
+            BigDecimal roundTemp= NumberUtil.div(new BigDecimal(total),1024,3);
             return roundTemp.doubleValue();
         }
         return ipv4;
     }
     public Double getIpv6() {
         if(ObjectUtil.isNotEmpty(ipv6)){
-            BigDecimal roundTemp= NumberUtil.div(new BigDecimal(ipv6),1000,3);
+            BigDecimal roundTemp= NumberUtil.div(new BigDecimal(ipv6),1024,3);
             return roundTemp.doubleValue();
         }
         return ipv6;
